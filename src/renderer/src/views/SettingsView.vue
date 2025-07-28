@@ -1,31 +1,35 @@
 <template>
   <div class="settings-view flex h-full">
     <!-- Settings Sidebar -->
-    <aside class="w-64 bg-secondary/50 border-r p-4">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold">Settings</h2>
-        <button
-          @click="$router.push('/')"
-          class="p-1.5 hover:bg-accent/50 rounded-lg transition-colors"
-          title="Back to chat"
-        >
-          <ArrowLeft :size="18" />
-        </button>
+    <aside class="w-64 bg-secondary/30 backdrop-blur-sm border-r flex flex-col">
+      <div class="p-4 border-b">
+        <div class="flex items-center gap-3">
+          <button
+            @click="$router.push('/')"
+            class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
+            title="Back to chat"
+          >
+            <ArrowLeft :size="18" />
+          </button>
+          <h2 class="text-lg font-semibold">Settings</h2>
+        </div>
       </div>
-      <nav class="space-y-1">
+      
+      <nav class="p-3 space-y-1">
         <button
           v-for="tab in tabs"
           :key="tab.id"
           @click="activeTab = tab.id"
           :class="[
-            'w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2',
+            'w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3',
             activeTab === tab.id 
-              ? 'bg-accent text-accent-foreground' 
-              : 'hover:bg-accent/50'
+              ? 'bg-primary/10 border border-primary/20 text-primary' 
+              : 'hover:bg-accent/50 border border-transparent'
           ]"
         >
           <component :is="tab.icon" :size="18" />
-          {{ tab.label }}
+          <span class="font-medium">{{ tab.label }}</span>
+          <ChevronRight v-if="activeTab === tab.id" :size="16" class="ml-auto" />
         </button>
       </nav>
     </aside>
@@ -44,28 +48,47 @@
 
           <!-- Provider Selection -->
           <div class="space-y-4">
-            <label class="block">
-              <span class="text-sm font-medium mb-2 block">Provider</span>
-              <select 
-                v-model="llmConfig.provider"
-                class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic (Claude)</option>
-                <option value="ollama">Ollama (Local)</option>
-              </select>
-            </label>
+            <div>
+              <span class="text-sm font-medium mb-3 block">Choose Provider</span>
+              <div class="grid grid-cols-3 gap-3">
+                <button
+                  v-for="provider in providers"
+                  :key="provider.id"
+                  @click="llmConfig.provider = provider.id"
+                  :class="[
+                    'p-4 rounded-lg border-2 transition-all text-center',
+                    llmConfig.provider === provider.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-muted hover:border-muted-foreground/50'
+                  ]"
+                >
+                  <div class="text-2xl mb-2">{{ provider.emoji }}</div>
+                  <div class="font-medium text-sm">{{ provider.name }}</div>
+                  <div class="text-xs text-muted-foreground mt-1">{{ provider.subtitle }}</div>
+                </button>
+              </div>
+            </div>
 
             <!-- API Key (for cloud providers) -->
             <div v-if="llmConfig.provider !== 'ollama'" class="space-y-2">
               <label class="block">
                 <span class="text-sm font-medium mb-2 block">API Key</span>
-                <input
-                  v-model="llmConfig.apiKey"
-                  type="password"
-                  placeholder="sk-..."
-                  class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
+                <div class="relative">
+                  <input
+                    v-model="llmConfig.apiKey"
+                    :type="showApiKey ? 'text' : 'password'"
+                    placeholder="sk-..."
+                    class="w-full px-3 py-2.5 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                  <button
+                    @click="showApiKey = !showApiKey"
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-accent/50 rounded"
+                  >
+                    <Eye v-if="!showApiKey" :size="16" />
+                    <EyeOff v-else :size="16" />
+                  </button>
+                </div>
               </label>
             </div>
 
@@ -131,12 +154,25 @@
             </div>
 
             <!-- Status Message -->
-            <div v-if="statusMessage" :class="[
-              'p-3 rounded-lg text-sm',
-              statusMessage.type === 'success' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
-            ]">
-              {{ statusMessage.text }}
-            </div>
+            <transition name="fade">
+              <div v-if="statusMessage" :class="[
+                'p-4 rounded-lg flex items-start gap-3',
+                statusMessage.type === 'success' 
+                  ? 'bg-green-500/10 border border-green-500/20' 
+                  : 'bg-red-500/10 border border-red-500/20'
+              ]">
+                <Check v-if="statusMessage.type === 'success'" :size="18" class="text-green-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle v-else :size="18" class="text-red-600 flex-shrink-0 mt-0.5" />
+                <div class="flex-1">
+                  <p class="text-sm font-medium" :class="statusMessage.type === 'success' ? 'text-green-800' : 'text-red-800'">
+                    {{ statusMessage.text }}
+                  </p>
+                  <p v-if="statusMessage.type === 'success'" class="text-xs text-green-700 mt-1">
+                    You can now start chatting with your AI assistant.
+                  </p>
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
 
@@ -271,7 +307,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff } from 'lucide-vue-next'
 
 const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
@@ -285,6 +321,14 @@ const theme = ref('system')
 const shortcuts = ref<Array<{ key: string, description: string }>>([])
 const toolsEnabled = ref(false)
 const plugins = ref<Array<any>>([])
+const showApiKey = ref(false)
+
+// Provider configurations
+const providers = [
+  { id: 'openai', name: 'OpenAI', emoji: '🤖', subtitle: 'GPT-4, GPT-3.5' },
+  { id: 'anthropic', name: 'Anthropic', emoji: '🧠', subtitle: 'Claude 3' },
+  { id: 'ollama', name: 'Ollama', emoji: '🦙', subtitle: 'Local models' }
+]
 
 const llmConfig = reactive({
   provider: 'openai' as 'openai' | 'anthropic' | 'ollama',
@@ -430,3 +474,42 @@ onMounted(async () => {
   await loadPlugins()
 })
 </script>
+
+<style scoped>
+/* Fade transition */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted-foreground) / 0.5);
+}
+
+/* Form focus states */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+/* Smooth transitions */
+button, input, select {
+  transition: all 0.2s ease;
+}
+</style>
