@@ -147,6 +147,29 @@
             </label>
           </div>
         </div>
+
+        <!-- Shortcuts -->
+        <div v-if="activeTab === 'shortcuts'" class="space-y-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Keyboard Shortcuts</h3>
+            <p class="text-muted-foreground mb-6">
+              Quick actions to enhance your productivity
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="shortcut in shortcuts"
+              :key="shortcut.key"
+              class="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+            >
+              <span class="text-sm">{{ shortcut.description }}</span>
+              <kbd class="px-2 py-1 text-xs bg-background border rounded">
+                {{ shortcut.key }}
+              </kbd>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -154,15 +177,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Bot, Palette, ArrowLeft } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard } from 'lucide-vue-next'
 
 const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
-  { id: 'appearance', label: 'Appearance', icon: Palette }
+  { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard }
 ]
 
 const activeTab = ref('llm')
 const theme = ref('system')
+const shortcuts = ref<Array<{ key: string, description: string }>>([])
 
 const llmConfig = reactive({
   provider: 'openai' as 'openai' | 'anthropic' | 'ollama',
@@ -242,6 +267,7 @@ const testConnection = async () => {
 
 // Load existing config on mount
 onMounted(async () => {
+  // Load LLM config
   const config = await window.api.llm.getConfig()
   if (config) {
     llmConfig.provider = config.provider
@@ -249,5 +275,8 @@ onMounted(async () => {
     llmConfig.baseURL = config.baseURL || ''
     llmConfig.model = config.model || ''
   }
+  
+  // Load shortcuts
+  shortcuts.value = await window.api.shortcuts.getAll()
 })
 </script>

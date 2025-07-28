@@ -5,6 +5,8 @@ import { MCPManager } from './mcp/mcpManager'
 import { getAllServers } from './mcp/servers'
 import { LocalDatabase } from './db/database'
 import './llm/llmManager' // Import for IPC handlers
+import './fileHandler' // Import for file handling
+import { registerShortcuts } from './shortcuts'
 
 let mainWindow: BrowserWindow | null = null
 const mcpManager = new MCPManager()
@@ -37,6 +39,9 @@ function createWindow(): void {
 
   // Make mainWindow globally accessible
   global.mainWindow = mainWindow
+  
+  // Register shortcuts
+  registerShortcuts(mainWindow)
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

@@ -29,6 +29,27 @@ const api = {
     onChunk: (callback: (data: any) => void) => {
       ipcRenderer.on('llm:chunk', (_, data) => callback(data))
     }
+  },
+  file: {
+    select: () => ipcRenderer.invoke('file:select'),
+    paste: (dataUrl: string) => ipcRenderer.invoke('file:paste', dataUrl)
+  },
+  shortcuts: {
+    getAll: () => ipcRenderer.invoke('shortcuts:get-all'),
+    on: (callback: (action: string) => void) => {
+      const events = [
+        'shortcut:new-chat',
+        'shortcut:open-settings',
+        'shortcut:focus-input',
+        'shortcut:clear-chat',
+        'shortcut:prev-chat',
+        'shortcut:next-chat'
+      ]
+      
+      events.forEach(event => {
+        ipcRenderer.on(event, () => callback(event.replace('shortcut:', '')))
+      })
+    }
   }
 }
 
