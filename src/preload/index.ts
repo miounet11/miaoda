@@ -19,6 +19,16 @@ const api = {
     createMessage: (message: any) => ipcRenderer.invoke('db:create-message', message),
     getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
     searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query)
+  },
+  llm: {
+    setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
+    sendMessage: (message: string, chatId: string, messageId: string) => 
+      ipcRenderer.invoke('llm:sendMessage', message, chatId, messageId),
+    getConfig: () => ipcRenderer.invoke('llm:getConfig'),
+    isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
+    onChunk: (callback: (data: any) => void) => {
+      ipcRenderer.on('llm:chunk', (_, data) => callback(data))
+    }
   }
 }
 

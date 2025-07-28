@@ -1,5 +1,19 @@
 <template>
   <div class="message-content">
+    <!-- Attachments -->
+    <div v-if="attachments.length > 0" class="attachments mb-2">
+      <div v-for="attachment in attachments" :key="attachment.url" class="attachment">
+        <img
+          v-if="attachment.type === 'image'"
+          :src="attachment.url"
+          :alt="attachment.name"
+          class="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+          @click="openImage(attachment.url)"
+        />
+      </div>
+    </div>
+    
+    <!-- Message content -->
     <div v-if="isLoading" class="flex items-center gap-2">
       <div class="typing-indicator">
         <span></span>
@@ -19,14 +33,28 @@ import hljs from 'highlight.js'
 interface Props {
   content: string
   isLoading?: boolean
+  attachments?: Array<{
+    type: 'image'
+    url: string
+    name: string
+  }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isLoading: false
+  isLoading: false,
+  attachments: () => []
 })
 
-// Configure marked with syntax highlighting
+// Configure marked with syntax highlighting and image rendering
+const renderer = new marked.Renderer()
+
+// Custom image renderer to add loading lazy and styling
+renderer.image = (href, title, text) => {
+  return `<img src="${href}" alt="${text}" title="${title || ''}" loading="lazy" class="max-w-full rounded-lg my-2" />`
+}
+
 marked.setOptions({
+  renderer,
   highlight: function(code, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
@@ -42,6 +70,11 @@ marked.setOptions({
 const renderedContent = computed(() => {
   return marked(props.content)
 })
+
+const openImage = (url: string) => {
+  // TODO: Implement image preview modal
+  window.open(url, '_blank')
+}
 </script>
 
 <style scoped>

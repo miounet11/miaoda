@@ -4,10 +4,16 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { MCPManager } from './mcp/mcpManager'
 import { getAllServers } from './mcp/servers'
 import { LocalDatabase } from './db/database'
+import './llm/llmManager' // Import for IPC handlers
 
 let mainWindow: BrowserWindow | null = null
 const mcpManager = new MCPManager()
 let db: LocalDatabase
+
+// Make mainWindow globally accessible for LLM manager
+declare global {
+  var mainWindow: BrowserWindow | null
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -28,6 +34,9 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
   })
+
+  // Make mainWindow globally accessible
+  global.mainWindow = mainWindow
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

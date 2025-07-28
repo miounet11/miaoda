@@ -2,13 +2,20 @@
   <div class="chat-view flex h-full">
     <!-- Sidebar -->
     <aside class="sidebar w-64 bg-secondary/50 border-r flex flex-col">
-      <div class="p-4 border-b">
+      <div class="p-4 border-b space-y-2">
         <button 
           @click="createNewChat"
           class="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-medium"
         >
           <Plus :size="18" />
           New Chat
+        </button>
+        <button
+          @click="$router.push('/settings')"
+          class="w-full px-4 py-2.5 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2"
+        >
+          <Settings :size="18" />
+          Settings
         </button>
       </div>
       
@@ -55,7 +62,10 @@
                     : 'bg-muted'
                 ]"
               >
-                <MessageContent :content="message.content" />
+                <MessageContent 
+                  :content="message.content" 
+                  :isLoading="isLoading && message === currentChat.messages[currentChat.messages.length - 1] && message.role === 'assistant'"
+                />
               </div>
             </div>
           </div>
@@ -94,7 +104,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue'
-import { Plus, Send } from 'lucide-vue-next'
+import { Plus, Send, Settings } from 'lucide-vue-next'
 import { useChatStore } from '@/stores/chat'
 import { formatDistanceToNow } from '@/utils/time'
 import MessageContent from '@/components/MessageContent.vue'
@@ -138,7 +148,7 @@ const sendMessage = async () => {
   inputMessage.value = ''
   
   // Add user message
-  chatStore.addMessage({
+  await chatStore.addMessage({
     role: 'user',
     content: message
   })
@@ -150,24 +160,77 @@ const sendMessage = async () => {
     behavior: 'smooth'
   })
   
-  // TODO: Send to AI and get response
+  // Check if LLM is configured
+  const isConfigured = await window.api.llm.isConfigured()
+  if (!isConfigured) {
+    await chatStore.addMessage({
+      role: 'assistant',
+      content: 'Please configure an LLM provider in settings to start chatting.'
+    })
+    return
+  }
+  
   isLoading.value = true
   
-  // Simulate AI response
-  setTimeout(() => {
-    chatStore.addMessage({
-      role: 'assistant',
-      content: 'This is a simulated response. AI integration coming soon!'
+  // Create assistant message placeholder
+  const assistantMessage = await chatStore.addMessage({
+    role: 'assistant',
+    content: ''
+  })
+  
+  try {
+    // Set up streaming listener
+    let streamedContent = ''
+    const cleanup = window.api.llm.onChunk((data: any) => {
+      if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
+        streamedContent += data.chunk
+        // Update message content in real-time
+        const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
+        if (msg) {
+          msg.content = streamedContent
+        }
+        
+        // Auto-scroll during streaming
+        nextTick(() => {
+          messagesContainer.value?.scrollTo({
+            top: messagesContainer.value.scrollHeight,
+            behavior: 'smooth'
+          })
+        })
+      }
     })
+    
+    // Send message to LLM
+    const response = await window.api.llm.sendMessage(
+      message,
+      currentChat.value!.id,
+      assistantMessage.id
+    )
+    
+    // Final update with complete response
+    const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
+    if (msg) {
+      msg.content = response
+    }
+    
+    // Clean up listener
+    cleanup()
+  } catch (error: any) {
+    // Update message with error
+    const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
+    if (msg) {
+      msg.content = `Error: ${error.message}`
+    }
+  } finally {
     isLoading.value = false
     
-    nextTick(() => {
-      messagesContainer.value?.scrollTo({
-        top: messagesContainer.value.scrollHeight,
-        behavior: 'smooth'
-      })
+    // Final scroll
+    await nextTick()
+    messagesContainer.value?.scrollTo({
+      top: messagesContainer.value.scrollHeight,
+      behavior: 'smooth'
     })
-  }, 1000)
+  }
 }
 </script>
 
