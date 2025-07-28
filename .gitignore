@@ -13,3 +13,20 @@ out
 !.vscode/launch.json
 runtime
 build
+
+# Electron
+dist-electron/
+release/
+
+# Database
+*.sqlite
+*.sqlite-journal
+
+# Build cache
+.electron-vite
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~

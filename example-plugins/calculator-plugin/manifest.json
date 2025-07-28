@@ -1,0 +1,16 @@
+{
+  "id": "calculator",
+  "name": "Calculator Plugin",
+  "version": "1.0.0",
+  "description": "A simple calculator plugin with advanced math functions",
+  "author": "MiaoDa Team",
+  "homepage": "https://github.com/miounet11/miaodachat",
+  "capabilities": {
+    "tools": true,
+    "commands": false,
+    "themes": false,
+    "ui": false
+  },
+  "main": "index.js",
+  "permissions": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "web-tools",
+  "name": "Web Tools Plugin",
+  "version": "1.0.0",
+  "description": "Web-related tools including URL fetching and web search simulation",
+  "author": "MiaoDa Team",
+  "homepage": "https://github.com/miounet11/miaodachat",
+  "capabilities": {
+    "tools": true,
+    "commands": false,
+    "themes": false,
+    "ui": false
+  },
+  "main": "index.js",
+  "permissions": ["network"]
+}

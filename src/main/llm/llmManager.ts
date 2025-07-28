@@ -1,6 +1,7 @@
 import { LLMProvider, OpenAIProvider, AnthropicProvider, OllamaProvider } from './provider'
-import { ipcMain } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 import Store from 'electron-store'
+import { MCPManager } from '../mcp/mcpManager'
 
 interface LLMConfig {
   provider: 'openai' | 'anthropic' | 'ollama'
@@ -13,10 +14,14 @@ export class LLMManager {
   private providers: Map<string, LLMProvider> = new Map()
   private currentProvider: LLMProvider | null = null
   private store: Store
+  private mcpManager: MCPManager
+  private enableTools: boolean = false
 
-  constructor() {
+  constructor(mcpManager: MCPManager) {
     this.store = new Store()
+    this.mcpManager = mcpManager
     this.loadConfig()
+    this.enableTools = this.store.get('enableTools', false) as boolean
   }
 
   private loadConfig() {
@@ -70,9 +75,58 @@ export class LLMManager {
     }
 
     try {
+      // Check if tools are enabled and provider supports tools
+      if (this.enableTools && this.currentProvider.sendMessageWithTools) {
+        const tools = this.mcpManager.getAvailableTools()
+        
+        if (tools.length > 0) {
+          // Send status update to UI
+          if (global.mainWindow) {
+            global.mainWindow.webContents.send('llm:status', {
+              chatId,
+              messageId,
+              status: 'Tools available',
+              tools: tools.map(t => t.name)
+            })
+          }
+
+          const response = await this.currentProvider.sendMessageWithTools(
+            message,
+            tools,
+            (chunk) => {
+              onChunk?.(chunk)
+              if (global.mainWindow) {
+                global.mainWindow.webContents.send('llm:chunk', {
+                  chatId,
+                  messageId,
+                  chunk
+                })
+              }
+            },
+            async (toolName, args) => {
+              // Notify UI about tool call
+              if (global.mainWindow) {
+                global.mainWindow.webContents.send('llm:tool-call', {
+                  chatId,
+                  messageId,
+                  tool: toolName,
+                  args
+                })
+              }
+
+              // Execute tool via MCP
+              const result = await this.mcpManager.callTool(toolName, args)
+              return result
+            }
+          )
+
+          return response
+        }
+      }
+
+      // Fallback to regular message without tools
       const response = await this.currentProvider.sendMessage(message, (chunk) => {
         onChunk?.(chunk)
-        // Send chunk to renderer
         if (global.mainWindow) {
           global.mainWindow.webContents.send('llm:chunk', {
             chatId,
@@ -95,24 +149,45 @@ export class LLMManager {
   isConfigured(): boolean {
     return this.currentProvider !== null
   }
+
+  setToolsEnabled(enabled: boolean) {
+    this.enableTools = enabled
+    this.store.set('enableTools', enabled)
+  }
+
+  getToolsEnabled(): boolean {
+    return this.enableTools
+  }
 }
 
-// Global instance
-export const llmManager = new LLMManager()
+// Create manager with MCP
+export function createLLMManager(mcpManager: MCPManager): LLMManager {
+  const manager = new LLMManager(mcpManager)
+  
+  // IPC handlers
+  ipcMain.handle('llm:setProvider', async (_, config: LLMConfig) => {
+    return manager.setProvider(config)
+  })
 
-// IPC handlers
-ipcMain.handle('llm:setProvider', async (_, config: LLMConfig) => {
-  return llmManager.setProvider(config)
-})
+  ipcMain.handle('llm:sendMessage', async (_, message: string, chatId: string, messageId: string) => {
+    return manager.sendMessage(message, chatId, messageId)
+  })
 
-ipcMain.handle('llm:sendMessage', async (_, message: string, chatId: string, messageId: string) => {
-  return llmManager.sendMessage(message, chatId, messageId)
-})
+  ipcMain.handle('llm:getConfig', () => {
+    return manager.getConfig()
+  })
 
-ipcMain.handle('llm:getConfig', () => {
-  return llmManager.getConfig()
-})
+  ipcMain.handle('llm:isConfigured', () => {
+    return manager.isConfigured()
+  })
 
-ipcMain.handle('llm:isConfigured', () => {
-  return llmManager.isConfigured()
-})
+  ipcMain.handle('llm:setToolsEnabled', async (_, enabled: boolean) => {
+    manager.setToolsEnabled(enabled)
+  })
+
+  ipcMain.handle('llm:getToolsEnabled', () => {
+    return manager.getToolsEnabled()
+  })
+  
+  return manager
+}

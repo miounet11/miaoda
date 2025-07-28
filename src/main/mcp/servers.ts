@@ -4,20 +4,29 @@ import { homedir } from 'os'
 
 // Built-in MCP servers configuration
 export const builtInServers: MCPServer[] = [
-  // Temporarily disabled until servers are installed
+  // Temporarily disabled until we properly configure the build
   // {
   //   name: 'filesystem',
-  //   command: 'node',
+  //   command: 'npx',
   //   args: [
-  //     join(__dirname, '../../../node_modules/@modelcontextprotocol/server-filesystem/dist/index.js'),
+  //     '-y',
+  //     '@modelcontextprotocol/server-filesystem',
   //     join(homedir(), 'Documents')
   //   ]
   // },
   // {
   //   name: 'memory',
+  //   command: 'npx',
+  //   args: [
+  //     '-y',
+  //     '@modelcontextprotocol/server-memory'
+  //   ]
+  // },
+  // {
+  //   name: 'code-executor',
   //   command: 'node',
   //   args: [
-  //     join(__dirname, '../../../node_modules/@modelcontextprotocol/server-memory/dist/index.js')
+  //     join(__dirname, 'inMemoryServers/codeExecutor.js')
   //   ]
   // }
 ]

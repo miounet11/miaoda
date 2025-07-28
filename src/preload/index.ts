@@ -26,8 +26,22 @@ const api = {
       ipcRenderer.invoke('llm:sendMessage', message, chatId, messageId),
     getConfig: () => ipcRenderer.invoke('llm:getConfig'),
     isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
+    setToolsEnabled: (enabled: boolean) => ipcRenderer.invoke('llm:setToolsEnabled', enabled),
+    getToolsEnabled: () => ipcRenderer.invoke('llm:getToolsEnabled'),
     onChunk: (callback: (data: any) => void) => {
-      ipcRenderer.on('llm:chunk', (_, data) => callback(data))
+      const handler = (_: any, data: any) => callback(data)
+      ipcRenderer.on('llm:chunk', handler)
+      return () => ipcRenderer.removeListener('llm:chunk', handler)
+    },
+    onStatus: (callback: (data: any) => void) => {
+      const handler = (_: any, data: any) => callback(data)
+      ipcRenderer.on('llm:status', handler)
+      return () => ipcRenderer.removeListener('llm:status', handler)
+    },
+    onToolCall: (callback: (data: any) => void) => {
+      const handler = (_: any, data: any) => callback(data)
+      ipcRenderer.on('llm:tool-call', handler)
+      return () => ipcRenderer.removeListener('llm:tool-call', handler)
     }
   },
   file: {
@@ -50,6 +64,11 @@ const api = {
         ipcRenderer.on(event, () => callback(event.replace('shortcut:', '')))
       })
     }
+  },
+  plugins: {
+    getAll: () => ipcRenderer.invoke('plugins:get-all'),
+    enable: (pluginId: string) => ipcRenderer.invoke('plugins:enable', pluginId),
+    disable: (pluginId: string) => ipcRenderer.invoke('plugins:disable', pluginId)
   }
 }
 

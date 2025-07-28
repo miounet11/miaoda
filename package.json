@@ -27,6 +27,8 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@google/genai": "^1.5.1",
     "@modelcontextprotocol/sdk": "^1.13.1",
+    "@modelcontextprotocol/server-filesystem": "^2025.7.1",
+    "@modelcontextprotocol/server-memory": "^2025.4.25",
     "@types/marked": "^5.0.2",
     "axios": "^1.7.9",
     "better-sqlite3": "^11.5.0",

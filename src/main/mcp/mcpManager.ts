@@ -1,6 +1,8 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { testTools, executeTestTool } from './testTools'
+import { PluginManager } from '../plugins/pluginManager'
 
 export interface MCPServer {
   name: string
@@ -12,6 +14,18 @@ export interface MCPServer {
 export class MCPManager {
   private clients: Map<string, Client> = new Map()
   private tools: Map<string, Tool> = new Map()
+  private pluginManager: PluginManager | null = null
+
+  constructor() {
+    // Add test tools
+    testTools.forEach(tool => {
+      this.tools.set(`test:${tool.name}`, tool)
+    })
+  }
+
+  setPluginManager(pluginManager: PluginManager) {
+    this.pluginManager = pluginManager
+  }
 
   async connectServer(server: MCPServer): Promise<void> {
     try {
@@ -60,10 +74,47 @@ export class MCPManager {
   }
 
   getAvailableTools(): Tool[] {
-    return Array.from(this.tools.values())
+    const tools = Array.from(this.tools.values())
+    
+    // Add plugin tools if plugin manager is available
+    if (this.pluginManager) {
+      const pluginTools = this.pluginManager.getAllTools()
+      tools.push(...pluginTools)
+    }
+    
+    return tools
   }
 
   async callTool(toolName: string, args: any): Promise<CallToolResult> {
+    // Check if it's a plugin tool first
+    if (this.pluginManager && toolName.includes(':')) {
+      const pluginTools = this.pluginManager.getAllTools()
+      const pluginTool = pluginTools.find(t => t.name === toolName)
+      if (pluginTool) {
+        try {
+          const result = await this.pluginManager.executeTool(toolName, args)
+          return {
+            content: [
+              {
+                type: 'text',
+                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
+              }
+            ]
+          }
+        } catch (error: any) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Plugin error: ${error.message}`
+              }
+            ],
+            isError: true
+          }
+        }
+      }
+    }
+
     // Find the tool and its server
     let serverName: string | null = null
     let actualToolName: string = toolName
@@ -79,6 +130,31 @@ export class MCPManager {
 
     if (!serverName) {
       throw new Error(`Tool not found: ${toolName}`)
+    }
+
+    // Handle test tools
+    if (serverName === 'test') {
+      try {
+        const result = await executeTestTool(actualToolName, args)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
+        }
+      } catch (error: any) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error: ${error.message}`
+            }
+          ],
+          isError: true
+        }
+      }
     }
 
     const client = this.clients.get(serverName)

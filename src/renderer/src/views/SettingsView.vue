@@ -98,6 +98,22 @@
               </label>
             </div>
 
+            <!-- Enable Tools -->
+            <div class="space-y-2">
+              <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
+                <div>
+                  <span class="text-sm font-medium block">Enable MCP Tools</span>
+                  <span class="text-xs text-muted-foreground">Allow AI to use filesystem, code execution, and other tools</span>
+                </div>
+                <input
+                  v-model="toolsEnabled"
+                  @change="toggleTools"
+                  type="checkbox"
+                  class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
+                />
+              </label>
+            </div>
+
             <!-- Save Button -->
             <div class="flex gap-3 pt-4">
               <button
@@ -170,6 +186,84 @@
             </div>
           </div>
         </div>
+
+        <!-- Plugins -->
+        <div v-if="activeTab === 'plugins'" class="space-y-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Plugins</h3>
+            <p class="text-muted-foreground mb-6">
+              Extend MiaoDa Chat with additional features and tools
+            </p>
+          </div>
+
+          <div v-if="plugins.length === 0" class="text-center py-12 bg-muted/30 rounded-lg">
+            <Puzzle :size="48" class="mx-auto mb-4 text-muted-foreground" />
+            <p class="text-muted-foreground">No plugins installed</p>
+            <button class="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+              Browse Plugins
+            </button>
+          </div>
+
+          <div v-else class="space-y-4">
+            <div
+              v-for="plugin in plugins"
+              :key="plugin.id"
+              class="p-4 bg-muted/30 rounded-lg"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="font-semibold">{{ plugin.name }}</h4>
+                    <span class="text-xs px-2 py-0.5 bg-muted rounded">v{{ plugin.version }}</span>
+                  </div>
+                  <p class="text-sm text-muted-foreground mb-2">{{ plugin.description }}</p>
+                  <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>ID: {{ plugin.id }}</span>
+                    <span v-if="plugin.author">By {{ plugin.author }}</span>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    :checked="plugin.enabled"
+                    @change="togglePlugin(plugin.id, $event.target.checked)"
+                    class="sr-only peer"
+                  >
+                  <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors"></div>
+                  <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+              </div>
+              
+              <!-- Plugin capabilities -->
+              <div v-if="plugin.capabilities" class="mt-3 flex gap-2">
+                <span 
+                  v-if="plugin.capabilities.tools"
+                  class="text-xs px-2 py-1 bg-blue-500/10 text-blue-600 rounded"
+                >
+                  Tools
+                </span>
+                <span 
+                  v-if="plugin.capabilities.commands"
+                  class="text-xs px-2 py-1 bg-green-500/10 text-green-600 rounded"
+                >
+                  Commands
+                </span>
+                <span 
+                  v-if="plugin.capabilities.themes"
+                  class="text-xs px-2 py-1 bg-purple-500/10 text-purple-600 rounded"
+                >
+                  Themes
+                </span>
+                <span 
+                  v-if="plugin.capabilities.ui"
+                  class="text-xs px-2 py-1 bg-orange-500/10 text-orange-600 rounded"
+                >
+                  UI
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -177,17 +271,20 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle } from 'lucide-vue-next'
 
 const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
   { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard }
+  { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
+  { id: 'plugins', label: 'Plugins', icon: Puzzle }
 ]
 
 const activeTab = ref('llm')
 const theme = ref('system')
 const shortcuts = ref<Array<{ key: string, description: string }>>([])
+const toolsEnabled = ref(false)
+const plugins = ref<Array<any>>([])
 
 const llmConfig = reactive({
   provider: 'openai' as 'openai' | 'anthropic' | 'ollama',
@@ -265,6 +362,53 @@ const testConnection = async () => {
   }
 }
 
+const toggleTools = async () => {
+  try {
+    await window.api.llm.setToolsEnabled(toolsEnabled.value)
+  } catch (error: any) {
+    console.error('Failed to toggle tools:', error)
+    // Revert the toggle if it failed
+    toolsEnabled.value = !toolsEnabled.value
+  }
+}
+
+const togglePlugin = async (pluginId: string, enabled: boolean) => {
+  try {
+    if (enabled) {
+      await window.api.plugins.enable(pluginId)
+    } else {
+      await window.api.plugins.disable(pluginId)
+    }
+    
+    // Reload plugins list
+    await loadPlugins()
+    
+    // Show success message
+    statusMessage.value = {
+      type: 'success',
+      text: `Plugin ${enabled ? 'enabled' : 'disabled'} successfully`
+    }
+  } catch (error: any) {
+    console.error('Failed to toggle plugin:', error)
+    // Reload to revert UI state
+    await loadPlugins()
+    
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to ${enabled ? 'enable' : 'disable'} plugin: ${error.message}`
+    }
+  }
+}
+
+const loadPlugins = async () => {
+  try {
+    plugins.value = await window.api.plugins.getAll()
+  } catch (error) {
+    console.error('Failed to load plugins:', error)
+    plugins.value = []
+  }
+}
+
 // Load existing config on mount
 onMounted(async () => {
   // Load LLM config
@@ -276,7 +420,13 @@ onMounted(async () => {
     llmConfig.model = config.model || ''
   }
   
+  // Load tools enabled state
+  toolsEnabled.value = await window.api.llm.getToolsEnabled()
+  
   // Load shortcuts
   shortcuts.value = await window.api.shortcuts.getAll()
+  
+  // Load plugins
+  await loadPlugins()
 })
 </script>

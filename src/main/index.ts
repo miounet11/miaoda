@@ -4,12 +4,14 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { MCPManager } from './mcp/mcpManager'
 import { getAllServers } from './mcp/servers'
 import { LocalDatabase } from './db/database'
-import './llm/llmManager' // Import for IPC handlers
+import { createLLMManager } from './llm/llmManager'
+import { PluginManager } from './plugins/pluginManager'
 import './fileHandler' // Import for file handling
 import { registerShortcuts } from './shortcuts'
 
 let mainWindow: BrowserWindow | null = null
 const mcpManager = new MCPManager()
+const pluginManager = new PluginManager()
 let db: LocalDatabase
 
 // Make mainWindow globally accessible for LLM manager
@@ -67,8 +69,17 @@ app.whenReady().then(() => {
 
   createWindow()
   
-  // Initialize MCP after window is created
+  // Initialize plugin manager
+  pluginManager.initialize().catch(console.error)
+  
+  // Connect plugin manager to MCP
+  mcpManager.setPluginManager(pluginManager)
+  
+  // Initialize MCP and LLM after window is created
   initializeMCP().catch(console.error)
+  
+  // Create LLM manager with MCP integration
+  createLLMManager(mcpManager)
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -99,6 +110,27 @@ ipcMain.handle('mcp:get-tools', () => {
 
 ipcMain.handle('mcp:call-tool', async (_, toolName, args) => {
   return mcpManager.callTool(toolName, args)
+})
+
+// Plugin handlers
+ipcMain.handle('plugins:get-all', () => {
+  return pluginManager.getPlugins().map(p => ({
+    id: p.manifest.id,
+    name: p.manifest.name,
+    version: p.manifest.version,
+    description: p.manifest.description,
+    author: p.manifest.author,
+    capabilities: p.manifest.capabilities,
+    enabled: p.enabled
+  }))
+})
+
+ipcMain.handle('plugins:enable', async (_, pluginId: string) => {
+  await pluginManager.activatePlugin(pluginId)
+})
+
+ipcMain.handle('plugins:disable', async (_, pluginId: string) => {
+  await pluginManager.deactivatePlugin(pluginId)
 })
 
 // Database handlers

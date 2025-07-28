@@ -338,7 +338,7 @@ const sendMessage = async () => {
   try {
     // Set up streaming listener
     let streamedContent = ''
-    const cleanup = window.api.llm.onChunk((data: any) => {
+    const cleanupChunk = window.api.llm.onChunk((data: any) => {
       if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
         streamedContent += data.chunk
         // Update message content in real-time
@@ -357,6 +357,25 @@ const sendMessage = async () => {
       }
     })
     
+    // Set up tool status listener
+    const cleanupStatus = window.api.llm.onStatus((data: any) => {
+      if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
+        console.log('Tool status:', data.status, data.tools)
+      }
+    })
+    
+    // Set up tool call listener
+    const cleanupToolCall = window.api.llm.onToolCall((data: any) => {
+      if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
+        console.log('Tool called:', data.tool, data.args)
+        // Add tool call info to message
+        const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
+        if (msg) {
+          msg.content = streamedContent + `\n\n🔧 Using tool: ${data.tool}`
+        }
+      }
+    })
+    
     // Send message to LLM
     const response = await window.api.llm.sendMessage(
       fullContent,
@@ -370,8 +389,10 @@ const sendMessage = async () => {
       msg.content = response
     }
     
-    // Clean up listener
-    cleanup()
+    // Clean up listeners
+    cleanupChunk()
+    cleanupStatus()
+    cleanupToolCall()
   } catch (error: any) {
     // Update message with error
     const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
