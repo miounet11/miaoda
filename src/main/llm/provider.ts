@@ -1,6 +1,6 @@
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
-import { GoogleGenerativeAI } from '@google/genai'
+// import { GoogleGenerativeAI } from '@google/genai'
 import { Ollama } from 'ollama'
 
 export interface LLMProvider {
@@ -50,7 +50,7 @@ export class OpenAIProvider implements LLMProvider {
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
-    const messages = [{ role: 'user' as const, content: message }]
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: 'user' as const, content: message }]
     
     // Convert MCP tools to OpenAI format
     const openAITools = tools.map(tool => ({
@@ -154,7 +154,7 @@ export class AnthropicProvider implements LLMProvider {
       input_schema: tool.inputSchema
     }))
 
-    const messages = [{ role: 'user' as const, content: message }]
+    const messages: Array<{role: 'user' | 'assistant'; content: string | any[]}> = [{ role: 'user' as const, content: message }]
     
     // Initial request with tools
     const response = await this.client.messages.create({
@@ -166,7 +166,7 @@ export class AnthropicProvider implements LLMProvider {
 
     // Handle tool use
     if (response.content.some(block => block.type === 'tool_use')) {
-      const toolResults = []
+      const toolResults: Array<{type: string; tool_use_id: string; content: string}> = []
       
       for (const block of response.content) {
         if (block.type === 'tool_use' && onToolCall) {
@@ -180,8 +180,19 @@ export class AnthropicProvider implements LLMProvider {
       }
 
       // Get final response after tool calls
-      messages.push({ role: 'assistant', content: response.content })
-      messages.push({ role: 'user', content: toolResults })
+      // Convert content blocks to text representation
+      const assistantContent = response.content
+        .filter(block => block.type === 'text')
+        .map(block => (block as any).text)
+        .join('')
+      
+      messages.push({ role: 'assistant', content: assistantContent })
+      messages.push({ 
+        role: 'user', 
+        content: toolResults.map(result => 
+          `Tool ${result.tool_use_id}: ${result.content}`
+        ).join('\n')
+      })
 
       const finalStream = await this.client.messages.create({
         model: 'claude-3-sonnet-20240229',

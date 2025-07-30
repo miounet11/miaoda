@@ -1,12 +1,23 @@
 // Test tools for verifying MCP integration
-export const testTools = [
+
+interface TestTool {
+  name: string
+  description: string
+  inputSchema: {
+    type: 'object'
+    properties: Record<string, any>
+    required: string[]
+  }
+}
+
+export const testTools: TestTool[] = [
   {
     name: 'get_current_time',
     description: 'Get the current date and time',
     inputSchema: {
       type: 'object',
       properties: {},
-      required: []
+      required: [] as string[]
     }
   },
   {

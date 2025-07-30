@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { MCPManager } from './mcp/mcpManager'
 import { getAllServers } from './mcp/servers'
-import { LocalDatabase } from './db/database'
+import { LocalDatabase, ChatRecord } from './db/database'
 import { createLLMManager } from './llm/llmManager'
 import { PluginManager } from './plugins/pluginManager'
 import './fileHandler' // Import for file handling
@@ -164,6 +164,103 @@ ipcMain.handle('db:get-messages', async (_, chatId) => {
 
 ipcMain.handle('db:search-chats', async (_, query) => {
   return db.searchChats(query)
+})
+
+// Export handlers
+ipcMain.handle('export:get-chat', async (_, chatId: string) => {
+  try {
+    return db.getChat(chatId)
+  } catch (error: any) {
+    console.error(`Failed to get chat ${chatId}:`, error)
+    throw new Error(`Failed to load chat: ${error.message}`)
+  }
+})
+
+ipcMain.handle('export:get-chats', async (_, chatIds: string[]) => {
+  try {
+    const chats: ChatRecord[] = []
+    for (const id of chatIds) {
+      const chat = db.getChat(id)
+      if (chat) chats.push(chat)
+    }
+    return chats
+  } catch (error: any) {
+    console.error('Failed to get chats:', error)
+    throw new Error(`Failed to load chats: ${error.message}`)
+  }
+})
+
+ipcMain.handle('export:get-all-chats', async () => {
+  try {
+    return db.getAllChats()
+  } catch (error: any) {
+    console.error('Failed to get all chats:', error)
+    throw new Error(`Failed to load all chats: ${error.message}`)
+  }
+})
+
+ipcMain.handle('export:get-messages', async (_, chatId: string) => {
+  try {
+    return db.getMessages(chatId)
+  } catch (error: any) {
+    console.error(`Failed to get messages for chat ${chatId}:`, error)
+    throw new Error(`Failed to load messages: ${error.message}`)
+  }
+})
+
+// Stream-based export handlers for large datasets
+ipcMain.handle('export:get-chats-stream', async (event, chatIds: string[], batchSize: number = 10) => {
+  try {
+    const batches: ChatRecord[][] = []
+    for (let i = 0; i < chatIds.length; i += batchSize) {
+      const batch = chatIds.slice(i, i + batchSize)
+      const chats: ChatRecord[] = []
+      
+      for (const id of batch) {
+        const chat = db.getChat(id)
+        if (chat) chats.push(chat)
+      }
+      
+      batches.push(chats)
+      
+      // Send progress update
+      event.sender.send('export:progress', {
+        processed: Math.min(i + batchSize, chatIds.length),
+        total: chatIds.length,
+        stage: 'loading-chats'
+      })
+      
+      // Small delay to prevent blocking
+      await new Promise(resolve => setTimeout(resolve, 10))
+    }
+    
+    return batches.flat()
+  } catch (error: any) {
+    console.error('Failed to stream chats:', error)
+    throw new Error(`Failed to stream chats: ${error.message}`)
+  }
+})
+
+ipcMain.handle('export:get-messages-stream', async (event, chatId: string, offset: number = 0, limit: number = 100) => {
+  try {
+    // This would need to be implemented in the database layer
+    // For now, return all messages but could be enhanced for pagination
+    const messages = db.getMessages(chatId)
+    
+    // Simulate streaming by chunking
+    const chunk = messages.slice(offset, offset + limit)
+    const hasMore = offset + limit < messages.length
+    
+    return {
+      messages: chunk,
+      hasMore,
+      total: messages.length,
+      offset: offset + chunk.length
+    }
+  } catch (error: any) {
+    console.error(`Failed to stream messages for chat ${chatId}:`, error)
+    throw new Error(`Failed to stream messages: ${error.message}`)
+  }
 })
 
 // Initialize MCP servers on app ready

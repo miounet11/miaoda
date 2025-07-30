@@ -1,6 +1,6 @@
 import { MCPServer } from './mcpManager'
-import { join } from 'path'
-import { homedir } from 'os'
+// import { join } from 'path'
+// import { homedir } from 'os'
 
 // Built-in MCP servers configuration
 export const builtInServers: MCPServer[] = [

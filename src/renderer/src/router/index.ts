@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'chat',
-    component: () => import('@/views/ChatView.vue')
+    component: () => import('@/views/ChatViewImproved.vue')
   },
   {
     path: '/settings',

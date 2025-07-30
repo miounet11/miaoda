@@ -119,7 +119,7 @@ export class MCPManager {
     let serverName: string | null = null
     let actualToolName: string = toolName
 
-    for (const [key, tool] of this.tools) {
+    for (const [key] of this.tools) {
       if (key.endsWith(`:${toolName}`) || key === toolName) {
         const parts = key.split(':')
         serverName = parts[0]

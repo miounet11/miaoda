@@ -45,6 +45,13 @@ declare global {
         enable: (pluginId: string) => Promise<void>
         disable: (pluginId: string) => Promise<void>
       }
+      export: {
+        getChat: (chatId: string) => Promise<any>
+        getChats: (chatIds: string[]) => Promise<any[]>
+        getAllChats: () => Promise<any[]>
+        getMessages: (chatId: string) => Promise<any[]>
+      }
+      invoke: (channel: string, ...args: any[]) => Promise<any>
     }
   }
 }

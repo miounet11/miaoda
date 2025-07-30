@@ -1,4 +1,4 @@
-import { app, globalShortcut, ipcMain, BrowserWindow } from 'electron'
+import { globalShortcut, ipcMain, BrowserWindow } from 'electron'
 
 export function registerShortcuts(mainWindow: BrowserWindow) {
   // Register global shortcuts

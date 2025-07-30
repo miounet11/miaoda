@@ -1,26 +1,23 @@
 import { defineStore } from 'pinia'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { nanoid } from 'nanoid'
-
-export interface Message {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  createdAt: Date
-}
-
-export interface Chat {
-  id: string
-  title: string
-  messages: Message[]
-  createdAt: Date
-  updatedAt: Date
-}
+import type { Chat, Message, Attachment } from '@renderer/src/types'
+import { useErrorHandler } from '@renderer/src/composables/useErrorHandler'
+import { performanceMonitor } from '@renderer/src/utils/performance'
 
 export const useChatStore = defineStore('chat', () => {
+  // State
   const chats = ref<Chat[]>([])
   const currentChatId = ref<string | null>(null)
+  const messages = ref<Map<string, Message[]>>(new Map())
+  const isLoading = ref(false)
+  const isGenerating = ref(false)
+  const streamingContent = ref('')
+  const streamingMessageId = ref<string | null>(null)
   const isInitialized = ref(false)
+
+  // Error handling
+  const { handleError } = useErrorHandler()
   
   const currentChat = computed(() => 
     chats.value.find(chat => chat.id === currentChatId.value)

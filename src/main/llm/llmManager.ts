@@ -1,5 +1,5 @@
 import { LLMProvider, OpenAIProvider, AnthropicProvider, OllamaProvider } from './provider'
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain } from 'electron'
 import Store from 'electron-store'
 import { MCPManager } from '../mcp/mcpManager'
 

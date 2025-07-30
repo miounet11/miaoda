@@ -1,4 +1,4 @@
-import { Plugin, PluginManifest, PluginInstance, PluginAPI, Disposable } from './types'
+import { Plugin, PluginManifest, PluginInstance, PluginAPI } from './types'
 import { Tool } from '@modelcontextprotocol/sdk/types.js'
 import { readdir, readFile, stat } from 'fs/promises'
 import { join } from 'path'
@@ -20,7 +20,7 @@ export class PluginManager extends EventEmitter {
   }
   
   private createPluginAPI(): PluginAPI {
-    const disposables = new WeakMap<object, () => void>()
+    // const disposables = new WeakMap<object, () => void>()
     
     return {
       workspace: {
@@ -246,7 +246,7 @@ export class PluginManager extends EventEmitter {
   }
   
   // Install a plugin from a path or URL
-  async installPlugin(source: string) {
+  async installPlugin(_source: string) {
     // TODO: Implement plugin installation
     // - Download/copy plugin files
     // - Validate manifest

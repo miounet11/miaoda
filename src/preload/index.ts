@@ -69,7 +69,24 @@ const api = {
     getAll: () => ipcRenderer.invoke('plugins:get-all'),
     enable: (pluginId: string) => ipcRenderer.invoke('plugins:enable', pluginId),
     disable: (pluginId: string) => ipcRenderer.invoke('plugins:disable', pluginId)
-  }
+  },
+  export: {
+    getChat: (chatId: string) => ipcRenderer.invoke('export:get-chat', chatId),
+    getChats: (chatIds: string[]) => ipcRenderer.invoke('export:get-chats', chatIds),
+    getAllChats: () => ipcRenderer.invoke('export:get-all-chats'),
+    getMessages: (chatId: string) => ipcRenderer.invoke('export:get-messages', chatId),
+    getChatsStream: (chatIds: string[], batchSize?: number) => 
+      ipcRenderer.invoke('export:get-chats-stream', chatIds, batchSize),
+    getMessagesStream: (chatId: string, offset?: number, limit?: number) => 
+      ipcRenderer.invoke('export:get-messages-stream', chatId, offset, limit),
+    onProgress: (callback: (data: any) => void) => {
+      const handler = (_: any, data: any) => callback(data)
+      ipcRenderer.on('export:progress', handler)
+      return () => ipcRenderer.removeListener('export:progress', handler)
+    }
+  },
+  // 通用invoke方法，为了向后兼容
+  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
 }
 
 if (process.contextIsolated) {

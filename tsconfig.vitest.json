@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "node"],
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": ["./src/renderer/src/*"],
+      "@renderer/*": ["./src/renderer/*"],
+      "@main/*": ["./src/main/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/test/setup.ts"
+  ]
+}
