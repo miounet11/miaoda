@@ -1,5 +1,6 @@
 import { EventEmitter } from '@renderer/src/utils/performance'
 import type { Message } from '@renderer/src/types'
+import { backendSearchService } from './BackendSearchService'
 
 // Search types
 export interface SearchQuery {
@@ -906,6 +907,82 @@ export class SearchService extends EventEmitter<{
         }
       })
     })
+  }
+
+  // Backend search integration
+  async searchWithBackend(query: SearchQuery): Promise<SearchResult[]> {
+    try {
+      // Use backend for complex searches or when index is not complete
+      const backendResults = await backendSearchService.searchMessages(query)
+      
+      // Update local index with results
+      for (const result of backendResults) {
+        if (!this.searchIndex.has(result.message.id)) {
+          await this.indexMessage(result.message)
+        }
+      }
+      
+      // Cache results
+      const cacheKey = this.getCacheKey(query)
+      this.cacheResults(cacheKey, backendResults)
+      
+      // Add to recent searches
+      this.addToRecentSearches(query)
+      
+      this.emit('search-completed', backendResults, query, this.searchStats)
+      
+      return backendResults
+    } catch (error) {
+      this.emit('search-error', error as Error, query)
+      throw error
+    }
+  }
+
+  // Hybrid search - uses both local and backend
+  async hybridSearch(query: SearchQuery): Promise<SearchResult[]> {
+    const startTime = Date.now()
+    
+    try {
+      // Run both searches in parallel
+      const [localResults, backendResults] = await Promise.all([
+        this.search(query).catch(() => []),
+        this.searchWithBackend(query).catch(() => [])
+      ])
+      
+      // Merge and deduplicate results
+      const resultMap = new Map<string, SearchResult>()
+      
+      // Add backend results first (more authoritative)
+      for (const result of backendResults) {
+        resultMap.set(result.message.id, result)
+      }
+      
+      // Add local results if not already present
+      for (const result of localResults) {
+        if (!resultMap.has(result.message.id)) {
+          resultMap.set(result.message.id, result)
+        }
+      }
+      
+      // Convert back to array and sort
+      let results = Array.from(resultMap.values())
+      results = this.sortResults(results, query.options)
+      
+      // Limit results
+      if (query.options.maxResults) {
+        results = results.slice(0, query.options.maxResults)
+      }
+      
+      this.searchStats.searchTime = Date.now() - startTime
+      this.searchStats.resultCount = results.length
+      
+      this.emit('search-completed', results, query, this.searchStats)
+      
+      return results
+    } catch (error) {
+      this.emit('search-error', error as Error, query)
+      throw error
+    }
   }
 
   // Cleanup

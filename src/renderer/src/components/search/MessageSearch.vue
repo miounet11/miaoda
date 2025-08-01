@@ -520,7 +520,9 @@ const performSearch = async () => {
     }
 
     currentQuery.value = query
-    const results = await searchService.search(query)
+    
+    // Use hybrid search that combines both frontend and backend
+    const results = await searchService.hybridSearch(query)
     
     searchResults.value = results
     searchStats.value = searchService.getSearchStats()

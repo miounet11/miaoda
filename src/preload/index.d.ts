@@ -1,5 +1,14 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
+export interface FileInfo {
+  path: string
+  name: string
+  size: number
+  type: string
+  data?: string
+  content?: string
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -21,6 +30,10 @@ declare global {
         getMessages: (chatId: string) => Promise<any[]>
         searchChats: (query: string) => Promise<any[]>
       }
+      search: {
+        messages: (searchQuery: any) => Promise<any[]>
+        getStats: () => Promise<any>
+      }
       llm: {
         setProvider: (config: any) => Promise<{ success: boolean; error?: string }>
         sendMessage: (message: string, chatId: string, messageId: string) => Promise<string>
@@ -33,8 +46,8 @@ declare global {
         onToolCall: (callback: (data: any) => void) => () => void
       }
       file: {
-        select: () => Promise<string[]>
-        paste: (dataUrl: string) => Promise<string>
+        select: () => Promise<FileInfo[]>
+        paste: (dataUrl: string) => Promise<FileInfo>
       }
       shortcuts: {
         getAll: () => Promise<any>

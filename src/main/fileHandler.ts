@@ -93,8 +93,10 @@ function getFileType(ext: string): string {
   return 'file'
 }
 
-// IPC handlers
-ipcMain.handle('file:select', handleFileSelect)
-ipcMain.handle('file:paste', async (_, dataUrl: string) => {
-  return handleFilePaste(dataUrl)
-})
+// Export handlers for registration
+export function registerFileHandlers() {
+  ipcMain.handle('file:select', handleFileSelect)
+  ipcMain.handle('file:paste', async (_, dataUrl: string) => {
+    return handleFilePaste(dataUrl)
+  })
+}

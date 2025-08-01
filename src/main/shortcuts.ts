@@ -59,17 +59,19 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
   })
 }
 
-// IPC handler for menu shortcuts
-ipcMain.handle('shortcuts:get-all', () => {
-  return [
-    { key: 'Cmd/Ctrl+N', description: 'New Chat' },
-    { key: 'Cmd/Ctrl+,', description: 'Open Settings' },
-    { key: 'Cmd/Ctrl+K', description: 'Focus Input' },
-    { key: 'Cmd/Ctrl+Shift+K', description: 'Clear Chat' },
-    { key: 'Cmd/Ctrl+[', description: 'Previous Chat' },
-    { key: 'Cmd/Ctrl+]', description: 'Next Chat' },
-    { key: 'Enter', description: 'Send Message' },
-    { key: 'Shift+Enter', description: 'New Line' },
-    { key: 'Cmd/Ctrl+V', description: 'Paste Image' }
-  ]
-})
+// Export handler for registration
+export function registerShortcutHandlers() {
+  ipcMain.handle('shortcuts:get-all', () => {
+    return [
+      { key: 'Cmd/Ctrl+N', description: 'New Chat' },
+      { key: 'Cmd/Ctrl+,', description: 'Open Settings' },
+      { key: 'Cmd/Ctrl+K', description: 'Focus Input' },
+      { key: 'Cmd/Ctrl+Shift+K', description: 'Clear Chat' },
+      { key: 'Cmd/Ctrl+[', description: 'Previous Chat' },
+      { key: 'Cmd/Ctrl+]', description: 'Next Chat' },
+      { key: 'Enter', description: 'Send Message' },
+      { key: 'Shift+Enter', description: 'New Line' },
+      { key: 'Cmd/Ctrl+V', description: 'Paste Image' }
+    ]
+  })
+}

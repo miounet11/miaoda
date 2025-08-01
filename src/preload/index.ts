@@ -20,6 +20,10 @@ const api = {
     getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
     searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query)
   },
+  search: {
+    messages: (searchQuery: any) => ipcRenderer.invoke('search:messages', searchQuery),
+    getStats: () => ipcRenderer.invoke('search:get-stats')
+  },
   llm: {
     setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
     sendMessage: (message: string, chatId: string, messageId: string) => 
@@ -89,12 +93,17 @@ const api = {
   invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
 }
 
+console.log('[Preload] Script loaded, api object:', api)
+console.log('[Preload] Context isolated:', process.contextIsolated)
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('api', api)
+    console.log('[Preload] API exposed to main world successfully')
   } catch (error) {
-    console.error(error)
+    console.error('[Preload] Failed to expose API:', error)
   }
 } else {
   window.api = api
+  console.log('[Preload] API attached to window directly')
 }

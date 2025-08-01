@@ -162,9 +162,11 @@ export class LLMManager {
 
 // Create manager with MCP
 export function createLLMManager(mcpManager: MCPManager): LLMManager {
-  const manager = new LLMManager(mcpManager)
-  
-  // IPC handlers
+  return new LLMManager(mcpManager)
+}
+
+// Register LLM IPC handlers
+export function registerLLMHandlers(manager: LLMManager) {
   ipcMain.handle('llm:setProvider', async (_, config: LLMConfig) => {
     return manager.setProvider(config)
   })
@@ -188,6 +190,4 @@ export function createLLMManager(mcpManager: MCPManager): LLMManager {
   ipcMain.handle('llm:getToolsEnabled', () => {
     return manager.getToolsEnabled()
   })
-  
-  return manager
 }

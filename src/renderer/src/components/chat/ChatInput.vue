@@ -235,6 +235,11 @@ const handleSend = () => {
 // File handling
 const selectFiles = async () => {
   if (props.disabled) return
+
+  if (!window.api?.file?.select) {
+    console.error('[ChatInput] File API not available')
+    return
+  }
   
   try {
     const files = await window.api.file.select()
