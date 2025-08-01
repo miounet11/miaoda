@@ -42,6 +42,9 @@
       :message="globalError"
       @close="clearGlobalError"
     />
+    
+    <!-- Toast Container -->
+    <ToastContainer />
   </div>
 </template>
 
@@ -51,6 +54,7 @@ import { useRouter } from 'vue-router'
 import { Loader } from 'lucide-vue-next'
 import Window from '@renderer/src/components/window/Window.vue'
 import ErrorToast from '@renderer/src/components/error/ErrorToast.vue'
+import ToastContainer from '@renderer/src/components/ui/ToastContainer.vue'
 import { windowManager } from '@renderer/src/services/window/WindowManager'
 import { mcpService } from '@renderer/src/services/mcp/MCPService'
 

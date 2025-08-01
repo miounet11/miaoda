@@ -362,7 +362,8 @@ import {
   AlertCircle, RotateCcw, Download, ChevronLeft, ChevronRight
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { searchService, type SearchQuery, type SearchResult, type SearchFilters, type SearchOptions, type SearchStats } from '@renderer/src/services/search/SearchService'
+import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
+import type { SearchQuery, SearchResult, SearchFilters, SearchOptions, SearchStats } from '@main/db/searchTypes'
 import SearchResult from './SearchResult.vue'
 
 // Props
@@ -521,11 +522,11 @@ const performSearch = async () => {
 
     currentQuery.value = query
     
-    // Use hybrid search that combines both frontend and backend
-    const results = await searchService.hybridSearch(query)
+    // Use enhanced backend search
+    const results = await backendSearchService.searchMessages(query)
     
     searchResults.value = results
-    searchStats.value = searchService.getSearchStats()
+    searchStats.value = await backendSearchService.getSearchStats()
     hasSearched.value = true
 
     emit('search-complete', results)
@@ -701,9 +702,10 @@ const removeTag = (tag: string) => {
   }
 }
 
-// Recent searches
+// Recent searches (temporarily disabled - could be enhanced later)
 const loadRecentSearches = () => {
-  recentSearches.value = searchService.getRecentSearches()
+  // TODO: Implement recent searches storage in backend
+  recentSearches.value = []
 }
 
 const loadRecentSearch = (recent: SearchQuery) => {
@@ -814,7 +816,11 @@ onMounted(() => {
   }
 
   loadRecentSearches()
-  searchStats.value = searchService.getSearchStats()
+  backendSearchService.getSearchStats().then(stats => {
+    searchStats.value = stats
+  }).catch(error => {
+    console.error('Failed to load search stats:', error)
+  })
 })
 
 onUnmounted(() => {

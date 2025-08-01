@@ -124,6 +124,9 @@ export class LocalDatabase {
     // Run migrations
     this.runMigrations()
     
+    // Initialize FTS index
+    this.initializeSearchIndex()
+    
     // Create indexes after migrations
     this.db.exec(`
       -- Indexes for performance
@@ -133,17 +136,22 @@ export class LocalDatabase {
       CREATE INDEX IF NOT EXISTS idx_chats_archived ON chats(archived);
       CREATE INDEX IF NOT EXISTS idx_chats_starred ON chats(starred);
       
-      -- Full-text search virtual table
+      -- Full-text search virtual table with enhanced tokenization
       CREATE VIRTUAL TABLE IF NOT EXISTS messages_fts USING fts5(
         content,
         content_normalized,
-        tokenize = 'porter unicode61'
+        role,
+        chat_title,
+        created_at UNINDEXED,
+        tokenize = 'porter unicode61 remove_diacritics 1'
       );
 
-      -- Triggers to keep FTS in sync
+      -- Triggers to keep FTS in sync with enhanced data
       CREATE TRIGGER IF NOT EXISTS messages_ai AFTER INSERT ON messages BEGIN
-        INSERT INTO messages_fts(rowid, content, content_normalized) 
-        VALUES (new.rowid, new.content, LOWER(new.content));
+        INSERT INTO messages_fts(rowid, content, content_normalized, role, chat_title, created_at) 
+        SELECT new.rowid, new.content, LOWER(new.content), new.role, 
+               COALESCE(c.title, ''), new.created_at
+        FROM chats c WHERE c.id = new.chat_id;
       END;
 
       CREATE TRIGGER IF NOT EXISTS messages_ad AFTER DELETE ON messages BEGIN
@@ -153,8 +161,16 @@ export class LocalDatabase {
       CREATE TRIGGER IF NOT EXISTS messages_au AFTER UPDATE ON messages BEGIN
         UPDATE messages_fts 
         SET content = new.content, 
-            content_normalized = LOWER(new.content) 
+            content_normalized = LOWER(new.content),
+            role = new.role
         WHERE rowid = new.rowid;
+      END;
+
+      -- Trigger to update FTS when chat title changes
+      CREATE TRIGGER IF NOT EXISTS chats_au AFTER UPDATE OF title ON chats BEGIN
+        UPDATE messages_fts 
+        SET chat_title = new.title
+        WHERE rowid IN (SELECT rowid FROM messages WHERE chat_id = new.id);
       END;
     `)
   }
@@ -222,6 +238,34 @@ export class LocalDatabase {
     } catch (error) {
       console.error('Failed to run migrations:', error)
       throw error
+    }
+  }
+
+  private initializeSearchIndex() {
+    try {
+      // Check if FTS table needs to be populated
+      const ftsCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as { count: number }
+      const messagesCount = this.db.prepare('SELECT COUNT(*) as count FROM messages').get() as { count: number }
+      
+      if (ftsCount.count < messagesCount.count) {
+        console.log('[Database] Rebuilding FTS index...')
+        
+        // Clear existing FTS data
+        this.db.prepare('DELETE FROM messages_fts').run()
+        
+        // Rebuild FTS index with all existing messages
+        this.db.prepare(`
+          INSERT INTO messages_fts(rowid, content, content_normalized, role, chat_title, created_at)
+          SELECT m.rowid, m.content, LOWER(m.content), m.role, 
+                 COALESCE(c.title, ''), m.created_at
+          FROM messages m
+          LEFT JOIN chats c ON m.chat_id = c.id
+        `).run()
+        
+        console.log(`[Database] FTS index rebuilt with ${messagesCount.count} messages`)
+      }
+    } catch (error) {
+      console.error('[Database] Failed to initialize search index:', error)
     }
   }
 
@@ -367,10 +411,11 @@ export class LocalDatabase {
         c.starred as chat_starred
     `
     
-    // Use FTS5 for text search if query text is provided
+    // Use enhanced FTS5 for text search if query text is provided
     if (query.text && query.text.trim()) {
       sql += `,
-        bm25(messages_fts) as rank
+        bm25(messages_fts, 2.0, 1.0, 0.5, 1.5) as rank,
+        snippet(messages_fts, 0, '<mark>', '</mark>', '...', 32) as snippet
       FROM messages m
       JOIN chats c ON m.chat_id = c.id
       JOIN messages_fts ON messages_fts.rowid = m.rowid
@@ -390,12 +435,14 @@ export class LocalDatabase {
       sql += ` AND ${filterConditions}`
     }
     
-    // Add sorting
-    sql += this.buildSortClause(query.options)
+    // Add sorting with enhanced relevance
+    sql += this.buildEnhancedSortClause(query.options, !!query.text?.trim())
     
     // Add limit
-    if (query.options.maxResults) {
-      sql += ` LIMIT ${query.options.maxResults}`
+    if (query.options.maxResults && query.options.maxResults > 0) {
+      sql += ` LIMIT ${Math.min(query.options.maxResults, 1000)}`
+    } else {
+      sql += ` LIMIT 100` // Default limit
     }
     
     return sql
@@ -406,15 +453,29 @@ export class LocalDatabase {
     
     // Add search text parameter for FTS5
     if (query.text && query.text.trim()) {
-      // Prepare search text for FTS5
       let searchText = query.text.trim()
       
-      if (query.options.wholeWords) {
+      // Handle different search modes
+      if (query.options.useRegex) {
+        // For regex search, use direct pattern
+        params.push(searchText)
+      } else if (query.options.wholeWords) {
         // Add word boundaries for whole word search
         searchText = searchText.split(/\s+/).map(word => `"${word}"`).join(' ')
+        params.push(searchText)
+      } else if (query.options.fuzzyMatch) {
+        // For fuzzy matching, use prefix matching
+        const terms = searchText.split(/\s+/)
+        const fuzzyTerms = terms.map(term => term.length > 2 ? `${term}*` : `"${term}"`).join(' ')
+        params.push(fuzzyTerms)
+      } else {
+        // Default: phrase search for multiple words, term search for single word
+        const words = searchText.split(/\s+/)
+        if (words.length > 1) {
+          searchText = `"${searchText}"` // Phrase search
+        }
+        params.push(searchText)
       }
-      
-      params.push(searchText)
     }
     
     // Add filter parameters
@@ -483,7 +544,7 @@ export class LocalDatabase {
     return conditions.length > 0 ? conditions.join(' AND ') : ''
   }
 
-  private buildSortClause(options: SearchOptions): string {
+  private buildEnhancedSortClause(options: SearchOptions, hasSearchText: boolean): string {
     const sortBy = options.sortBy || 'relevance'
     const sortOrder = options.sortOrder || 'desc'
     
@@ -491,8 +552,21 @@ export class LocalDatabase {
     
     switch (sortBy) {
       case 'relevance':
-        if (options.highlightMatches) {
-          orderClause += 'rank'
+        if (hasSearchText) {
+          // Multi-factor relevance scoring
+          orderClause += `
+            (
+              rank * 
+              CASE WHEN c.starred = 1 THEN 1.5 ELSE 1.0 END *
+              CASE WHEN c.archived = 1 THEN 0.7 ELSE 1.0 END *
+              CASE 
+                WHEN m.role = 'user' THEN 1.2 
+                WHEN m.role = 'assistant' THEN 1.0 
+                ELSE 0.8 
+              END *
+              (1.0 + (julianday('now') - julianday(m.created_at)) / -365.0 * 0.1)
+            )
+          `
         } else {
           orderClause += 'm.created_at'
         }
@@ -509,44 +583,95 @@ export class LocalDatabase {
     
     orderClause += ` ${sortOrder.toUpperCase()}`
     
+    // Secondary sort by date for consistency
+    if (sortBy !== 'date') {
+      orderClause += ', m.created_at DESC'
+    }
+    
     return orderClause
   }
 
-  private extractMatches(content: string, searchText: string, _options: SearchOptions): SearchMatch[] {
+  private extractMatches(content: string, searchText: string, options: SearchOptions): SearchMatch[] {
     const matches: SearchMatch[] = []
     
     if (!searchText || !searchText.trim()) {
       return matches
     }
     
-    const searchTerms = searchText.toLowerCase().split(/\s+/)
+    // Clean search text - remove FTS5 syntax for match extraction
+    const cleanSearchText = searchText.replace(/[*"]/g, '').trim()
+    const searchTerms = cleanSearchText.toLowerCase().split(/\s+/)
     const contentLower = content.toLowerCase()
     
+    // Create a set to avoid duplicate matches
+    const matchSet = new Set<string>()
+    
     for (const term of searchTerms) {
+      if (term.length < 2) continue // Skip very short terms
+      
       let index = 0
       while ((index = contentLower.indexOf(term, index)) !== -1) {
-        const start = Math.max(0, index - 30)
-        const end = Math.min(content.length, index + term.length + 30)
+        const matchKey = `${index}-${index + term.length}`
+        if (matchSet.has(matchKey)) {
+          index += 1
+          continue
+        }
+        
+        matchSet.add(matchKey)
+        
+        // Calculate context window
+        const contextSize = options.contextLines ? options.contextLines * 50 : 60
+        const start = Math.max(0, index - contextSize)
+        const end = Math.min(content.length, index + term.length + contextSize)
+        
+        // Find word boundaries for better context
+        let contextStart = start
+        let contextEnd = end
+        
+        if (start > 0) {
+          const spaceIndex = content.indexOf(' ', start)
+          if (spaceIndex !== -1 && spaceIndex < index) {
+            contextStart = spaceIndex + 1
+          }
+        }
+        
+        if (end < content.length) {
+          const spaceIndex = content.lastIndexOf(' ', end)
+          if (spaceIndex > index + term.length) {
+            contextEnd = spaceIndex
+          }
+        }
         
         matches.push({
           field: 'content',
           text: content.substring(index, index + term.length),
           startIndex: index,
           endIndex: index + term.length,
-          highlighted: this.highlightMatch(content.substring(start, end), term, index - start)
+          highlighted: this.highlightMatch(
+            content.substring(contextStart, contextEnd), 
+            term, 
+            index - contextStart
+          )
         })
         
-        index += term.length
+        index += 1 // Move forward to find overlapping matches
       }
     }
     
-    return matches
+    // Sort matches by position
+    return matches.sort((a, b) => a.startIndex - b.startIndex)
   }
 
   private highlightMatch(text: string, term: string, termIndex: number): string {
-    return text.substring(0, termIndex) +
-           '<mark>' + text.substring(termIndex, termIndex + term.length) + '</mark>' +
-           text.substring(termIndex + term.length)
+    if (termIndex < 0 || termIndex >= text.length) {
+      return text // Safe fallback
+    }
+    
+    const before = text.substring(0, termIndex)
+    const match = text.substring(termIndex, termIndex + term.length)
+    const after = text.substring(termIndex + term.length)
+    
+    return `${before}<mark class="search-highlight">${match}</mark>${after}`
   }
 
   private calculateScore(row: DBSearchResult, _query: SearchQuery): number {
@@ -586,30 +711,144 @@ export class LocalDatabase {
     }
   }
 
-  // Get search statistics
+  // Get enhanced search statistics
   getSearchStats(): any {
-    const totalSearches = this.db.prepare('SELECT COUNT(*) as count FROM search_stats').get() as { count: number }
-    const lastSearch = this.db.prepare('SELECT created_at FROM search_stats ORDER BY created_at DESC LIMIT 1').get() as { created_at: string } | undefined
-    const popularTerms = this.db.prepare(`
-      SELECT query, COUNT(*) as count 
-      FROM search_stats 
-      GROUP BY query 
-      ORDER BY count DESC 
-      LIMIT 10
-    `).all() as Array<{ query: string, count: number }>
-    
-    return {
-      totalMessages: 0, // Would need to get from messages table
-      indexedMessages: 0, // Would need to get from messages table
-      searchTime: 0,
-      resultCount: 0,
-      lastUpdated: new Date(lastSearch?.created_at || Date.now()),
-      totalSearches: totalSearches.count,
-      lastSearchAt: lastSearch?.created_at || '',
-      popularTerms: JSON.stringify(popularTerms)
+    try {
+      const totalMessages = this.db.prepare('SELECT COUNT(*) as count FROM messages').get() as { count: number }
+      const indexedMessages = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as { count: number }
+      const totalSearches = this.db.prepare('SELECT COUNT(*) as count FROM search_stats').get() as { count: number }
+      const lastSearch = this.db.prepare('SELECT created_at FROM search_stats ORDER BY created_at DESC LIMIT 1').get() as { created_at: string } | undefined
+      
+      // Get average search performance
+      const avgSearchTime = this.db.prepare(`
+        SELECT AVG(search_time_ms) as avg_time 
+        FROM search_stats 
+        WHERE created_at > datetime('now', '-30 days')
+      `).get() as { avg_time: number } | undefined
+      
+      // Get popular search terms
+      const popularTerms = this.db.prepare(`
+        SELECT query, COUNT(*) as count, AVG(result_count) as avg_results
+        FROM search_stats 
+        WHERE created_at > datetime('now', '-30 days')
+        GROUP BY query 
+        ORDER BY count DESC 
+        LIMIT 10
+      `).all() as Array<{ query: string, count: number, avg_results: number }>
+      
+      // Get search result distribution
+      const resultDistribution = this.db.prepare(`
+        SELECT 
+          CASE 
+            WHEN result_count = 0 THEN 'no_results'
+            WHEN result_count <= 5 THEN 'few_results'
+            WHEN result_count <= 20 THEN 'moderate_results'
+            ELSE 'many_results'
+          END as category,
+          COUNT(*) as count
+        FROM search_stats
+        WHERE created_at > datetime('now', '-30 days')
+        GROUP BY category
+      `).all() as Array<{ category: string, count: number }>
+      
+      return {
+        totalMessages: totalMessages.count,
+        indexedMessages: indexedMessages.count,
+        indexingComplete: indexedMessages.count >= totalMessages.count,
+        searchTime: avgSearchTime?.avg_time || 0,
+        resultCount: 0,
+        lastUpdated: new Date(lastSearch?.created_at || Date.now()),
+        totalSearches: totalSearches.count,
+        lastSearchAt: lastSearch?.created_at || '',
+        popularTerms: JSON.stringify(popularTerms),
+        resultDistribution: JSON.stringify(resultDistribution),
+        performanceMetrics: {
+          avgSearchTime: avgSearchTime?.avg_time || 0,
+          indexCoverage: totalMessages.count > 0 ? (indexedMessages.count / totalMessages.count) * 100 : 100
+        }
+      }
+    } catch (error) {
+      console.error('Failed to get search stats:', error)
+      return {
+        totalMessages: 0,
+        indexedMessages: 0,
+        indexingComplete: false,
+        searchTime: 0,
+        resultCount: 0,
+        lastUpdated: new Date(),
+        totalSearches: 0,
+        lastSearchAt: '',
+        popularTerms: '[]',
+        resultDistribution: '[]',
+        performanceMetrics: {
+          avgSearchTime: 0,
+          indexCoverage: 0
+        }
+      }
     }
   }
 
+  // Search index management methods
+  rebuildSearchIndex(): void {
+    try {
+      console.log('[Database] Starting search index rebuild...')
+      const startTime = Date.now()
+      
+      // Clear existing FTS data
+      this.db.prepare('DELETE FROM messages_fts').run()
+      
+      // Rebuild with all messages
+      const stmt = this.db.prepare(`
+        INSERT INTO messages_fts(rowid, content, content_normalized, role, chat_title, created_at)
+        SELECT m.rowid, m.content, LOWER(m.content), m.role, 
+               COALESCE(c.title, ''), m.created_at
+        FROM messages m
+        LEFT JOIN chats c ON m.chat_id = c.id
+      `)
+      
+      const result = stmt.run()
+      const endTime = Date.now()
+      
+      console.log(`[Database] Search index rebuilt: ${result.changes} entries in ${endTime - startTime}ms`)
+    } catch (error) {
+      console.error('[Database] Failed to rebuild search index:', error)
+      throw error
+    }
+  }
+
+  optimizeSearchIndex(): void {
+    try {
+      console.log('[Database] Optimizing search index...')
+      const startTime = Date.now()
+      
+      // Optimize FTS5 index
+      this.db.prepare('INSERT INTO messages_fts(messages_fts) VALUES(\'optimize\')').run()
+      
+      // Analyze tables for better query planning
+      this.db.prepare('ANALYZE').run()
+      
+      const endTime = Date.now()
+      console.log(`[Database] Search index optimized in ${endTime - startTime}ms`)
+    } catch (error) {
+      console.error('[Database] Failed to optimize search index:', error)
+    }
+  }
+
+  getSearchIndexStatus(): { needsRebuild: boolean, messageCount: number, indexedCount: number } {
+    try {
+      const messageCount = this.db.prepare('SELECT COUNT(*) as count FROM messages').get() as { count: number }
+      const indexedCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as { count: number }
+      
+      return {
+        needsRebuild: indexedCount.count < messageCount.count,
+        messageCount: messageCount.count,
+        indexedCount: indexedCount.count
+      }
+    } catch (error) {
+      console.error('[Database] Failed to get search index status:', error)
+      return { needsRebuild: true, messageCount: 0, indexedCount: 0 }
+    }
+  }
 
   close(): void {
     this.db.close()

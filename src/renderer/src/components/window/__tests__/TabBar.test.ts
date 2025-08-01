@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { mountComponent } from '../../../../../test/utils'  
 import TabBar from '../TabBar.vue'
 import { windowManager, type WindowTab } from '@renderer/src/services/window/WindowManager'
 
@@ -102,7 +103,7 @@ describe('TabBar', () => {
 
   describe('Rendering', () => {
     it('should render all tabs', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
 
@@ -115,7 +116,7 @@ describe('TabBar', () => {
     })
 
     it('should mark active tab correctly', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
 
@@ -126,7 +127,7 @@ describe('TabBar', () => {
     })
 
     it('should show modified indicator for modified tabs', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
 
@@ -141,7 +142,7 @@ describe('TabBar', () => {
     })
 
     it('should show close button for closable tabs', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
 
@@ -156,7 +157,7 @@ describe('TabBar', () => {
     })
 
     it('should show add button when enabled', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showAddButton: true
@@ -167,7 +168,7 @@ describe('TabBar', () => {
     })
 
     it('should hide add button when disabled', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showAddButton: false
@@ -178,7 +179,7 @@ describe('TabBar', () => {
     })
 
     it('should show navigation buttons when enabled', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showNavigation: true
@@ -190,7 +191,7 @@ describe('TabBar', () => {
     })
 
     it('should show tab menu button when enabled', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showTabMenu: true
@@ -203,7 +204,7 @@ describe('TabBar', () => {
 
   describe('Tab Interactions', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
     })
@@ -225,7 +226,7 @@ describe('TabBar', () => {
     })
 
     it('should emit tab-add when add button is clicked', async () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showAddButton: true
@@ -255,7 +256,7 @@ describe('TabBar', () => {
 
   describe('Context Menu', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
     })
@@ -289,7 +290,7 @@ describe('TabBar', () => {
 
   describe('Drag and Drop', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           allowTabDrag: true
@@ -305,7 +306,7 @@ describe('TabBar', () => {
     })
 
     it('should not set draggable attribute when drag is disabled', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           allowTabDrag: false
@@ -356,7 +357,7 @@ describe('TabBar', () => {
 
   describe('Keyboard Navigation', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
 
@@ -377,7 +378,7 @@ describe('TabBar', () => {
 
   describe('Scrolling', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showNavigation: true
@@ -433,7 +434,7 @@ describe('TabBar', () => {
 
   describe('All Tabs Menu', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           showTabMenu: true
@@ -482,7 +483,7 @@ describe('TabBar', () => {
 
   describe('Tab Actions', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
     })
@@ -547,7 +548,7 @@ describe('TabBar', () => {
 
   describe('Loading States', () => {
     beforeEach(() => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: defaultProps
       })
     })
@@ -580,7 +581,7 @@ describe('TabBar', () => {
 
   describe('Props and Configuration', () => {
     it('should respect maxTabWidth prop', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           maxTabWidth: 300
@@ -596,7 +597,7 @@ describe('TabBar', () => {
     })
 
     it('should respect minTabWidth prop', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           minTabWidth: 80
@@ -608,7 +609,7 @@ describe('TabBar', () => {
     })
 
     it('should handle empty tabs array', () => {
-      wrapper = mount(TabBar, {
+      wrapper = mountComponent(TabBar, {
         props: {
           ...defaultProps,
           tabs: [],

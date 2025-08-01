@@ -38,7 +38,10 @@
         <div class="stats-content">
           <div class="stat-item">
             <Database :size="14" />
-            <span>{{ $t('search.indexedMessages') }}: {{ searchStats.indexedMessages }}</span>
+            <span>{{ $t('search.indexedMessages') }}: {{ searchStats.indexedMessages }}/{{ searchStats.totalMessages }}</span>
+            <div v-if="indexStatus.needsRebuild" class="status-indicator warning" title="搜索索引需要重建">
+              !
+            </div>
           </div>
           
           <div class="stat-item">
@@ -46,9 +49,31 @@
             <span>{{ $t('search.lastUpdated') }}: {{ formatTime(searchStats.lastUpdated) }}</span>
           </div>
           
-          <div v-if="searchStats.resultCount > 0" class="stat-item">
+          <div v-if="searchStats.performanceMetrics?.avgSearchTime" class="stat-item">
             <TrendingUp :size="14" />
-            <span>{{ $t('search.searchTime') }}: {{ searchStats.searchTime }}ms</span>
+            <span>{{ $t('search.avgSearchTime') }}: {{ Math.round(searchStats.performanceMetrics.avgSearchTime) }}ms</span>
+          </div>
+          
+          <div class="stat-actions">
+            <button 
+              @click="rebuildIndex" 
+              :disabled="isIndexing"
+              class="stat-action-btn"
+              title="重建搜索索引"
+            >
+              <component :is="isIndexing ? Clock : Database" :size="12" :class="{ 'animate-spin': isIndexing }" />
+              {{ isIndexing ? '重建中...' : '重建索引' }}
+            </button>
+            
+            <button 
+              @click="optimizeIndex" 
+              :disabled="isOptimizing"
+              class="stat-action-btn"
+              title="优化搜索性能"
+            >
+              <component :is="isOptimizing ? Clock : TrendingUp" :size="12" :class="{ 'animate-spin': isOptimizing }" />
+              {{ isOptimizing ? '优化中...' : '优化索引' }}
+            </button>
           </div>
         </div>
         
@@ -139,7 +164,8 @@ import {
   Maximize2, Minimize2
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { searchService, type SearchResult, type SearchStats } from '@renderer/src/services/search/SearchService'
+import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
+import type { SearchResult, SearchStats } from '@main/db/searchTypes'
 import MessageSearch from './MessageSearch.vue'
 
 // Props
@@ -180,6 +206,15 @@ const searchStats = ref<SearchStats>({
   resultCount: 0,
   lastUpdated: new Date()
 })
+
+const indexStatus = ref({
+  needsRebuild: false,
+  messageCount: 0,
+  indexedCount: 0
+})
+
+const isIndexing = ref(false)
+const isOptimizing = ref(false)
 
 // Platform detection
 const isMac = ref(false)
@@ -263,8 +298,49 @@ const onSearchClear = () => {
   updateStats()
 }
 
-const updateStats = () => {
-  searchStats.value = searchService.getSearchStats()
+const updateStats = async () => {
+  try {
+    searchStats.value = await backendSearchService.getSearchStats()
+    indexStatus.value = await backendSearchService.getSearchIndexStatus()
+  } catch (error) {
+    console.error('Failed to update search stats:', error)
+  }
+}
+
+const rebuildIndex = async () => {
+  if (isIndexing.value) return
+  
+  try {
+    isIndexing.value = true
+    await backendSearchService.rebuildSearchIndex()
+    await updateStats()
+    
+    // Show success message (could use toast service)
+    console.log('Search index rebuilt successfully')
+  } catch (error) {
+    console.error('Failed to rebuild search index:', error)
+    // Show error message
+  } finally {
+    isIndexing.value = false
+  }
+}
+
+const optimizeIndex = async () => {
+  if (isOptimizing.value) return
+  
+  try {
+    isOptimizing.value = true
+    await backendSearchService.optimizeSearchIndex()
+    await updateStats()
+    
+    // Show success message
+    console.log('Search index optimized successfully')
+  } catch (error) {
+    console.error('Failed to optimize search index:', error)
+    // Show error message
+  } finally {
+    isOptimizing.value = false
+  }
 }
 
 const formatTime = (date: Date): string => {
@@ -356,14 +432,10 @@ onMounted(() => {
 
   // Update initial stats
   updateStats()
-
-  // Listen for search service updates
-  searchService.on('index-updated', updateStats)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleGlobalKeydown)
-  searchService.off('index-updated', updateStats)
 })
 
 // Watch for prop changes
@@ -445,7 +517,24 @@ defineExpose({
 }
 
 .stat-item {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 relative;
+}
+
+.status-indicator {
+  @apply w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold;
+}
+
+.status-indicator.warning {
+  @apply bg-yellow-500 text-yellow-900;
+}
+
+.stat-actions {
+  @apply flex items-center gap-2 ml-auto;
+}
+
+.stat-action-btn {
+  @apply flex items-center gap-1 px-2 py-1 text-xs rounded border border-border 
+         hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .stats-close {
@@ -508,6 +597,19 @@ defineExpose({
   to {
     opacity: 1;
   }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 @keyframes slideUp {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { mountComponent } from '../../../../../test/utils'
 import ChatInput from '../ChatInput.vue'
 import type { Attachment } from '@renderer/src/types'
 
@@ -11,6 +11,31 @@ vi.mock('../AttachmentsPreview.vue', () => ({
     template: '<div class="attachments-preview"><slot /></div>',
     props: ['attachments'],
     emits: ['remove']
+  }
+}))
+
+vi.mock('../VoiceInputButton.vue', () => ({
+  default: {
+    name: 'VoiceInputButton',
+    template: '<button class="voice-input-btn" @click="$emit(\'recording-start\')" />',
+    props: ['disabled', 'size', 'variant'],
+    emits: ['recording-start', 'recording-stop', 'permission-required', 'error'],
+    methods: {
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      isRecording: vi.fn(() => false),
+      isSupported: vi.fn(() => true),
+      hasPermission: vi.fn(() => true)
+    }
+  }
+}))
+
+vi.mock('@renderer/src/components/voice/VoiceRecorder.vue', () => ({
+  default: {
+    name: 'VoiceRecorder',
+    template: '<div class="voice-recorder" />',
+    props: ['showWaveform', 'continuous', 'autoStart'],
+    emits: ['transcript', 'recording-stop', 'error']
   }
 }))
 
@@ -55,7 +80,7 @@ describe('ChatInput', () => {
 
   describe('Rendering', () => {
     it('renders input field correctly', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -64,7 +89,7 @@ describe('ChatInput', () => {
     })
 
     it('shows configuration prompt when not configured', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: {
           ...defaultProps,
           isConfigured: false
@@ -76,7 +101,7 @@ describe('ChatInput', () => {
     })
 
     it('disables input when disabled prop is true', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: {
           ...defaultProps,
           disabled: true
@@ -88,7 +113,7 @@ describe('ChatInput', () => {
     })
 
     it('shows loading state when isLoading is true', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: {
           ...defaultProps,
           isLoading: true
@@ -99,7 +124,7 @@ describe('ChatInput', () => {
     })
 
     it('auto-focuses input when autoFocus is true', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: {
           ...defaultProps,
           autoFocus: true
@@ -114,7 +139,7 @@ describe('ChatInput', () => {
 
   describe('Message Input', () => {
     it('updates message content on input', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -125,7 +150,7 @@ describe('ChatInput', () => {
     })
 
     it('sends message on Enter key', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -138,7 +163,7 @@ describe('ChatInput', () => {
     })
 
     it('does not send message on Shift+Enter', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -150,7 +175,7 @@ describe('ChatInput', () => {
     })
 
     it('sends message on send button click', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -165,7 +190,7 @@ describe('ChatInput', () => {
     })
 
     it('clears input after sending message', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -177,7 +202,7 @@ describe('ChatInput', () => {
     })
 
     it('does not send empty messages', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -189,7 +214,7 @@ describe('ChatInput', () => {
     })
 
     it('trims whitespace from messages', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -203,7 +228,7 @@ describe('ChatInput', () => {
 
   describe('Textarea Auto-resize', () => {
     it('auto-resizes textarea based on content', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -222,7 +247,7 @@ describe('ChatInput', () => {
     })
 
     it('respects maximum height limit', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -239,7 +264,7 @@ describe('ChatInput', () => {
 
   describe('File Attachments', () => {
     it('shows attachment button', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -247,7 +272,7 @@ describe('ChatInput', () => {
     })
 
     it('opens file picker when attachment button is clicked', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -261,7 +286,7 @@ describe('ChatInput', () => {
     })
 
     it('handles file selection', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -296,7 +321,7 @@ describe('ChatInput', () => {
     })
 
     it('shows attachments preview when files are attached', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -315,7 +340,7 @@ describe('ChatInput', () => {
     })
 
     it('removes attachment when requested', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -336,7 +361,7 @@ describe('ChatInput', () => {
     })
 
     it('includes attachments when sending message', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -360,7 +385,7 @@ describe('ChatInput', () => {
 
   describe('Voice Input', () => {
     it('shows voice toggle button', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -368,7 +393,7 @@ describe('ChatInput', () => {
     })
 
     it('toggles voice input on button click', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -380,7 +405,7 @@ describe('ChatInput', () => {
     })
 
     it('shows different icon when voice is active', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -393,7 +418,7 @@ describe('ChatInput', () => {
 
   describe('Keyboard Shortcuts', () => {
     it('handles Ctrl+Enter for send', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -405,7 +430,7 @@ describe('ChatInput', () => {
     })
 
     it('handles Cmd+Enter for send on Mac', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -417,7 +442,7 @@ describe('ChatInput', () => {
     })
 
     it('handles Escape to clear input', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -431,7 +456,7 @@ describe('ChatInput', () => {
 
   describe('Character Counter', () => {
     it('shows character counter near limit', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -444,7 +469,7 @@ describe('ChatInput', () => {
     })
 
     it('shows warning when approaching limit', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -457,7 +482,7 @@ describe('ChatInput', () => {
     })
 
     it('prevents sending when over limit', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -472,7 +497,7 @@ describe('ChatInput', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA labels', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -482,7 +507,7 @@ describe('ChatInput', () => {
     })
 
     it('shows placeholder text', () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -491,7 +516,7 @@ describe('ChatInput', () => {
     })
 
     it('supports keyboard navigation', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -505,7 +530,7 @@ describe('ChatInput', () => {
 
   describe('Edge Cases', () => {
     it('handles paste events correctly', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -522,7 +547,7 @@ describe('ChatInput', () => {
     })
 
     it('handles rapid typing without issues', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -537,7 +562,7 @@ describe('ChatInput', () => {
     })
 
     it('maintains cursor position during auto-resize', async () => {
-      const wrapper = mount(ChatInput, {
+      const wrapper = mountComponent(ChatInput, {
         props: defaultProps
       })
 
@@ -551,6 +576,223 @@ describe('ChatInput', () => {
       await textarea.trigger('input')
       
       expect(textarea.element.selectionStart).toBe(7)
+    })
+  })
+
+  describe('Voice Input Integration', () => {
+    it('shows voice input button when showVoiceInput prop is true', () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      expect(wrapper.find('.voice-input-btn').exists()).toBe(true)
+    })
+
+    it('does not show voice input button when showVoiceInput prop is false', () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: false }
+      })
+
+      expect(wrapper.find('.voice-input-btn').exists()).toBe(false)
+    })
+
+    it('handles voice recording start event', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-start')
+
+      expect(wrapper.emitted('voice-toggle')?.[0]).toEqual([true])
+    })
+
+    it('handles voice recording stop event', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-stop')
+
+      expect(wrapper.emitted('voice-toggle')?.[0]).toEqual([false])
+    })
+
+    it('handles voice permission required event', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('permission-required')
+
+      // Should not throw any errors
+      expect(wrapper.exists()).toBe(true)
+    })
+
+    it('handles voice error event', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('error', 'Test error')
+
+      expect(wrapper.emitted('voice-error')?.[0]).toEqual(['Test error'])
+    })
+
+    it('shows voice interface when recording is active', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-start')
+
+      expect(wrapper.find('.voice-interface').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'VoiceRecorder' }).exists()).toBe(true)
+    })
+
+    it('hides voice interface when recording stops', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      
+      // Start recording
+      await voiceButton.vm.$emit('recording-start')
+      expect(wrapper.find('.voice-interface').exists()).toBe(true)
+
+      // Stop recording
+      await voiceButton.vm.$emit('recording-stop')
+      expect(wrapper.find('.voice-interface').exists()).toBe(false)
+    })
+
+    it('updates placeholder text when voice input is active', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const textarea = wrapper.find('textarea')
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+
+      // Start recording
+      await voiceButton.vm.$emit('recording-start')
+      await nextTick()
+
+      expect(textarea.attributes('placeholder')).toBe('Speaking... Click mic to stop')
+    })
+
+    it('handles voice transcript events', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-start')
+
+      const voiceRecorder = wrapper.findComponent({ name: 'VoiceRecorder' })
+      await voiceRecorder.vm.$emit('transcript', 'Hello world', 0.9)
+
+      expect(wrapper.emitted('voice-transcript')?.[0]).toEqual(['Hello world', 0.9])
+    })
+
+    it('adds transcript to input when confidence is high', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-start')
+
+      const voiceRecorder = wrapper.findComponent({ name: 'VoiceRecorder' })
+      await voiceRecorder.vm.$emit('transcript', 'Hello world', 0.9)
+
+      const textarea = wrapper.find('textarea')
+      expect(textarea.element.value).toBe('Hello world')
+    })
+
+    it('does not add transcript to input when confidence is low', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      await voiceButton.vm.$emit('recording-start')
+
+      const voiceRecorder = wrapper.findComponent({ name: 'VoiceRecorder' })
+      await voiceRecorder.vm.$emit('transcript', 'Hello world', 0.5)
+
+      const textarea = wrapper.find('textarea')
+      expect(textarea.element.value).toBe('')
+    })
+
+    it('exposes toggleVoiceInput method', () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      expect(wrapper.vm.toggleVoiceInput).toBeDefined()
+      expect(typeof wrapper.vm.toggleVoiceInput).toBe('function')
+    })
+  })
+
+  describe('Keyboard Shortcuts', () => {
+    it('toggles voice input with Ctrl+Shift+M', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      // Mock the VoiceInputButton methods
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      const startRecordingSpy = vi.spyOn(voiceButton.vm, 'startRecording')
+
+      // Trigger keyboard shortcut
+      await document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'M',
+        ctrlKey: true,
+        shiftKey: true
+      }))
+
+      expect(startRecordingSpy).toHaveBeenCalled()
+    })
+
+    it('stops voice recording with Escape key', async () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const voiceButton = wrapper.findComponent({ name: 'VoiceInputButton' })
+      const stopRecordingSpy = vi.spyOn(voiceButton.vm, 'stopRecording')
+
+      // Start recording first
+      await voiceButton.vm.$emit('recording-start')
+
+      // Trigger escape key
+      await document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'Escape'
+      }))
+
+      expect(stopRecordingSpy).toHaveBeenCalled()
+    })
+
+    it('shows keyboard shortcut hint when voice input is enabled', () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: true }
+      })
+
+      const hints = wrapper.find('.keyboard-hints')
+      expect(hints.text()).toContain('Ctrl+Shift+M')
+    })
+
+    it('does not show voice shortcut hint when voice input is disabled', () => {
+      const wrapper = mountComponent(ChatInput, {
+        props: { ...defaultProps, showVoiceInput: false }
+      })
+
+      const hints = wrapper.find('.keyboard-hints')
+      expect(hints.text()).not.toContain('Ctrl+Shift+M')
     })
   })
 })

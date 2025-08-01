@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { mountComponent } from '../../../../../test/utils'
 import ChatMessages from '../ChatMessages.vue'
 import type { Message } from '@renderer/src/types'
 
@@ -81,7 +81,7 @@ describe('ChatMessages', () => {
 
   describe('Rendering', () => {
     it('renders messages correctly', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -91,7 +91,7 @@ describe('ChatMessages', () => {
     })
 
     it('shows empty state when no messages', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: []
@@ -104,7 +104,7 @@ describe('ChatMessages', () => {
     })
 
     it('shows quick suggestions in empty state', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: []
@@ -117,7 +117,7 @@ describe('ChatMessages', () => {
     })
 
     it('shows loading skeleton when isLoading is true', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           isLoading: true
@@ -128,7 +128,7 @@ describe('ChatMessages', () => {
     })
 
     it('shows typing indicator when isGenerating is true', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           isGenerating: true
@@ -141,7 +141,7 @@ describe('ChatMessages', () => {
 
   describe('Scrolling Behavior', () => {
     it('scrolls to bottom automatically when new message is added', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -163,7 +163,7 @@ describe('ChatMessages', () => {
     })
 
     it('shows scroll to bottom button when not at bottom', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -180,7 +180,7 @@ describe('ChatMessages', () => {
     })
 
     it('hides scroll to bottom button when at bottom', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -199,7 +199,7 @@ describe('ChatMessages', () => {
 
   describe('Events', () => {
     it('emits send-suggestion when suggestion chip is clicked', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: []
@@ -212,7 +212,7 @@ describe('ChatMessages', () => {
     })
 
     it('emits retry-message when message retry is triggered', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -224,7 +224,7 @@ describe('ChatMessages', () => {
     })
 
     it('emits edit-message when message edit is triggered', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -236,7 +236,7 @@ describe('ChatMessages', () => {
     })
 
     it('emits delete-message when message delete is triggered', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -248,7 +248,7 @@ describe('ChatMessages', () => {
     })
 
     it('scrolls to bottom when scroll button is clicked', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -282,7 +282,7 @@ describe('ChatMessages', () => {
         }
       ]
 
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: consecutiveMessages
@@ -312,7 +312,7 @@ describe('ChatMessages', () => {
         }
       ]
 
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: messagesWithGap
@@ -334,7 +334,7 @@ describe('ChatMessages', () => {
         chatId: 'chat1'
       })) as Message[]
 
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: manyMessages
@@ -349,7 +349,7 @@ describe('ChatMessages', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA labels', () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -358,7 +358,7 @@ describe('ChatMessages', () => {
     })
 
     it('announces new messages to screen readers', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 
@@ -387,7 +387,7 @@ describe('ChatMessages', () => {
         chatId: 'chat1'
       }]
 
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: messagesWithEmpty
@@ -404,7 +404,7 @@ describe('ChatMessages', () => {
         role: 'user'
       , timestamp: new Date() } as Message]
 
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: {
           ...defaultProps,
           messages: messagesWithoutTimestamp
@@ -415,7 +415,7 @@ describe('ChatMessages', () => {
     })
 
     it('handles rapid message updates', async () => {
-      const wrapper = mount(ChatMessages, {
+      const wrapper = mountComponent(ChatMessages, {
         props: defaultProps
       })
 

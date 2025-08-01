@@ -1,9 +1,33 @@
 <template>
-  <div class="settings-view flex h-full">
+  <div class="settings-view flex h-full relative">
+    <!-- Mobile overlay -->
+    <div 
+      v-if="sidebarOpen && isMobile"
+      class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+      @click="sidebarOpen = false"
+    ></div>
+    
     <!-- Settings Sidebar -->
-    <aside class="w-64 bg-secondary/30 backdrop-blur-sm border-r flex flex-col">
+    <aside 
+      class="settings-sidebar w-64 bg-secondary/30 backdrop-blur-sm border-r flex flex-col transition-transform duration-300 ease-in-out z-50"
+      :class="{
+        'fixed top-0 left-0 h-full md:relative md:translate-x-0': isMobile,
+        '-translate-x-full': isMobile && !sidebarOpen,
+        'translate-x-0': !isMobile || sidebarOpen
+      }"
+    >
       <div class="p-4 border-b">
         <div class="flex items-center gap-3">
+          <!-- Mobile menu button -->
+          <button
+            v-if="isMobile"
+            @click="sidebarOpen = false"
+            class="p-2 hover:bg-accent/50 rounded-lg transition-colors md:hidden"
+            title="Close menu"
+          >
+            <X :size="18" />
+          </button>
+          
           <button
             @click="$router.push('/')"
             class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
@@ -35,7 +59,25 @@
     </aside>
 
     <!-- Settings Content -->
-    <main class="flex-1 p-6 overflow-y-auto">
+    <main class="flex-1 flex flex-col min-w-0">
+      <!-- Mobile header -->
+      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b md:hidden">
+        <button
+          @click="sidebarOpen = !sidebarOpen"
+          class="p-2 hover:bg-muted rounded-lg transition-colors"
+        >
+          <Menu :size="20" />
+        </button>
+        <h1 class="font-semibold">{{ getActiveTabLabel() }}</h1>
+        <button
+          @click="$router.push('/')"
+          class="p-2 hover:bg-muted rounded-lg transition-colors"
+        >
+          <ArrowLeft :size="20" />
+        </button>
+      </header>
+
+      <div class="flex-1 p-4 sm:p-6 overflow-y-auto">
       <div class="max-w-2xl">
         <!-- LLM Provider Settings -->
         <div v-if="activeTab === 'llm'" class="space-y-6">
@@ -50,7 +92,7 @@
           <div class="space-y-4">
             <div>
               <span class="text-sm font-medium mb-3 block">Choose Provider</span>
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <button
                   v-for="provider in providers"
                   :key="provider.id"
@@ -301,13 +343,14 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff } from 'lucide-vue-next'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X } from 'lucide-vue-next'
 
 const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
@@ -338,6 +381,29 @@ const llmConfig = reactive({
 })
 
 const statusMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
+
+// Mobile responsive state
+const sidebarOpen = ref(false)
+const isMobile = ref(false)
+
+// Check if device is mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+  if (!isMobile.value) {
+    sidebarOpen.value = false
+  }
+}
+
+// Handle window resize
+const handleResize = () => {
+  checkMobile()
+}
+
+// Get active tab label for mobile header
+const getActiveTabLabel = () => {
+  const tab = tabs.find(t => t.id === activeTab.value)
+  return tab ? tab.label : 'Settings'
+}
 
 const getPlaceholderURL = () => {
   switch (llmConfig.provider) {
@@ -455,6 +521,9 @@ const loadPlugins = async () => {
 
 // Load existing config on mount
 onMounted(async () => {
+  // Setup responsive behavior
+  checkMobile()
+  window.addEventListener('resize', handleResize)
   // Load LLM config
   const config = await window.api.llm.getConfig()
   if (config) {
@@ -472,6 +541,11 @@ onMounted(async () => {
   
   // Load plugins
   await loadPlugins()
+})
+
+// Cleanup
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -511,5 +585,60 @@ input:focus, select:focus, textarea:focus {
 /* Smooth transitions */
 button, input, select {
   transition: all 0.2s ease;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .settings-sidebar {
+    -webkit-app-region: no-drag;
+  }
+  
+  .max-w-2xl {
+    max-width: none;
+  }
+  
+  /* Better spacing on mobile */
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Provider cards stack better on mobile */
+  .grid.grid-cols-1 {
+    gap: 0.75rem;
+  }
+  
+  /* Form improvements */
+  input[type="password"],
+  input[type="text"],
+  input[type="url"],
+  select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+  
+  /* Button improvements */
+  button {
+    min-height: 44px; /* Better touch target */
+  }
+}
+
+/* Settings sidebar responsiveness */
+.settings-sidebar {
+  -webkit-app-region: no-drag;
+}
+
+/* Improved focus states for mobile */
+@media (hover: none) {
+  button:hover {
+    transform: none;
+  }
+  
+  button:active {
+    transform: scale(0.98);
+  }
 }
 </style>

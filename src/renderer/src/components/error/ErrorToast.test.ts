@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountComponent, nextTick } from '@renderer/src/test/utils'
+import { mountComponent, nextTick } from '../../../../../test/utils'
 import ErrorToast from './ErrorToast.vue'
 
 describe('ErrorToast', () => {

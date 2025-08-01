@@ -14,8 +14,29 @@ export function createTestApp() {
       { path: '/settings', component: { template: '<div>Settings</div>' } }
     ]
   })
+
+  // Create a simple i18n-like plugin for testing
+  const i18n = {
+    install(app: any) {
+      app.config.globalProperties.$t = (key: string) => key
+      app.config.globalProperties.$tc = (key: string) => key
+      app.config.globalProperties.$te = () => true
+      app.config.globalProperties.$d = (date: Date) => date.toString()
+      app.config.globalProperties.$n = (num: number) => num.toString()
+      app.provide('i18n', {
+        global: {
+          t: (key: string) => key,
+          tc: (key: string) => key,
+          te: () => true,
+          d: (date: Date) => date.toString(),
+          n: (num: number) => num.toString(),
+          locale: { value: 'en' }
+        }
+      })
+    }
+  }
   
-  return { pinia, router }
+  return { pinia, router, i18n }
 }
 
 export function mountComponent(
@@ -27,11 +48,11 @@ export function mountComponent(
     shallow?: boolean
   } = {}
 ): VueWrapper {
-  const { pinia, router } = createTestApp()
+  const { pinia, router, i18n } = createTestApp()
   
   return mount(component, {
     global: {
-      plugins: [pinia, router],
+      plugins: [pinia, router, i18n],
       stubs: {
         'router-link': true,
         'router-view': true

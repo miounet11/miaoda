@@ -105,6 +105,92 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 // Mock HTMLElement.scrollIntoView
 HTMLElement.prototype.scrollIntoView = vi.fn()
 
+// Mock VoiceService
+vi.mock('@renderer/src/services/voice/VoiceService', () => {
+  const mockVoiceService = {
+    getCapabilities: vi.fn().mockReturnValue({
+      speechRecognition: true,
+      speechSynthesis: true,
+      getUserMedia: true
+    }),
+    isRecognitionSupported: vi.fn().mockReturnValue(true),
+    isSynthesisSupported: vi.fn().mockReturnValue(true),
+    isRecognitionRunning: vi.fn().mockReturnValue(false),
+    isSynthesisRunning: vi.fn().mockReturnValue(false),
+    hasMicrophonePermission: vi.fn().mockReturnValue(true),
+    startRecognition: vi.fn().mockResolvedValue(true),
+    stopRecognition: vi.fn().mockReturnValue(true),
+    synthesizeSpeech: vi.fn().mockResolvedValue(true),
+    stopSynthesis: vi.fn().mockReturnValue(true),
+    pauseSynthesis: vi.fn().mockReturnValue(true),
+    resumeSynthesis: vi.fn().mockReturnValue(true),
+    updateConfig: vi.fn(),
+    getConfig: vi.fn().mockReturnValue({
+      recognition: {
+        language: 'zh-CN',
+        continuous: true,
+        interimResults: true,
+        maxAlternatives: 3,
+        noiseSuppressionLevel: 0.8
+      },
+      synthesis: {
+        voice: null,
+        rate: 1.0,
+        pitch: 1.0,
+        volume: 1.0,
+        language: 'zh-CN'
+      },
+      permissions: {
+        microphone: false,
+        autoStart: false
+      },
+      ui: {
+        showWaveform: true,
+        showConfidence: true,
+        highlightKeywords: true
+      }
+    }),
+    getAvailableVoices: vi.fn().mockReturnValue([]),
+    getSupportedLanguages: vi.fn().mockReturnValue(['zh-CN', 'en-US']),
+    destroy: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn(),
+    clear: vi.fn()
+  }
+
+  return {
+    VoiceService: vi.fn().mockImplementation(() => mockVoiceService),
+    voiceService: mockVoiceService
+  }
+})
+
+// Mock vue-i18n
+vi.mock('vue-i18n', () => ({
+  createI18n: vi.fn(() => ({
+    global: {
+      t: vi.fn((key: string) => key),
+      tc: vi.fn((key: string) => key),
+      te: vi.fn(() => true),
+      d: vi.fn((date: Date) => date.toString()),
+      n: vi.fn((num: number) => num.toString()),
+      locale: { value: 'en' },
+      availableLocales: ['en', 'zh-CN'],
+      setLocaleMessage: vi.fn(),
+      fallbackLocale: 'en'
+    },
+    install: vi.fn()
+  })),
+  useI18n: vi.fn(() => ({
+    t: vi.fn((key: string) => key),
+    tc: vi.fn((key: string) => key),
+    te: vi.fn(() => true),
+    d: vi.fn((date: Date) => date.toString()),
+    n: vi.fn((num: number) => num.toString()),
+    locale: { value: 'en' }
+  }))
+}))
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

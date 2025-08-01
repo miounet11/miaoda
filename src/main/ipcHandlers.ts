@@ -130,6 +130,36 @@ export function registerIPCHandlers(
     }
   })
 
+  // Search index management handlers
+  ipcMain.handle('search:rebuild-index', async () => {
+    try {
+      db.rebuildSearchIndex()
+      return { success: true }
+    } catch (error: any) {
+      console.error('Failed to rebuild search index:', error)
+      throw new Error(`Failed to rebuild search index: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:optimize-index', async () => {
+    try {
+      db.optimizeSearchIndex()
+      return { success: true }
+    } catch (error: any) {
+      console.error('Failed to optimize search index:', error)
+      throw new Error(`Failed to optimize search index: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:get-index-status', async () => {
+    try {
+      return db.getSearchIndexStatus()
+    } catch (error: any) {
+      console.error('Failed to get search index status:', error)
+      throw new Error(`Failed to get search index status: ${error.message}`)
+    }
+  })
+
   // Export handlers
   ipcMain.handle('export:get-chat', async (_, chatId: string) => {
     try {

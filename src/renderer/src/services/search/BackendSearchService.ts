@@ -41,10 +41,46 @@ export class BackendSearchService {
       const stats = await window.api.search.getStats()
       return {
         ...stats,
-        lastUpdated: new Date(stats.last_search_at)
+        lastUpdated: new Date(stats.lastSearchAt || Date.now())
       }
     } catch (error) {
       console.error('Failed to get search stats:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Rebuild search index
+   */
+  async rebuildSearchIndex(): Promise<{ success: boolean }> {
+    try {
+      return await window.api.search.rebuildIndex()
+    } catch (error) {
+      console.error('Failed to rebuild search index:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Optimize search index for better performance
+   */
+  async optimizeSearchIndex(): Promise<{ success: boolean }> {
+    try {
+      return await window.api.search.optimizeIndex()
+    } catch (error) {
+      console.error('Failed to optimize search index:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get search index status
+   */
+  async getSearchIndexStatus(): Promise<{ needsRebuild: boolean, messageCount: number, indexedCount: number }> {
+    try {
+      return await window.api.search.getIndexStatus()
+    } catch (error) {
+      console.error('Failed to get search index status:', error)
       throw error
     }
   }

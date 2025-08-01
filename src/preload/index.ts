@@ -22,7 +22,10 @@ const api = {
   },
   search: {
     messages: (searchQuery: any) => ipcRenderer.invoke('search:messages', searchQuery),
-    getStats: () => ipcRenderer.invoke('search:get-stats')
+    getStats: () => ipcRenderer.invoke('search:get-stats'),
+    rebuildIndex: () => ipcRenderer.invoke('search:rebuild-index'),
+    optimizeIndex: () => ipcRenderer.invoke('search:optimize-index'),
+    getIndexStatus: () => ipcRenderer.invoke('search:get-index-status')
   },
   llm: {
     setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),

@@ -32,17 +32,17 @@
             </button>
             
             <!-- Voice Input Button -->
-            <button
-              v-if="showVoiceInput && voiceSupported"
-              @click="toggleVoiceInput"
-              class="action-btn p-2 hover:bg-background rounded-lg transition-colors group"
-              :class="{ 'bg-red-500 text-white': isVoiceInputActive }"
-              :title="voiceButtonTitle"
+            <VoiceInputButton
+              ref="voiceInputButtonRef"
+              v-if="showVoiceInput"
               :disabled="disabled"
-            >
-              <Mic :size="16" class="group-hover:text-primary transition-colors sm:w-[18px] sm:h-[18px]" 
-                   :class="{ 'text-white': isVoiceInputActive }" />
-            </button>
+              size="md"
+              variant="ghost"
+              @recording-start="handleVoiceRecordingStart"
+              @recording-stop="handleVoiceRecordingStop"
+              @permission-required="handleVoicePermissionRequired"
+              @error="handleVoiceError"
+            />
           </div>
           
           <!-- Text Input -->
@@ -91,8 +91,8 @@
         <div class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block">
           Press <kbd class="kbd">Enter</kbd> to send, 
           <kbd class="kbd">Shift+Enter</kbd> for new line
-          <span v-if="showVoiceInput && voiceSupported" class="ml-4">
-            Click <Mic :size="12" class="inline mx-1" /> for voice input
+          <span v-if="showVoiceInput" class="ml-4">
+            <kbd class="kbd">Ctrl+Shift+M</kbd> for voice input
           </span>
         </div>
         
@@ -106,10 +106,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { Send, Paperclip, AlertCircle, Mic } from 'lucide-vue-next'
 import AttachmentsPreview from './AttachmentsPreview.vue'
 import VoiceRecorder from '@renderer/src/components/voice/VoiceRecorder.vue'
+import VoiceInputButton from './VoiceInputButton.vue'
 import { useErrorHandler } from '@renderer/src/composables/useErrorHandler'
 import { voiceService } from '@renderer/src/services/voice/VoiceService'
 
@@ -143,17 +144,19 @@ const props = withDefaults(defineProps<Props>(), {
   autoFocus: false
 })
 
-defineEmits<{
+const emit = defineEmits<{
   'send': [message: string, attachments: Attachment[]]
   'open-settings': []
   'voice-toggle': [enabled: boolean]
+  'voice-transcript': [text: string, confidence: number]
+  'voice-error': [error: string]
 }>()
 
 const textareaRef = ref<HTMLTextAreaElement>()
+const voiceInputButtonRef = ref<InstanceType<typeof VoiceInputButton>>()
 const inputText = ref('')
 const attachments = ref<Attachment[]>([])
 const isVoiceInputActive = ref(false)
-const voiceSupported = ref(false)
 const voiceTranscript = ref('')
 const { handleError, showError } = useErrorHandler()
 
@@ -177,19 +180,14 @@ const sendButtonTooltip = computed(() => {
   return 'Send message'
 })
 
-const computedPlaceholder = computed(() => {
+const placeholder = computed(() => {
   if (!props.isConfigured) return 'Configure LLM provider first...'
   if (props.disabled) return 'Disabled...'
   if (props.isLoading) return 'AI is responding...'
-  if (isVoiceInputActive.value) return 'Voice input active...'
+  if (isVoiceInputActive.value) return 'Speaking... Click mic to stop'
   return props.placeholder
 })
 
-const voiceButtonTitle = computed(() => {
-  if (!voiceSupported.value) return 'Voice input not supported'
-  if (isVoiceInputActive.value) return 'Stop voice input'
-  return 'Start voice input'
-})
 
 // Auto-resize textarea
 const adjustTextareaHeight = () => {
@@ -299,34 +297,53 @@ const removeAttachment = (id: string) => {
   }
 }
 
-// Voice input
-const toggleVoiceInput = () => {
-  isVoiceInputActive.value = !isVoiceInputActive.value
+// Voice input event handlers
+const handleVoiceRecordingStart = () => {
+  isVoiceInputActive.value = true
+  voiceTranscript.value = ''
+  emit('voice-toggle', true)
+}
+
+const handleVoiceRecordingStop = () => {
+  isVoiceInputActive.value = false
+  voiceTranscript.value = ''
+  emit('voice-toggle', false)
   
-  if (!isVoiceInputActive.value) {
-    // Clear any voice transcript when stopping
-    voiceTranscript.value = ''
-  }
-  
-  emit('voice-toggle', isVoiceInputActive.value)
+  // Focus back to textarea
+  nextTick(() => {
+    textareaRef.value?.focus()
+  })
+}
+
+const handleVoicePermissionRequired = () => {
+  // Show a user-friendly message about granting permission
+  handleError(new Error('Please grant microphone permission to use voice input'), 'Voice Permission')
 }
 
 const handleVoiceTranscript = (transcript: string, confidence: number) => {
   // Update the voice transcript
   voiceTranscript.value = transcript
   
-  // If confidence is high and transcript is final, add to input
-  if (confidence > 0.7) {
-    if (inputText.value.trim()) {
-      inputText.value += ' ' + transcript
-    } else {
-      inputText.value = transcript
+  // Emit transcript event for parent components
+  emit('voice-transcript', transcript, confidence)
+  
+  // Only add to input if confidence is high enough
+  if (confidence > 0.8) {
+    // Clean up the transcript before adding
+    const cleanTranscript = transcript.trim()
+    if (cleanTranscript) {
+      if (inputText.value.trim()) {
+        // Add space before appending if input is not empty
+        inputText.value += ' ' + cleanTranscript
+      } else {
+        inputText.value = cleanTranscript
+      }
+      
+      // Auto-resize textarea
+      nextTick(() => {
+        adjustTextareaHeight()
+      })
     }
-    
-    // Auto-resize textarea
-    nextTick(() => {
-      adjustTextareaHeight()
-    })
   }
 }
 
@@ -343,17 +360,50 @@ const handleRecordingStop = () => {
 
 const handleVoiceError = (error: string) => {
   handleError(new Error(error), 'Voice Input')
+  emit('voice-error', error)
   isVoiceInputActive.value = false
   voiceTranscript.value = ''
+  
+  // Focus back to textarea after error
+  nextTick(() => {
+    textareaRef.value?.focus()
+  })
 }
 
-const checkVoiceSupport = () => {
-  const capabilities = voiceService.getCapabilities()
-  voiceSupported.value = !!(capabilities?.speechRecognition && capabilities?.getUserMedia)
+
+// Keyboard shortcuts
+const handleGlobalKeydown = (event: KeyboardEvent) => {
+  // Ctrl+Shift+M (Cmd+Shift+M on Mac) to toggle voice input
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'M') {
+    event.preventDefault()
+    if (props.showVoiceInput && voiceInputButtonRef.value) {
+      if (isVoiceInputActive.value) {
+        voiceInputButtonRef.value.stopRecording()
+      } else {
+        voiceInputButtonRef.value.startRecording()
+      }
+    }
+    return
+  }
+  
+  // Esc to cancel voice recording
+  if (event.key === 'Escape' && isVoiceInputActive.value) {
+    event.preventDefault()
+    voiceInputButtonRef.value?.stopRecording()
+    return
+  }
 }
 
-// Initialize voice support check
-checkVoiceSupport()
+// Lifecycle hooks
+onMounted(() => {
+  // Add global keyboard event listener
+  document.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  // Remove global keyboard event listener
+  document.removeEventListener('keydown', handleGlobalKeydown)
+})
 
 // Watch for prop changes
 watch(() => props.autoFocus, (shouldFocus) => {
@@ -375,6 +425,13 @@ defineExpose({
   clear: () => {
     inputText.value = ''
     attachments.value = []
+  },
+  toggleVoiceInput: () => {
+    if (isVoiceInputActive.value) {
+      voiceInputButtonRef.value?.stopRecording()
+    } else {
+      voiceInputButtonRef.value?.startRecording()
+    }
   }
 })
 </script>
@@ -424,19 +481,32 @@ defineExpose({
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
   }
 }
 
 /* Voice interface */
 .voice-interface {
-  animation: slideDown 0.3s ease-out;
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05), rgba(var(--muted-rgb), 0.1));
   border: 2px solid rgba(var(--primary-rgb), 0.2);
+  backdrop-filter: blur(8px);
+  transform-origin: top center;
 }
 
 /* Focus states */
@@ -457,6 +527,27 @@ defineExpose({
   
   .action-btn {
     padding: 6px;
+  }
+  
+  .voice-interface {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+  }
+  
+  .chat-input {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .voice-interface {
+    border-radius: 0.5rem;
+    margin: 0.5rem -0.5rem;
+  }
+  
+  .input-wrapper {
+    padding: 0.75rem;
+    border-radius: 1rem;
   }
 }
 

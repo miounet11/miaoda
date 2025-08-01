@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { mountComponent } from '../../../../../test/utils'
 import ContextMenu from '../ContextMenu.vue'
 import type { ContextMenuItem } from '@renderer/src/types'
 
@@ -66,7 +66,7 @@ describe('ContextMenu', () => {
 
   describe('Rendering', () => {
     it('renders menu when visible', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -75,7 +75,7 @@ describe('ContextMenu', () => {
     })
 
     it('does not render when not visible', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           visible: false
@@ -86,7 +86,7 @@ describe('ContextMenu', () => {
     })
 
     it('renders menu items correctly', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -97,7 +97,7 @@ describe('ContextMenu', () => {
     })
 
     it('renders icons for menu items', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -108,7 +108,7 @@ describe('ContextMenu', () => {
     })
 
     it('renders separators', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -116,7 +116,7 @@ describe('ContextMenu', () => {
     })
 
     it('renders keyboard shortcuts', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -126,7 +126,7 @@ describe('ContextMenu', () => {
     })
 
     it('applies destructive styling to delete items', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -137,7 +137,7 @@ describe('ContextMenu', () => {
 
   describe('Positioning', () => {
     it('positions menu at specified coordinates', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -147,7 +147,7 @@ describe('ContextMenu', () => {
     })
 
     it('adjusts position when menu would overflow viewport horizontally', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           x: 900 // Close to right edge
@@ -179,7 +179,7 @@ describe('ContextMenu', () => {
     })
 
     it('adjusts position when menu would overflow viewport vertically', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           y: 700 // Close to bottom edge
@@ -208,7 +208,7 @@ describe('ContextMenu', () => {
     })
 
     it('ensures minimum distance from viewport edges', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           x: 0,
@@ -229,7 +229,7 @@ describe('ContextMenu', () => {
 
   describe('Interactions', () => {
     it('calls action when menu item is clicked', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -249,7 +249,7 @@ describe('ContextMenu', () => {
         disabled: true
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: disabledItems
@@ -270,7 +270,7 @@ describe('ContextMenu', () => {
         icon: 'edit'
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithoutAction
@@ -284,7 +284,7 @@ describe('ContextMenu', () => {
     })
 
     it('closes menu when overlay is clicked', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -295,7 +295,7 @@ describe('ContextMenu', () => {
     })
 
     it('closes menu on right click outside', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -306,7 +306,7 @@ describe('ContextMenu', () => {
     })
 
     it('does not close menu when clicking on menu itself', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -317,7 +317,7 @@ describe('ContextMenu', () => {
     })
 
     it('stops event propagation when clicking menu items', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -333,7 +333,7 @@ describe('ContextMenu', () => {
 
   describe('Keyboard Navigation', () => {
     it('closes menu on Escape key', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -346,7 +346,7 @@ describe('ContextMenu', () => {
     })
 
     it('does not close on other keys', async () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -360,7 +360,7 @@ describe('ContextMenu', () => {
 
   describe('Shortcut Formatting', () => {
     it('formats Mac shortcuts correctly', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -369,7 +369,7 @@ describe('ContextMenu', () => {
     })
 
     it('formats Windows shortcuts correctly', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -378,7 +378,7 @@ describe('ContextMenu', () => {
     })
 
     it('formats complex shortcuts correctly', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -389,7 +389,7 @@ describe('ContextMenu', () => {
 
   describe('Icon Handling', () => {
     it('renders correct icon components', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -405,7 +405,7 @@ describe('ContextMenu', () => {
         action: vi.fn()
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithUnknownIcon
@@ -422,7 +422,7 @@ describe('ContextMenu', () => {
         action: vi.fn()
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithoutIcon
@@ -448,7 +448,7 @@ describe('ContextMenu', () => {
         }]
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithSubmenu
@@ -459,7 +459,7 @@ describe('ContextMenu', () => {
     })
 
     it('does not show submenu indicator for items without submenu', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -472,7 +472,7 @@ describe('ContextMenu', () => {
 
   describe('Styling and Animation', () => {
     it('applies appear animation', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: defaultProps
       })
 
@@ -493,7 +493,7 @@ describe('ContextMenu', () => {
         disabled: true
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: disabledItems
@@ -508,7 +508,7 @@ describe('ContextMenu', () => {
 
   describe('Edge Cases', () => {
     it('handles empty items array', () => {
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: []
@@ -527,7 +527,7 @@ describe('ContextMenu', () => {
         action: vi.fn()
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithEmptyLabel
@@ -545,7 +545,7 @@ describe('ContextMenu', () => {
         action: vi.fn()
       }]
 
-      const wrapper = mount(ContextMenu, {
+      const wrapper = mountComponent(ContextMenu, {
         props: {
           ...defaultProps,
           items: itemsWithLongLabel

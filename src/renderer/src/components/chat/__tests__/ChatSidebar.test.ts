@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { mountComponent } from '../../../../../test/utils'
 import ChatSidebar from '../ChatSidebar.vue'
 import type { Chat } from '@renderer/src/types'
 
@@ -53,7 +53,7 @@ describe('ChatSidebar', () => {
 
   describe('Rendering', () => {
     it('renders chat list correctly', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -64,7 +64,7 @@ describe('ChatSidebar', () => {
     })
 
     it('applies mobile classes when isMobile is true', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           isMobile: true
@@ -76,7 +76,7 @@ describe('ChatSidebar', () => {
     })
 
     it('highlights current chat', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -85,7 +85,7 @@ describe('ChatSidebar', () => {
     })
 
     it('shows empty state when no chats', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           chats: []
@@ -99,7 +99,7 @@ describe('ChatSidebar', () => {
 
   describe('Events', () => {
     it('emits new-chat when new chat button is clicked', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -108,7 +108,7 @@ describe('ChatSidebar', () => {
     })
 
     it('emits select-chat when chat item is clicked', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -118,7 +118,7 @@ describe('ChatSidebar', () => {
     })
 
     it('emits open-settings when settings button is clicked', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -127,7 +127,7 @@ describe('ChatSidebar', () => {
     })
 
     it('emits show-context-menu on right click', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -141,7 +141,7 @@ describe('ChatSidebar', () => {
 
   describe('Search Functionality', () => {
     it('filters chats based on search query', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -156,7 +156,7 @@ describe('ChatSidebar', () => {
     })
 
     it('shows no results when search has no matches', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -169,7 +169,7 @@ describe('ChatSidebar', () => {
     })
 
     it('clears search when clear button is clicked', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -184,7 +184,7 @@ describe('ChatSidebar', () => {
 
   describe('Responsive Behavior', () => {
     it('shows mobile header on mobile', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           isMobile: true
@@ -195,7 +195,7 @@ describe('ChatSidebar', () => {
     })
 
     it('hides sidebar when sidebarOpen is false on mobile', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           isMobile: true,
@@ -210,7 +210,7 @@ describe('ChatSidebar', () => {
 
   describe('Keyboard Navigation', () => {
     it('navigates chats with arrow keys', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -223,7 +223,7 @@ describe('ChatSidebar', () => {
     })
 
     it('creates new chat with Ctrl+N', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -236,7 +236,7 @@ describe('ChatSidebar', () => {
 
   describe('Context Menu', () => {
     it('shows context menu on more button click', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -247,7 +247,7 @@ describe('ChatSidebar', () => {
     })
 
     it('prevents default on context menu event', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -261,7 +261,7 @@ describe('ChatSidebar', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA labels', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -271,7 +271,7 @@ describe('ChatSidebar', () => {
     })
 
     it('has proper focus management', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 
@@ -282,7 +282,7 @@ describe('ChatSidebar', () => {
 
   describe('Edge Cases', () => {
     it('handles undefined currentChatId', () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           currentChatId: undefined
@@ -298,7 +298,7 @@ describe('ChatSidebar', () => {
         title: 'This is a very long chat title that should be truncated properly'
       }]
 
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: {
           ...defaultProps,
           chats: longTitleChats
@@ -310,7 +310,7 @@ describe('ChatSidebar', () => {
     })
 
     it('handles empty search gracefully', async () => {
-      const wrapper = mount(ChatSidebar, {
+      const wrapper = mountComponent(ChatSidebar, {
         props: defaultProps
       })
 

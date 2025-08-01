@@ -440,6 +440,44 @@ export class VoiceService extends EventEmitter<{
     return this.config.permissions.microphone
   }
 
+  getCapabilities(): {
+    speechRecognition: boolean
+    speechSynthesis: boolean
+    mediaDevices: boolean
+    permissions: boolean
+  } {
+    return {
+      speechRecognition: this.isRecognitionSupported(),
+      speechSynthesis: this.isSynthesisSupported(),
+      mediaDevices: ('navigator' in window && 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices),
+      permissions: ('navigator' in window && 'permissions' in navigator)
+    }
+  }
+
+  getDetailedStatus(): {
+    isSupported: boolean
+    hasPermission: boolean
+    isRecording: boolean
+    isSpeaking: boolean
+    currentLanguage: string
+    errorMessage?: string
+  } {
+    const capabilities = this.getCapabilities()
+    
+    return {
+      isSupported: capabilities.speechRecognition,
+      hasPermission: this.config.permissions.microphone,
+      isRecording: this.isRecognitionActive,
+      isSpeaking: this.isSynthesisActive,
+      currentLanguage: this.config.recognition.language,
+      errorMessage: !capabilities.speechRecognition 
+        ? 'Speech recognition not supported in this browser'
+        : !capabilities.mediaDevices
+        ? 'Microphone access not available'
+        : undefined
+    }
+  }
+
   // Persistence
   private async loadConfig(): Promise<void> {
     try {

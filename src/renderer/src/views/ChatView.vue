@@ -85,21 +85,48 @@
 
     <!-- Main chat area -->
     <main class="flex-1 flex flex-col min-w-0">
-      <!-- Mobile header -->
-      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b md:hidden">
-        <button
-          @click="sidebarOpen = !sidebarOpen"
-          class="p-2 hover:bg-muted rounded-lg transition-colors"
-        >
-          <Menu :size="20" />
-        </button>
-        <h1 class="font-semibold truncate">{{ currentChat?.title || 'New Chat' }}</h1>
-        <button
-          @click="$router.push('/settings')"
-          class="p-2 hover:bg-muted rounded-lg transition-colors"
-        >
-          <Settings :size="20" />
-        </button>
+      <!-- Chat Header with Model Switcher -->
+      <header class="flex items-center justify-between p-3 border-b bg-background/95 backdrop-blur">
+        <!-- Left section - Mobile menu + Model switcher -->
+        <div class="flex items-center gap-3">
+          <button
+            v-if="isMobile"
+            @click="sidebarOpen = !sidebarOpen"
+            class="p-2 hover:bg-muted rounded-lg transition-colors md:hidden"
+          >
+            <Menu :size="20" />
+          </button>
+          
+          <!-- Model Switcher -->
+          <ModelSwitcher
+            :disabled="isLoading"
+            @model-changed="handleModelChanged"
+            @settings-opened="handleSettingsOpened"
+          />
+        </div>
+        
+        <!-- Center section - Chat title (visible on mobile) -->
+        <h1 v-if="isMobile" class="font-semibold truncate flex-1 text-center mx-4">
+          {{ currentChat?.title || 'New Chat' }}
+        </h1>
+        
+        <!-- Right section - Actions -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="openSearchOverlay"
+            class="p-2 hover:bg-muted rounded-lg transition-colors"
+            title="Search messages (Ctrl/Cmd + K)"
+          >
+            <Search :size="18" />
+          </button>
+          <button
+            @click="$router.push('/settings')"
+            class="p-2 hover:bg-muted rounded-lg transition-colors"
+            title="Settings"
+          >
+            <Settings :size="18" />
+          </button>
+        </div>
       </header>
       <!-- Chat messages -->
       <div class="flex-1 relative" ref="messagesContainer">
@@ -267,8 +294,10 @@ import GlobalSearchOverlay from '@renderer/src/components/search/GlobalSearchOve
 import SearchHighlight from '@renderer/src/components/search/SearchHighlight.vue'
 import VoiceRecorder from '@renderer/src/components/voice/VoiceRecorder.vue'
 import ChatMessagesOptimized from '@renderer/src/components/chat/ChatMessagesOptimized.vue'
+import ModelSwitcher from '@renderer/src/components/chat/ModelSwitcher.vue'
 import { searchService } from '@renderer/src/services/search/SearchService'
 import { voiceService } from '@renderer/src/services/voice/VoiceService'
+import { useToast } from '@renderer/src/services/ui/ToastService'
 
 interface Attachment {
   name: string
@@ -278,6 +307,7 @@ interface Attachment {
 }
 
 const chatStore = useChatStore()
+const toast = useToast()
 const messagesContainer = ref<HTMLElement>()
 const messageInput = ref<HTMLTextAreaElement>()
 const inputMessage = ref('')
@@ -589,6 +619,17 @@ const editMessage = async (message: any) => {
 const deleteMessage = async (message: any) => {
   // TODO: Implement delete logic
   console.log('Delete message:', message)
+}
+
+// Model switcher handlers
+const handleModelChanged = (modelId: string) => {
+  console.log('Model changed to:', modelId)
+  toast.success('Model switched successfully', 'AI Model Changed')
+}
+
+const handleSettingsOpened = () => {
+  // Additional logic when settings are opened from model switcher
+  console.log('Settings opened from model switcher')
 }
 
 const sendMessage = async () => {
