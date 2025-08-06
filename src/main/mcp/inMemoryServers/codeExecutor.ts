@@ -191,9 +191,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Start server
 async function main() {
-  const transport = new StdioServerTransport()
-  await server.connect(transport)
-  console.error('Code executor MCP server running')
+  try {
+    const transport = new StdioServerTransport()
+    await server.connect(transport)
+    console.error('Code executor MCP server running successfully')
+  } catch (error) {
+    console.error('Code executor MCP server initialization failed:', error)
+    process.exit(1)
+  }
 }
 
 main().catch((error) => {

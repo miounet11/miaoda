@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiaoDa Chat Debug</title>
+    <script src="http://localhost:5173/@vite/client" type="module"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            background: #0f0f0f;
+            color: #fff;
+        }
+        .debug-info {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+        .info { color: #339af0; }
+        pre {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 MiaoDa Chat 调试检查</h1>
+    
+    <div class="debug-info">
+        <h3>📱 应用状态检查</h3>
+        <div id="app-status">检查中...</div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>🔗 网络连接</h3>
+        <div id="network-status">检查中...</div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>📋 控制台日志</h3>
+        <pre id="console-logs">等待日志...</pre>
+    </div>
+    
+    <div class="debug-info">
+        <h3>🚀 快速修复</h3>
+        <button onclick="disableMultiWindow()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px;">
+            🔧 禁用多窗口模式
+        </button>
+        <button onclick="testSingleWindow()" style="background: #51cf66; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px;">
+            🏠 测试单窗口模式
+        </button>
+        <button onclick="checkLocalStorage()" style="background: #339af0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px;">
+            💾 检查本地存储
+        </button>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        // 拦截控制台日志
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = (...args) => {
+            logs.push(`[LOG] ${args.join(' ')}`);
+            updateLogs();
+            originalLog(...args);
+        };
+        
+        console.error = (...args) => {
+            logs.push(`[ERROR] ${args.join(' ')}`);
+            updateLogs();
+            originalError(...args);
+        };
+        
+        console.warn = (...args) => {
+            logs.push(`[WARN] ${args.join(' ')}`);
+            updateLogs();
+            originalWarn(...args);
+        };
+        
+        function updateLogs() {
+            const logsEl = document.getElementById('console-logs');
+            logsEl.textContent = logs.slice(-20).join('\n');
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+        
+        // 检查应用状态
+        async function checkAppStatus() {
+            const statusEl = document.getElementById('app-status');
+            
+            try {
+                // 检查 Vite 开发服务器
+                const response = await fetch('http://localhost:5173/');
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="success">✅ Vite 服务器运行正常</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="error">❌ Vite 服务器响应异常</span>';
+                }
+            } catch (error) {
+                statusEl.innerHTML = '<span class="error">❌ 无法连接到 Vite 服务器</span>';
+                console.error('Vite server check failed:', error);
+            }
+        }
+        
+        // 检查网络状态
+        function checkNetworkStatus() {
+            const networkEl = document.getElementById('network-status');
+            
+            if (navigator.onLine) {
+                networkEl.innerHTML = '<span class="success">✅ 网络连接正常</span>';
+            } else {
+                networkEl.innerHTML = '<span class="error">❌ 网络连接中断</span>';
+            }
+            
+            // 检查 localhost 连接
+            fetch('http://localhost:5173/src/renderer/src/main.ts')
+                .then(response => {
+                    if (response.ok) {
+                        networkEl.innerHTML += '<br><span class="success">✅ 本地服务连接正常</span>';
+                    } else {
+                        networkEl.innerHTML += '<br><span class="warning">⚠️ 本地服务连接异常</span>';
+                    }
+                })
+                .catch(error => {
+                    networkEl.innerHTML += '<br><span class="error">❌ 本地服务无法访问</span>';
+                    console.error('Local service check failed:', error);
+                });
+        }
+        
+        // 快速修复函数
+        function disableMultiWindow() {
+            console.log('尝试禁用多窗口模式...');
+            localStorage.setItem('debug-single-window', 'true');
+            alert('已设置单窗口模式标记，请重启应用');
+        }
+        
+        function testSingleWindow() {
+            console.log('测试单窗口模式...');
+            window.location.href = 'http://localhost:5173/#/';
+        }
+        
+        function checkLocalStorage() {
+            console.log('检查本地存储...');
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                storage[key] = localStorage.getItem(key);
+            }
+            console.log('LocalStorage 内容:', storage);
+            
+            // 清理可能有问题的存储
+            const problematicKeys = ['windowManager', 'activeWindow', 'tabs'];
+            problematicKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    console.log(`清理存储项: ${key}`);
+                    localStorage.removeItem(key);
+                }
+            });
+        }
+        
+        // 启动检查
+        checkAppStatus();
+        checkNetworkStatus();
+        
+        // 定期检查
+        setInterval(() => {
+            checkNetworkStatus();
+        }, 5000);
+        
+        console.log('🔍 调试页面已加载');
+    </script>
+</body>
+</html>

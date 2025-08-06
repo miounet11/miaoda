@@ -1,27 +1,31 @@
-import { LLMProvider, OpenAIProvider, AnthropicProvider, OllamaProvider } from './provider'
+import { LLMProvider } from './provider'
 import { ipcMain } from 'electron'
 import Store from 'electron-store'
 import { MCPManager } from '../mcp/mcpManager'
+import { ProviderFactory, LLMConfig } from './ProviderFactory'
+import { MessageService, MessageContext, ChunkCallback } from './MessageService'
 
-interface LLMConfig {
-  provider: 'openai' | 'anthropic' | 'ollama'
-  apiKey?: string
-  baseURL?: string
-  model?: string
-}
+// Re-export for convenience
+export type { LLMConfig }
 
+/**
+ * Refactored LLM Manager with reduced complexity
+ * Delegates provider creation to ProviderFactory
+ * Delegates message handling to MessageService
+ */
 export class LLMManager {
   private providers: Map<string, LLMProvider> = new Map()
   private currentProvider: LLMProvider | null = null
   private store: Store
-  private mcpManager: MCPManager
-  private enableTools: boolean = false
+  private messageService: MessageService
 
   constructor(mcpManager: MCPManager) {
     this.store = new Store()
-    this.mcpManager = mcpManager
+    this.messageService = new MessageService(
+      mcpManager,
+      this.store.get('enableTools', false) as boolean
+    )
     this.loadConfig()
-    this.enableTools = this.store.get('enableTools', false) as boolean
   }
 
   private loadConfig() {
@@ -33,27 +37,8 @@ export class LLMManager {
 
   setProvider(config: LLMConfig) {
     try {
-      let provider: LLMProvider
-
-      switch (config.provider) {
-        case 'openai':
-          if (!config.apiKey) throw new Error('OpenAI API key is required')
-          provider = new OpenAIProvider(config.apiKey, config.baseURL)
-          break
-
-        case 'anthropic':
-          if (!config.apiKey) throw new Error('Anthropic API key is required')
-          provider = new AnthropicProvider(config.apiKey)
-          break
-
-        case 'ollama':
-          provider = new OllamaProvider(config.model || 'llama2', config.baseURL)
-          break
-
-        default:
-          throw new Error(`Unknown provider: ${config.provider}`)
-      }
-
+      const provider = ProviderFactory.createProvider(config)
+      
       this.providers.set(config.provider, provider)
       this.currentProvider = provider
       this.store.set('llmConfig', config)
@@ -68,77 +53,26 @@ export class LLMManager {
     message: string,
     chatId: string,
     messageId: string,
-    onChunk?: (chunk: string) => void
+    onChunk?: ChunkCallback
   ): Promise<string> {
-    if (!this.currentProvider) {
-      throw new Error('No LLM provider configured')
-    }
+    this.validateProvider()
 
     try {
-      // Check if tools are enabled and provider supports tools
-      if (this.enableTools && this.currentProvider.sendMessageWithTools) {
-        const tools = this.mcpManager.getAvailableTools()
-        
-        if (tools.length > 0) {
-          // Send status update to UI
-          if (global.mainWindow) {
-            global.mainWindow.webContents.send('llm:status', {
-              chatId,
-              messageId,
-              status: 'Tools available',
-              tools: tools.map(t => t.name)
-            })
-          }
-
-          const response = await this.currentProvider.sendMessageWithTools(
-            message,
-            tools,
-            (chunk) => {
-              onChunk?.(chunk)
-              if (global.mainWindow) {
-                global.mainWindow.webContents.send('llm:chunk', {
-                  chatId,
-                  messageId,
-                  chunk
-                })
-              }
-            },
-            async (toolName, args) => {
-              // Notify UI about tool call
-              if (global.mainWindow) {
-                global.mainWindow.webContents.send('llm:tool-call', {
-                  chatId,
-                  messageId,
-                  tool: toolName,
-                  args
-                })
-              }
-
-              // Execute tool via MCP
-              const result = await this.mcpManager.callTool(toolName, args)
-              return result
-            }
-          )
-
-          return response
-        }
-      }
-
-      // Fallback to regular message without tools
-      const response = await this.currentProvider.sendMessage(message, (chunk) => {
-        onChunk?.(chunk)
-        if (global.mainWindow) {
-          global.mainWindow.webContents.send('llm:chunk', {
-            chatId,
-            messageId,
-            chunk
-          })
-        }
-      })
-
-      return response
+      const context: MessageContext = { chatId, messageId }
+      return await this.messageService.sendMessage(
+        this.currentProvider!,
+        message,
+        context,
+        onChunk
+      )
     } catch (error: any) {
       throw new Error(`LLM Error: ${error.message}`)
+    }
+  }
+
+  private validateProvider(): void {
+    if (!this.currentProvider) {
+      throw new Error('No LLM provider configured')
     }
   }
 
@@ -150,13 +84,13 @@ export class LLMManager {
     return this.currentProvider !== null
   }
 
-  setToolsEnabled(enabled: boolean) {
-    this.enableTools = enabled
+  setToolsEnabled(enabled: boolean): void {
+    this.messageService.setToolsEnabled(enabled)
     this.store.set('enableTools', enabled)
   }
 
   getToolsEnabled(): boolean {
-    return this.enableTools
+    return this.messageService.getToolsEnabled()
   }
 }
 

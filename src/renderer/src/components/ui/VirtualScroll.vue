@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { rafThrottle, calculateVirtualScrollRange } from '@renderer/src/utils/performance'
+import { rafThrottle, calculateVirtualScrollRange, debounce, OptimizedCache, memoryManager } from '@renderer/src/utils/performance'
 
 interface Props {
   items: any[]
@@ -78,11 +78,13 @@ const emit = defineEmits<{
 // Refs
 const containerRef = ref<HTMLElement>()
 
-// State
+// State with optimized caching
 const scrollTop = ref(0)
-const measuredHeights = ref(new Map<number, number>())
+const measuredHeights = ref(new OptimizedCache<number, number>(1000, 10 * 60 * 1000)) // 10 minutes cache
 const isScrolling = ref(false)
 const scrollTimer = ref<NodeJS.Timeout>()
+const renderCache = ref(new OptimizedCache<string, any>(500, 5 * 60 * 1000)) // 5 minutes cache
+const isInitialized = ref(false)
 
 // Computed properties
 const totalHeight = computed(() => {
@@ -202,40 +204,60 @@ const getOffsetForIndex = (index: number) => {
 const measureItems = () => {
   if (!containerRef.value || typeof props.itemHeight === 'number') return
   
+  // Use ResizeObserver for more efficient measurements
   const items = containerRef.value.querySelectorAll('.virtual-item')
   items.forEach((element, index) => {
     const actualIndex = startIndex.value + index
-    const height = element.getBoundingClientRect().height
     
-    if (height > 0) {
-      measuredHeights.value.set(actualIndex, height)
+    // Skip if already measured and element hasn't changed
+    const currentHeight = measuredHeights.value.get(actualIndex)
+    const rect = element.getBoundingClientRect()
+    
+    if (rect.height > 0 && rect.height !== currentHeight) {
+      measuredHeights.value.set(actualIndex, rect.height)
       emit('item-rendered', props.items[actualIndex], actualIndex)
     }
   })
+  
+  // Cache will automatically clean up old entries based on OptimizedCache settings
 }
 
-// Throttled scroll handler
+// Optimized scroll handler with better performance
 const handleScroll = rafThrottle((event: Event) => {
   const target = event.target as HTMLElement
-  scrollTop.value = target.scrollTop
+  const newScrollTop = target.scrollTop
   
-  // Set scrolling state
-  isScrolling.value = true
+  // Skip if scroll position hasn't changed significantly
+  if (Math.abs(newScrollTop - scrollTop.value) < 1 && isInitialized.value) {
+    return
+  }
+  
+  scrollTop.value = newScrollTop
+  
+  // Set scrolling state with optimized timer handling
+  if (!isScrolling.value) {
+    isScrolling.value = true
+  }
+  
   if (scrollTimer.value) {
     clearTimeout(scrollTimer.value)
   }
   
   scrollTimer.value = setTimeout(() => {
     isScrolling.value = false
-  }, 150)
+    // Trigger measurement after scrolling stops
+    nextTick(() => measureItems())
+  }, 100) // Reduced timeout for better responsiveness
   
-  // Emit scroll event
-  emit('scroll', target.scrollTop, target.scrollHeight, target.clientHeight)
+  // Emit scroll event (throttled)
+  emit('scroll', newScrollTop, target.scrollHeight, target.clientHeight)
   
-  // Check if we need to load more items
+  // Optimized load more check
   if (props.hasMore && endIndex.value >= props.items.length - props.loadThreshold) {
     emit('load-more')
   }
+  
+  isInitialized.value = true
 })
 
 // Public methods
@@ -267,16 +289,19 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
   })
 }
 
-// Watch for items changes
+// Optimized watcher for items changes
 watch(() => props.items.length, (newLength, oldLength) => {
-  // If items were added, measure them
+  // Batch DOM operations for better performance
   if (newLength > oldLength) {
+    // Clear render cache when items are added
+    renderCache.value.clear()
+    
     nextTick(() => {
       measureItems()
     })
   }
   
-  // Clear measurements for removed items
+  // Efficiently clear measurements for removed items
   if (newLength < oldLength) {
     const keysToDelete: number[] = []
     measuredHeights.value.forEach((_, index) => {
@@ -284,15 +309,26 @@ watch(() => props.items.length, (newLength, oldLength) => {
         keysToDelete.push(index)
       }
     })
-    keysToDelete.forEach(key => measuredHeights.value.delete(key))
+    
+    // Use batch deletion for better performance
+    keysToDelete.forEach(key => {
+      measuredHeights.value.delete(key)
+      renderCache.value.delete(`item-${key}`)
+    })
   }
 }, { immediate: true })
 
-// Watch for visible items changes to trigger measurements
+// Optimized watcher for visible items with debouncing
+const debouncedMeasure = debounce(() => {
+  measureItems()
+}, 16) // ~60fps
+
 watch(visibleItems, () => {
-  nextTick(() => {
-    measureItems()
-  })
+  if (isScrolling.value) {
+    // Don't measure while scrolling for better performance
+    return
+  }
+  nextTick(debouncedMeasure)
 }, { flush: 'post' })
 
 // Lifecycle
@@ -306,6 +342,10 @@ onUnmounted(() => {
   if (scrollTimer.value) {
     clearTimeout(scrollTimer.value)
   }
+  
+  // Cleanup memory caches
+  measuredHeights.value.clear()
+  renderCache.value.clear()
 })
 
 // Expose methods
@@ -324,11 +364,26 @@ defineExpose({
   position: relative;
   contain: layout style paint;
   will-change: scroll-position;
+  /* Enhanced GPU acceleration */
+  transform: translate3d(0, 0, 0);
+  /* Improve scrolling performance */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Reduce layout thrashing */
+  backface-visibility: hidden;
 }
 
 .virtual-item {
   contain: layout style paint;
   overflow-anchor: none;
+  /* Enhanced rendering performance */
+  transform: translateZ(0);
+  will-change: transform;
+  /* Reduce repaints */
+  backface-visibility: hidden;
+  /* Better text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .virtual-spacer-top,

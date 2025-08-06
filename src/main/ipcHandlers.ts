@@ -7,13 +7,14 @@ import { getAllServers } from './mcp/servers'
 import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
+import { logger } from './utils/Logger'
 
 export function registerIPCHandlers(
   db: LocalDatabase,
   mcpManager: MCPManager,
   pluginManager: PluginManager
 ) {
-  console.log('[IPC] Registering handlers, db:', db ? 'initialized' : 'undefined')
+  logger.info('Registering IPC handlers', 'IPC', { dbInitialized: !!db })
   
   // App version handler
   ipcMain.handle('get-app-version', () => app.getVersion())

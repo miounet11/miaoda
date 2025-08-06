@@ -153,8 +153,22 @@ const isAtBottom = ref(true)
 const unreadCount = ref(0)
 const lastReadMessageId = ref<string>()
 
-// Memoized message grouping
+// Optimized memoized message grouping with caching
+const groupingCache = ref(new Map<string, MessageGroup[]>())
+const lastMessagesLength = ref(0)
+const lastMessagesHash = ref('')
+
 const groupedMessages = computed(() => {
+  // Create cache key based on messages content and length
+  const messagesHash = props.messages.length + '-' + 
+    (props.messages[props.messages.length - 1]?.id || '')
+  
+  // Return cached result if messages haven't changed significantly
+  if (messagesHash === lastMessagesHash.value && 
+      groupingCache.value.has(messagesHash)) {
+    return groupingCache.value.get(messagesHash)!
+  }
+  
   const markEnd = performanceMonitor.mark('message-grouping')
   
   const groups: MessageGroup[] = []
@@ -162,6 +176,9 @@ const groupedMessages = computed(() => {
   
   const TIME_THRESHOLD = 5 * 60 * 1000 // 5 minutes
   const MAX_GROUP_SIZE = 5
+  
+  // Optimize for incremental updates
+  const startIndex = Math.max(0, props.messages.length - lastMessagesLength.value - 10)
   
   for (let i = 0; i < props.messages.length; i++) {
     const message = props.messages[i]
@@ -187,12 +204,32 @@ const groupedMessages = computed(() => {
     }
   }
   
+  // Cache the result
+  groupingCache.value.set(messagesHash, groups)
+  lastMessagesHash.value = messagesHash
+  lastMessagesLength.value = props.messages.length
+  
+  // Limit cache size
+  if (groupingCache.value.size > 10) {
+    const keys = Array.from(groupingCache.value.keys())
+    keys.slice(0, -5).forEach(key => groupingCache.value.delete(key))
+  }
+  
   markEnd()
   return groups
 })
 
-// Memoized height estimation
-const estimateMessageHeight = memoize((group: MessageGroup, index: number) => {
+// Enhanced memoized height estimation with better caching
+const heightCache = ref(new Map<string, number>())
+
+const estimateMessageHeight = (group: MessageGroup, index: number) => {
+  const cacheKey = `${group.id}-${group.messages.length}`
+  
+  // Return cached height if available
+  if (heightCache.value.has(cacheKey)) {
+    return heightCache.value.get(cacheKey)!
+  }
+  
   let height = 0
   
   // Time separator
@@ -200,31 +237,50 @@ const estimateMessageHeight = memoize((group: MessageGroup, index: number) => {
     height += 40
   }
   
-  // Base message height
-  const baseHeight = 60
+  // Base message height with role-based adjustments
+  const baseHeight = group.role === 'user' ? 50 : 60
   
   // Estimate based on content length and role
   for (const message of group.messages) {
     let messageHeight = baseHeight
     
-    // Content length estimation
-    const contentLength = message.content?.length || 0
-    const estimatedLines = Math.ceil(contentLength / 80) // ~80 chars per line
-    messageHeight += Math.max(0, (estimatedLines - 1) * 20) // 20px per extra line
+    if (message.content) {
+      // More accurate content length estimation
+      const contentLength = message.content.length
+      const avgCharsPerLine = 75 // Slightly more conservative
+      const estimatedLines = Math.max(1, Math.ceil(contentLength / avgCharsPerLine))
+      
+      // Progressive height increase for better accuracy
+      if (estimatedLines <= 3) {
+        messageHeight += (estimatedLines - 1) * 22
+      } else {
+        messageHeight += 44 + (estimatedLines - 3) * 20
+      }
+      
+      // Code blocks with better estimation
+      const codeBlocks = (message.content.match(/```/g) || []).length / 2
+      if (codeBlocks > 0) {
+        messageHeight += codeBlocks * 60 // More accurate code block height
+      }
+      
+      // Lists and formatting
+      const listItems = (message.content.match(/^[-*+]\s/gm) || []).length
+      messageHeight += listItems * 16
+    }
     
-    // Attachments add height
+    // Attachments with type-specific heights
     if (message.attachments?.length) {
-      messageHeight += message.attachments.length * 100
+      for (const attachment of message.attachments) {
+        if (attachment.type === 'image') {
+          messageHeight += 120 // Images are typically larger
+        } else {
+          messageHeight += 40 // File attachments are smaller
+        }
+      }
     }
     
-    // Code blocks add extra height
-    if (message.content?.includes('```')) {
-      messageHeight += 50
-    }
-    
-    // Limit maximum height
+    // Apply maximum height constraint
     messageHeight = Math.min(messageHeight, props.maxMessageHeight)
-    
     height += messageHeight
     
     // Spacing between messages in group
@@ -236,8 +292,17 @@ const estimateMessageHeight = memoize((group: MessageGroup, index: number) => {
   // Group padding
   height += 16
   
+  // Cache the result
+  heightCache.value.set(cacheKey, height)
+  
+  // Limit cache size to prevent memory leaks
+  if (heightCache.value.size > 500) {
+    const keys = Array.from(heightCache.value.keys())
+    keys.slice(0, 250).forEach(key => heightCache.value.delete(key))
+  }
+  
   return height
-}, 200)
+}
 
 // Helper functions
 const shouldShowTimeSeparator = (message: Message, prevMessage: Message | null) => {
@@ -282,20 +347,26 @@ const handleCopyMessage = async (message: Message) => {
   }
 }
 
-// Scroll handling
+// Optimized scroll handling with better performance
 const handleScroll = debounce((scrollTop: number, scrollHeight: number, clientHeight: number) => {
-  const threshold = 100
+  const threshold = 50 // Reduced threshold for better responsiveness
   const nearBottom = scrollTop + clientHeight >= scrollHeight - threshold
   
+  // Batch DOM read operations
+  const wasAtBottom = isAtBottom.value
   isAtBottom.value = nearBottom
-  showScrollButton.value = !nearBottom && scrollTop > 200
   
-  // Update unread count
-  if (nearBottom) {
+  // Only update UI state if it actually changed
+  if (!wasAtBottom && nearBottom) {
+    showScrollButton.value = false
     unreadCount.value = 0
     lastReadMessageId.value = props.messages[props.messages.length - 1]?.id
+  } else if (wasAtBottom && !nearBottom) {
+    showScrollButton.value = scrollTop > 200
+  } else if (!nearBottom) {
+    showScrollButton.value = scrollTop > 200
   }
-}, 100)
+}, 50) // Reduced debounce time for better UX
 
 const handleItemRendered = (group: MessageGroup, index: number) => {
   // Track rendered groups for performance monitoring
@@ -372,6 +443,11 @@ defineExpose({
   height: 100%;
   overflow: hidden;
   contain: layout style paint;
+  /* Enhanced GPU acceleration */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  /* Better isolation */
+  isolation: isolate;
 }
 
 .loading-container {
@@ -459,6 +535,13 @@ defineExpose({
 .message-group {
   padding: 0.5rem 1rem;
   contain: layout style paint;
+  /* Performance optimizations */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  /* Better rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .group-user {

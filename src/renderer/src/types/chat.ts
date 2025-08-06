@@ -57,7 +57,7 @@ export interface Chat {
   messages: Message[]
   createdAt: Date
   updatedAt: Date
-  settings: ChatSettings
+  settings?: ChatSettings
   tags?: string[]
   archived?: boolean
   starred?: boolean

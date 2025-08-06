@@ -48,15 +48,59 @@ export function rafThrottle<T extends (...args: any[]) => any>(
   func: T
 ): (...args: Parameters<T>) => void {
   let rafId: number | null = null
+  let lastArgs: Parameters<T> | null = null
   
   return function executedFunction(...args: Parameters<T>) {
+    lastArgs = args
+    
     if (rafId !== null) return
     
     rafId = requestAnimationFrame(() => {
-      func(...args)
+      if (lastArgs) {
+        func(...lastArgs)
+      }
       rafId = null
+      lastArgs = null
     })
   }
+}
+
+// Enhanced smooth scrolling with easing
+export function smoothScrollTo(
+  element: HTMLElement, 
+  target: number, 
+  duration = 300,
+  easing: 'ease-out' | 'ease-in-out' | 'linear' = 'ease-out'
+): Promise<void> {
+  return new Promise((resolve) => {
+    const start = element.scrollTop
+    const distance = target - start
+    const startTime = performance.now()
+    
+    const easingFunctions = {
+      'ease-out': (t: number) => 1 - Math.pow(1 - t, 3),
+      'ease-in-out': (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+      'linear': (t: number) => t
+    }
+    
+    const easingFunction = easingFunctions[easing]
+    
+    function animate(currentTime: number) {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easingFunction(progress)
+      
+      element.scrollTop = start + distance * easedProgress
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        resolve()
+      }
+    }
+    
+    requestAnimationFrame(animate)
+  })
 }
 
 // Intersection Observer for lazy loading
@@ -459,3 +503,246 @@ export class ResourceManager {
 }
 
 export const globalResourceManager = new ResourceManager()
+
+// Memory management utilities
+export class MemoryManager {
+  private static instance: MemoryManager
+  private observers = new Set<() => void>()
+  private memoryThreshold = 100 * 1024 * 1024 // 100MB
+  private cleanupInterval: NodeJS.Timeout | null = null
+  
+  static getInstance(): MemoryManager {
+    if (!MemoryManager.instance) {
+      MemoryManager.instance = new MemoryManager()
+    }
+    return MemoryManager.instance
+  }
+  
+  private constructor() {
+    this.startMonitoring()
+  }
+  
+  private startMonitoring() {
+    // Check memory usage every 30 seconds
+    this.cleanupInterval = setInterval(() => {
+      this.checkMemoryUsage()
+    }, 30000)
+    
+    // Listen for memory pressure events
+    if ('memory' in (performance as any)) {
+      const checkMemoryPressure = () => {
+        const memInfo = (performance as any).memory
+        if (memInfo.usedJSHeapSize > this.memoryThreshold) {
+          this.triggerCleanup()
+        }
+      }
+      
+      // Check on visibility change (when user switches tabs)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          checkMemoryPressure()
+        }
+      })
+    }
+  }
+  
+  private checkMemoryUsage() {
+    if ('memory' in (performance as any)) {
+      const memInfo = (performance as any).memory
+      const usagePercent = (memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100
+      
+      if (usagePercent > 80) {
+        this.triggerCleanup()
+      }
+    }
+  }
+  
+  private triggerCleanup() {
+    console.log('🧹 Triggering memory cleanup...')
+    
+    // Notify all observers to clean up
+    this.observers.forEach(cleanup => {
+      try {
+        cleanup()
+      } catch (error) {
+        console.warn('Memory cleanup error:', error)
+      }
+    })
+    
+    // Force garbage collection if available
+    if ('gc' in window) {
+      (window as any).gc()
+    }
+  }
+  
+  onMemoryPressure(cleanup: () => void): () => void {
+    this.observers.add(cleanup)
+    
+    return () => {
+      this.observers.delete(cleanup)
+    }
+  }
+  
+  forceCleanup() {
+    this.triggerCleanup()
+  }
+  
+  destroy() {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval)
+      this.cleanupInterval = null
+    }
+    this.observers.clear()
+  }
+}
+
+// Weak reference cache for better memory management
+export class WeakCache<T extends object> {
+  private cache = new WeakMap<object, T>()
+  private refs = new Set<WeakRef<object>>()
+  private cleanupInterval: NodeJS.Timeout
+  
+  constructor(cleanupIntervalMs = 60000) {
+    // Periodically clean up dead references
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup()
+    }, cleanupIntervalMs)
+  }
+  
+  set(key: object, value: T): void {
+    this.cache.set(key, value)
+    this.refs.add(new WeakRef(key))
+  }
+  
+  get(key: object): T | undefined {
+    return this.cache.get(key)
+  }
+  
+  has(key: object): boolean {
+    return this.cache.has(key)
+  }
+  
+  delete(key: object): boolean {
+    return this.cache.delete(key)
+  }
+  
+  private cleanup(): void {
+    const aliveRefs = new Set<WeakRef<object>>()
+    
+    for (const ref of this.refs) {
+      if (ref.deref()) {
+        aliveRefs.add(ref)
+      }
+    }
+    
+    this.refs = aliveRefs
+  }
+  
+  destroy(): void {
+    clearInterval(this.cleanupInterval)
+    this.refs.clear()
+  }
+}
+
+// Optimized cache with automatic cleanup
+export class OptimizedCache<K, V> {
+  private cache = new Map<K, V>()
+  private accessTimes = new Map<K, number>()
+  private maxSize: number
+  private maxAge: number
+  private cleanupThreshold: number
+  
+  constructor(
+    maxSize = 1000,
+    maxAge = 5 * 60 * 1000, // 5 minutes
+    cleanupThreshold = 0.8
+  ) {
+    this.maxSize = maxSize
+    this.maxAge = maxAge
+    this.cleanupThreshold = cleanupThreshold
+    
+    // Register for memory cleanup
+    MemoryManager.getInstance().onMemoryPressure(() => {
+      this.cleanup()
+    })
+  }
+  
+  set(key: K, value: V): void {
+    const now = Date.now()
+    
+    // Clean up if we're approaching the size limit
+    if (this.cache.size >= this.maxSize * this.cleanupThreshold) {
+      this.cleanup()
+    }
+    
+    this.cache.set(key, value)
+    this.accessTimes.set(key, now)
+  }
+  
+  get(key: K): V | undefined {
+    const value = this.cache.get(key)
+    if (value !== undefined) {
+      this.accessTimes.set(key, Date.now())
+    }
+    return value
+  }
+  
+  has(key: K): boolean {
+    const exists = this.cache.has(key)
+    if (exists) {
+      this.accessTimes.set(key, Date.now())
+    }
+    return exists
+  }
+  
+  delete(key: K): boolean {
+    this.accessTimes.delete(key)
+    return this.cache.delete(key)
+  }
+  
+  cleanup(): void {
+    const now = Date.now()
+    const toDelete: K[] = []
+    
+    // Remove expired entries
+    for (const [key, accessTime] of this.accessTimes) {
+      if (now - accessTime > this.maxAge) {
+        toDelete.push(key)
+      }
+    }
+    
+    // If still too large, remove least recently used
+    if (this.cache.size - toDelete.length > this.maxSize) {
+      const sorted = Array.from(this.accessTimes.entries())
+        .filter(([key]) => !toDelete.includes(key))
+        .sort(([, a], [, b]) => a - b)
+      
+      const excess = (this.cache.size - toDelete.length) - Math.floor(this.maxSize * 0.7)
+      for (let i = 0; i < Math.min(excess, sorted.length); i++) {
+        toDelete.push(sorted[i][0])
+      }
+    }
+    
+    // Remove selected entries
+    toDelete.forEach(key => {
+      this.cache.delete(key)
+      this.accessTimes.delete(key)
+    })
+    
+    if (toDelete.length > 0) {
+      console.log(`🧹 Cleaned up ${toDelete.length} cache entries`)
+    }
+  }
+  
+  clear(): void {
+    this.cache.clear()
+    this.accessTimes.clear()
+  }
+  
+  get size(): number {
+    return this.cache.size
+  }
+}
+
+// Global memory manager instance
+export const memoryManager = MemoryManager.getInstance()

@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import type { Chat, Message, Attachment } from '@renderer/src/types'
 import { useErrorHandler } from '@renderer/src/composables/useErrorHandler'
 import { performanceMonitor } from '@renderer/src/utils/performance'
+import { logger } from '../utils/Logger'
 
 export const useChatStore = defineStore('chat', () => {
   // State
@@ -41,7 +42,7 @@ export const useChatStore = defineStore('chat', () => {
       
       isInitialized.value = true
     } catch (error) {
-      console.error('Failed to load chats:', error)
+      logger.error('Failed to load chats', 'ChatStore', error)
     }
   }
   
@@ -57,7 +58,7 @@ export const useChatStore = defineStore('chat', () => {
         }))
       }
     } catch (error) {
-      console.error('Failed to load messages:', error)
+      logger.error('Failed to load messages', 'ChatStore', error)
     }
   }
   

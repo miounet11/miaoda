@@ -7,6 +7,7 @@ import { LocalDatabase } from './db/database'
 import { PluginManager } from './plugins/pluginManager'
 import { registerShortcuts } from './shortcuts'
 import { registerIPCHandlers } from './ipcHandlers'
+import { logger } from './utils/Logger'
 
 let mainWindow: BrowserWindow | null = null
 const mcpManager = new MCPManager()
@@ -62,9 +63,9 @@ app.whenReady().then(() => {
   // Initialize database first
   try {
     db = new LocalDatabase()
-    console.log('Database initialized successfully')
+    logger.info('Database initialized successfully', 'Main')
   } catch (error) {
-    console.error('Failed to initialize database:', error)
+    logger.error('Failed to initialize database', 'Main', error)
     app.quit()
     return
   }
@@ -79,16 +80,16 @@ app.whenReady().then(() => {
   createWindow()
   
   // Debug: Log when window is created
-  console.log('[Main] Window created with preload:', join(__dirname, '../preload/index.js'))
+  logger.info('Window created with preload', 'Main', join(__dirname, '../preload/index.js'))
   
   // Initialize plugin manager
-  pluginManager.initialize().catch(console.error)
+  pluginManager.initialize().catch(error => logger.error('Plugin manager initialization failed', 'Main', error))
   
   // Connect plugin manager to MCP
   mcpManager.setPluginManager(pluginManager)
   
   // Initialize MCP after window is created
-  initializeMCP().catch(console.error)
+  initializeMCP().catch(error => logger.error('MCP initialization failed', 'Main', error))
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -110,7 +111,7 @@ async function initializeMCP() {
     try {
       await mcpManager.connectServer(server)
     } catch (error) {
-      console.error(`Failed to connect to ${server.name}:`, error)
+      logger.error(`Failed to connect to ${server.name}`, 'MCP', error)
     }
   }
 }

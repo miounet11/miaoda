@@ -15,13 +15,33 @@
       <p>{{ error }}</p>
       <button @click="retry">重试</button>
     </div>
+    
+    <!-- 快捷键帮助对话框 -->
+    <ShortcutHelpDialog 
+      :is-open="showShortcutHelp"
+      @close="closeShortcutHelp" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onErrorCaptured } from 'vue'
+import ShortcutHelpDialog from '@renderer/src/components/ui/ShortcutHelpDialog.vue'
+import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
+import { useUIStore } from '@renderer/src/stores/ui'
 
 const error = ref<string | null>(null)
+
+// 初始化全局快捷键
+const { shortcuts } = useGlobalShortcuts()
+
+// 使用 UI Store 管理快捷键帮助状态
+const uiStore = useUIStore()
+const showShortcutHelp = ref(false)
+
+const closeShortcutHelp = () => {
+  showShortcutHelp.value = false
+}
 
 const retry = () => {
   error.value = null
@@ -30,6 +50,7 @@ const retry = () => {
 
 onMounted(() => {
   console.log('SimpleApp mounted successfully')
+  console.log('Global shortcuts initialized')
 })
 
 // 捕获组件错误

@@ -29,6 +29,9 @@ export class MCPManager {
 
   async connectServer(server: MCPServer): Promise<void> {
     try {
+      console.log(`[MCP] Connecting to server: ${server.name}`)
+      console.log(`[MCP] Command: ${server.command} ${server.args.join(' ')}`)
+      
       const transport = new StdioClientTransport({
         command: server.command,
         args: server.args,
@@ -39,14 +42,19 @@ export class MCPManager {
         name: `miaoda-chat-${server.name}`,
         version: '0.1.0'
       }, {
-        capabilities: {}
+        capabilities: {
+          tools: {},
+          resources: {}
+        }
       })
 
       await client.connect(transport)
       this.clients.set(server.name, client)
+      console.log(`[MCP] Successfully connected to ${server.name}`)
 
       // List available tools
       const toolsResponse = await client.listTools()
+      console.log(`[MCP] Server ${server.name} provides ${toolsResponse.tools.length} tools`)
       toolsResponse.tools.forEach(tool => {
         this.tools.set(`${server.name}:${tool.name}`, tool)
       })
@@ -54,7 +62,7 @@ export class MCPManager {
       console.log(`Connected to MCP server: ${server.name}`)
     } catch (error) {
       console.error(`Failed to connect to MCP server ${server.name}:`, error)
-      throw error
+      throw new Error(`MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -167,7 +175,8 @@ export class MCPManager {
       return result
     } catch (error) {
       console.error(`Error calling tool ${toolName}:`, error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Tool call failed: ${errorMessage}`)
     }
   }
 

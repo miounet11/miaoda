@@ -57,12 +57,12 @@
                 >
                   <Clock :size="14" />
                   <span class="suggestion-text">{{ recent.text || $t('search.filterOnly') }}</span>
-                  <button
+                  <span
                     @click.stop="removeRecentSearch(index)"
-                    class="suggestion-remove"
+                    class="suggestion-remove cursor-pointer"
                   >
                     <X :size="12" />
-                  </button>
+                  </span>
                 </button>
               </div>
             </div>
@@ -363,7 +363,7 @@ import {
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
-import type { SearchQuery, SearchResult, SearchFilters, SearchOptions, SearchStats } from '@main/db/searchTypes'
+import type { SearchQuery, SearchResult as SearchResultType, SearchFilters, SearchOptions, SearchStats } from '@main/db/searchTypes'
 import SearchResult from './SearchResult.vue'
 
 // Props
@@ -385,7 +385,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'message-click': [message: any]
   'chat-click': [chatId: string]
-  'search-complete': [results: SearchResult[]]
+  'search-complete': [results: SearchResultType[]]
   'search-clear': []
 }>()
 
@@ -402,7 +402,7 @@ const tagInput = ref('')
 // Search state
 const isSearching = ref(false)
 const hasSearched = ref(false)
-const searchResults = ref<SearchResult[]>([])
+const searchResults = ref<SearchResultType[]>([])
 const searchError = ref<string | null>(null)
 const searchStats = ref<SearchStats>({
   totalMessages: 0,

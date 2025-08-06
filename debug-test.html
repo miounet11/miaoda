@@ -3,128 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiaoDa Chat Debug Test</title>
+    <title>MiaoDa Chat Debug</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f5f5f5;
+            font-family: system-ui;
+            background: #0f0f0f;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
         }
-        .test-result {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .warning { background: #fff3cd; color: #856404; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
     </style>
 </head>
 <body>
-    <h1>MiaoDa Chat Debug Test</h1>
-    <div id="results"></div>
+    <h1>🐱 MiaoDa Chat 调试</h1>
+    
+    <div>
+        <button class="btn" onclick="openApp()">🚀 打开应用</button>
+        <button class="btn" onclick="openDevConsole()">🛠️ 在浏览器中打开</button>
+    </div>
+    
+    <div id="status" style="margin-top: 20px;">检查服务器状态...</div>
 
     <script>
-        const results = document.getElementById('results');
+        function openApp() {
+            document.getElementById('status').innerHTML = '<div style="color: #f59e0b;">🚀 正在打开应用...</div>';
+            window.open('http://localhost:5173/', '_blank');
+        }
         
-        function logResult(message, type = 'success') {
-            const div = document.createElement('div');
-            div.className = `test-result ${type}`;
-            div.textContent = message;
-            results.appendChild(div);
-            console.log(`[${type.toUpperCase()}] ${message}`);
+        function openDevConsole() {
+            window.location.href = 'http://localhost:5173/';
         }
-
-        async function runTests() {
-            logResult('开始 MiaoDa Chat 调试测试...', 'warning');
-            
-            // Test 1: 检查开发服务器连接
-            try {
-                const response = await fetch('http://localhost:5173/');
+        
+        // 检查服务状态
+        fetch('http://localhost:5173/')
+            .then(response => {
                 if (response.ok) {
-                    logResult('✓ 开发服务器连接正常 (http://localhost:5173)');
+                    document.getElementById('status').innerHTML = '<div class="success">✅ 开发服务器正常运行 - 端口 5173</div>';
                 } else {
-                    logResult('✗ 开发服务器响应异常', 'error');
+                    document.getElementById('status').innerHTML = '<div class="error">❌ 开发服务器响应异常</div>';
                 }
-            } catch (e) {
-                logResult('✗ 无法连接到开发服务器: ' + e.message, 'error');
-            }
-
-            // Test 2: 检查主要资源文件
-            const resources = [
-                '/src/main.ts',
-                '/src/App.vue',
-                '/src/router/index.ts',
-                '/src/stores/index.ts',
-                '/src/assets/css/main.css'
-            ];
-
-            for (const resource of resources) {
-                try {
-                    const response = await fetch(`http://localhost:5173${resource}`);
-                    if (response.ok) {
-                        logResult(`✓ 资源文件可访问: ${resource}`);
-                    } else {
-                        logResult(`✗ 资源文件不可访问: ${resource}`, 'error');
-                    }
-                } catch (e) {
-                    logResult(`✗ 获取资源失败 ${resource}: ${e.message}`, 'error');
-                }
-            }
-
-            // Test 3: 检查Vue依赖
-            try {
-                const response = await fetch('http://localhost:5173/@fs/Users/lu/Documents/miaodachat/miaoda-chat/node_modules/vue/dist/vue.esm-bundler.js');
-                if (response.ok) {
-                    logResult('✓ Vue依赖可正常加载');
-                } else {
-                    logResult('✗ Vue依赖加载失败', 'error');
-                }
-            } catch (e) {
-                logResult('✗ Vue依赖检查失败: ' + e.message, 'error');
-            }
-
-            // Test 4: 模拟iframe加载Electron渲染器
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '800px';
-            iframe.style.height = '600px';
-            iframe.style.border = '1px solid #ccc';
-            iframe.style.marginTop = '20px';
-            iframe.src = 'http://localhost:5173/';
-            
-            iframe.onload = () => {
-                logResult('✓ 页面在iframe中成功加载');
-                
-                // 检查iframe内容
-                setTimeout(() => {
-                    try {
-                        const iframeDoc = iframe.contentDocument;
-                        if (iframeDoc) {
-                            const appElement = iframeDoc.getElementById('app');
-                            if (appElement && appElement.innerHTML.trim()) {
-                                logResult('✓ Vue应用已挂载到#app元素');
-                            } else {
-                                logResult('✗ #app元素为空，Vue应用未正常启动', 'error');
-                            }
-                        } else {
-                            logResult('⚠ 无法访问iframe内容 (跨域限制)', 'warning');
-                        }
-                    } catch (e) {
-                        logResult('⚠ 检查iframe内容时出错: ' + e.message, 'warning');
-                    }
-                }, 3000);
-            };
-            
-            iframe.onerror = () => {
-                logResult('✗ 页面在iframe中加载失败', 'error');
-            };
-            
-            document.body.appendChild(iframe);
-            
-            logResult('调试测试完成', 'warning');
-        }
-
-        runTests();
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = '<div class="error">❌ 无法连接到开发服务器</div>';
+            });
     </script>
 </body>
 </html>

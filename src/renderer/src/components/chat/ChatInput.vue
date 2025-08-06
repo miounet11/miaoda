@@ -56,6 +56,7 @@
             :disabled="disabled"
             class="message-input flex-1 min-h-[36px] sm:min-h-[40px] max-h-[150px] sm:max-h-[200px] px-2 py-2 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-sm sm:text-base"
             rows="1"
+            data-chat-input
           />
           
           <!-- Send Button -->
@@ -90,9 +91,10 @@
         <!-- Keyboard Hints -->
         <div class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block">
           Press <kbd class="kbd">Enter</kbd> to send, 
-          <kbd class="kbd">Shift+Enter</kbd> for new line
+          <kbd class="kbd">Shift+Enter</kbd> for new line,
+          <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Enter</kbd> to force send
           <span v-if="showVoiceInput" class="ml-4">
-            <kbd class="kbd">Ctrl+Shift+M</kbd> for voice input
+            <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Shift+V</kbd> for voice input
           </span>
         </div>
         
@@ -159,6 +161,15 @@ const attachments = ref<Attachment[]>([])
 const isVoiceInputActive = ref(false)
 const voiceTranscript = ref('')
 const { handleError, showError } = useErrorHandler()
+const isMac = navigator.platform.toLowerCase().includes('mac')
+
+// Listen for shortcut events
+const handleShortcutSend = () => {
+  if (canSend.value) {
+    handleSend()
+  }
+}
+
 
 // Computed properties
 const canSend = computed(() => {
@@ -203,9 +214,14 @@ const handleInput = () => {
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault()
-    handleSend()
+  const isModifierPressed = event.ctrlKey || event.metaKey
+  
+  if (event.key === 'Enter') {
+    if (!event.shiftKey || (isModifierPressed && !event.shiftKey)) {
+      event.preventDefault()
+      handleSend()
+    }
+    // Shift+Enter allows new line (default behavior)
   }
 }
 
@@ -394,15 +410,30 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   }
 }
 
+// Global shortcut event listeners
+const handleSendMessageEvent = () => {
+  if (canSend.value && textareaRef.value === document.activeElement) {
+    handleSend()
+  }
+}
+
 // Lifecycle hooks
 onMounted(() => {
   // Add global keyboard event listener
   document.addEventListener('keydown', handleGlobalKeydown)
+  
+  // Add custom event listeners for shortcuts
+  document.addEventListener('sendMessage', handleSendMessageEvent)
+  document.addEventListener('shortcuts:send-message', handleShortcutSend)
 })
 
 onUnmounted(() => {
   // Remove global keyboard event listener
   document.removeEventListener('keydown', handleGlobalKeydown)
+  
+  // Remove custom event listeners
+  document.removeEventListener('sendMessage', handleSendMessageEvent)
+  document.removeEventListener('shortcuts:send-message', handleShortcutSend)
 })
 
 // Watch for prop changes

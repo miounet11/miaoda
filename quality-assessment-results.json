@@ -1,0 +1,1377 @@
+{
+  "summary": {
+    "totalFiles": 131,
+    "totalLines": 48361,
+    "analysisDate": "2025-08-06T13:35:31.820Z"
+  },
+  "issues": {
+    "high": [],
+    "medium": [
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 61 (threshold: 10)",
+        "file": "src/main/db/SearchService.ts",
+        "lines": 512
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/main/db/SearchService.ts",
+        "lines": 512
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 35 (threshold: 10)",
+        "file": "src/main/db/searchTypes.ts",
+        "lines": 92
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 14 (threshold: 10)",
+        "file": "src/main/fileHandler.ts",
+        "lines": 102
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 21 (threshold: 10)",
+        "file": "src/main/ipcHandlers.ts",
+        "lines": 284
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/main/ipcHandlers.ts",
+        "lines": 284
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 11 (threshold: 10)",
+        "file": "src/main/llm/MessageService.ts",
+        "lines": 130
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 15 (threshold: 10)",
+        "file": "src/main/llm/ProviderFactory.ts",
+        "lines": 53
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 35 (threshold: 10)",
+        "file": "src/main/llm/provider.ts",
+        "lines": 314
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/main/llm/provider.ts",
+        "lines": 314
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 20 (threshold: 10)",
+        "file": "src/main/mcp/inMemoryServers/codeExecutor.ts",
+        "lines": 207
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/main/mcp/inMemoryServers/codeExecutor.ts",
+        "lines": 207
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 23 (threshold: 10)",
+        "file": "src/main/mcp/mcpManager.ts",
+        "lines": 188
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 7 (threshold: 4)",
+        "file": "src/main/mcp/mcpManager.ts",
+        "lines": 188
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 28 (threshold: 10)",
+        "file": "src/main/plugins/pluginManager.ts",
+        "lines": 274
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/main/plugins/pluginManager.ts",
+        "lines": 274
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 23 (threshold: 10)",
+        "file": "src/main/plugins/types.ts",
+        "lines": 97
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 15 (threshold: 10)",
+        "file": "src/main/utils/Logger.ts",
+        "lines": 51
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 64 (threshold: 10)",
+        "file": "src/renderer/src/App.vue",
+        "lines": 476
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 21 (threshold: 10)",
+        "file": "src/renderer/src/components/MessageContentEnhanced.vue",
+        "lines": 273
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 23 (threshold: 10)",
+        "file": "src/renderer/src/components/MessageContentImproved.vue",
+        "lines": 428
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/components/MessageContentImproved.vue",
+        "lines": 428
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 24 (threshold: 10)",
+        "file": "src/renderer/src/components/QuickSearchModal.vue",
+        "lines": 232
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 24 (threshold: 10)",
+        "file": "src/renderer/src/components/Tooltip.vue",
+        "lines": 169
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 66 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/ChatInput.vue",
+        "lines": 604
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/components/chat/ChatInput.vue",
+        "lines": 604
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 22 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/ChatMessages.vue",
+        "lines": 261
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 64 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/ChatMessagesOptimized.vue",
+        "lines": 722
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/components/chat/ChatMessagesOptimized.vue",
+        "lines": 722
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 39 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/ChatSearch.vue",
+        "lines": 413
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 29 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/MessageItem.vue",
+        "lines": 420
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 54 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/ModelSwitcher.vue",
+        "lines": 476
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 52 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/StreamingMessage.vue",
+        "lines": 738
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 35 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/VirtualMessageList.vue",
+        "lines": 521
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 37 (threshold: 10)",
+        "file": "src/renderer/src/components/chat/VoiceInputButton.vue",
+        "lines": 367
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 25 (threshold: 10)",
+        "file": "src/renderer/src/components/dev/VirtualScrollMonitor.vue",
+        "lines": 480
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 36 (threshold: 10)",
+        "file": "src/renderer/src/components/export/ExportDialog.vue",
+        "lines": 526
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 20 (threshold: 10)",
+        "file": "src/renderer/src/components/export/ExportErrorDialog.vue",
+        "lines": 134
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 42 (threshold: 10)",
+        "file": "src/renderer/src/components/mcp/MCPToolCall.vue",
+        "lines": 741
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/components/mcp/MCPToolCall.vue",
+        "lines": 741
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 32 (threshold: 10)",
+        "file": "src/renderer/src/components/plugin/PluginInstallDialog.vue",
+        "lines": 804
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 23 (threshold: 10)",
+        "file": "src/renderer/src/components/plugin/PluginManager.vue",
+        "lines": 552
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 46 (threshold: 10)",
+        "file": "src/renderer/src/components/search/GlobalSearch.vue",
+        "lines": 674
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 41 (threshold: 10)",
+        "file": "src/renderer/src/components/search/GlobalSearchOverlay.vue",
+        "lines": 618
+      },
+      {
+        "type": "large-file",
+        "severity": "medium",
+        "message": "File is 1113 lines (threshold: 1000)",
+        "file": "src/renderer/src/components/search/MessageSearch.vue",
+        "lines": 1113
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 60 (threshold: 10)",
+        "file": "src/renderer/src/components/search/MessageSearch.vue",
+        "lines": 1113
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 37 (threshold: 10)",
+        "file": "src/renderer/src/components/search/SearchHighlight.vue",
+        "lines": 174
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 47 (threshold: 10)",
+        "file": "src/renderer/src/components/search/SearchResult.vue",
+        "lines": 644
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 16 (threshold: 10)",
+        "file": "src/renderer/src/components/search/SearchSettings.vue",
+        "lines": 776
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/components/search/SearchSettings.vue",
+        "lines": 776
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 16 (threshold: 10)",
+        "file": "src/renderer/src/components/settings/LanguageSelector.vue",
+        "lines": 411
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 17 (threshold: 10)",
+        "file": "src/renderer/src/components/ui/ContextMenu.vue",
+        "lines": 293
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 44 (threshold: 10)",
+        "file": "src/renderer/src/components/ui/VirtualScroll.vue",
+        "lines": 475
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 60 (threshold: 10)",
+        "file": "src/renderer/src/components/voice/VoiceRecorder.vue",
+        "lines": 914
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 21 (threshold: 10)",
+        "file": "src/renderer/src/components/voice/VoiceSettings.vue",
+        "lines": 975
+      },
+      {
+        "type": "large-file",
+        "severity": "medium",
+        "message": "File is 1100 lines (threshold: 1000)",
+        "file": "src/renderer/src/components/voice/VoiceSynthesis.vue",
+        "lines": 1100
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 64 (threshold: 10)",
+        "file": "src/renderer/src/components/voice/VoiceSynthesis.vue",
+        "lines": 1100
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 61 (threshold: 10)",
+        "file": "src/renderer/src/components/window/TabBar.vue",
+        "lines": 776
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 53 (threshold: 10)",
+        "file": "src/renderer/src/components/window/TabContent.vue",
+        "lines": 569
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 60 (threshold: 10)",
+        "file": "src/renderer/src/components/window/Window.vue",
+        "lines": 814
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 44 (threshold: 10)",
+        "file": "src/renderer/src/composables/useChat.ts",
+        "lines": 363
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/composables/useChat.ts",
+        "lines": 363
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 23 (threshold: 10)",
+        "file": "src/renderer/src/composables/useErrorHandler.ts",
+        "lines": 111
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/composables/useErrorHandler.ts",
+        "lines": 111
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 29 (threshold: 10)",
+        "file": "src/renderer/src/composables/useGlobalShortcuts.ts",
+        "lines": 136
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/composables/useGlobalShortcuts.ts",
+        "lines": 136
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 28 (threshold: 10)",
+        "file": "src/renderer/src/composables/useKeyboardShortcuts.ts",
+        "lines": 245
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 53 (threshold: 10)",
+        "file": "src/renderer/src/composables/useResponsive.ts",
+        "lines": 249
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 12 (threshold: 10)",
+        "file": "src/renderer/src/composables/useTheme.ts",
+        "lines": 245
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 76 (threshold: 10)",
+        "file": "src/renderer/src/services/export/ExportService.ts",
+        "lines": 754
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/export/ExportService.ts",
+        "lines": 754
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 51 (threshold: 10)",
+        "file": "src/renderer/src/services/export/ExportValidator.ts",
+        "lines": 265
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/services/export/ExportValidator.ts",
+        "lines": 265
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 27 (threshold: 10)",
+        "file": "src/renderer/src/services/export/PDFExporter.ts",
+        "lines": 329
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/services/export/PDFExporter.ts",
+        "lines": 329
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 56 (threshold: 10)",
+        "file": "src/renderer/src/services/i18n/index.ts",
+        "lines": 453
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 80 (threshold: 10)",
+        "file": "src/renderer/src/services/mcp/MCPService.ts",
+        "lines": 549
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/mcp/MCPService.ts",
+        "lines": 549
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 119 (threshold: 10)",
+        "file": "src/renderer/src/services/plugin/PluginManager.ts",
+        "lines": 771
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/services/plugin/PluginManager.ts",
+        "lines": 771
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 46 (threshold: 10)",
+        "file": "src/renderer/src/services/plugin/builtin/ThemePlugin.ts",
+        "lines": 552
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 15 (threshold: 10)",
+        "file": "src/renderer/src/services/plugin/builtin/WelcomePlugin.ts",
+        "lines": 250
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 14 (threshold: 10)",
+        "file": "src/renderer/src/services/plugin/index.ts",
+        "lines": 339
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/plugin/index.ts",
+        "lines": 339
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 71 (threshold: 10)",
+        "file": "src/renderer/src/services/pwa/PWAService.ts",
+        "lines": 479
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/pwa/PWAService.ts",
+        "lines": 479
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 11 (threshold: 10)",
+        "file": "src/renderer/src/services/search/BackendSearchService.ts",
+        "lines": 165
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/search/BackendSearchService.ts",
+        "lines": 165
+      },
+      {
+        "type": "large-file",
+        "severity": "medium",
+        "message": "File is 1010 lines (threshold: 1000)",
+        "file": "src/renderer/src/services/search/SearchService.ts",
+        "lines": 1010
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 156 (threshold: 10)",
+        "file": "src/renderer/src/services/search/SearchService.ts",
+        "lines": 1010
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 7 (threshold: 4)",
+        "file": "src/renderer/src/services/search/SearchService.ts",
+        "lines": 1010
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 26 (threshold: 10)",
+        "file": "src/renderer/src/services/shortcuts/ShortcutService.ts",
+        "lines": 165
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 70 (threshold: 10)",
+        "file": "src/renderer/src/services/streaming/StreamingService.ts",
+        "lines": 442
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 12 (threshold: 4)",
+        "file": "src/renderer/src/services/streaming/StreamingService.ts",
+        "lines": 442
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 12 (threshold: 10)",
+        "file": "src/renderer/src/services/ui/ToastService.ts",
+        "lines": 112
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 62 (threshold: 10)",
+        "file": "src/renderer/src/services/voice/VoiceService.ts",
+        "lines": 523
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/services/voice/VoiceService.ts",
+        "lines": 523
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 83 (threshold: 10)",
+        "file": "src/renderer/src/services/window/WindowManager.ts",
+        "lines": 589
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/services/window/WindowManager.ts",
+        "lines": 589
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 58 (threshold: 10)",
+        "file": "src/renderer/src/stores/auth.ts",
+        "lines": 674
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/stores/auth.ts",
+        "lines": 674
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 96 (threshold: 10)",
+        "file": "src/renderer/src/stores/chat-enhanced.ts",
+        "lines": 601
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 9 (threshold: 4)",
+        "file": "src/renderer/src/stores/chat-enhanced.ts",
+        "lines": 601
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 13 (threshold: 10)",
+        "file": "src/renderer/src/stores/chat.ts",
+        "lines": 170
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/stores/chat.ts",
+        "lines": 170
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 33 (threshold: 10)",
+        "file": "src/renderer/src/stores/settings.ts",
+        "lines": 549
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 56 (threshold: 10)",
+        "file": "src/renderer/src/stores/ui.ts",
+        "lines": 510
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 108 (threshold: 10)",
+        "file": "src/renderer/src/types/api.ts",
+        "lines": 385
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 63 (threshold: 10)",
+        "file": "src/renderer/src/types/chat.ts",
+        "lines": 186
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 18 (threshold: 10)",
+        "file": "src/renderer/src/types/index.ts",
+        "lines": 244
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 67 (threshold: 10)",
+        "file": "src/renderer/src/types/ui.ts",
+        "lines": 249
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 18 (threshold: 10)",
+        "file": "src/renderer/src/utils/Logger.ts",
+        "lines": 52
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 60 (threshold: 10)",
+        "file": "src/renderer/src/utils/performance.ts",
+        "lines": 748
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/utils/performance.ts",
+        "lines": 748
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 36 (threshold: 10)",
+        "file": "src/renderer/src/views/BrowserView.vue",
+        "lines": 558
+      },
+      {
+        "type": "large-file",
+        "severity": "medium",
+        "message": "File is 2150 lines (threshold: 1000)",
+        "file": "src/renderer/src/views/ChatViewImproved.vue",
+        "lines": 2150
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 130 (threshold: 10)",
+        "file": "src/renderer/src/views/ChatViewImproved.vue",
+        "lines": 2150
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 6 (threshold: 4)",
+        "file": "src/renderer/src/views/ChatViewImproved.vue",
+        "lines": 2150
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 24 (threshold: 10)",
+        "file": "src/renderer/src/views/FileView.vue",
+        "lines": 260
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 56 (threshold: 10)",
+        "file": "src/renderer/src/views/NotesView.vue",
+        "lines": 742
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 35 (threshold: 10)",
+        "file": "src/renderer/src/views/SettingsView.vue",
+        "lines": 644
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 35 (threshold: 10)",
+        "file": "src/renderer/src/views/TerminalView.vue",
+        "lines": 632
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/views/TerminalView.vue",
+        "lines": 632
+      },
+      {
+        "type": "large-file",
+        "severity": "medium",
+        "message": "File is 1261 lines (threshold: 1000)",
+        "file": "src/renderer/src/views/_backup_ChatViewImproved_original.vue",
+        "lines": 1261
+      },
+      {
+        "type": "high-complexity",
+        "severity": "medium",
+        "message": "Estimated complexity: 95 (threshold: 10)",
+        "file": "src/renderer/src/views/_backup_ChatViewImproved_original.vue",
+        "lines": 1261
+      },
+      {
+        "type": "deep-nesting",
+        "severity": "medium",
+        "message": "Maximum nesting level: 5 (threshold: 4)",
+        "file": "src/renderer/src/views/_backup_ChatViewImproved_original.vue",
+        "lines": 1261
+      }
+    ],
+    "low": [
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/main/db/SearchService.ts",
+        "lines": 512
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/main/fileHandler.ts",
+        "lines": 102
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "13 console statements found (potential debugging leftovers)",
+        "file": "src/main/ipcHandlers.ts",
+        "lines": 284
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/main/mcp/inMemoryServers/codeExecutor.ts",
+        "lines": 207
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "7 console statements found (potential debugging leftovers)",
+        "file": "src/main/mcp/mcpManager.ts",
+        "lines": 188
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/main/mcp/serverConfig.ts",
+        "lines": 86
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "7 console statements found (potential debugging leftovers)",
+        "file": "src/main/plugins/pluginManager.ts",
+        "lines": 274
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'registerShortcuts' is 58 lines (threshold: 50)",
+        "file": "src/main/shortcuts.ts",
+        "lines": 77
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/main/utils/Logger.ts",
+        "lines": 51
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "17 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/App.vue",
+        "lines": 476
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/SimpleApp.vue",
+        "lines": 115
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/MessageContentImproved.vue",
+        "lines": 428
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/AttachmentsPreview.vue",
+        "lines": 272
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/ChatInput.vue",
+        "lines": 604
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/ChatMessages.vue",
+        "lines": 261
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/ChatMessagesOptimized.vue",
+        "lines": 722
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/ChatSearch.vue",
+        "lines": 413
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/MessageItem.vue",
+        "lines": 420
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/ModelSwitcher.vue",
+        "lines": 476
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/chat/VirtualMessageList.vue",
+        "lines": 521
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/export/ExportDialog.vue",
+        "lines": 526
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/export/ExportErrorDialog.vue",
+        "lines": 134
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/mcp/MCPToolCall.vue",
+        "lines": 741
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/plugin/PluginInstallDialog.vue",
+        "lines": 804
+      },
+      {
+        "type": "too-many-todos",
+        "severity": "low",
+        "message": "10 TODO/FIXME/HACK comments found",
+        "file": "src/renderer/src/components/plugin/PluginManager.vue",
+        "lines": 552
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "8 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/plugin/PluginManager.vue",
+        "lines": 552
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "5 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/search/GlobalSearch.vue",
+        "lines": 674
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/search/GlobalSearchOverlay.vue",
+        "lines": 618
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/search/MessageSearch.vue",
+        "lines": 1113
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/search/SearchResult.vue",
+        "lines": 644
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/search/SearchSettings.vue",
+        "lines": 776
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/settings/LanguageSelector.vue",
+        "lines": 411
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/voice/VoiceRecorder.vue",
+        "lines": 914
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/voice/VoiceSettings.vue",
+        "lines": 975
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/components/voice/VoiceSynthesis.vue",
+        "lines": 1100
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useChat' is 358 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useChat.ts",
+        "lines": 363
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/composables/useChat.ts",
+        "lines": 363
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useErrorHandler' is 101 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useErrorHandler.ts",
+        "lines": 111
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/composables/useErrorHandler.ts",
+        "lines": 111
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useGlobalShortcuts' is 120 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useGlobalShortcuts.ts",
+        "lines": 136
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useKeyboardShortcuts' is 225 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useKeyboardShortcuts.ts",
+        "lines": 245
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useResponsive' is 236 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useResponsive.ts",
+        "lines": 249
+      },
+      {
+        "type": "long-function",
+        "severity": "low",
+        "message": "Function 'useTheme' is 232 lines (threshold: 50)",
+        "file": "src/renderer/src/composables/useTheme.ts",
+        "lines": 245
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/debug-main.ts",
+        "lines": 29
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "7 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/export/ExportService.ts",
+        "lines": 754
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/i18n/index.ts",
+        "lines": 453
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "10 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/mcp/MCPService.ts",
+        "lines": 549
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "14 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/plugin/PluginManager.ts",
+        "lines": 771
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "7 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/plugin/builtin/ThemePlugin.ts",
+        "lines": 552
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "6 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/plugin/builtin/WelcomePlugin.ts",
+        "lines": 250
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "7 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/plugin/index.ts",
+        "lines": 339
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "11 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/pwa/PWAService.ts",
+        "lines": 479
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "5 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/search/BackendSearchService.ts",
+        "lines": 165
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "8 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/search/SearchService.ts",
+        "lines": 1010
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/streaming/StreamingService.ts",
+        "lines": 442
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "6 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/voice/VoiceService.ts",
+        "lines": 523
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/services/window/WindowManager.ts",
+        "lines": 589
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "2 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/stores/auth.ts",
+        "lines": 674
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/stores/chat-enhanced.ts",
+        "lines": 601
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/stores/settings.ts",
+        "lines": 549
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/utils/Logger.ts",
+        "lines": 52
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "4 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/utils/performance.ts",
+        "lines": 748
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/views/BrowserView.vue",
+        "lines": 558
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "15 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/views/ChatViewImproved.vue",
+        "lines": 2150
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "3 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/views/SettingsView.vue",
+        "lines": 644
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "1 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/views/TerminalView.vue",
+        "lines": 632
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "12 console statements found (potential debugging leftovers)",
+        "file": "src/renderer/src/views/_backup_ChatViewImproved_original.vue",
+        "lines": 1261
+      },
+      {
+        "type": "console-statements",
+        "severity": "low",
+        "message": "5 console statements found (potential debugging leftovers)",
+        "file": "src/preload/index.ts",
+        "lines": 112
+      }
+    ]
+  },
+  "metrics": {
+    "fileSize": [],
+    "complexity": [],
+    "duplicates": []
+  }
+}

@@ -278,39 +278,83 @@ export const useUIStore = defineStore('ui', () => {
     voiceEnabled.value = !voiceEnabled.value
   }
   
-  // Keyboard shortcuts
+  // Shortcut help state
+  const showShortcutHelp = ref(false)
+  
+  const openShortcutHelp = () => {
+    showShortcutHelp.value = true
+  }
+  
+  const closeShortcutHelp = () => {
+    showShortcutHelp.value = false
+  }
+  
+  const toggleShortcutHelp = () => {
+    showShortcutHelp.value = !showShortcutHelp.value
+  }
+
+  const toggleQuickSearch = () => {
+    openModal('quickSearch')
+  }
+
+  const closeActiveModal = () => {
+    if (showShortcutHelp.value) {
+      closeShortcutHelp()
+    } else if (activeModals.value.length > 0) {
+      activeModals.value.forEach(modal => closeModal(modal))
+    } else if (showSettings.value) {
+      closeSettings()
+    }
+  }
+
+  // Legacy keyboard shortcuts (kept for backwards compatibility)
   const handleKeyboardShortcut = (event: KeyboardEvent) => {
     const { key, ctrlKey, metaKey, shiftKey, altKey } = event
     const cmd = ctrlKey || metaKey
     
-    // Global shortcuts
+    // Don't handle shortcuts when typing in inputs, textareas, or contenteditable elements
+    const target = event.target as HTMLElement
+    if (
+      target.tagName === 'INPUT' || 
+      target.tagName === 'TEXTAREA' || 
+      target.isContentEditable ||
+      target.closest('[contenteditable="true"]')
+    ) {
+      // Allow some global shortcuts even in inputs
+      if (key === 'Escape') {
+        handleEscapeKey()
+      }
+      return
+    }
+    
+    // Global shortcuts - these are now handled by the new shortcut service
+    // but kept here for fallback compatibility
     if (cmd && key === ',') {
       event.preventDefault()
       toggleSettings()
       return
     }
     
-    if (cmd && key === '/') {
+    if (cmd && key === 'b') {
       event.preventDefault()
       toggleSidebar()
       return
     }
     
-    if (cmd && key === 'f') {
+    if (cmd && (key === 'f' || key === 'k')) {
       event.preventDefault()
       openModal('search')
       return
     }
     
+    if (cmd && key === '/') {
+      event.preventDefault()
+      toggleShortcutHelp()
+      return
+    }
+    
     if (key === 'Escape') {
-      // Close modals, clear selections, etc.
-      if (activeModals.value.length > 0) {
-        activeModals.value.forEach(modal => closeModal(modal))
-      } else if (selectedMessages.value.size > 0) {
-        clearMessageSelection()
-      } else if (showSettings.value) {
-        closeSettings()
-      }
+      handleEscapeKey()
       return
     }
     
@@ -319,6 +363,19 @@ export const useUIStore = defineStore('ui', () => {
       event.preventDefault()
       toggleTheme()
       return
+    }
+  }
+  
+  const handleEscapeKey = () => {
+    // Close shortcuts help first
+    if (showShortcutHelp.value) {
+      closeShortcutHelp()
+    } else if (activeModals.value.length > 0) {
+      activeModals.value.forEach(modal => closeModal(modal))
+    } else if (selectedMessages.value.size > 0) {
+      clearMessageSelection()
+    } else if (showSettings.value) {
+      closeSettings()
     }
   }
   
@@ -388,6 +445,7 @@ export const useUIStore = defineStore('ui', () => {
     isSearching,
     settingsTab,
     showSettings,
+    showShortcutHelp,
     isRecording,
     voiceEnabled,
     
@@ -425,6 +483,11 @@ export const useUIStore = defineStore('ui', () => {
     toggleSettings,
     openSettings,
     closeSettings,
+    openShortcutHelp,
+    closeShortcutHelp,
+    toggleShortcutHelp,
+    toggleQuickSearch,
+    closeActiveModal,
     selectMessage,
     deselectMessage,
     toggleMessageSelection,

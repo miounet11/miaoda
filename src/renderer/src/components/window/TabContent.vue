@@ -62,7 +62,7 @@ import type { WindowTab } from '@renderer/src/services/window/WindowManager'
 // Content Components - Dynamic imports for code splitting
 import { defineAsyncComponent } from 'vue'
 
-const ChatView = defineAsyncComponent(() => import('@/views/ChatView.vue'))
+const ChatView = defineAsyncComponent(() => import('@/views/ChatViewImproved.vue'))
 const SettingsView = defineAsyncComponent(() => import('@/views/SettingsView.vue'))
 const ToolsView = defineAsyncComponent(() => import('@/views/ToolsView.vue'))
 const PluginsView = defineAsyncComponent(() => import('@/views/PluginsView.vue'))

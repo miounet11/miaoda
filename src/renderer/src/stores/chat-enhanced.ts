@@ -490,6 +490,38 @@ export const useChatStore = defineStore('chat', () => {
     return results
   }
 
+  // Shortcut methods
+  const createNewChat = async () => {
+    const newChatId = await createChat()
+    if (newChatId) {
+      await selectChat(newChatId)
+    }
+  }
+
+  const switchToChat = async (index: number) => {
+    if (index >= 0 && index < chats.value.length) {
+      const chat = chatList.value[index] // Use sorted chat list
+      if (chat) {
+        await selectChat(chat.id)
+      }
+    }
+  }
+
+  // Current message handling for shortcuts
+  const currentDraftMessage = ref('')
+  
+  const setCurrentDraftMessage = (message: string) => {
+    currentDraftMessage.value = message
+  }
+
+  const sendCurrentMessage = async () => {
+    if (currentDraftMessage.value.trim() && canSendMessage.value) {
+      const message = currentDraftMessage.value
+      currentDraftMessage.value = ''
+      await sendMessage(message)
+    }
+  }
+
   // Initialize store
   const initialize = async () => {
     try {
@@ -542,6 +574,13 @@ export const useChatStore = defineStore('chat', () => {
     deleteMessage,
     searchMessages,
     initialize,
+    
+    // Shortcut methods
+    createNewChat,
+    switchToChat,
+    currentDraftMessage,
+    setCurrentDraftMessage,
+    sendCurrentMessage,
     
     // Legacy compatibility
     addMessage: (messageData: Omit<Message, 'id' | 'timestamp'>) => {

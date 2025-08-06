@@ -45,6 +45,12 @@
     
     <!-- Toast Container -->
     <ToastContainer />
+    
+    <!-- Shortcuts Help Modal -->
+    <ShortcutsHelpModal />
+    
+    <!-- Quick Search Modal -->
+    <QuickSearchModal />
   </div>
 </template>
 
@@ -55,16 +61,24 @@ import { Loader } from 'lucide-vue-next'
 import Window from '@renderer/src/components/window/Window.vue'
 import ErrorToast from '@renderer/src/components/error/ErrorToast.vue'
 import ToastContainer from '@renderer/src/components/ui/ToastContainer.vue'
+import ShortcutsHelpModal from '@renderer/src/components/ShortcutsHelpModal.vue'
+import QuickSearchModal from '@renderer/src/components/QuickSearchModal.vue'
 import { windowManager } from '@renderer/src/services/window/WindowManager'
 import { mcpService } from '@renderer/src/services/mcp/MCPService'
+import { useUIStore } from '@renderer/src/stores/ui'
+import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 
 const router = useRouter()
+const uiStore = useUIStore()
+
+// Initialize global shortcuts
+const { shortcuts } = useGlobalShortcuts()
 
 // Refs
 const mainWindowRef = ref<InstanceType<typeof Window>>()
 
-// State
-const useMultiWindow = ref(true) // Feature flag for multi-window support
+// State - 暂时禁用多窗口模式以解决空白页面问题
+const useMultiWindow = ref(false) // Feature flag for multi-window support
 const activeWindowId = ref<string | null>(null)
 const isLoading = ref(false)
 const loadingMessage = ref('')
