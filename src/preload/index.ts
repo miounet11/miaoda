@@ -35,6 +35,25 @@ const api = {
     isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
     setToolsEnabled: (enabled: boolean) => ipcRenderer.invoke('llm:setToolsEnabled', enabled),
     getToolsEnabled: () => ipcRenderer.invoke('llm:getToolsEnabled'),
+    getAllProviders: () => ipcRenderer.invoke('llm:getAllProviders'),
+    // Custom provider methods
+    addCustomProvider: (config: any) => ipcRenderer.invoke('llm:addCustomProvider', config),
+    updateCustomProvider: (id: string, updates: any) => 
+      ipcRenderer.invoke('llm:updateCustomProvider', id, updates),
+    removeCustomProvider: (id: string) => ipcRenderer.invoke('llm:removeCustomProvider', id),
+    getAllCustomProviders: () => ipcRenderer.invoke('llm:getAllCustomProviders'),
+    getCustomProvider: (id: string) => ipcRenderer.invoke('llm:getCustomProvider', id),
+    checkCustomProviderHealth: (id: string) => 
+      ipcRenderer.invoke('llm:checkCustomProviderHealth', id),
+    checkAllCustomProvidersHealth: () => 
+      ipcRenderer.invoke('llm:checkAllCustomProvidersHealth'),
+    getAllProviderHealthStatuses: () => 
+      ipcRenderer.invoke('llm:getAllProviderHealthStatuses'),
+    getCustomProviderHealth: (id: string) => 
+      ipcRenderer.invoke('llm:getCustomProviderHealth', id),
+    exportCustomProviders: () => ipcRenderer.invoke('llm:exportCustomProviders'),
+    importCustomProviders: (providers: any[]) => 
+      ipcRenderer.invoke('llm:importCustomProviders', providers),
     onChunk: (callback: (data: any) => void) => {
       const handler = (_: any, data: any) => callback(data)
       ipcRenderer.on('llm:chunk', handler)

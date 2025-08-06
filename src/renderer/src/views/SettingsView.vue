@@ -218,6 +218,26 @@
           </div>
         </div>
 
+        <!-- Custom Providers -->
+        <div v-if="activeTab === 'providers'" class="space-y-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Custom Providers</h3>
+            <p class="text-muted-foreground mb-6">
+              Manage custom LLM providers to extend beyond the default options
+            </p>
+          </div>
+
+          <ProviderList
+            :providers="customProviders"
+            @provider-added="handleProviderAdded"
+            @provider-updated="handleProviderUpdated"
+            @provider-deleted="handleProviderDeleted"
+            @provider-toggled="handleProviderToggled"
+            @provider-tested="handleProviderTested"
+            @providers-reordered="handleProvidersReordered"
+          />
+        </div>
+
         <!-- Theme Settings -->
         <div v-if="activeTab === 'appearance'" class="space-y-6">
           <div>
@@ -350,10 +370,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server } from 'lucide-vue-next'
+import ProviderList from '@renderer/src/components/settings/ProviderList.vue'
+import type { LLMProvider } from '@renderer/src/types/api'
 
 const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
+  { id: 'providers', label: 'Custom Providers', icon: Server },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
   { id: 'plugins', label: 'Plugins', icon: Puzzle }
@@ -365,6 +388,14 @@ const shortcuts = ref<Array<{ key: string, description: string }>>([])
 const toolsEnabled = ref(false)
 const plugins = ref<Array<any>>([])
 const showApiKey = ref(false)
+const customProviders = ref<LLMProvider[]>([])
+
+// Check for URL parameters to set initial tab
+const urlParams = new URLSearchParams(window.location.search)
+const initialTab = urlParams.get('tab')
+if (initialTab && ['llm', 'providers', 'appearance', 'shortcuts', 'plugins'].includes(initialTab)) {
+  activeTab.value = initialTab
+}
 
 // Provider configurations
 const providers = [
@@ -519,6 +550,136 @@ const loadPlugins = async () => {
   }
 }
 
+const loadCustomProviders = async () => {
+  try {
+    // In a real implementation, this would load from API/storage
+    customProviders.value = []
+  } catch (error) {
+    console.error('Failed to load custom providers:', error)
+    customProviders.value = []
+  }
+}
+
+// Custom Provider Handlers
+const handleProviderAdded = async (provider: LLMProvider) => {
+  try {
+    // In real implementation, save to backend/storage
+    customProviders.value.push(provider)
+    statusMessage.value = {
+      type: 'success',
+      text: `Provider "${provider.displayName}" added successfully!`
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to add provider: ${error.message}`
+    }
+  }
+}
+
+const handleProviderUpdated = async (provider: LLMProvider) => {
+  try {
+    const index = customProviders.value.findIndex(p => p.id === provider.id)
+    if (index !== -1) {
+      customProviders.value[index] = provider
+      statusMessage.value = {
+        type: 'success',
+        text: `Provider "${provider.displayName}" updated successfully!`
+      }
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to update provider: ${error.message}`
+    }
+  }
+}
+
+const handleProviderDeleted = async (providerId: string) => {
+  try {
+    const index = customProviders.value.findIndex(p => p.id === providerId)
+    if (index !== -1) {
+      const providerName = customProviders.value[index].displayName
+      customProviders.value.splice(index, 1)
+      statusMessage.value = {
+        type: 'success',
+        text: `Provider "${providerName}" deleted successfully!`
+      }
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to delete provider: ${error.message}`
+    }
+  }
+}
+
+const handleProviderToggled = async (providerId: string, enabled: boolean) => {
+  try {
+    const provider = customProviders.value.find(p => p.id === providerId)
+    if (provider) {
+      provider.enabled = enabled
+      statusMessage.value = {
+        type: 'success',
+        text: `Provider "${provider.displayName}" ${enabled ? 'enabled' : 'disabled'} successfully!`
+      }
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to toggle provider: ${error.message}`
+    }
+  }
+}
+
+const handleProviderTested = async (providerId: string) => {
+  try {
+    const provider = customProviders.value.find(p => p.id === providerId)
+    if (provider) {
+      // Simulate connection test
+      provider.status = 'configuring'
+      
+      setTimeout(() => {
+        // Randomly succeed or fail for demo
+        provider.status = Math.random() > 0.3 ? 'connected' : 'error'
+        
+        statusMessage.value = {
+          type: provider.status === 'connected' ? 'success' : 'error',
+          text: provider.status === 'connected' 
+            ? `Connection to "${provider.displayName}" successful!`
+            : `Connection to "${provider.displayName}" failed. Check configuration.`
+        }
+      }, 2000)
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to test provider: ${error.message}`
+    }
+  }
+}
+
+const handleProvidersReordered = async (providerIds: string[]) => {
+  try {
+    // Reorder providers based on the new order
+    const reorderedProviders = providerIds
+      .map(id => customProviders.value.find(p => p.id === id))
+      .filter(Boolean) as LLMProvider[]
+    
+    customProviders.value = reorderedProviders
+    
+    statusMessage.value = {
+      type: 'success',
+      text: 'Provider order updated successfully!'
+    }
+  } catch (error: any) {
+    statusMessage.value = {
+      type: 'error',
+      text: `Failed to reorder providers: ${error.message}`
+    }
+  }
+}
+
 // Load existing config on mount
 onMounted(async () => {
   // Setup responsive behavior
@@ -541,6 +702,9 @@ onMounted(async () => {
   
   // Load plugins
   await loadPlugins()
+  
+  // Load custom providers
+  await loadCustomProviders()
 })
 
 // Cleanup

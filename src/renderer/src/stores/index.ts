@@ -22,6 +22,7 @@ export type StoreState = {
   ui: ReturnType<typeof useUIStore>
   settings: ReturnType<typeof useSettingsStore>
   auth: ReturnType<typeof useAuthStore>
+  customProviders: ReturnType<typeof useCustomProvidersStore>
 }
 
 // Re-export stores
@@ -29,6 +30,7 @@ export { useChatStore } from './chat'
 export { useUIStore } from './ui'
 export { useSettingsStore } from './settings'
 export { useAuthStore } from './auth'
+export { useCustomProvidersStore } from './customProviders'
 
 // Store composition for complex operations
 export const useStores = () => {
@@ -36,11 +38,13 @@ export const useStores = () => {
   const ui = useUIStore()
   const settings = useSettingsStore()
   const auth = useAuthStore()
+  const customProviders = useCustomProvidersStore()
 
   return {
     chat,
     ui,
     settings,
-    auth
+    auth,
+    customProviders
   }
 }

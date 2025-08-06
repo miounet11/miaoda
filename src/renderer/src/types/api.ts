@@ -383,3 +383,71 @@ export interface KnowledgeBaseConfig {
   indexingBatchSize: number
   similarityThreshold: number
 }
+
+// Custom LLM Provider Types
+export interface CustomProviderConfig {
+  id: string
+  name: string
+  displayName: string
+  apiKey: string
+  baseURL: string
+  model: string
+  type: 'openai-compatible' | 'anthropic-compatible' | 'custom'
+  headers?: Record<string, string>
+  parameters?: {
+    temperature?: number
+    maxTokens?: number
+    topP?: number
+    frequencyPenalty?: number
+    presencePenalty?: number
+  }
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProviderHealthStatus {
+  providerName: string
+  isHealthy: boolean
+  lastChecked: string
+  error?: string
+  responseTime?: number
+}
+
+export interface CustomProviderCreateRequest {
+  name: string
+  displayName: string
+  apiKey: string
+  baseURL: string
+  model: string
+  type: 'openai-compatible' | 'anthropic-compatible' | 'custom'
+  headers?: Record<string, string>
+  parameters?: {
+    temperature?: number
+    maxTokens?: number
+    topP?: number
+    frequencyPenalty?: number
+    presencePenalty?: number
+  }
+}
+
+export interface CustomProviderUpdateRequest {
+  name?: string
+  displayName?: string
+  apiKey?: string
+  baseURL?: string
+  model?: string
+  headers?: Record<string, string>
+  parameters?: {
+    temperature?: number
+    maxTokens?: number
+    topP?: number
+    frequencyPenalty?: number
+    presencePenalty?: number
+  }
+}
+
+export interface ProviderImportExport {
+  success: number
+  failed: number
+  errors: string[]
+}

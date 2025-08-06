@@ -18,6 +18,24 @@ declare global {
       llm: {
         generate: (params: any) => Promise<any>
         stream: (params: any, callback: (chunk: any) => void) => Promise<void>
+        setProvider: (config: any) => Promise<{ success: boolean; error?: string }>
+        getConfig: () => Promise<any>
+        isConfigured: () => Promise<boolean>
+        setToolsEnabled: (enabled: boolean) => Promise<void>
+        getToolsEnabled: () => Promise<boolean>
+        getAllProviders: () => Promise<any[]>
+        // Custom provider methods
+        addCustomProvider: (config: any) => Promise<{ success: boolean; id?: string; error?: string }>
+        updateCustomProvider: (id: string, updates: any) => Promise<{ success: boolean; error?: string }>
+        removeCustomProvider: (id: string) => Promise<{ success: boolean; error?: string }>
+        getAllCustomProviders: () => Promise<any[]>
+        getCustomProvider: (id: string) => Promise<any>
+        checkCustomProviderHealth: (id: string) => Promise<any>
+        checkAllCustomProvidersHealth: () => Promise<any[]>
+        getAllProviderHealthStatuses: () => Promise<any[]>
+        getCustomProviderHealth: (id: string) => Promise<any>
+        exportCustomProviders: () => Promise<any[]>
+        importCustomProviders: (providers: any[]) => Promise<{ success: number; failed: number; errors: string[] }>
       }
       mcp: {
         connect: (server: any) => Promise<void>

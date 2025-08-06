@@ -29,13 +29,7 @@ export function registerIPCHandlers(
   const llmManager = createLLMManager(mcpManager)
   registerLLMHandlers(llmManager)
 
-  ipcMain.handle('llm:streamChat', async (event, params) => {
-    return llmManager.streamChat(event, params)
-  })
-
-  ipcMain.handle('llm:getProviders', async () => {
-    return llmManager.getProviders()
-  })
+  // Note: llm:getProviders replaced by llm:getAllProviders in llmManager.ts
 
   // MCP handlers
   ipcMain.handle('mcp:get-servers', () => {

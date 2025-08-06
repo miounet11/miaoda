@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { LLMProvider, AppSettings, KeyboardShortcuts } from '@renderer/src/types'
+import { useCustomProvidersStore } from './customProviders'
 
 export const useSettingsStore = defineStore('settings', () => {
   // State
@@ -128,6 +129,36 @@ export const useSettingsStore = defineStore('settings', () => {
     volume: voiceVolume.value,
     autoPlay: voiceAutoPlay.value
   }))
+
+  // Custom Providers integration
+  const customProvidersStore = useCustomProvidersStore()
+  
+  const allProviders = computed(() => {
+    const standardProviders = [
+      { id: 'openai', name: 'OpenAI', displayName: 'OpenAI', isCustom: false },
+      { id: 'anthropic', name: 'Anthropic', displayName: 'Claude', isCustom: false },
+      { id: 'google', name: 'Google', displayName: 'Google Gemini', isCustom: false },
+      { id: 'local', name: 'Local', displayName: 'Local (Ollama)', isCustom: false }
+    ]
+    
+    const customProviders = customProvidersStore.providerOptions.map(provider => ({
+      ...provider,
+      isCustom: true
+    }))
+    
+    return [...standardProviders, ...customProviders]
+  })
+
+  const isCustomProvider = computed(() => {
+    return customProvidersStore.providerOptions.some(p => p.id === llmProvider.value)
+  })
+
+  const currentProviderConfig = computed(() => {
+    if (isCustomProvider.value) {
+      return customProvidersStore.getProviderConfig(llmProvider.value)
+    }
+    return null
+  })
   
   // Actions
   const setLLMProvider = (provider: LLMProvider) => {
@@ -440,7 +471,7 @@ export const useSettingsStore = defineStore('settings', () => {
     pluginSettings.value.clear()
   }
   
-  const initialize = () => {
+  const initialize = async () => {
     // Apply UI settings
     setFontSize(fontSize.value)
     setFontFamily(fontFamily.value)
@@ -450,6 +481,32 @@ export const useSettingsStore = defineStore('settings', () => {
     
     if (compactMode.value) {
       document.documentElement.classList.add('compact-mode')
+    }
+
+    // Initialize custom providers
+    await customProvidersStore.initialize()
+  }
+
+  // Custom Provider Actions
+  const refreshCustomProviders = async () => {
+    await customProvidersStore.fetchProviders()
+  }
+
+  const getProviderForSelection = (providerId: string) => {
+    return allProviders.value.find(p => p.id === providerId)
+  }
+
+  const validateProviderConfiguration = async (providerId: string) => {
+    const provider = getProviderForSelection(providerId)
+    if (!provider) return false
+
+    if (provider.isCustom) {
+      // Check custom provider health
+      return await customProvidersStore.checkProviderHealth(providerId)
+    } else {
+      // Validate standard provider settings
+      const errors = validateSettings()
+      return errors.length === 0
     }
   }
   
@@ -506,6 +563,9 @@ export const useSettingsStore = defineStore('settings', () => {
     uiSettings,
     privacySettings,
     voiceSettings,
+    allProviders,
+    isCustomProvider,
+    currentProviderConfig,
     
     // Actions
     setLLMProvider,
@@ -531,7 +591,10 @@ export const useSettingsStore = defineStore('settings', () => {
     exportSettings,
     importSettings,
     resetToDefaults,
-    initialize
+    initialize,
+    refreshCustomProviders,
+    getProviderForSelection,
+    validateProviderConfiguration
   }
 }, {
   persist: {
