@@ -99,6 +99,10 @@ export class LocalDatabase {
     return this.messageService.getMessages(chatId)
   }
 
+  updateMessage(id: string, content: string): void {
+    this.messageService.updateMessage(id, content)
+  }
+
   deleteMessage(id: string): void {
     this.messageService.deleteMessage(id)
   }

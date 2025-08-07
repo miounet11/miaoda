@@ -7,7 +7,7 @@
     />
     
     <!-- Modal -->
-    <div class="relative w-full max-w-2xl max-h-[90vh] bg-background rounded-lg shadow-xl border border-border overflow-hidden">
+    <div class="relative w-full max-w-2xl max-h-[90vh] bg-background rounded-lg shadow-xl border border-border overflow-hidden mx-4">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-border">
         <div>
@@ -356,12 +356,10 @@ import ModelConfiguration from './ModelConfiguration.vue'
 
 interface Props {
   provider?: LLMProvider | null
-  isOpen?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  provider: null,
-  isOpen: false
+  provider: null
 })
 
 const emit = defineEmits<{
@@ -436,6 +434,7 @@ const capabilities = {
 }
 
 // Computed
+const isOpen = computed(() => true) // Always show when component is mounted
 const isEditing = computed(() => !!props.provider)
 
 const isFormValid = computed(() => {

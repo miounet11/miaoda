@@ -17,7 +17,7 @@ export abstract class BaseDatabaseService {
   }
 
   protected validateText(text: string, fieldName: string): void {
-    if (!text || typeof text !== 'string') {
+    if (text == null || typeof text !== 'string') {
       throw new Error(`Invalid ${fieldName} provided`)
     }
   }

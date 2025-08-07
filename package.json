@@ -49,6 +49,7 @@
     "ollama": "^0.5.16",
     "openai": "^5.3.0",
     "pinia-plugin-persistedstate": "^4.4.1",
+    "sortablejs": "^1.15.6",
     "zod": "^3.24.3"
   },
   "devDependencies": {
@@ -58,6 +59,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^22.14.1",
+    "@types/sortablejs": "^1.15.8",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@upstash/context7-mcp": "^1.0.14",

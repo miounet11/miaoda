@@ -326,6 +326,26 @@ const formatTime = (date: Date) => {
   return date.toLocaleTimeString()
 }
 
+// Keyboard shortcuts
+const handleKeyDown = (event: KeyboardEvent) => {
+  const { key, ctrlKey, metaKey } = event
+  const cmd = ctrlKey || metaKey
+  
+  if (cmd && key === 'r') {
+    event.preventDefault()
+    refresh()
+  }
+  
+  if (cmd && key === 'l') {
+    event.preventDefault()
+    const addressInputElement = document.querySelector('.address-input') as HTMLInputElement
+    if (addressInputElement) {
+      addressInputElement.focus()
+      addressInputElement.select()
+    }
+  }
+}
+
 // Initialize
 onMounted(() => {
   if (props.url && props.url !== 'about:blank') {
@@ -361,7 +381,7 @@ onMounted(() => {
       // Call original console method
       (originalConsole as any)[level](...args)
     }
-  }
+  })
   
   // Add keyboard event listener
   document.addEventListener('keydown', handleKeyDown)
@@ -373,28 +393,6 @@ watch(() => props.url, (newUrl) => {
     navigate()
   }
 })
-
-// Keyboard shortcuts
-const handleKeyDown = (event: KeyboardEvent) => {
-  const { key, ctrlKey, metaKey } = event
-  const cmd = ctrlKey || metaKey
-  
-  if (cmd && key === 'r') {
-    event.preventDefault()
-    refresh()
-  } else if (cmd && key === 'l') {
-    event.preventDefault()
-    // Focus address bar
-    const addressBar = document.querySelector('.address-input') as HTMLInputElement
-    if (addressBar) {
-      addressBar.focus()
-      addressBar.select()
-    }
-  } else if (key === 'F12') {
-    event.preventDefault()
-    showDevTools.value = !showDevTools.value
-  }
-}
 
 // Cleanup on unmount
 onUnmounted(() => {

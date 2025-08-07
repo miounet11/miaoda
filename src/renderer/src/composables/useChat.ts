@@ -9,7 +9,6 @@ export function useChat() {
   
   // Reactive state
   const isLoading = ref(false)
-  const isGenerating = ref(false)
   const selectedMessages = ref<Set<string>>(new Set())
   
   // Computed properties
@@ -18,6 +17,7 @@ export function useChat() {
   const currentChatId = computed(() => chatStore.currentChatId)
   const messages = computed(() => currentChat.value?.messages || [])
   const hasMessages = computed(() => messages.value.length > 0)
+  const isGenerating = computed(() => chatStore.isCurrentChatGenerating)
   const canSendMessage = computed(() => !isLoading.value && !isGenerating.value)
   
   // Chat management
@@ -122,18 +122,16 @@ export function useChat() {
   const retryMessage = async (messageId: string) => {
     if (!currentChatId.value) return
     
-    isGenerating.value = true
-    
     try {
       await withRetry(
-        () => chatStore.retryMessage(currentChatId.value!, messageId),
+        () => chatStore.retryMessage(messageId),
         {
           maxAttempts: 2,
           context: 'Retry Message'
         }
       )
-    } finally {
-      isGenerating.value = false
+    } catch (error) {
+      handleError(error, 'Retry Message')
     }
   }
   

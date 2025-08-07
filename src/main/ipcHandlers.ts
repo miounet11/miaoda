@@ -98,6 +98,10 @@ export function registerIPCHandlers(
     db.createMessage(message)
   })
 
+  ipcMain.handle('db:update-message', async (_, messageId, content) => {
+    db.updateMessage(messageId, content)
+  })
+
   ipcMain.handle('db:get-messages', async (_, chatId) => {
     return db.getMessages(chatId)
   })

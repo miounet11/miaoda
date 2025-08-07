@@ -58,7 +58,7 @@ export class LLMManager {
   }
 
   async sendMessage(
-    message: string,
+    message: string | any[],
     chatId: string,
     messageId: string,
     onChunk?: ChunkCallback
@@ -174,7 +174,7 @@ export function registerLLMHandlers(manager: LLMManager) {
     return manager.setProvider(config)
   })
 
-  ipcMain.handle('llm:sendMessage', async (_, message: string, chatId: string, messageId: string) => {
+  ipcMain.handle('llm:sendMessage', async (_, message: string | any[], chatId: string, messageId: string) => {
     return manager.sendMessage(message, chatId, messageId)
   })
 

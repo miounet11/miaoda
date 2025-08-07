@@ -224,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { 
   Plus, 
   Edit2, 
@@ -242,7 +242,6 @@ import ProviderForm from './ProviderForm.vue'
 import StatusIndicator from './StatusIndicator.vue'
 import CapabilityBadge from './CapabilityBadge.vue'
 import ConfirmDialog from '../ui/ConfirmDialog.vue'
-// @ts-ignore - Sortable will be available at runtime
 import Sortable from 'sortablejs'
 
 interface Props {

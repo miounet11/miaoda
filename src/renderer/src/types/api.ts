@@ -10,6 +10,7 @@ export interface LLMProvider {
   capabilities: ProviderCapabilities
   configuration: ProviderConfiguration
   status: ProviderStatus
+  enabled?: boolean
 }
 
 export interface LLMModel {

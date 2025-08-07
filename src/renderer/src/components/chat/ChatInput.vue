@@ -10,12 +10,53 @@
         </button>
       </div>
       
-      <!-- Attachments Preview -->
+      <!-- Enhanced Attachments Preview -->
       <AttachmentsPreview
-        v-if="attachments.length > 0"
+        v-if="attachments.length > 0 || showAttachmentDropZone"
         :attachments="attachments"
+        :show-drop-zone="showAttachmentDropZone && attachments.length === 0"
+        :current-provider="currentProvider"
         @remove="removeAttachment"
+        @retry="retryAttachment"
+        @select-files="selectFiles"
+        @image-preview="openImagePreview"
+        @drop="handleAttachmentDrop"
       />
+
+      <!-- Image Preview Modal -->
+      <ImagePreviewModal
+        :is-visible="showImagePreview"
+        :image="selectedImage"
+        @close="closeImagePreview"
+      />
+
+      <!-- Vision Capability Notification -->
+      <div 
+        v-if="showVisionWarning"
+        class="vision-warning mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-3"
+      >
+        <AlertTriangle :size="16" class="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+        <div class="flex-1">
+          <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+            当前模型不支持图片分析
+          </p>
+          <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+            要使用图片分析功能，请切换到支持视觉的模型，如 GPT-4o、Claude 3.5 Sonnet 或 Gemini 1.5 Pro
+          </p>
+          <button
+            @click="$emit('open-settings')"
+            class="mt-2 text-xs text-yellow-700 dark:text-yellow-300 hover:text-yellow-800 dark:hover:text-yellow-200 underline"
+          >
+            切换模型 →
+          </button>
+        </div>
+        <button
+          @click="dismissVisionWarning"
+          class="p-1 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded transition-colors"
+        >
+          <X :size="14" class="text-yellow-600 dark:text-yellow-400" />
+        </button>
+      </div>
       
       <!-- Input Container -->
       <div class="input-container relative">
@@ -109,12 +150,14 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
-import { Send, Paperclip, AlertCircle, Mic } from 'lucide-vue-next'
+import { Send, Paperclip, AlertCircle, Mic, X, AlertTriangle } from 'lucide-vue-next'
 import AttachmentsPreview from './AttachmentsPreview.vue'
+import ImagePreviewModal from './ImagePreviewModal.vue'
 import VoiceRecorder from '@renderer/src/components/voice/VoiceRecorder.vue'
 import VoiceInputButton from './VoiceInputButton.vue'
 import { useErrorHandler } from '@renderer/src/composables/useErrorHandler'
 import { voiceService } from '@renderer/src/services/voice/VoiceService'
+import { useSettingsStore } from '@renderer/src/stores/settings'
 
 interface Attachment {
   id: string
@@ -123,6 +166,9 @@ interface Attachment {
   data?: string
   content?: string
   size?: number
+  status?: 'uploading' | 'processing' | 'ready' | 'error'
+  uploadProgress?: number
+  error?: string
 }
 
 interface Props {
@@ -134,6 +180,8 @@ interface Props {
   showCharCount?: boolean
   showVoiceInput?: boolean
   autoFocus?: boolean
+  currentProvider?: string
+  currentModel?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -143,7 +191,9 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Ask anything...',
   showCharCount: false,
   showVoiceInput: false,
-  autoFocus: false
+  autoFocus: false,
+  currentProvider: 'openai',
+  currentModel: 'gpt-4o'
 })
 
 const emit = defineEmits<{
@@ -154,14 +204,35 @@ const emit = defineEmits<{
   'voice-error': [error: string]
 }>()
 
+// Stores and services
+const settingsStore = useSettingsStore()
+const { handleError, showError } = useErrorHandler()
+
+// Refs
 const textareaRef = ref<HTMLTextAreaElement>()
 const voiceInputButtonRef = ref<InstanceType<typeof VoiceInputButton>>()
+
+// State
 const inputText = ref('')
 const attachments = ref<Attachment[]>([])
 const isVoiceInputActive = ref(false)
 const voiceTranscript = ref('')
-const { handleError, showError } = useErrorHandler()
+const showImagePreview = ref(false)
+const selectedImage = ref<Attachment | null>(null)
+const showVisionWarning = ref(false)
+const visionWarningDismissed = ref(false)
+const showAttachmentDropZone = ref(false)
+
+// Platform detection
 const isMac = navigator.platform.toLowerCase().includes('mac')
+
+// Vision capability detection
+const visionCapableProviders = ['openai', 'anthropic', 'google']
+const visionCapableModels = {
+  openai: ['gpt-4o', 'gpt-4-vision-preview', 'gpt-4-turbo'],
+  anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'],
+  google: ['gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash']
+}
 
 // Listen for shortcut events
 const handleShortcutSend = () => {
@@ -170,8 +241,37 @@ const handleShortcutSend = () => {
   }
 }
 
-
 // Computed properties
+const currentProvider = computed(() => props.currentProvider || settingsStore.llmProvider)
+const currentModel = computed(() => props.currentModel || settingsStore.modelName)
+
+const isCurrentProviderVisionCapable = computed(() => {
+  const provider = currentProvider.value
+  const model = currentModel.value
+  
+  if (!visionCapableProviders.includes(provider)) {
+    return false
+  }
+  
+  if (visionCapableModels[provider as keyof typeof visionCapableModels]) {
+    return visionCapableModels[provider as keyof typeof visionCapableModels].some(supportedModel => 
+      model.includes(supportedModel) || supportedModel.includes(model)
+    )
+  }
+  
+  return false
+})
+
+const hasImageAttachments = computed(() => 
+  attachments.value.some(att => att.type === 'image')
+)
+
+// Show vision warning when user has images but provider doesn't support vision
+const shouldShowVisionWarning = computed(() => 
+  hasImageAttachments.value && 
+  !isCurrentProviderVisionCapable.value && 
+  !visionWarningDismissed.value
+)
 const canSend = computed(() => {
   return props.isConfigured && 
          !props.disabled && 
@@ -313,6 +413,90 @@ const removeAttachment = (id: string) => {
   }
 }
 
+const retryAttachment = async (id: string) => {
+  const attachment = attachments.value.find(a => a.id === id)
+  if (!attachment) return
+  
+  attachment.status = 'uploading'
+  attachment.uploadProgress = 0
+  attachment.error = undefined
+  
+  try {
+    // Simulate upload progress
+    for (let progress = 0; progress <= 100; progress += 20) {
+      attachment.uploadProgress = progress
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    
+    attachment.status = 'ready'
+  } catch (error) {
+    attachment.status = 'error'
+    attachment.error = 'Upload failed'
+    handleError(error, 'Attachment Retry')
+  }
+}
+
+const handleAttachmentDrop = async (event: DragEvent) => {
+  const files = event.dataTransfer?.files
+  if (!files || files.length === 0) return
+  
+  for (const file of files) {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      
+      // Create attachment with uploading status
+      const attachment: Attachment = {
+        id: Date.now().toString() + Math.random(),
+        name: file.name,
+        type: 'image',
+        size: file.size,
+        status: 'uploading',
+        uploadProgress: 0
+      }
+      
+      attachments.value.push(attachment)
+      
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string
+          attachment.data = dataUrl
+          
+          // Simulate processing
+          attachment.status = 'processing'
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
+          attachment.status = 'ready'
+        } catch (error) {
+          attachment.status = 'error'
+          attachment.error = 'Processing failed'
+        }
+      }
+      
+      reader.onerror = () => {
+        attachment.status = 'error'
+        attachment.error = 'Failed to read file'
+      }
+      
+      reader.readAsDataURL(file)
+    }
+  }
+}
+
+const openImagePreview = (attachment: Attachment) => {
+  selectedImage.value = attachment
+  showImagePreview.value = true
+}
+
+const closeImagePreview = () => {
+  showImagePreview.value = false
+  selectedImage.value = null
+}
+
+const dismissVisionWarning = () => {
+  visionWarningDismissed.value = true
+  showVisionWarning.value = false
+}
+
 // Voice input event handlers
 const handleVoiceRecordingStart = () => {
   isVoiceInputActive.value = true
@@ -443,6 +627,21 @@ watch(() => props.autoFocus, (shouldFocus) => {
       textareaRef.value?.focus()
     })
   }
+})
+
+// Watch for vision warning
+watch(shouldShowVisionWarning, (should) => {
+  showVisionWarning.value = should
+})
+
+// Reset vision warning when provider changes
+watch([currentProvider, currentModel], () => {
+  visionWarningDismissed.value = false
+})
+
+// Show attachment drop zone when input is focused and no attachments
+watch([() => inputText.value, () => attachments.value.length], () => {
+  showAttachmentDropZone.value = inputText.value === '' && attachments.value.length === 0
 })
 
 // Focus method for parent components

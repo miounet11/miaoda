@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-view flex h-full relative">
+  <div class="settings-view flex h-screen relative overflow-hidden">
     <!-- Mobile overlay -->
     <div 
       v-if="sidebarOpen && isMobile"
@@ -59,9 +59,9 @@
     </aside>
 
     <!-- Settings Content -->
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
       <!-- Mobile header -->
-      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b md:hidden">
+      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b md:hidden flex-shrink-0">
         <button
           @click="sidebarOpen = !sidebarOpen"
           class="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -77,92 +77,35 @@
         </button>
       </header>
 
-      <div class="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div class="max-w-2xl">
+      <div class="flex-1 overflow-y-auto">
+      <div class="max-w-2xl mx-auto p-4 sm:p-6">
         <!-- LLM Provider Settings -->
         <div v-if="activeTab === 'llm'" class="space-y-6">
           <div>
-            <h3 class="text-xl font-semibold mb-4">LLM Provider</h3>
+            <h3 class="text-xl font-semibold mb-4">LLM Provider Configuration</h3>
             <p class="text-muted-foreground mb-6">
-              Configure your preferred AI model provider
+              Select and configure your AI model provider. All settings are managed in one place.
             </p>
           </div>
 
-          <!-- Provider Selection -->
-          <div class="space-y-4">
-            <div>
-              <span class="text-sm font-medium mb-3 block">Choose Provider</span>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <button
-                  v-for="provider in providers"
-                  :key="provider.id"
-                  @click="llmConfig.provider = provider.id"
-                  :class="[
-                    'p-4 rounded-lg border-2 transition-all text-center',
-                    llmConfig.provider === provider.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted hover:border-muted-foreground/50'
-                  ]"
-                >
-                  <div class="text-2xl mb-2">{{ provider.emoji }}</div>
-                  <div class="font-medium text-sm">{{ provider.name }}</div>
-                  <div class="text-xs text-muted-foreground mt-1">{{ provider.subtitle }}</div>
-                </button>
-              </div>
-            </div>
+          <!-- Unified Provider Configuration -->
+          <UnifiedProviderConfig
+            v-model:provider="llmConfig.provider"
+            v-model:api-key="llmConfig.apiKey"
+            v-model:base-url="llmConfig.baseURL"
+            v-model:model="llmConfig.model"
+            :custom-providers="customProviders"
+            @provider-selected="handleProviderSelected"
+            @custom-provider-added="handleProviderAdded"
+            @custom-provider-updated="handleProviderUpdated"
+            @custom-provider-deleted="handleProviderDeleted"
+            @custom-provider-tested="handleProviderTested"
+          />
 
-            <!-- API Key (for cloud providers) -->
-            <div v-if="llmConfig.provider !== 'ollama'" class="space-y-2">
-              <label class="block">
-                <span class="text-sm font-medium mb-2 block">API Key</span>
-                <div class="relative">
-                  <input
-                    v-model="llmConfig.apiKey"
-                    :type="showApiKey ? 'text' : 'password'"
-                    placeholder="sk-..."
-                    class="w-full px-3 py-2.5 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                  <button
-                    @click="showApiKey = !showApiKey"
-                    type="button"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-accent/50 rounded"
-                  >
-                    <Eye v-if="!showApiKey" :size="16" />
-                    <EyeOff v-else :size="16" />
-                  </button>
-                </div>
-              </label>
-            </div>
-
-            <!-- Base URL (optional) -->
-            <div class="space-y-2">
-              <label class="block">
-                <span class="text-sm font-medium mb-2 block">
-                  Base URL 
-                  <span class="text-muted-foreground text-xs">(optional)</span>
-                </span>
-                <input
-                  v-model="llmConfig.baseURL"
-                  type="url"
-                  :placeholder="getPlaceholderURL()"
-                  class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </label>
-            </div>
-
-            <!-- Model (for Ollama) -->
-            <div v-if="llmConfig.provider === 'ollama'" class="space-y-2">
-              <label class="block">
-                <span class="text-sm font-medium mb-2 block">Model</span>
-                <input
-                  v-model="llmConfig.model"
-                  type="text"
-                  placeholder="llama2, mistral, etc."
-                  class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </label>
-            </div>
-
+          <!-- Tools and Advanced Settings -->
+          <div class="space-y-4 border-t pt-6">
+            <h4 class="text-lg font-medium">Advanced Settings</h4>
+            
             <!-- Enable Tools -->
             <div class="space-y-2">
               <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
@@ -179,19 +122,23 @@
               </label>
             </div>
 
-            <!-- Save Button -->
+            <!-- Save and Test Actions -->
             <div class="flex gap-3 pt-4">
               <button
                 @click="saveLLMConfig"
-                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                :disabled="!isConfigValid"
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Configuration
               </button>
               <button
                 @click="testConnection"
-                class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                :disabled="!isConfigValid || isTestingConnection"
+                class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Test Connection
+                <Loader2 v-if="isTestingConnection" :size="16" class="animate-spin" />
+                <Zap v-else :size="16" />
+                {{ isTestingConnection ? 'Testing...' : 'Test Connection' }}
               </button>
             </div>
 
@@ -365,13 +312,25 @@
       </div>
       </div>
     </main>
+    
+    <!-- Save Provider Dialog -->
+    <SaveProviderDialog
+      :is-open="showSaveDialog"
+      :config="llmConfig"
+      @close="showSaveDialog = false"
+      @save="handleSaveProvider"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server } from 'lucide-vue-next'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap } from 'lucide-vue-next'
 import ProviderList from '@renderer/src/components/settings/ProviderList.vue'
+import ProviderSelector from '@renderer/src/components/settings/ProviderSelector.vue'
+import UnifiedProviderConfig from '@renderer/src/components/settings/UnifiedProviderConfig.vue'
+import SaveProviderDialog from '@renderer/src/components/settings/SaveProviderDialog.vue'
+import { useCustomProvidersStore } from '@renderer/src/stores/customProviders'
 import type { LLMProvider } from '@renderer/src/types/api'
 
 const tabs = [
@@ -412,6 +371,26 @@ const llmConfig = reactive({
 })
 
 const statusMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
+const isTestingConnection = ref(false)
+const showSaveDialog = ref(false)
+
+// Computed properties
+const isConfigValid = computed(() => {
+  if (!llmConfig.provider) return false
+  
+  // For built-in providers, require API key (except Ollama)
+  if (['openai', 'anthropic', 'google'].includes(llmConfig.provider)) {
+    return !!llmConfig.apiKey
+  }
+  
+  // For Ollama, require model name
+  if (llmConfig.provider === 'ollama') {
+    return !!llmConfig.model
+  }
+  
+  // For custom providers, basic validation
+  return !!llmConfig.provider
+})
 
 // Mobile responsive state
 const sidebarOpen = ref(false)
@@ -449,30 +428,109 @@ const getPlaceholderURL = () => {
   }
 }
 
+const handleProviderSelected = (config: any) => {
+  // Update llmConfig based on selected provider
+  if (config) {
+    llmConfig.provider = config.provider || config.id
+    llmConfig.apiKey = config.apiKey || ''
+    llmConfig.baseURL = config.baseURL || ''
+    llmConfig.model = config.model || ''
+  }
+}
+
 const saveLLMConfig = async () => {
   statusMessage.value = null
   
-  const result = await window.api.llm.setProvider({
-    provider: llmConfig.provider,
-    apiKey: llmConfig.apiKey || undefined,
-    baseURL: llmConfig.baseURL || undefined,
-    model: llmConfig.model || undefined
-  })
+  // Show save dialog
+  showSaveDialog.value = true
+}
+
+const customProvidersStore = useCustomProvidersStore()
+
+const handleSaveProvider = async (data: { name: string, description: string, icon: string, setAsActive: boolean }) => {
+  showSaveDialog.value = false
   
-  if (result.success) {
-    statusMessage.value = {
-      type: 'success',
-      text: 'Configuration saved successfully!'
+  // Create provider configuration for the store - matching backend interface
+  const providerConfig = {
+    name: data.name,
+    displayName: data.name,
+    apiKey: llmConfig.apiKey,
+    baseURL: llmConfig.baseURL || getPlaceholderURL(),  // Changed from baseUrl to baseURL
+    model: llmConfig.model || 'gpt-4',
+    type: 'openai-compatible' as const,  // Added required type field
+    headers: {},
+    parameters: {
+      temperature: 0.7,
+      maxTokens: 4096,
+      topP: 1,
+      frequencyPenalty: 0,
+      presencePenalty: 0
+    }
+  }
+  
+  // Save through the store
+  const result = await customProvidersStore.addProvider(providerConfig)
+  
+  if (result.success && result.id) {
+    // Add to local custom providers list
+    const newProvider: LLMProvider = {
+      id: result.id,
+      displayName: data.name,
+      description: data.description || `Custom configuration for ${llmConfig.provider}`,
+      icon: data.icon,
+      baseProvider: llmConfig.provider,
+      enabled: true,
+      configuration: {
+        baseUrl: llmConfig.baseURL || getPlaceholderURL(),
+        apiKey: llmConfig.apiKey,
+        defaultModel: llmConfig.model || 'gpt-4',
+        headers: {}
+      },
+      models: [llmConfig.model || 'gpt-4'],
+      capabilities: {
+        chat: true,
+        stream: true,
+        functionCalling: llmConfig.provider === 'openai',
+        vision: false
+      }
+    }
+    
+    customProviders.value.push(newProvider)
+    
+    if (data.setAsActive) {
+      // Set as active provider
+      const setResult = await window.api.llm.setProvider({
+        provider: result.id,
+        apiKey: llmConfig.apiKey || undefined,
+        baseURL: llmConfig.baseURL || undefined,
+        model: llmConfig.model || undefined
+      })
+      
+      if (setResult.success) {
+        llmConfig.provider = result.id as any
+        statusMessage.value = {
+          type: 'success',
+          text: `Custom provider "${data.name}" saved and activated!`
+        }
+      }
+    } else {
+      statusMessage.value = {
+        type: 'success',
+        text: `Custom provider "${data.name}" saved successfully!`
+      }
     }
   } else {
     statusMessage.value = {
       type: 'error',
-      text: result.error || 'Failed to save configuration'
+      text: result.error || 'Failed to save custom provider'
     }
   }
 }
 
 const testConnection = async () => {
+  if (isTestingConnection.value || !isConfigValid.value) return
+  
+  isTestingConnection.value = true
   statusMessage.value = null
   
   try {
@@ -500,6 +558,8 @@ const testConnection = async () => {
       type: 'error',
       text: `Connection failed: ${error.message}`
     }
+  } finally {
+    isTestingConnection.value = false
   }
 }
 
@@ -685,6 +745,10 @@ onMounted(async () => {
   // Setup responsive behavior
   checkMobile()
   window.addEventListener('resize', handleResize)
+  
+  // Initialize custom providers store
+  await customProvidersStore.initialize()
+  
   // Load LLM config
   const config = await window.api.llm.getConfig()
   if (config) {
@@ -703,8 +767,28 @@ onMounted(async () => {
   // Load plugins
   await loadPlugins()
   
-  // Load custom providers
-  await loadCustomProviders()
+  // Load custom providers from store
+  customProviders.value = customProvidersStore.providers.map(p => ({
+    id: p.id,
+    displayName: p.config.displayName || p.config.name,
+    description: p.config.description,
+    icon: '⚡',
+    baseProvider: 'custom',
+    enabled: p.isHealthy,
+    configuration: {
+      baseUrl: p.config.baseUrl,
+      apiKey: p.config.apiKey,
+      defaultModel: p.config.defaultModel,
+      headers: p.config.headers || {}
+    },
+    models: p.config.models || [],
+    capabilities: {
+      chat: true,
+      stream: p.config.capabilities?.streaming || false,
+      functionCalling: p.config.capabilities?.functionCalling || false,
+      vision: p.config.capabilities?.vision || false
+    }
+  }))
 })
 
 // Cleanup

@@ -1,0 +1,149 @@
+/* Message visibility fix for dark mode */
+
+/* Ensure user messages have visible text */
+.bg-primary .message-content,
+.bg-primary .prose,
+.bg-primary p,
+.bg-primary span,
+.bg-primary div {
+  color: white !important;
+}
+
+/* Ensure assistant messages have visible text */
+.bg-secondary\/50 .message-content,
+.bg-secondary\/50 .prose,
+.bg-secondary\/50 p,
+.bg-secondary\/50 span,
+.bg-secondary\/50 div,
+.bg-secondary\/50 .text-foreground {
+  color: rgb(15, 23, 42) !important; /* 深色文字 */
+}
+
+/* Dark mode assistant messages */
+.dark .bg-secondary\/50 .message-content,
+.dark .bg-secondary\/50 .prose,
+.dark .bg-secondary\/50 p,
+.dark .bg-secondary\/50 span,
+.dark .bg-secondary\/50 div,
+.dark .bg-secondary\/50 .text-foreground {
+  color: rgb(248, 250, 252) !important; /* 亮色文字 */
+}
+
+/* Dark mode specific fixes with high contrast */
+.dark .bg-primary .message-content,
+.dark .bg-primary .message-content * {
+  color: white !important;
+  fill: white !important;
+}
+
+.dark .bg-secondary\/50 .message-content,
+.dark .bg-secondary\/50 .message-content * {
+  color: rgb(226, 232, 240) !important;
+  fill: rgb(226, 232, 240) !important;
+}
+
+/* Force white text on primary background in dark mode */
+.dark .bg-primary,
+.dark .bg-primary * {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
+/* Fix for message content wrapper */
+.message-content-wrapper {
+  color: inherit !important;
+}
+
+/* Ensure text is always visible */
+.text-primary-foreground {
+  color: white !important;
+}
+
+.dark .text-foreground {
+  color: rgb(226, 232, 240) !important;
+}
+
+/* Fix prose classes in messages */
+.message-content .prose {
+  color: inherit !important;
+}
+
+.message-content .prose p,
+.message-content .prose li,
+.message-content .prose h1,
+.message-content .prose h2,
+.message-content .prose h3,
+.message-content .prose h4,
+.message-content .prose h5,
+.message-content .prose h6,
+.message-content .prose span,
+.message-content .prose div,
+.message-content .prose strong,
+.message-content .prose em,
+.message-content .prose ul,
+.message-content .prose ol {
+  color: inherit !important;
+}
+
+/* Specific fixes for MessageContentImproved innerHTML content */
+.message-content-wrapper p,
+.message-content-wrapper div,
+.message-content-wrapper span,
+.message-content-wrapper li,
+.message-content-wrapper h1,
+.message-content-wrapper h2,
+.message-content-wrapper h3,
+.message-content-wrapper h4,
+.message-content-wrapper h5,
+.message-content-wrapper h6,
+.message-content-wrapper strong,
+.message-content-wrapper em {
+  color: inherit !important;
+}
+
+/* Fix for wrapped message content text */
+.message-content-text.assistant-message,
+.message-content-text.assistant-message * {
+  color: rgb(15, 23, 42) !important; /* 深色文字用于浅色背景 */
+}
+
+.dark .message-content-text.assistant-message,
+.dark .message-content-text.assistant-message * {
+  color: rgb(226, 232, 240) !important; /* 亮色文字用于暗色背景 */
+}
+
+.message-content-text.user-message,
+.message-content-text.user-message * {
+  color: white !important; /* 用户消息始终使用白色 */
+}
+
+/* Fix code blocks visibility */
+.dark .prose pre {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: rgb(226, 232, 240) !important;
+}
+
+.dark .prose code {
+  color: rgb(226, 232, 240) !important;
+}
+
+/* Fix links visibility */
+.bg-primary a {
+  color: rgb(147, 197, 253) !important;
+  text-decoration: underline;
+}
+
+.dark .bg-secondary\/50 a {
+  color: rgb(96, 165, 250) !important;
+}
+
+/* Emergency fallback - uncomment if still having issues */
+/*
+.message-bubble * {
+  color: inherit !important;
+}
+
+.dark .message-bubble {
+  color: rgb(226, 232, 240) !important;
+}
+*/

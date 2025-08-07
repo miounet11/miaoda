@@ -8,9 +8,9 @@ export interface LLMProvider {
   displayName?: string
   baseURL?: string
   isCustom?: boolean
-  sendMessage(message: string, onChunk?: (chunk: string) => void): Promise<string>
+  sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string>
   sendMessageWithTools?(
-    message: string, 
+    message: string | any[], 
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
@@ -62,10 +62,18 @@ export class OpenAIProvider implements LLMProvider {
     })
   }
 
-  async sendMessage(message: string, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string> {
+    // 处理多模态输入（图片+文本）
+    const messageContent = typeof message === 'string' ? message : message
+    
+    // 检测是否需要使用Vision模型
+    const hasImages = Array.isArray(messageContent) && 
+      messageContent.some(content => content.type === 'image_url')
+    const model = hasImages ? 'gpt-4o' : 'gpt-4o-mini'
+    
     const stream = await this.client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: message }],
+      model,
+      messages: [{ role: 'user', content: messageContent }],
       stream: true
     })
 
@@ -82,12 +90,18 @@ export class OpenAIProvider implements LLMProvider {
   }
 
   async sendMessageWithTools(
-    message: string,
+    message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: 'user' as const, content: message }]
+    const messageContent = typeof message === 'string' ? message : message
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: 'user' as const, content: messageContent }]
+    
+    // 检测是否需要使用Vision模型
+    const hasImages = Array.isArray(messageContent) && 
+      messageContent.some(content => content.type === 'image_url')
+    const model = hasImages ? 'gpt-4o' : 'gpt-4o-mini'
     
     // Convert MCP tools to OpenAI format
     const openAITools = tools.map(tool => ({
@@ -100,7 +114,7 @@ export class OpenAIProvider implements LLMProvider {
     }))
 
     const response = await this.client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages,
       tools: openAITools,
       stream: false
@@ -127,7 +141,7 @@ export class OpenAIProvider implements LLMProvider {
 
       // Get final response after tool calls
       const finalResponse = await this.client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model,
         messages,
         stream: true
       })
@@ -160,10 +174,41 @@ export class AnthropicProvider implements LLMProvider {
     })
   }
 
-  async sendMessage(message: string, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string> {
+    // 处理多模态输入
+    let messageContent: any
+    let model = 'claude-3-5-sonnet-20241022'
+    
+    if (typeof message === 'string') {
+      messageContent = message
+    } else {
+      // 转换为Anthropic格式
+      messageContent = message.map(content => {
+        if (content.type === 'text') {
+          return { type: 'text', text: content.text }
+        } else if (content.type === 'image_url') {
+          // 解析base64图片数据
+          const imageData = content.image_url.url
+          const match = imageData.match(/^data:image\/([^;]+);base64,(.+)$/)
+          if (match) {
+            return {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: `image/${match[1]}`,
+                data: match[2]
+              }
+            }
+          }
+        }
+        return content
+      }).filter(Boolean)
+      model = 'claude-3-5-sonnet-20241022' // Claude 3.5 Sonnet支持Vision
+    }
+    
     const stream = await this.client.messages.create({
-      model: 'claude-3-sonnet-20240229',
-      messages: [{ role: 'user', content: message }],
+      model,
+      messages: [{ role: 'user', content: messageContent }],
       max_tokens: 4096,
       stream: true
     })
@@ -181,7 +226,7 @@ export class AnthropicProvider implements LLMProvider {
   }
 
   async sendMessageWithTools(
-    message: string,
+    message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
@@ -193,11 +238,42 @@ export class AnthropicProvider implements LLMProvider {
       input_schema: tool.inputSchema
     }))
 
-    const messages: Array<{role: 'user' | 'assistant'; content: string | any[]}> = [{ role: 'user' as const, content: message }]
+    // 处理多模态消息格式
+    let messageContent: any
+    let model = 'claude-3-5-sonnet-20241022'
+    
+    if (typeof message === 'string') {
+      messageContent = message
+    } else {
+      // 转换为Anthropic格式
+      messageContent = message.map(content => {
+        if (content.type === 'text') {
+          return { type: 'text', text: content.text }
+        } else if (content.type === 'image_url') {
+          // 解析base64图片数据
+          const imageData = content.image_url.url
+          const match = imageData.match(/^data:image\/([^;]+);base64,(.+)$/)
+          if (match) {
+            return {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: `image/${match[1]}`,
+                data: match[2]
+              }
+            }
+          }
+        }
+        return content
+      }).filter(Boolean)
+      model = 'claude-3-5-sonnet-20241022'
+    }
+    
+    const messages: Array<{role: 'user' | 'assistant'; content: any}> = [{ role: 'user' as const, content: messageContent }]
     
     // Initial request with tools
     const response = await this.client.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model,
       messages,
       max_tokens: 4096,
       tools: anthropicTools
@@ -234,7 +310,7 @@ export class AnthropicProvider implements LLMProvider {
       })
 
       const finalStream = await this.client.messages.create({
-        model: 'claude-3-sonnet-20240229',
+        model,
         messages,
         max_tokens: 4096,
         stream: true
@@ -274,10 +350,17 @@ export class OllamaProvider implements LLMProvider {
     this.model = model
   }
 
-  async sendMessage(message: string, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string> {
+    // Ollama目前主要支持文本，复杂的多模态消息转换为文本描述
+    const messageContent = typeof message === 'string' ? message : 
+      message.map(c => 
+        c.type === 'text' ? c.text : 
+        c.type === 'image_url' ? '[Image provided]' : ''
+      ).join('\n')
+    
     const response = await this.client.chat({
       model: this.model,
-      messages: [{ role: 'user', content: message }],
+      messages: [{ role: 'user', content: messageContent }],
       stream: true
     })
 
@@ -292,7 +375,7 @@ export class OllamaProvider implements LLMProvider {
   }
 
   async sendMessageWithTools(
-    message: string,
+    message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
@@ -307,7 +390,14 @@ export class OllamaProvider implements LLMProvider {
       }
     }))
 
-    const messages = [{ role: 'user', content: message }]
+    // Ollama目前主要支持文本，复杂的多模态消息转换为文本描述
+    const messageContent = typeof message === 'string' ? message : 
+      message.map(c => 
+        c.type === 'text' ? c.text : 
+        c.type === 'image_url' ? '[Image provided]' : ''
+      ).join('\n')
+    
+    const messages = [{ role: 'user', content: messageContent }]
 
     // Initial request with tools
     const response = await this.client.chat({
@@ -403,10 +493,13 @@ export class CustomOpenAIProvider implements LLMProvider {
     }
   }
 
-  async sendMessage(message: string, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string> {
+    // 处理多模态输入
+    const messageContent = typeof message === 'string' ? message : message
+    
     const stream = await this.client.chat.completions.create({
       model: this.config.model,
-      messages: [{ role: 'user', content: message }],
+      messages: [{ role: 'user', content: messageContent }],
       temperature: this.config.parameters?.temperature,
       max_tokens: this.config.parameters?.maxTokens,
       top_p: this.config.parameters?.topP,
@@ -428,12 +521,14 @@ export class CustomOpenAIProvider implements LLMProvider {
   }
 
   async sendMessageWithTools(
-    message: string,
+    message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: 'user' as const, content: message }]
+    // 处理多模态输入
+    const messageContent = typeof message === 'string' ? message : message
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: 'user' as const, content: messageContent }]
     
     // Convert MCP tools to OpenAI format
     const openAITools = tools.map(tool => ({

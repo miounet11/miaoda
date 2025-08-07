@@ -52,10 +52,17 @@ export class CustomProviderService {
       
       if (result.success && result.id) {
         // Fetch the created provider to return full config
-        const createdProvider = await this.getProvider(result.id)
+        const getResult = await this.getProvider(result.id)
+        if (getResult.success && getResult.data) {
+          return {
+            success: true,
+            data: getResult.data
+          }
+        }
+        // If we can't get the provider, still return success with basic info
         return {
           success: true,
-          data: createdProvider || undefined
+          data: { ...config, id: result.id } as CustomProviderConfig
         }
       }
       

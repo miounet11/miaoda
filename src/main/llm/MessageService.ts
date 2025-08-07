@@ -25,7 +25,7 @@ export class MessageService {
 
   async sendMessage(
     provider: LLMProvider,
-    message: string,
+    message: string | any[],
     context: MessageContext,
     onChunk?: ChunkCallback
   ): Promise<string> {
@@ -47,7 +47,7 @@ export class MessageService {
 
   private async sendMessageWithTools(
     provider: LLMProvider,
-    message: string,
+    message: string | any[],
     context: MessageContext,
     onChunk?: ChunkCallback
   ): Promise<string> {
@@ -62,19 +62,27 @@ export class MessageService {
       this.createToolHandler(context)
     )
 
+    // Notify that streaming is complete
+    this.notifyStreamComplete(context, response)
+
     return response
   }
 
   private async sendBasicMessage(
     provider: LLMProvider,
-    message: string,
+    message: string | any[],
     context: MessageContext,
     onChunk?: ChunkCallback
   ): Promise<string> {
-    return provider.sendMessage(
+    const response = await provider.sendMessage(
       message,
       this.createChunkHandler(context, onChunk)
     )
+    
+    // Notify that streaming is complete
+    this.notifyStreamComplete(context, response)
+    
+    return response
   }
 
   private createChunkHandler(context: MessageContext, onChunk?: ChunkCallback): ChunkCallback {
@@ -106,6 +114,15 @@ export class MessageService {
       global.mainWindow.webContents.send('llm:chunk', {
         ...context,
         chunk
+      })
+    }
+  }
+
+  private notifyStreamComplete(context: MessageContext, finalContent: string): void {
+    if (global.mainWindow) {
+      global.mainWindow.webContents.send('llm:stream-complete', {
+        ...context,
+        finalContent
       })
     }
   }

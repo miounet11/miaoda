@@ -1,35 +1,153 @@
 <template>
-  <div class="attachments-preview mb-3">
-    <div class="flex flex-wrap gap-2">
-      <div
-        v-for="attachment in attachments"
-        :key="attachment.id"
-        class="attachment-item relative group"
-      >
-        <!-- Image Attachment -->
-        <div v-if="attachment.type === 'image'" class="image-attachment relative">
-          <img
-            :src="attachment.data"
-            :alt="attachment.name"
-            class="h-20 w-20 object-cover rounded-lg border border-border"
-            @load="onImageLoad"
-            @error="onImageError"
-          />
-          <div class="attachment-overlay absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-            <div class="absolute bottom-1 left-1 right-1">
-              <div class="text-xs text-white bg-black/50 rounded px-1 py-0.5 truncate">
-                {{ attachment.name }}
+  <div class="attachments-preview mb-4">
+    <!-- Enhanced Drag and Drop Zone -->
+    <div 
+      v-if="attachments.length === 0 && showDropZone"
+      @drop="handleDrop"
+      @dragover="handleDragOver"
+      @dragenter="handleDragEnter"
+      @dragleave="handleDragLeave"
+      class="drag-drop-zone relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200"
+      :class="dragDropClasses"
+    >
+      <div class="drag-drop-content">
+        <div class="w-12 h-12 mx-auto mb-3 opacity-50">
+          <ImageIcon :size="48" class="text-muted-foreground" />
+        </div>
+        <p class="text-sm text-muted-foreground mb-2">
+          拖拽图片到此处，或者 <span class="text-primary hover:underline cursor-pointer" @click="$emit('select-files')">点击选择</span>
+        </p>
+        <p class="text-xs text-muted-foreground opacity-75">
+          支持 JPG、PNG、WebP 格式，最大 10MB
+        </p>
+      </div>
+    </div>
+
+    <!-- Enhanced Attachments Grid -->
+    <div v-if="attachments.length > 0" class="attachments-grid">
+      <div class="flex flex-wrap gap-3">
+        <div
+          v-for="(attachment, index) in attachments"
+          :key="attachment.id"
+          class="attachment-item relative group animate-in"
+          :style="{ animationDelay: `${index * 50}ms` }"
+        >
+          <!-- Enhanced Image Attachment -->
+          <div v-if="attachment.type === 'image'" class="image-attachment relative">
+            <!-- Loading State -->
+            <div 
+              v-if="attachment.status === 'uploading'"
+              class="upload-progress absolute inset-0 bg-black/60 rounded-lg flex flex-col items-center justify-center z-10"
+            >
+              <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mb-2"></div>
+              <span class="text-xs text-white font-medium">上传中...</span>
+              <div class="w-full max-w-[60px] h-1 bg-white/30 rounded-full mt-2 overflow-hidden">
+                <div 
+                  class="h-full bg-white transition-all duration-300" 
+                  :style="{ width: `${attachment.uploadProgress || 0}%` }"
+                ></div>
               </div>
             </div>
+
+            <!-- AI Processing State -->
+            <div 
+              v-if="attachment.status === 'processing'"
+              class="processing-overlay absolute inset-0 bg-primary/80 rounded-lg flex flex-col items-center justify-center z-10"
+            >
+              <div class="processing-icon mb-2">
+                <Sparkles :size="20" class="text-white animate-pulse" />
+              </div>
+              <span class="text-xs text-white font-medium">AI分析中...</span>
+              <div class="mt-1 flex space-x-1">
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div 
+              v-if="attachment.status === 'error'"
+              class="error-overlay absolute inset-0 bg-red-500/80 rounded-lg flex flex-col items-center justify-center z-10"
+            >
+              <AlertCircle :size="20" class="text-white mb-1" />
+              <span class="text-xs text-white font-medium text-center px-1">{{ attachment.error || '上传失败' }}</span>
+              <button 
+                @click="$emit('retry', attachment.id)"
+                class="mt-2 px-2 py-1 bg-white/20 text-white text-xs rounded hover:bg-white/30 transition-colors"
+              >
+                重试
+              </button>
+            </div>
+
+            <!-- Enhanced Image Display -->
+            <img
+              :src="attachment.data"
+              :alt="attachment.name"
+              class="attachment-image h-24 w-24 object-cover rounded-lg border border-border transition-all duration-200 cursor-pointer"
+              :class="{
+                'opacity-50': attachment.status === 'uploading' || attachment.status === 'processing',
+                'opacity-70 grayscale': attachment.status === 'error',
+                'hover:scale-105 hover:shadow-lg': attachment.status === 'ready' || !attachment.status
+              }"
+              @load="onImageLoad(attachment)"
+              @error="onImageError(attachment)"
+              @click="openImagePreview(attachment)"
+            />
+
+            <!-- Enhanced Hover Overlay -->
+            <div class="attachment-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200">
+              <div class="absolute bottom-2 left-2 right-2">
+                <div class="text-xs text-white font-medium truncate mb-1">
+                  {{ attachment.name }}
+                </div>
+                <div class="flex items-center justify-between text-xs text-white/80">
+                  <span>{{ formatFileSize(attachment.size) }}</span>
+                  <span v-if="isVisionCapable(attachment)" class="flex items-center gap-1">
+                    <Eye :size="10" />
+                    AI可识别
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="absolute top-1 right-1 flex gap-1">
+                <button
+                  @click.stop="openImagePreview(attachment)"
+                  class="action-btn p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  title="预览图片"
+                >
+                  <Maximize2 :size="12" />
+                </button>
+                <button
+                  @click.stop="$emit('remove', attachment.id)"
+                  class="action-btn p-1.5 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition-colors"
+                  title="删除图片"
+                >
+                  <X :size="12" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Vision Capability Badge -->
+            <div 
+              v-if="isVisionCapable(attachment) && (attachment.status === 'ready' || !attachment.status)"
+              class="vision-badge absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-xs rounded-full font-medium shadow-sm flex items-center gap-1"
+            >
+              <Eye :size="10" />
+              AI可识别
+            </div>
+
+            <!-- Provider Support Indicator -->
+            <div 
+              v-if="!isCurrentProviderVisionCapable && (attachment.status === 'ready' || !attachment.status)"
+              class="provider-warning absolute top-2 left-2 px-2 py-1 bg-yellow-500 text-white text-xs rounded-full font-medium shadow-sm flex items-center gap-1"
+              title="当前LLM提供商不支持图片分析"
+            >
+              <AlertTriangle :size="10" />
+              需切换模型
+            </div>
           </div>
-          <button
-            @click="$emit('remove', attachment.id)"
-            class="remove-btn absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-            title="Remove attachment"
-          >
-            <X :size="12" />
-          </button>
-        </div>
         
         <!-- File Attachment -->
         <div v-else class="file-attachment flex items-center gap-2 px-3 py-2 bg-muted rounded-lg border border-border">
@@ -76,8 +194,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { X, FileText, File } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { 
+  X, FileText, File, ImageIcon, Eye, Maximize2, 
+  AlertCircle, Sparkles, AlertTriangle 
+} from 'lucide-vue-next'
+import { useSettingsStore } from '@renderer/src/stores/settings'
 
 interface Attachment {
   id: string
@@ -86,6 +208,9 @@ interface Attachment {
   data?: string
   content?: string
   size?: number
+  status?: 'uploading' | 'processing' | 'ready' | 'error'
+  uploadProgress?: number
+  error?: string
 }
 
 interface UploadProgress {
@@ -96,18 +221,64 @@ interface UploadProgress {
 interface Props {
   attachments: Attachment[]
   uploadProgress?: UploadProgress[]
+  showDropZone?: boolean
+  currentProvider?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  uploadProgress: () => []
+const props = withDefaults(defineProps<Props>(), {
+  uploadProgress: () => [],
+  showDropZone: false,
+  currentProvider: 'openai'
 })
 
-defineEmits<{
+const emit = defineEmits<{
   remove: [id: string]
+  retry: [id: string]
+  'select-files': []
+  'image-preview': [attachment: Attachment]
+  drop: [event: DragEvent]
 }>()
 
+// Store
+const settingsStore = useSettingsStore()
+
+// Drag and drop state
+const isDragging = ref(false)
+const dragCounter = ref(0)
+
+// Vision-capable providers
+const visionCapableProviders = ['openai', 'anthropic', 'google']
+const visionCapableModels = {
+  openai: ['gpt-4o', 'gpt-4-vision-preview', 'gpt-4-turbo'],
+  anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'],
+  google: ['gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash']
+}
+
+// Computed properties
+const dragDropClasses = computed(() => ({
+  'border-primary bg-primary/5': isDragging.value,
+  'border-muted-foreground/30 hover:border-primary/50': !isDragging.value
+}))
+
+const isCurrentProviderVisionCapable = computed(() => {
+  const currentProvider = settingsStore.llmProvider
+  const currentModel = settingsStore.modelName
+  
+  if (!visionCapableProviders.includes(currentProvider)) {
+    return false
+  }
+  
+  if (visionCapableModels[currentProvider as keyof typeof visionCapableModels]) {
+    return visionCapableModels[currentProvider as keyof typeof visionCapableModels].some(model => 
+      currentModel.includes(model) || model.includes(currentModel)
+    )
+  }
+  
+  return false
+})
+
 // Format file size for display
-const formatFileSize = (bytes: number): string => {
+const formatFileSize = (bytes: number = 0): string => {
   if (bytes === 0) return '0 B'
   
   const k = 1024
@@ -117,67 +288,180 @@ const formatFileSize = (bytes: number): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
-// Handle image loading events
-const onImageLoad = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.classList.add('loaded')
+// Check if attachment is vision-capable
+const isVisionCapable = (attachment: Attachment): boolean => {
+  if (attachment.type !== 'image') return false
+  
+  const supportedFormats = ['jpeg', 'jpg', 'png', 'webp', 'gif']
+  const fileExtension = attachment.name.split('.').pop()?.toLowerCase()
+  
+  return supportedFormats.includes(fileExtension || '')
 }
 
-const onImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.classList.add('error')
-  // Could show a placeholder or error state
-  console.error('Failed to load image:', img.src)
+// Drag and drop handlers
+const handleDragEnter = (e: DragEvent) => {
+  e.preventDefault()
+  dragCounter.value++
+  isDragging.value = true
+}
+
+const handleDragLeave = (e: DragEvent) => {
+  e.preventDefault()
+  dragCounter.value--
+  if (dragCounter.value === 0) {
+    isDragging.value = false
+  }
+}
+
+const handleDragOver = (e: DragEvent) => {
+  e.preventDefault()
+}
+
+const handleDrop = (e: DragEvent) => {
+  e.preventDefault()
+  isDragging.value = false
+  dragCounter.value = 0
+  emit('drop', e)
+}
+
+// Image event handlers
+const onImageLoad = (attachment: Attachment) => {
+  // Optionally update attachment status
+  console.log('Image loaded:', attachment.name)
+}
+
+const onImageError = (attachment: Attachment) => {
+  console.error('Failed to load image:', attachment.name)
+  // Emit error event if needed
+}
+
+const openImagePreview = (attachment: Attachment) => {
+  if (attachment.status === 'ready' || !attachment.status) {
+    emit('image-preview', attachment)
+  }
 }
 </script>
 
 <style scoped>
+/* Enhanced drag and drop zone */
+.drag-drop-zone {
+  background: linear-gradient(135deg, rgba(var(--background), 0.8), rgba(var(--muted), 0.2));
+  backdrop-filter: blur(10px);
+}
+
+.drag-drop-zone.border-primary {
+  animation: dragPulse 2s ease-in-out infinite;
+}
+
+@keyframes dragPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0.1);
+  }
+}
+
+/* Enhanced attachment animations */
 .attachments-preview {
-  animation: slideDown 0.3s ease-out;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-15px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-.attachment-item {
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
+@keyframes animate-in {
   from {
     opacity: 0;
-    scale: 0.8;
+    transform: translateY(10px) scale(0.9);
   }
   to {
     opacity: 1;
-    scale: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* Image attachment styles */
-.image-attachment img {
-  transition: all 0.3s ease;
+.animate-in {
+  animation: animate-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.image-attachment img:hover {
-  transform: scale(1.05);
+/* Enhanced image attachment styles */
+.image-attachment {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(var(--muted), 0.1);
 }
 
-.image-attachment img.loaded {
-  opacity: 1;
+.attachment-image {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
 }
 
-.image-attachment img.error {
-  opacity: 0.5;
-  filter: grayscale(100%);
+.attachment-image:hover {
+  border-color: rgba(var(--primary), 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Processing states */
+.upload-progress, .processing-overlay, .error-overlay {
+  backdrop-filter: blur(8px);
+  border-radius: inherit;
+}
+
+.processing-icon {
+  animation: processingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes processingPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Status badges */
+.vision-badge, .provider-warning {
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: badgeSlideIn 0.3s ease-out;
+}
+
+@keyframes badgeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Action buttons */
+.action-btn {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
 }
 
 /* File attachment styles */

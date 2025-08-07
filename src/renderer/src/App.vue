@@ -1,7 +1,16 @@
 <template>
   <div class="app-container h-screen flex flex-col bg-background">
-    <!-- Multi-Window Layout -->
-    <div v-if="useMultiWindow" class="flex-1 overflow-hidden">
+    <!-- Error Fallback -->
+    <ErrorFallback 
+      v-if="hasCriticalError" 
+      :error="criticalErrorMessage"
+      :details="criticalErrorDetails"
+    />
+    
+    <!-- Normal App Content -->
+    <template v-else>
+      <!-- Multi-Window Layout -->
+      <div v-if="useMultiWindow" class="flex-1 overflow-hidden">
       <Window
         ref="mainWindowRef"
         :window-id="activeWindowId"
@@ -51,14 +60,16 @@
     
     <!-- Quick Search Modal -->
     <QuickSearchModal />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, onErrorCaptured } from 'vue'
 import { useRouter } from 'vue-router'
 import { Loader } from 'lucide-vue-next'
 import Window from '@renderer/src/components/window/Window.vue'
+import ErrorFallback from '@renderer/src/components/ErrorFallback.vue'
 import ErrorToast from '@renderer/src/components/error/ErrorToast.vue'
 import ToastContainer from '@renderer/src/components/ui/ToastContainer.vue'
 import ShortcutsHelpModal from '@renderer/src/components/ShortcutsHelpModal.vue'
@@ -83,21 +94,41 @@ const activeWindowId = ref<string | null>(null)
 const isLoading = ref(false)
 const loadingMessage = ref('')
 const globalError = ref<string | null>(null)
+const hasCriticalError = ref(false)
+const criticalErrorMessage = ref('')
+const criticalErrorDetails = ref('')
 
 // Computed
 const isMac = computed(() => navigator.platform.toLowerCase().includes('mac'))
 
 // Methods
 const initializeApplication = async () => {
+  console.log('[App] Starting application initialization...')
   try {
     isLoading.value = true
     loadingMessage.value = 'Initializing application...'
     
-    // Initialize services
-    await Promise.all([
-      initializeWindowManager(),
-      initializeMCPService()
-    ])
+    // Initialize services with individual error handling
+    const initPromises = []
+    
+    // Try to initialize window manager
+    initPromises.push(
+      initializeWindowManager().catch(error => {
+        console.error('[App] Window manager initialization failed:', error)
+        // Continue without multi-window support
+        useMultiWindow.value = false
+      })
+    )
+    
+    // Try to initialize MCP service
+    initPromises.push(
+      initializeMCPService().catch(error => {
+        console.error('[App] MCP service initialization failed:', error)
+        // Continue without MCP - not critical
+      })
+    )
+    
+    await Promise.allSettled(initPromises)
     
     // Set up active window
     const activeWindow = windowManager.getActiveWindow()
@@ -389,6 +420,26 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     return event.returnValue
   }
 }
+
+// Error handling
+onErrorCaptured((error, instance, info) => {
+  console.error('[App] Error captured:', error, info)
+  
+  // Show critical error fallback for unrecoverable errors
+  if (error?.message?.includes('Cannot read') || 
+      error?.message?.includes('Cannot access') ||
+      error?.message?.includes('is not defined') ||
+      error?.message?.includes('is not a function')) {
+    hasCriticalError.value = true
+    criticalErrorMessage.value = error.message || 'Critical error occurred'
+    criticalErrorDetails.value = error?.stack || ''
+    return false // Prevent error propagation
+  }
+  
+  // For other errors, just log and show toast
+  globalError.value = error?.message || 'An unexpected error occurred'
+  return false
+})
 
 // Lifecycle
 onMounted(async () => {

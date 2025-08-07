@@ -1,20 +1,77 @@
 <template>
   <div class="message-content">
-    <!-- 附件预览 -->
-    <div v-if="attachments.length > 0" class="attachments mb-3">
-      <div 
-        v-for="attachment in attachments" 
-        :key="attachment.url" 
-        class="attachment-item"
-      >
-        <img
-          v-if="attachment.type === 'image'"
-          :src="attachment.url"
-          :alt="attachment.name"
-          class="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
-          @click="openImage(attachment.url)"
-          loading="lazy"
-        />
+    <!-- Enhanced Attachments Display -->
+    <div v-if="attachments.length > 0" class="attachments mb-4">
+      <div class="attachments-grid grid gap-3">
+        <div 
+          v-for="attachment in attachments" 
+          :key="attachment.url" 
+          class="attachment-item relative group"
+          :class="getAttachmentGridClasses(attachment)"
+        >
+          <!-- Image Attachment with Enhanced Display -->
+          <div v-if="attachment.type === 'image'" class="image-attachment-message relative">
+            <img
+              :src="attachment.url"
+              :alt="attachment.name"
+              class="message-image w-full h-auto rounded-lg cursor-pointer shadow-sm border border-border/20 transition-all duration-200"
+              :class="imageClasses"
+              @click="openImage(attachment.url)"
+              @load="onImageLoad"
+              @error="onImageError"
+              loading="lazy"
+            />
+            
+            <!-- Image Loading Overlay -->
+            <div 
+              v-if="imageLoading"
+              class="loading-overlay absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center"
+            >
+              <div class="loading-spinner w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            
+            <!-- Image Hover Actions -->
+            <div class="image-actions absolute inset-0 bg-black/0 hover:bg-black/20 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100">
+              <div class="absolute top-2 right-2 flex gap-1">
+                <button
+                  @click.stop="openImage(attachment.url)"
+                  class="action-btn p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-all"
+                  title="全屏查看"
+                >
+                  <Maximize2 :size="14" />
+                </button>
+                <button
+                  @click.stop="downloadImage(attachment.url, attachment.name)"
+                  class="action-btn p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-all"
+                  title="下载图片"
+                >
+                  <Download :size="14" />
+                </button>
+              </div>
+              
+              <!-- Image Info -->
+              <div class="absolute bottom-2 left-2 right-2">
+                <div class="image-info bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
+                  {{ attachment.name }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Vision Analysis Badge -->
+            <div 
+              v-if="showVisionBadge(attachment)"
+              class="vision-badge absolute top-2 left-2 px-2 py-1 bg-green-500/90 text-white text-xs rounded-full font-medium backdrop-blur-sm flex items-center gap-1"
+            >
+              <Eye :size="10" />
+              AI已分析
+            </div>
+          </div>
+          
+          <!-- File Attachment -->
+          <div v-else-if="attachment.type === 'file'" class="file-attachment">
+            <!-- File display implementation -->
+          </div>
+        </div>
       </div>
     </div>
     
@@ -30,7 +87,7 @@
     
     <div 
       v-else 
-      class="prose prose-sm dark:prose-invert max-w-none"
+      class="message-content-wrapper prose prose-sm dark:prose-invert max-w-none"
       ref="contentElement"
     >
       <!-- 渲染的 Markdown 内容将通过 v-html 插入 -->
@@ -39,10 +96,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUpdated, nextTick } from 'vue'
+import { ref, computed, onMounted, onUpdated, nextTick, watch } from 'vue'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
-import { Copy, Check, Maximize2 } from 'lucide-vue-next'
+import { Copy, Check, Maximize2, Download, Eye } from 'lucide-vue-next'
 
 interface Props {
   content: string
@@ -61,6 +118,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const contentElement = ref<HTMLElement>()
 const copiedStates = ref<Record<string, boolean>>({})
+const imageLoading = ref<Record<string, boolean>>({})
+const imageErrors = ref<Record<string, boolean>>({})
 
 // 配置 marked
 const renderer = new marked.Renderer()
@@ -208,10 +267,110 @@ const setupCodeCopyButtons = () => {
   })
 }
 
-// 打开图片
+// Computed properties
+const imageClasses = computed(() => ({
+  'hover:scale-[1.02] hover:shadow-lg': true,
+  'max-w-sm': props.attachments.length === 1,
+  'max-w-xs': props.attachments.length > 1
+}))
+
+// Methods
+const getAttachmentGridClasses = (attachment: any) => {
+  const baseClasses = 'rounded-lg overflow-hidden'
+  
+  if (attachment.type === 'image') {
+    const count = props.attachments.filter(a => a.type === 'image').length
+    return {
+      [baseClasses]: true,
+      'col-span-2': count === 1, // Single image takes more space
+      'col-span-1': count > 1    // Multiple images in grid
+    }
+  }
+  
+  return baseClasses
+}
+
+const showVisionBadge = (attachment: any): boolean => {
+  // Show badge if this is an image that would be processed by vision-capable AI
+  return attachment.type === 'image' && attachment.analyzed
+}
+
+const onImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  const url = img.src
+  imageLoading.value[url] = false
+  imageErrors.value[url] = false
+}
+
+const onImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  const url = img.src
+  imageLoading.value[url] = false
+  imageErrors.value[url] = true
+}
+
+const downloadImage = async (url: string, name: string) => {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const downloadUrl = window.URL.createObjectURL(blob)
+    
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = name || 'image'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    window.URL.revokeObjectURL(downloadUrl)
+  } catch (error) {
+    console.error('Failed to download image:', error)
+  }
+}
+
+// 打开图片 - Enhanced with modal support
 const openImage = (url: string) => {
-  // TODO: 实现图片预览模态框
-  window.open(url, '_blank')
+  // Create a full-screen image modal
+  const modal = document.createElement('div')
+  modal.className = 'fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm'
+  modal.style.animation = 'fadeIn 0.3s ease'
+  
+  const img = document.createElement('img')
+  img.src = url
+  img.className = 'max-w-full max-h-full object-contain rounded-lg shadow-2xl'
+  img.style.animation = 'slideIn 0.3s ease'
+  
+  const closeBtn = document.createElement('button')
+  closeBtn.innerHTML = '×'
+  closeBtn.className = 'absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors'
+  closeBtn.onclick = () => document.body.removeChild(modal)
+  
+  modal.appendChild(img)
+  modal.appendChild(closeBtn)
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal)
+    }
+  }
+  
+  // Add CSS animations
+  if (!document.getElementById('image-modal-styles')) {
+    const style = document.createElement('style')
+    style.id = 'image-modal-styles'
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: scale(0.9) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+    `
+    document.head.appendChild(style)
+  }
+  
+  document.body.appendChild(modal)
 }
 
 // 更新内容
@@ -230,9 +389,151 @@ onMounted(() => {
 onUpdated(() => {
   updateContent()
 })
+
+// Watch for content changes
+watch(() => props.content, () => {
+  updateContent()
+})
 </script>
 
 <style scoped>
+/* Enhanced Attachments Grid */
+.attachments-grid {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 100%;
+}
+
+.attachments-grid.single-image {
+  grid-template-columns: 1fr;
+}
+
+.attachment-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.attachment-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.image-attachment-message {
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.message-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.message-image:hover {
+  transform: scale(1.02);
+}
+
+/* Image Actions */
+.image-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.image-actions > * {
+  pointer-events: auto;
+}
+
+.action-btn {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Vision Badge */
+.vision-badge {
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: badgeSlideIn 0.3s ease-out;
+}
+
+@keyframes badgeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Loading States */
+.loading-overlay {
+  backdrop-filter: blur(8px);
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Image Info */
+.image-info {
+  backdrop-filter: blur(8px);
+  animation: slideUpFade 0.3s ease;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .attachments-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .message-image {
+    max-height: 300px;
+    object-fit: cover;
+  }
+  
+  .image-actions {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn {
+    transform: scale(0.9);
+  }
+}
+
 /* 打字动画 */
 .typing-indicator {
   display: flex;
@@ -271,16 +572,33 @@ onUpdated(() => {
 
 <style>
 /* Prose 样式覆盖 */
+.message-content-wrapper {
+  color: inherit !important;
+}
+
 .prose {
-  @apply text-foreground;
+  color: inherit !important;
 }
 
 .prose strong {
-  @apply font-semibold text-foreground;
+  @apply font-semibold;
+  color: inherit !important;
 }
 
 .prose a {
-  @apply text-primary no-underline hover:underline;
+  @apply no-underline hover:underline;
+  color: hsl(var(--primary)) !important;
+}
+
+/* 用户消息中的链接使用更浅的颜色以确保对比度 */
+.message-bubble.bg-primary .prose a {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: underline;
+}
+
+.dark .message-bubble.bg-primary .prose a {
+  color: hsl(var(--background) / 0.9) !important;
+  text-decoration: underline;
 }
 
 .prose pre {
@@ -289,14 +607,18 @@ onUpdated(() => {
 
 .prose pre code {
   @apply bg-transparent p-4 block overflow-x-auto text-sm;
+  color: inherit !important;
 }
 
 .prose code {
   @apply bg-muted/50 px-1.5 py-0.5 rounded text-sm font-mono before:content-[''] after:content-[''];
+  color: inherit !important;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-primary/30 pl-4 italic text-muted-foreground;
+  @apply border-l-4 border-primary/30 pl-4 italic;
+  color: inherit !important;
+  opacity: 0.8;
 }
 
 .prose h1,
@@ -305,7 +627,15 @@ onUpdated(() => {
 .prose h4,
 .prose h5,
 .prose h6 {
-  @apply font-semibold text-foreground;
+  @apply font-semibold;
+  color: inherit !important;
+}
+
+.prose p,
+.prose li,
+.prose span,
+.prose div {
+  color: inherit !important;
 }
 
 .prose h1 {

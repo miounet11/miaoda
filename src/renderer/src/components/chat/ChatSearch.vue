@@ -101,7 +101,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Search, X, Globe, ChevronUp, ChevronDown, SearchX } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { useChatStore } from '@renderer/src/stores/chat-enhanced'
+import { useChatStore } from '@renderer/src/stores/chat'
 import { searchService, type SearchResult } from '@renderer/src/services/search/SearchService'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
 

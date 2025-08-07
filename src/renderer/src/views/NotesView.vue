@@ -669,7 +669,8 @@ defineExpose({
 }
 
 .note-preview.preview-html {
-  @apply prose-none;
+  /* Remove prose styling for HTML format */
+  max-width: none;
 }
 
 .notes-status {

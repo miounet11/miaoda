@@ -114,7 +114,7 @@
     />
 
     <!-- 主聊天区域 -->
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 min-h-0">
       <!-- 聊天头部 -->
       <header class="chat-header h-16 px-6 border-b border-border/50 flex items-center justify-between bg-background/95 backdrop-blur">
         <div class="flex items-center gap-4">
@@ -128,26 +128,46 @@
           <h2 class="font-bold text-lg text-foreground/90">{{ currentChat?.title || '新对话' }}</h2>
         </div>
         
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Provider/Model Selector (hidden on very small screens) -->
+          <ProviderModelSelector 
+            v-if="!isMobile || !sidebarCollapsed"
+            :disabled="isLoading"
+            :compact="isMobile"
+            @provider-changed="handleProviderChanged"
+            @model-changed="handleModelChanged"
+            @settings-opened="handleSettingsOpened"
+          />
+          
           <!-- 主题切换 -->
           <button
             @click="toggleTheme"
-            class="p-2.5 hover:bg-secondary/60 rounded-xl transition-all hover:scale-105"
+            class="p-2 sm:p-2.5 hover:bg-secondary/60 rounded-xl transition-all hover:scale-105"
             :title="isDark ? '切换到亮色主题' : '切换到暗色主题'"
           >
-            <Sun v-if="isDark" :size="20" class="text-yellow-500" />
-            <Moon v-else :size="20" class="text-blue-500" />
+            <Sun v-if="isDark" :size="isMobile ? 18 : 20" class="text-yellow-500" />
+            <Moon v-else :size="isMobile ? 18 : 20" class="text-blue-500" />
           </button>
           
           <!-- 全局搜索 -->
           <button
             @click="openGlobalSearch"
-            class="flex items-center gap-2 px-4 py-2.5 bg-secondary/60 hover:bg-secondary/80 rounded-xl transition-all group border border-transparent hover:border-primary/20"
+            class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary/60 hover:bg-secondary/80 rounded-xl transition-all group border border-transparent hover:border-primary/20"
             title="全局搜索 (Cmd+K)"
           >
-            <Search :size="18" class="group-hover:text-primary transition-colors" />
-            <span class="hidden sm:inline-block text-sm font-medium group-hover:text-primary transition-colors">搜索</span>
-            <kbd class="hidden sm:inline-block px-2 py-1 bg-muted/50 rounded text-xs font-mono">⌘K</kbd>
+            <Search :size="16" class="group-hover:text-primary transition-colors" />
+            <span class="hidden md:inline-block text-sm font-medium group-hover:text-primary transition-colors">搜索</span>
+            <kbd class="hidden lg:inline-block px-2 py-1 bg-muted/50 rounded text-xs font-mono">⌘K</kbd>
+          </button>
+          
+          <!-- Provider/Model Selector for mobile (icon only) -->
+          <button
+            v-if="isMobile && sidebarCollapsed"
+            @click="openProviderSelectorModal"
+            class="p-2.5 hover:bg-secondary/60 rounded-xl transition-all hover:scale-105"
+            title="切换 AI 模型"
+          >
+            <span class="text-lg">{{ currentProviderIcon }}</span>
           </button>
           
           <!-- 更多操作 -->
@@ -155,7 +175,7 @@
             class="p-2 hover:bg-secondary/50 rounded-lg transition-colors"
             title="更多操作"
           >
-            <MoreVertical :size="18" />
+            <MoreVertical :size="16" />
           </button>
         </div>
       </header>
@@ -168,7 +188,7 @@
         @dragenter.prevent
       >
         <!-- 欢迎界面 -->
-        <div v-if="!currentChat?.messages.length" class="welcome-screen flex-1 flex items-center justify-center">
+        <div v-if="!currentChat || (!currentChat.messages.length && isInitialized.value && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
           <div class="text-center py-24 px-6">
             <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
               <Sparkles :size="36" class="text-primary" />
@@ -204,9 +224,9 @@
         
         <!-- 增强的消息列表 -->
         <div 
-          v-else
+          v-else-if="currentChat && currentChat.messages"
           ref="messagesContainer"
-          class="flex-1 overflow-y-auto px-4 py-6"
+          class="flex-1 overflow-y-auto px-4 py-6 min-h-0"
           @scroll="handleMessageScroll"
         >
           <TransitionGroup name="message">
@@ -249,7 +269,7 @@
                       class="message-bubble relative px-4 py-3 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group cursor-pointer select-text"
                       :class="message.role === 'user' 
                         ? 'bg-primary text-primary-foreground rounded-br-sm hover:bg-primary/90' 
-                        : 'bg-secondary/50 text-foreground rounded-bl-sm hover:bg-secondary/70'"
+                        : 'bg-secondary/50 rounded-bl-sm hover:bg-secondary/70'"
                       @mouseenter="onMessageHover(message.id)"
                       @mouseleave="onMessageLeave()"
                       @selectstart="onTextSelectionStart(message.id)"
@@ -263,10 +283,20 @@
                         }"
                         @mouseup="onTextSelectionEnd"
                       >
-                        <MessageContent 
-                          :content="message.content" 
-                          :is-loading="false"
-                        />
+                        <!-- Enhanced message content with attachment support -->
+                        <div
+                          :class="[
+                            'message-content-text',
+                            message.role === 'user' ? 'text-white user-message' : 'text-slate-900 dark:text-slate-100 assistant-message'
+                          ]"
+                        >
+                          <component
+                            :is="useSimpleRender ? SimpleMessageContent : MessageContent"
+                            :content="message.content" 
+                            :is-loading="false"
+                            :attachments="message.attachments || []"
+                          />
+                        </div>
                       </div>
                       
                       <!-- 消息操作按钮 -->
@@ -327,6 +357,16 @@
               </div>
             </div>
           </TransitionGroup>
+        </div>
+        
+        <!-- 消息加载状态 -->
+        <div v-else-if="!isInitialized.value || isLoading" class="flex-1 flex items-center justify-center">
+          <div class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-16 h-16 mb-4 bg-primary/10 rounded-full">
+              <Loader2 :size="32" class="text-primary animate-spin" />
+            </div>
+            <p class="text-lg text-muted-foreground">加载聊天记录中...</p>
+          </div>
         </div>
         
         <!-- 滚动到底部按钮 -->
@@ -669,11 +709,14 @@ import {
   Clock, ArrowDown
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
+import { useSettingsStore } from '@renderer/src/stores/settings'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 import MessageContent from '@renderer/src/components/MessageContentImproved.vue'
+import SimpleMessageContent from '@renderer/src/components/SimpleMessageContent.vue'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
 import PerformanceTestPanel from '@renderer/src/components/dev/PerformanceTestPanel.vue'
+import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
 
 // 类型定义
 interface Attachment {
@@ -761,6 +804,13 @@ const MessageStatusIndicator = defineComponent({
 
 // 响应式数据
 const chatStore = useChatStore()
+const settingsStore = useSettingsStore()
+
+// Add simple render toggle for debugging
+const useSimpleRender = ref(false)
+
+// 获取初始化状态
+const isInitialized = computed(() => chatStore.isInitialized)
 
 // Initialize global shortcuts
 const { shortcuts } = useGlobalShortcuts()
@@ -847,30 +897,78 @@ const canSend = computed(() => {
          isConfigured.value
 })
 
+// Provider icon for mobile display
+const providerIcons = {
+  openai: '🤖',
+  anthropic: '🧠', 
+  google: '🌟',
+  local: '🏠',
+  custom: '⚡'
+}
+
+const currentProviderIcon = computed(() => {
+  return providerIcons[settingsStore.llmProvider as keyof typeof providerIcons] || '🤖'
+})
+
 // 生命周期
 onMounted(async () => {
-  await chatStore.initialize()
-  
-  // 检查 LLM 配置
-  isConfigured.value = await window.api.llm.isConfigured()
-  
-  // 检查主题
-  isDark.value = document.documentElement.classList.contains('dark')
-  
-  // 检查移动端
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-  
-  // 初始化语音识别
-  initializeVoiceRecognition()
-  
-  // 注册快捷键
-  setupShortcuts()
-  
-  // 恢复侧边栏宽度
-  const savedWidth = localStorage.getItem('sidebarWidth')
-  if (savedWidth) {
-    sidebarWidth.value = parseInt(savedWidth)
+  console.log('[ChatViewImproved] Component mounting...')
+  try {
+    // 初始化 chat store with error handling
+    console.log('[ChatViewImproved] Initializing chat store...')
+    try {
+      await chatStore.initialize()
+      console.log('[ChatViewImproved] Chat store initialized successfully')
+    } catch (storeError) {
+      console.error('[ChatViewImproved] Failed to initialize chat store:', storeError)
+      // Continue anyway - the app should still be usable
+    }
+    
+    // 检查 LLM 配置
+    try {
+      isConfigured.value = await window.api.llm.isConfigured()
+      console.log('[ChatViewImproved] LLM configured:', isConfigured.value)
+    } catch (error) {
+      console.error('Failed to check LLM configuration:', error)
+      isConfigured.value = false
+    }
+    
+    // 检查主题
+    isDark.value = document.documentElement.classList.contains('dark')
+    
+    // 检查移动端
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    // 初始化语音识别
+    try {
+      initializeVoiceRecognition()
+    } catch (error) {
+      console.error('Failed to initialize voice recognition:', error)
+    }
+    
+    // 注册快捷键
+    try {
+      setupShortcuts()
+    } catch (error) {
+      console.error('Failed to setup shortcuts:', error)
+    }
+    
+    // 恢复侧边栏宽度
+    try {
+      const savedWidth = localStorage.getItem('sidebarWidth')
+      if (savedWidth) {
+        const width = parseInt(savedWidth)
+        if (!isNaN(width) && width >= minSidebarWidth && width <= maxSidebarWidth) {
+          sidebarWidth.value = width
+        }
+      }
+    } catch (error) {
+      console.error('Failed to restore sidebar width:', error)
+    }
+  } catch (error) {
+    console.error('Failed to initialize chat view:', error)
+    // 即使初始化失败，也应该显示基本界面
   }
 })
 
@@ -949,7 +1047,11 @@ const toggleSidebar = () => {
 const toggleTheme = () => {
   isDark.value = !isDark.value
   document.documentElement.classList.toggle('dark')
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+  try {
+    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+  } catch (error) {
+    console.error('Failed to save theme preference:', error)
+  }
 }
 
 // 语音输入相关方法
@@ -1272,23 +1374,71 @@ const sendMessage = async () => {
   inputMessage.value = ''
   attachments.value = []
   
-  // 构建消息内容
-  let fullContent = message
+  // 构建消息内容 - 支持多模态输入
+  let messageContent: any
+  const hasImages = messageAttachments.some(att => att.type === 'image' && att.data)
   
-  for (const attachment of messageAttachments) {
-    if (attachment.type === 'image' && attachment.data) {
-      fullContent = `![${attachment.name}](${attachment.data})\n\n${fullContent}`
-    } else if (attachment.type === 'text' && attachment.content) {
-      fullContent = `${fullContent}\n\n\`\`\`\n${attachment.content}\n\`\`\``
+  if (hasImages) {
+    // 多模态消息格式 - 符合OpenAI Vision API规范
+    const content: any[] = []
+    
+    // 添加文本内容
+    if (message.trim()) {
+      content.push({
+        type: 'text',
+        text: message
+      })
     }
+    
+    // 添加图片内容
+    for (const attachment of messageAttachments) {
+      if (attachment.type === 'image' && attachment.data) {
+        content.push({
+          type: 'image_url',
+          image_url: {
+            url: attachment.data,
+            detail: 'high'
+          }
+        })
+      } else if (attachment.type === 'text' && attachment.content) {
+        const textContent = content.find(c => c.type === 'text')
+        if (textContent) {
+          textContent.text += `\n\n\`\`\`\n${attachment.content}\n\`\`\``
+        } else {
+          content.push({
+            type: 'text',
+            text: `\`\`\`\n${attachment.content}\n\`\`\``
+          })
+        }
+      }
+    }
+    
+    messageContent = content
+  } else {
+    // 纯文本消息
+    let fullContent = message
+    for (const attachment of messageAttachments) {
+      if (attachment.type === 'text' && attachment.content) {
+        fullContent = `${fullContent}\n\n\`\`\`\n${attachment.content}\n\`\`\``
+      }
+    }
+    messageContent = fullContent
   }
   
   // 添加用户消息（带状态和回复）
+  // 对于显示，使用文本格式；对于API调用，使用结构化格式
+  const displayContent = typeof messageContent === 'string' ? messageContent : 
+    (messageContent as any[]).map(c => 
+      c.type === 'text' ? c.text : 
+      c.type === 'image_url' ? `[图片: ${messageAttachments.find(att => att.data === c.image_url.url)?.name || '未知'}]` : ''
+    ).join('\n')
+  
   const userMessage = await chatStore.addMessage({
     role: 'user',
-    content: fullContent,
+    content: displayContent,
     status: 'sending',
-    replyTo: replyingTo.value
+    replyTo: replyingTo.value,
+    attachments: messageAttachments // 保存附件信息
   })
   
   // 清除回复状态
@@ -1325,39 +1475,51 @@ const sendMessage = async () => {
   try {
     // 设置流式响应监听
     let streamedContent = ''
+    console.log('[ChatView] Setting up chunk listener for message:', assistantMessage.id)
+    
     const cleanupChunk = window.api.llm.onChunk((data: any) => {
+      console.log('[ChatView] Received chunk:', { data, currentChatId: currentChat.value?.id, assistantMessageId: assistantMessage.id })
+      
       if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
+        console.log('[ChatView] Processing chunk for our message')
         streamedContent += data.chunk
-        const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
-        if (msg) {
-          msg.content = streamedContent
-        }
+        console.log('[ChatView] Accumulated content length:', streamedContent.length)
+        
+        // 使用store的方法更新消息内容
+        chatStore.updateMessageContent(assistantMessage.id, streamedContent)
         
         nextTick(() => {
           scrollToBottom()
         })
+      } else {
+        console.log('[ChatView] Chunk not for our message - ignoring')
       }
     })
     
-    // 发送到 LLM
+    // 发送到 LLM - 使用正确的消息格式
+    console.log('[ChatView] Sending message to LLM:', { messageContent, hasImages, chatId: currentChat.value!.id, messageId: assistantMessage.id })
     const response = await window.api.llm.sendMessage(
-      fullContent,
+      messageContent,
       currentChat.value!.id,
       assistantMessage.id
     )
     
+    console.log('[ChatView] LLM response received:', { responseLength: response.length, responsePreview: response.substring(0, 100) })
+    
     // 更新最终响应
-    const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
-    if (msg) {
-      msg.content = response
-    }
+    console.log('[ChatView] Updating final response in store')
+    
+    // Test with a simple message first
+    const testResponse = response || "测试响应内容 - 如果你看到这个，说明更新机制是工作的"
+    console.log('[ChatView] Using response:', testResponse)
+    
+    await chatStore.updateMessageContent(assistantMessage.id, testResponse)
+    console.log('[ChatView] Final response updated')
     
     cleanupChunk()
   } catch (error: any) {
-    const msg = currentChat.value?.messages.find(m => m.id === assistantMessage.id)
-    if (msg) {
-      msg.content = `错误: ${error.message}`
-    }
+    // 更新错误消息
+    await chatStore.updateMessageContent(assistantMessage.id, `错误: ${error.message}`)
   } finally {
     isLoading.value = false
     await nextTick()
@@ -1423,6 +1585,33 @@ const cleanupShortcuts = () => {
   if (handler) {
     document.removeEventListener('keydown', handler)
     delete (window as any).__searchKeydownHandler
+  }
+}
+
+// Provider/Model selector event handlers
+const handleProviderChanged = (providerId: string) => {
+  console.log('[ChatView] Provider changed to:', providerId)
+  // The ProviderModelSelector already handles the backend update
+  // You might want to show a toast notification here
+}
+
+const handleModelChanged = (modelId: string) => {
+  console.log('[ChatView] Model changed to:', modelId)
+  // The ProviderModelSelector already handles the backend update
+  // You might want to show a toast notification here
+}
+
+const handleSettingsOpened = () => {
+  console.log('[ChatView] Settings opened from provider selector')
+  // Additional logic if needed when settings are opened
+}
+
+// Mobile provider selector modal
+const openProviderSelectorModal = () => {
+  // For now, redirect to settings on mobile
+  // In the future, you could implement a mobile-friendly modal
+  if (isMobile.value) {
+    window.location.hash = '/settings'
   }
 }
 </script>
@@ -2139,6 +2328,35 @@ textarea {
 .voice-button,
 .send-button {
   will-change: transform;
+}
+
+/* === 布局修复 === */
+.chat-view {
+  height: 100vh;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 1 0%;
+  overflow: hidden;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+/* 确保消息容器始终可见 */
+.messages-container {
+  min-height: 200px;
+  flex: 1 1 auto;
+}
+
+/* 防止消息被隐藏 */
+.message-item {
+  min-height: 40px;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* GPU 加速 */

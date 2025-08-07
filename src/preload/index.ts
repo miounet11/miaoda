@@ -17,6 +17,7 @@ const api = {
     getChat: (id: string) => ipcRenderer.invoke('db:get-chat', id),
     getAllChats: () => ipcRenderer.invoke('db:get-all-chats'),
     createMessage: (message: any) => ipcRenderer.invoke('db:create-message', message),
+    updateMessage: (messageId: string, content: string) => ipcRenderer.invoke('db:update-message', messageId, content),
     getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
     searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query)
   },
@@ -29,7 +30,7 @@ const api = {
   },
   llm: {
     setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
-    sendMessage: (message: string, chatId: string, messageId: string) => 
+    sendMessage: (message: string | any[], chatId: string, messageId: string) => 
       ipcRenderer.invoke('llm:sendMessage', message, chatId, messageId),
     getConfig: () => ipcRenderer.invoke('llm:getConfig'),
     isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
