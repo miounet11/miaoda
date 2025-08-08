@@ -1,8 +1,9 @@
 /**
  * Settings type definitions
  */
+import type { KeyboardShortcuts } from './ui'
 
-export type LLMProvider = 'openai' | 'anthropic' | 'google' | 'ollama' | 'custom'
+export type LLMProvider = 'openai' | 'anthropic' | 'google' | 'ollama' | 'local' | 'custom'
 
 export interface LLMConfig {
   provider: LLMProvider
@@ -51,6 +52,11 @@ export interface PrivacySettings {
   shareUsageData: boolean
   storeChatHistory: boolean
   allowAutoUpdates: boolean
+  dataCollection: boolean
+  crashReporting: boolean
+  analytics: boolean
+  saveConversations: boolean
+  encryptData: boolean
 }
 
 export interface NetworkSettings {
@@ -65,15 +71,64 @@ export interface NetworkSettings {
   retryDelay: number
 }
 
+export interface VoiceSettings {
+  enabled: boolean
+  language: string
+  rate: number
+  pitch: number
+  volume: number
+  autoPlay: boolean
+}
+
+export interface UISettings {
+  fontSize: number
+  fontFamily: string
+  lineHeight: number
+  messageSpacing: number
+  animationsEnabled: boolean
+}
+
+export interface ChatSettings {
+  autoScroll: boolean
+  enterToSend: boolean
+  showWordCount: boolean
+  spellCheck: boolean
+  showTimestamps: boolean
+  showAvatars: boolean
+  compactMode: boolean
+}
+
+export interface LLMSettings {
+  provider: LLMProvider
+  apiKey: string
+  endpoint: string
+  model: string
+  temperature: number
+  maxTokens: number
+  streaming: boolean
+}
+
+export interface PluginSettings {
+  enabled: string[]
+  settings: Record<string, any>
+}
+
+export interface AdvancedSettings {
+  debugMode: boolean
+  developmentMode: boolean
+  experimentalFeatures: boolean
+  betaFeatures: boolean
+}
+
 export interface AppSettings {
-  llm: LLMConfig
-  appearance: AppearanceSettings
-  behavior: BehaviorSettings
-  shortcuts: ShortcutSettings
+  llm: LLMSettings
+  ui: UISettings
+  chat: ChatSettings
   privacy: PrivacySettings
-  network: NetworkSettings
-  version: string
-  lastUpdated: Date
+  voice: VoiceSettings
+  shortcuts: KeyboardShortcuts
+  plugins: PluginSettings
+  advanced: AdvancedSettings
 }
 
 export interface SettingsState extends LLMConfig, AppearanceSettings, BehaviorSettings, ShortcutSettings, PrivacySettings, NetworkSettings {

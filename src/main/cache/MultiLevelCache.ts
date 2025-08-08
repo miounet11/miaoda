@@ -48,13 +48,12 @@ export interface MultiLevelCacheConfig {
  * Implements L1 (memory), L2 (persistent), and optional L3 (network) caching
  */
 export class MultiLevelCache<T = any> extends EventEmitter {
-  private l1Cache: MemoryCache<T>
-  private l2Cache: PersistentCache<T>
+  private l1Cache!: MemoryCache<T>
+  private l2Cache!: PersistentCache<T>
   private l3Cache?: NetworkCache<T>
   private config: MultiLevelCacheConfig
   private stats: Record<CacheLevel, CacheStats> = {} as any
   private metricsTimer: NodeJS.Timeout | null = null
-  private compressionThreshold = 1024 // 1KB
 
   constructor(config: Partial<MultiLevelCacheConfig> = {}) {
     super()
@@ -311,11 +310,20 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    * Get comprehensive cache statistics
    */
   getStats(): Record<CacheLevel, CacheStats> {
-    return {
+    const stats: Record<CacheLevel, CacheStats> = {
       memory: this.l1Cache.getStats(),
       persistent: this.l2Cache.getStats(),
-      ...(this.l3Cache && { network: this.l3Cache.getStats() })
+      network: this.l3Cache?.getStats() || {
+        hits: 0,
+        misses: 0,
+        hitRatio: 0,
+        size: 0,
+        itemCount: 0,
+        evictions: 0,
+        memoryUsage: 0
+      }
     }
+    return stats
   }
 
   /**
@@ -348,7 +356,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    * Export cache data for backup/migration
    */
   async export(): Promise<{ level: CacheLevel; data: any }[]> {
-    const exports = []
+    const exports: { level: CacheLevel; data: any }[] = []
     
     exports.push({
       level: 'memory' as CacheLevel,
@@ -396,7 +404,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
   private determineWriteLevels(
     size: number, 
     priority: string, 
-    options: any
+    _options: any
   ): CacheLevel[] {
     const levels: CacheLevel[] = []
     

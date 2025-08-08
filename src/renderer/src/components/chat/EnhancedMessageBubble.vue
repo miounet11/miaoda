@@ -444,8 +444,15 @@ const toggleVoicePlayback = async () => {
   }
 }
 
-const formatTime = (date: Date) => {
-  return formatDistanceToNow(date)
+const formatTime = (date: Date | string | number | undefined) => {
+  if (!date) return 'unknown'
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date)
+    return formatDistanceToNow(dateObj)
+  } catch (error) {
+    console.error('Error formatting time in EnhancedMessageBubble:', error, date)
+    return 'unknown'
+  }
 }
 
 // Lifecycle

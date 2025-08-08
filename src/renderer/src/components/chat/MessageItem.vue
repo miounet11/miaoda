@@ -354,7 +354,8 @@ const toggleAttachments = () => {
   showAttachments.value = !showAttachments.value
 }
 
-const formatTime = (date: Date) => {
+const formatTime = (date: Date | string | number | undefined) => {
+  if (!date) return 'unknown'
   return formatDistanceToNow(date)
 }
 
@@ -517,13 +518,14 @@ onUnmounted(() => {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border-bottom-right-radius: 0.375rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .message-bubble.bubble-assistant {
-  background: rgba(243, 244, 246, 0.6);
+  background: rgba(248, 249, 250, 0.95);
   color: #111827;
   border-bottom-left-radius: 0.375rem;
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  border: 1px solid rgba(209, 213, 219, 0.8);
 }
 
 .message-bubble.bubble-highlighted {
@@ -566,9 +568,9 @@ onUnmounted(() => {
   display: flex;
   gap: 0.25rem;
   padding: 0.375rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 0.75rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
@@ -580,7 +582,7 @@ onUnmounted(() => {
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #6b7280;
+  color: #4b5563;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -762,6 +764,52 @@ onUnmounted(() => {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+  .message-bubble.bubble-assistant {
+    background: rgba(31, 41, 55, 0.95);
+    color: #f3f4f6;
+    border-color: rgba(75, 85, 99, 0.8);
+  }
+  
+  .action-buttons {
+    background: rgba(31, 41, 55, 0.98);
+    border-color: rgba(75, 85, 99, 0.5);
+  }
+  
+  .action-button {
+    color: #9ca3af;
+  }
+  
+  .action-button:hover {
+    background: rgba(55, 65, 81, 0.5);
+    color: #f3f4f6;
+  }
+  
+  .action-button.active {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+  }
+  
+  .action-button.destructive:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+  }
+  
+  .metadata-content {
+    color: #9ca3af;
+  }
+  
+  .voice-controls-container {
+    background: rgba(31, 41, 55, 0.98);
+    border-color: rgba(75, 85, 99, 0.5);
+  }
+  
+  .attachment-preview-modal {
+    background: rgba(17, 24, 39, 0.98);
+  }
 }
 
 /* Modern Transition Effects */

@@ -2,16 +2,17 @@
   <div class="chat-view flex h-screen bg-background overflow-hidden">
     <!-- 侧边栏 -->
     <aside 
-      class="sidebar flex flex-col border-r border-border/50 transition-all duration-300"
+      v-show="!sidebarCollapsed"
+      class="sidebar flex flex-col transition-all duration-300 overflow-hidden border-r border-border/50"
       :style="{ width: sidebarWidth + 'px' }"
     >
       <!-- 侧边栏头部 -->
-      <div class="sidebar-header p-5 border-b border-border/50">
-        <div class="flex items-center justify-between mb-4">
+      <div class="sidebar-header p-5 border-b border-border/50 flex-shrink-0">
+        <div class="flex items-center justify-between mb-4 whitespace-nowrap">
           <h1 class="text-xl font-bold text-foreground/90">聊天</h1>
           <button
             @click="toggleSidebar"
-            class="p-1.5 hover:bg-secondary/80 rounded-lg transition-colors"
+            class="p-1.5 hover:bg-secondary/80 rounded-lg transition-colors flex-shrink-0"
             :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
           >
             <PanelLeftClose v-if="!sidebarCollapsed" :size="18" />
@@ -118,74 +119,138 @@
     
     <!-- 可调整大小的分隔条 -->
     <div
+      v-if="!sidebarCollapsed"
       class="sidebar-resizer w-1 hover:w-2 bg-transparent hover:bg-primary/20 cursor-col-resize transition-all"
       @mousedown="startResize"
     />
 
     <!-- 主聊天区域 -->
     <main class="flex-1 flex flex-col min-w-0 min-h-0">
-      <!-- 聊天头部 -->
-      <header class="chat-header h-16 px-6 border-b border-border/50 flex items-center justify-between bg-background/95 backdrop-blur">
-        <div class="flex items-center gap-4">
+      <!-- Simplified Chat Header -->
+      <header class="chat-header h-14 px-4 sm:px-6 border-b border-border/30 flex items-center justify-between bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-md">
+        <!-- Left side: Mobile menu + Title -->
+        <div class="flex items-center gap-3 min-w-0 flex-1">
           <button
-            v-if="isMobile"
+            v-if="isMobile || sidebarCollapsed"
             @click="toggleSidebar"
-            class="p-2.5 hover:bg-secondary/50 rounded-xl transition-colors lg:hidden"
+            class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
+            aria-label="Open sidebar"
           >
-            <Menu :size="22" />
+            <Menu :size="20" class="text-muted-foreground" />
           </button>
-          <h2 class="font-bold text-lg text-foreground/90">{{ currentChat?.title || '新对话' }}</h2>
+          
+          <div class="min-w-0 flex-1">
+            <h1 class="font-semibold text-base sm:text-lg text-foreground/90 truncate">
+              {{ currentChat?.title || 'New Conversation' }}
+            </h1>
+            <!-- Subtle status indicator -->
+            <div v-if="isLoading" class="flex items-center gap-1.5 mt-0.5">
+              <div class="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+              <span class="text-xs text-muted-foreground">AI is thinking...</span>
+            </div>
+            <div v-else-if="currentChat?.messages?.length" class="mt-0.5">
+              <span class="text-xs text-muted-foreground" style="opacity: 0.8;">
+                {{ currentChat.messages.length }} messages
+              </span>
+            </div>
+          </div>
         </div>
         
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Provider/Model Selector (hidden on very small screens) -->
+        <!-- Right side: Simplified controls -->
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <!-- Model selector (compact) -->
           <ProviderModelSelector 
             v-if="!isMobile || !sidebarCollapsed"
             :disabled="isLoading"
-            :compact="isMobile"
+            :compact="true"
             @provider-changed="handleProviderChanged"
             @model-changed="handleModelChanged"
             @settings-opened="handleSettingsOpened"
+            class="hidden sm:flex"
           />
           
-          <!-- 主题切换 -->
-          <button
-            @click="toggleTheme"
-            class="p-2 sm:p-2.5 hover:bg-secondary/60 rounded-xl transition-all hover:scale-105"
-            :title="isDark ? '切换到亮色主题' : '切换到暗色主题'"
-          >
-            <Sun v-if="isDark" :size="isMobile ? 18 : 20" class="text-yellow-500" />
-            <Moon v-else :size="isMobile ? 18 : 20" class="text-blue-500" />
-          </button>
-          
-          <!-- 全局搜索 -->
+          <!-- Search -->
           <button
             @click="openGlobalSearch"
-            class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary/60 hover:bg-secondary/80 rounded-xl transition-all group border border-transparent hover:border-primary/20"
-            title="全局搜索 (Cmd+K)"
+            class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
+            title="Search conversations (⌘K)"
           >
-            <Search :size="16" class="group-hover:text-primary transition-colors" />
-            <span class="hidden md:inline-block text-sm font-medium group-hover:text-primary transition-colors">搜索</span>
-            <kbd class="hidden lg:inline-block px-2 py-1 bg-muted/50 rounded text-xs font-mono">⌘K</kbd>
+            <Search :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
           
-          <!-- Provider/Model Selector for mobile (icon only) -->
+          <!-- Theme toggle -->
           <button
-            v-if="isMobile && sidebarCollapsed"
-            @click="openProviderSelectorModal"
-            class="p-2.5 hover:bg-secondary/60 rounded-xl transition-all hover:scale-105"
-            title="切换 AI 模型"
+            @click="toggleTheme"
+            class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
+            :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
           >
-            <span class="text-lg">{{ currentProviderIcon }}</span>
+            <Sun v-if="isDark" :size="18" class="text-amber-500 group-hover:text-amber-400 transition-colors" />
+            <Moon v-else :size="18" class="text-blue-600 group-hover:text-blue-500 transition-colors" />
           </button>
           
-          <!-- 更多操作 -->
-          <button
-            class="p-2 hover:bg-secondary/50 rounded-lg transition-colors"
-            title="更多操作"
-          >
-            <MoreVertical :size="16" />
-          </button>
+          <!-- More menu -->
+          <div class="relative">
+            <button
+              @click="showHeaderMenu = !showHeaderMenu"
+              :class="[
+                'p-2.5 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95',
+                showHeaderMenu ? 'bg-secondary text-foreground' : 'hover:bg-secondary/40 text-muted-foreground'
+              ]"
+              title="More options"
+            >
+              <MoreVertical :size="18" />
+            </button>
+            
+            <!-- Header dropdown menu -->
+            <Transition name="menu-slide">
+              <div v-if="showHeaderMenu" 
+                   class="absolute top-full mt-2 right-0 w-56 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
+                   @click="showHeaderMenu = false">
+                <div class="p-2">
+                  <!-- Mobile model selector -->
+                  <div v-if="isMobile" class="sm:hidden mb-2 pb-2 border-b border-border/40">
+                    <div class="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      AI Model
+                    </div>
+                    <ProviderModelSelector 
+                      :disabled="isLoading"
+                      :compact="false"
+                      @provider-changed="handleProviderChanged"
+                      @model-changed="handleModelChanged"
+                      @settings-opened="handleSettingsOpened"
+                      class="w-full"
+                    />
+                  </div>
+                  
+                  <button
+                    @click="exportCurrentChat"
+                    class="w-full px-3 py-2.5 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
+                  >
+                    <Download :size="16" />
+                    Export Chat
+                  </button>
+                  
+                  <button
+                    @click="shareCurrentChat"
+                    class="w-full px-3 py-2.5 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
+                  >
+                    <Share :size="16" />
+                    Share Chat
+                  </button>
+                  
+                  <div class="h-px bg-border/40 my-2" />
+                  
+                  <button
+                    @click="clearCurrentChat"
+                    class="w-full px-3 py-2.5 text-left hover:bg-destructive/10 text-destructive rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
+                  >
+                    <Trash2 :size="16" />
+                    Clear Chat
+                  </button>
+                </div>
+              </div>
+            </Transition>
+          </div>
         </div>
       </header>
 
@@ -266,14 +331,11 @@
                       
         </div>
         
-        <!-- 消息加载状态 -->
-        <div v-else-if="!isInitialized.value || isLoading" class="flex-1 flex items-center justify-center">
-          <div class="text-center py-20">
-            <div class="inline-flex items-center justify-center w-16 h-16 mb-4 bg-primary/10 rounded-full">
-              <Loader2 :size="32" class="text-primary animate-spin" />
-            </div>
-            <p class="text-lg text-muted-foreground">加载聊天记录中...</p>
-          </div>
+        <!-- Enhanced loading state with skeleton -->
+        <div v-else-if="!isInitialized.value || (isLoading && !currentChat?.messages?.length)" class="flex-1 p-6">
+          <SkeletonLoader variant="header" class="mb-6" />
+          <SkeletonLoader variant="message" :count="3" class="mb-6" />
+          <SkeletonLoader variant="input" />
         </div>
         
         <!-- 滚动到底部按钮 -->
@@ -445,7 +507,7 @@
                   @input="onInputChange"
                   :placeholder="getPlaceholder()"
                   :disabled="isLoading || !isConfigured"
-                  class="w-full bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 disabled:opacity-50 leading-relaxed transition-all duration-200"
+                  class="w-full bg-transparent resize-none outline-none placeholder:text-muted-foreground disabled:opacity-50 leading-relaxed transition-all duration-200"
                   :class="[
                     isMobile ? 'min-h-[52px] max-h-[200px] px-4 py-4 text-base' : 'min-h-[48px] max-h-[200px] px-3 py-3 text-base',
                     isFocused ? 'placeholder:text-muted-foreground/80' : ''
@@ -601,6 +663,14 @@
       @chat-click="handleSearchChatClick"
     />
     
+    <!-- Progressive Onboarding -->
+    <ProgressiveOnboarding
+      @start-sample-conversation="handleStartSampleConversation"
+      @open-settings="$router.push('/settings')"
+      @complete="handleOnboardingComplete"
+      @toggle-theme="toggleTheme"
+    />
+    
     <!-- 性能测试面板（仅开发环境） -->
     <PerformanceTestPanel v-if="isDevelopment" />
   </div>
@@ -613,7 +683,7 @@ import {
   MessageSquare, Loader2, AlertCircle, Search, Trash2, Menu,
   Sun, Moon, MoreVertical, Copy, RefreshCw, PanelLeft, PanelLeftClose,
   Sparkles, Code2, Languages, HelpCircle, Check, CheckCircle, XCircle,
-  Clock, ArrowDown, BarChart3
+  Clock, ArrowDown, BarChart3, Download, Share
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useSettingsStore } from '@renderer/src/stores/settings'
@@ -627,6 +697,8 @@ import PerformanceTestPanel from '@renderer/src/components/dev/PerformanceTestPa
 import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
 import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList.vue'
 import ChatSummary from '@renderer/src/components/chat/ChatSummary.vue'
+import ProgressiveOnboarding from '@renderer/src/components/onboarding/ProgressiveOnboarding.vue'
+import SkeletonLoader from '@renderer/src/components/ui/SkeletonLoader.vue'
 
 // 类型定义
 interface Attachment {
@@ -754,6 +826,7 @@ const inputCharacterCount = ref(0)
 const hoveredMessageId = ref<string>()
 const selectedTextMessageId = ref<string>()
 const isTextSelected = ref(false)
+const showHeaderMenu = ref(false)
 
 // 语音输入相关状态
 const isVoiceSupported = ref(false)
@@ -1610,6 +1683,227 @@ const openProviderSelectorModal = () => {
   if (isMobile.value) {
     window.location.hash = '/settings'
   }
+}
+
+// Header menu actions
+const exportCurrentChat = () => {
+  showHeaderMenu.value = false
+  if (!currentChat.value) return
+  
+  // TODO: Implement chat export functionality
+  console.log('Exporting current chat:', currentChat.value.id)
+  
+  // For now, create a simple text export
+  const chatData = {
+    title: currentChat.value.title,
+    messages: currentChat.value.messages,
+    exportedAt: new Date().toISOString()
+  }
+  
+  const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `chat-${currentChat.value.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const shareCurrentChat = () => {
+  showHeaderMenu.value = false
+  if (!currentChat.value) return
+  
+  // TODO: Implement chat sharing functionality
+  console.log('Sharing current chat:', currentChat.value.id)
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `Chat: ${currentChat.value.title}`,
+      text: `Check out this conversation: ${currentChat.value.title}`,
+      url: `${window.location.origin}/chat/${currentChat.value.id}`
+    }).catch(console.error)
+  } else {
+    // Fallback to clipboard
+    const shareUrl = `${window.location.origin}/chat/${currentChat.value.id}`
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      // TODO: Show toast notification
+      console.log('Share URL copied to clipboard')
+    }).catch(console.error)
+  }
+}
+
+const clearCurrentChat = () => {
+  showHeaderMenu.value = false
+  if (!currentChat.value) return
+  
+  if (confirm('Are you sure you want to clear this conversation? This cannot be undone.')) {
+    // Clear messages but keep the chat
+    currentChat.value.messages = []
+    // TODO: Update in database
+    console.log('Cleared current chat:', currentChat.value.id)
+  }
+}
+
+// Onboarding handlers
+const handleStartSampleConversation = async (sample: any) => {
+  console.log('Starting sample conversation:', sample)
+  
+  // Create a new chat for the sample
+  const newChat = await chatStore.createChat()
+  
+  // Add the sample conversation
+  await chatStore.addMessage({
+    role: 'user',
+    content: sample.prompt
+  })
+  
+  // Add a pre-written AI response to demonstrate the interface
+  const sampleResponses = {
+    'code-review': `I'd be happy to help you review your JavaScript code! Here are some general best practices to keep in mind:
+
+## Code Review Checklist
+
+**1. Readability & Structure**
+- Use meaningful variable and function names
+- Keep functions small and focused (single responsibility)
+- Add comments for complex logic
+
+**2. Performance Considerations**
+- Avoid unnecessary nested loops
+- Use efficient data structures
+- Consider memory usage for large datasets
+
+**3. Security**
+- Validate all inputs
+- Avoid eval() and similar dangerous functions
+- Sanitize user data before processing
+
+**4. Error Handling**
+- Use try-catch blocks appropriately
+- Provide meaningful error messages
+- Handle edge cases gracefully
+
+Feel free to share your specific code, and I'll provide detailed feedback and suggestions!`,
+
+    'content-writing': `I'd love to help you create an engaging blog post about sustainable technology! Here's a structured approach:
+
+## Blog Post Outline: "The Green Tech Revolution"
+
+**Hook Opening:**
+"What if the technology saving our planet was also revolutionizing how we live and work?"
+
+**Key Sections:**
+1. **Current State of Sustainable Tech**
+   - Solar panel efficiency breakthroughs
+   - Battery technology advances
+   - Smart grid innovations
+
+2. **Emerging Innovations**
+   - Carbon capture solutions
+   - Green hydrogen production
+   - Sustainable manufacturing processes
+
+3. **Real-World Impact**
+   - Case studies from leading companies
+   - Economic benefits and job creation
+   - Environmental impact metrics
+
+4. **Future Outlook**
+   - Predictions for next 5-10 years
+   - Investment trends and opportunities
+
+Would you like me to elaborate on any of these sections or adjust the focus?`,
+
+    'data-analysis': `Here's an analysis of key AI development trends over the past year:
+
+## Major AI Trends in 2024
+
+**🚀 Breakthrough Developments:**
+
+1. **Large Language Models Evolution**
+   - GPT-4 and competitors reaching new capabilities
+   - Multimodal AI (text, image, code integration)
+   - Improved reasoning and context understanding
+
+2. **AI Democratization**
+   - Open-source model releases (Llama 2, Claude)
+   - Lower-cost inference options
+   - No-code AI development tools
+
+3. **Enterprise Adoption Acceleration**
+   - 73% of companies now using AI in some capacity
+   - Focus on practical, ROI-driven implementations
+   - Integration with existing business workflows
+
+4. **Regulatory Framework Development**
+   - EU AI Act implementation
+   - Industry self-regulation initiatives
+   - Ethics and safety standards emerging
+
+**📊 Key Statistics:**
+- $50B+ invested in AI startups
+- 40% improvement in model efficiency
+- 3x faster deployment times
+
+Would you like me to dive deeper into any specific trend or analyze particular aspects?`,
+
+    'learning': `I'd be happy to explain quantum computing in simple terms! Let's break it down step by step:
+
+## Quantum Computing Simplified
+
+**🔬 Classical vs Quantum Bits**
+
+**Classical bits:** Like light switches - either ON (1) or OFF (0)
+**Quantum bits (qubits):** Like spinning coins - can be both heads AND tails simultaneously!
+
+**🌟 Key Concepts**
+
+1. **Superposition**
+   - Think of a coin spinning in the air
+   - Until it lands, it's both heads and tails
+   - Qubits can be in multiple states at once
+
+2. **Entanglement**
+   - Imagine two magic coins that always land together
+   - When one shows heads, the other instantly shows tails
+   - Qubits can be mysteriously connected across distances
+
+3. **Quantum Advantage**
+   - Classical computers check one path at a time
+   - Quantum computers explore many paths simultaneously
+   - Like having a super-fast maze solver
+
+**🎯 Real-World Applications:**
+- **Drug Discovery:** Finding new medicines faster
+- **Financial Modeling:** Better risk analysis
+- **Cryptography:** Ultra-secure communications
+- **Weather Prediction:** More accurate forecasting
+
+**🚧 Current Limitations:**
+- Very fragile (needs extreme cold)
+- High error rates
+- Limited practical applications (for now)
+
+What specific aspect would you like me to explain further?`
+  }
+  
+  // Add the sample AI response
+  setTimeout(async () => {
+    await chatStore.addMessage({
+      role: 'assistant',
+      content: sampleResponses[sample.id as keyof typeof sampleResponses] || 
+               `Thanks for that interesting question about "${sample.title}"! I'd be happy to help you explore this topic further. What specific aspects would you like to focus on?`
+    })
+    
+    // Scroll to show the conversation
+    await nextTick()
+    scrollToBottom()
+  }, 1000)
+}
+
+const handleOnboardingComplete = () => {
+  console.log('Onboarding completed')
+  // Any additional setup can be done here
 }
 </script>
 

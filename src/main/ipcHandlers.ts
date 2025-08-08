@@ -8,6 +8,7 @@ import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
+import { InputValidator, rateLimit, auditLog } from './security/InputValidator'
 
 export function registerIPCHandlers(
   db: LocalDatabase,
@@ -32,6 +33,9 @@ export function registerIPCHandlers(
   // LLM Summary generation handler
   ipcMain.handle('llm:generate-summary', async (_, prompt: string) => {
     try {
+      // Validate and sanitize input
+      const validatedPrompt = InputValidator.validateLLMPrompt(prompt)
+      
       // Check if LLM is configured
       if (!llmManager.isConfigured()) {
         throw new Error('No LLM provider configured')
@@ -44,7 +48,7 @@ export function registerIPCHandlers(
       
       // Send message through llmManager
       await llmManager.sendMessage(
-        prompt,
+        validatedPrompt,
         tempChatId,
         undefined,
         (chunk) => {
@@ -75,7 +79,8 @@ export function registerIPCHandlers(
   })
 
   ipcMain.handle('mcp:disconnect', async (_, name) => {
-    await mcpManager.disconnectServer(name)
+    const validatedName = InputValidator.validateServerName(name)
+    await mcpManager.disconnectServer(validatedName)
   })
 
   ipcMain.handle('mcp:get-tools', () => {
@@ -83,7 +88,8 @@ export function registerIPCHandlers(
   })
 
   ipcMain.handle('mcp:call-tool', async (_, toolName, args) => {
-    return mcpManager.callTool(toolName, args)
+    const validatedToolCall = InputValidator.validateMCPToolCall({ toolName, args })
+    return mcpManager.callTool(validatedToolCall.toolName, validatedToolCall.args)
   })
 
   // Plugin handlers
@@ -100,28 +106,34 @@ export function registerIPCHandlers(
   })
 
   ipcMain.handle('plugins:enable', async (_, pluginId: string) => {
-    await pluginManager.activatePlugin(pluginId)
+    const validatedPluginId = InputValidator.validatePluginId(pluginId)
+    await pluginManager.activatePlugin(validatedPluginId)
   })
 
   ipcMain.handle('plugins:disable', async (_, pluginId: string) => {
-    await pluginManager.deactivatePlugin(pluginId)
+    const validatedPluginId = InputValidator.validatePluginId(pluginId)
+    await pluginManager.deactivatePlugin(validatedPluginId)
   })
 
-  // Database handlers
+  // Database handlers with input validation
   ipcMain.handle('db:create-chat', async (_, chat) => {
-    db.createChat(chat)
+    const validatedChat = InputValidator.validateChatInput(chat)
+    db.createChat(validatedChat)
   })
 
   ipcMain.handle('db:update-chat', async (_, id, title, updated_at) => {
-    db.updateChat(id, title, updated_at)
+    const validatedUpdate = InputValidator.validateChatInput({ id, title, updated_at, created_at: Date.now() })
+    db.updateChat(validatedUpdate.id, validatedUpdate.title, validatedUpdate.updated_at)
   })
 
   ipcMain.handle('db:delete-chat', async (_, id) => {
-    db.deleteChat(id)
+    const validatedId = InputValidator.validatePluginId(id) // Reuse SafeID validation
+    db.deleteChat(validatedId)
   })
 
   ipcMain.handle('db:get-chat', async (_, id) => {
-    return db.getChat(id)
+    const validatedId = InputValidator.validatePluginId(id)
+    return db.getChat(validatedId)
   })
 
   ipcMain.handle('db:get-all-chats', async () => {
@@ -129,19 +141,29 @@ export function registerIPCHandlers(
   })
 
   ipcMain.handle('db:create-message', async (_, message) => {
-    db.createMessage(message)
+    const validatedMessage = InputValidator.validateMessageInput(message)
+    db.createMessage(validatedMessage)
   })
 
   ipcMain.handle('db:update-message', async (_, messageId, content) => {
-    db.updateMessage(messageId, content)
+    const validatedUpdate = InputValidator.validateMessageInput({ 
+      id: messageId, 
+      chatId: 'temp', 
+      role: 'user', 
+      content, 
+      timestamp: Date.now() 
+    })
+    db.updateMessage(validatedUpdate.id, validatedUpdate.content)
   })
 
   ipcMain.handle('db:get-messages', async (_, chatId) => {
-    return db.getMessages(chatId)
+    const validatedChatId = InputValidator.validatePluginId(chatId)
+    return db.getMessages(validatedChatId)
   })
 
   ipcMain.handle('db:search-chats', async (_, query) => {
-    return db.searchChats(query)
+    const validatedQuery = InputValidator.validateSearchInput({ query })
+    return db.searchChats(validatedQuery.query)
   })
 
   // Summary handlers

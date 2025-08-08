@@ -26,7 +26,7 @@ export class AnalyticsService {
     }
 
     try {
-      const data = await window.electronAPI.generateAnalytics(filter)
+      const data = await window.api.db.generateAnalytics(filter)
       
       // Cache the result
       this.cache.set(cacheKey, {
@@ -51,7 +51,7 @@ export class AnalyticsService {
     averagePerDay: number
   }> {
     try {
-      return await window.electronAPI.getAnalyticsSummary(timeRange)
+      return await window.api.db.getAnalyticsSummary(timeRange)
     } catch (error) {
       console.error('Failed to get analytics summary:', error)
       throw new Error(`Failed to get analytics summary: ${error}`)

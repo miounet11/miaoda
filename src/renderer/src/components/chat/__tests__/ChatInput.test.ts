@@ -85,7 +85,7 @@ describe('ChatInput', () => {
       })
 
       expect(wrapper.find('textarea').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="send-button"]').exists()).toBe(true)
+      expect(wrapper.find('.send-btn').exists()).toBe(true)
     })
 
     it('shows configuration prompt when not configured', () => {
@@ -96,8 +96,8 @@ describe('ChatInput', () => {
         }
       })
 
-      expect(wrapper.find('.config-prompt').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Configure your LLM')
+      expect(wrapper.find('.config-warning').exists()).toBe(true)
+      expect(wrapper.text()).toContain('Please configure an LLM provider')
     })
 
     it('disables input when disabled prop is true', () => {

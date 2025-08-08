@@ -85,7 +85,9 @@ Object.defineProperty(navigator, 'clipboard', {
   value: {
     writeText: vi.fn().mockResolvedValue(undefined),
     readText: vi.fn().mockResolvedValue('')
-  }
+  },
+  configurable: true,
+  writable: true
 })
 
 // Mock IntersectionObserver

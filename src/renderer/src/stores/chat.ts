@@ -217,8 +217,8 @@ export const useChatStore = defineStore('chat', () => {
     await window.api.db.createChat({
       id: newChat.id,
       title: newChat.title,
-      created_at: now.toISOString(),
-      updated_at: now.toISOString()
+      created_at: now.getTime(),
+      updated_at: now.getTime()
     })
     
     chats.value.unshift(newChat)

@@ -190,13 +190,13 @@ export class DatabasePerformanceOptimizer {
     return {
       all: (...params: any[]): T[] => {
         const startTime = performance.now()
-        const result = originalAll(...params)
+        const result = originalAll(...params) as T[]
         this.recordMetrics(sql, performance.now() - startTime, false)
         return result
       },
       get: (...params: any[]): T | undefined => {
         const startTime = performance.now()
-        const result = originalGet(...params)
+        const result = originalGet(...params) as T | undefined
         this.recordMetrics(sql, performance.now() - startTime, false)
         return result
       },
@@ -206,7 +206,11 @@ export class DatabasePerformanceOptimizer {
         this.recordMetrics(sql, performance.now() - startTime, false)
         return result
       },
-      finalize: stmt.finalize.bind(stmt)
+      finalize: () => {
+        if ('finalize' in stmt) {
+          (stmt as any).finalize()
+        }
+      }
     }
   }
 
@@ -225,7 +229,7 @@ export class DatabasePerformanceOptimizer {
       
       try {
         // Get all indexes
-        const indexes = this.db.prepare("SELECT name, sql FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%'").all() as Array<{ name: string; sql: string }>
+        // const _indexes = this.db.prepare("SELECT name, sql FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%'").all() as Array<{ name: string; sql: string }>
         
         // Get query plan for slow queries
         for (const [sql, metrics] of this.queryMetrics.entries()) {
@@ -273,7 +277,7 @@ export class DatabasePerformanceOptimizer {
       const ftsIntegrityCheck = this.db.prepare("INSERT INTO messages_fts(messages_fts) VALUES('integrity-check')").run()
       
       // Check FTS statistics
-      const ftsStats = this.db.prepare("SELECT * FROM messages_fts WHERE messages_fts MATCH 'optimize'").all()
+      // const _ftsStats = this.db.prepare("SELECT * FROM messages_fts WHERE messages_fts MATCH 'optimize'").all()
       
       return {
         needsOptimization: false, // Simplified check
@@ -363,7 +367,7 @@ export class DatabasePerformanceOptimizer {
   /**
    * Cache query result
    */
-  private cacheResult(key: string, result: any, expiry?: number): void {
+  private cacheResult(key: string, result: any, _expiry?: number): void {
     // Clean cache if it's getting too large
     if (this.queryCache.size >= this.settings.maxCacheSize) {
       this.cleanupCache()

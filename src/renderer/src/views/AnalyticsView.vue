@@ -3,13 +3,26 @@
     <!-- Header -->
     <div class="analytics-header">
       <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Analytics Dashboard
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">
-            Comprehensive insights into your chat activity and usage patterns
-          </p>
+        <div class="flex items-start gap-4">
+          <!-- Back Button -->
+          <button
+            @click="$router.push('/')"
+            class="mt-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            title="Back to Chat"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Analytics Dashboard
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              Comprehensive insights into your chat activity and usage patterns
+            </p>
+          </div>
         </div>
 
         <div class="flex items-center gap-3">

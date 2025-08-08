@@ -4,13 +4,12 @@ import { join } from 'path'
 import { mkdirSync, existsSync } from 'fs'
 import type { 
   SearchQuery, 
-  SearchResult, 
-  SearchMatch,
-  DBSearchResult,
-  SearchFilters,
-  SearchOptions
+  SearchResult
 } from './searchTypes'
-import type { ChatRecord, MessageRecord, SearchIndex } from './types'
+import type { ChatRecord, MessageRecord } from './types'
+
+// Re-export types for external use
+export type { ChatRecord, MessageRecord } from './types'
 import { ChatService } from './ChatService'
 import { MessageService } from './MessageService'
 import { SearchService } from './SearchService'
@@ -27,15 +26,15 @@ import { VectorDatabase } from './VectorDatabase'
  * Refactored to reduce complexity and improve maintainability
  */
 export class LocalDatabase {
-  private db: Database.Database
-  private chatService: ChatService
-  private messageService: MessageService
-  private searchService: SearchService
-  private summaryService: SummaryService
-  private analyticsService: AnalyticsService
-  private semanticSearchService: SemanticSearchService
-  private vectorDatabase: VectorDatabase
-  private initializer: DatabaseInitializer
+  private db!: Database.Database
+  private chatService!: ChatService
+  private messageService!: MessageService
+  private searchService!: SearchService
+  private summaryService!: SummaryService
+  private analyticsService!: AnalyticsService
+  private semanticSearchService!: SemanticSearchService
+  private vectorDatabase!: VectorDatabase
+  private initializer!: DatabaseInitializer
 
   constructor() {
     const userDataPath = app.getPath('userData')

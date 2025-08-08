@@ -27,6 +27,36 @@ export function useErrorHandler() {
     })
   }
 
+  const handleWarning = (message: string, context = 'Warning') => {
+    showError({
+      title: context,
+      message,
+      severity: 'warning'
+    })
+  }
+
+  const handleInfo = (message: string, context = 'Info') => {
+    showError({
+      title: context,
+      message,
+      severity: 'info'
+    })
+  }
+
+  const handleSuccess = (message: string, context = 'Success') => {
+    showError({
+      title: context,
+      message,
+      severity: 'info'
+    })
+  }
+
+  const clearErrors = () => {
+    if (errorToastInstance && typeof errorToastInstance.clearAll === 'function') {
+      errorToastInstance.clearAll()
+    }
+  }
+
   const handleError = (error: unknown, context?: string) => {
     console.error(context ? `Error in ${context}:` : 'Error:', error)
     
@@ -104,6 +134,10 @@ export function useErrorHandler() {
     showError,
     showSuccess,
     handleError,
+    handleWarning,
+    handleInfo,
+    handleSuccess,
+    clearErrors,
     withErrorHandler,
     withRetry,
     isRetrying

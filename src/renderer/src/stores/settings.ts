@@ -37,6 +37,10 @@ export const useSettingsStore = defineStore('settings', () => {
   const analytics = ref(false)
   const saveConversations = ref(true)
   const encryptData = ref(false)
+  const sendAnalytics = ref(false)
+  const shareUsageData = ref(false)
+  const storeChatHistory = ref(true)
+  const allowAutoUpdates = ref(true)
   
   // Voice Settings
   const voiceEnabled = ref(false)
@@ -118,7 +122,11 @@ export const useSettingsStore = defineStore('settings', () => {
     crashReporting: crashReporting.value,
     analytics: analytics.value,
     saveConversations: saveConversations.value,
-    encryptData: encryptData.value
+    encryptData: encryptData.value,
+    sendAnalytics: sendAnalytics.value,
+    shareUsageData: shareUsageData.value,
+    storeChatHistory: storeChatHistory.value,
+    allowAutoUpdates: allowAutoUpdates.value
   }))
   
   const voiceSettings = computed(() => ({

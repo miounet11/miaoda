@@ -1,19 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import { useChat } from '../useChat'
 import type { Chat, Message } from '@renderer/src/types'
 
 // Mock window.api
 const mockApi = {
-  chat: {
-    getChats: vi.fn(),
+  db: {
+    getAllChats: vi.fn(),
     createChat: vi.fn(),
     updateChat: vi.fn(),
     deleteChat: vi.fn(),
     getMessages: vi.fn(),
-    sendMessage: vi.fn(),
-    deleteMessage: vi.fn(),
-    exportChat: vi.fn()
-  }
+    createMessage: vi.fn(),
+    updateMessage: vi.fn(),
+    deleteMessage: vi.fn()
+  },
+  llm: {
+    sendMessage: vi.fn()
+  },
+  on: vi.fn()
 }
 
 Object.defineProperty(window, 'api', {
@@ -57,17 +62,22 @@ const mockMessages: Message[] = [
 
 describe('useChat', () => {
   beforeEach(() => {
+    // Create fresh Pinia instance for each test
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    
     vi.clearAllMocks()
-    mockApi.chat.getChats.mockResolvedValue(mockChats)
-    mockApi.chat.getMessages.mockResolvedValue(mockMessages)
-    mockApi.chat.createChat.mockResolvedValue('new-chat-id')
-    mockApi.chat.sendMessage.mockResolvedValue({
+    mockApi.db.getAllChats.mockResolvedValue(mockChats)
+    mockApi.db.getMessages.mockResolvedValue(mockMessages)
+    mockApi.db.createChat.mockResolvedValue('new-chat-id')
+    mockApi.db.createMessage.mockResolvedValue({
       id: 'new-msg-id',
       content: 'Response message',
       role: 'assistant',
       timestamp: new Date(),
       chatId: 'chat1'
     })
+    mockApi.llm.sendMessage.mockResolvedValue('Assistant response')
   })
 
   describe('Initialization', () => {
@@ -77,7 +87,7 @@ describe('useChat', () => {
       // Wait for async initialization
       await new Promise(resolve => setTimeout(resolve, 0))
       
-      expect(mockApi.chat.getChats).toHaveBeenCalled()
+      expect(mockApi.db.getAllChats).toHaveBeenCalled()
       expect(chats.value).toEqual(mockChats)
     })
 
