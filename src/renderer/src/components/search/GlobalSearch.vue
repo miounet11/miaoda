@@ -164,6 +164,7 @@ import {
   Maximize2, Minimize2
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import { debounce } from '@renderer/src/utils/performance'
 import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
 import type { SearchResult, SearchStats } from '@main/db/searchTypes'
 import MessageSearch from './MessageSearch.vue'
@@ -197,8 +198,18 @@ const isFullscreen = ref(props.fullscreenByDefault)
 const showStats = ref(false)
 const showKeyboardHelp = ref(false)
 
-// Search state
+// Enhanced search state with performance tracking
 const searchResults = ref<SearchResult[]>([])
+const searchQuery = ref('')
+const isSearching = ref(false)
+const searchError = ref<string | null>(null)
+const searchCache = ref(new Map<string, { results: SearchResult[], timestamp: number }>())
+const searchPerformance = ref({
+  searchStartTime: 0,
+  lastSearchTime: 0,
+  averageSearchTime: 0,
+  searchCount: 0
+})
 const searchStats = ref<SearchStats>({
   totalMessages: 0,
   indexedMessages: 0,
@@ -288,14 +299,69 @@ const onChatClick = (chatId: string) => {
   }
 }
 
-const onSearchComplete = (results: SearchResult[]) => {
+const onSearchComplete = (results: SearchResult[], query?: string, searchTime?: number) => {
   searchResults.value = results
+  isSearching.value = false
+  searchError.value = null
+  
+  // Update performance metrics
+  if (searchTime !== undefined) {
+    updateSearchPerformance(searchTime)
+  }
+  
+  // Cache results for faster subsequent access
+  if (query && query.trim()) {
+    searchCache.value.set(query.toLowerCase().trim(), {
+      results: [...results],
+      timestamp: Date.now()
+    })
+    
+    // Limit cache size
+    if (searchCache.value.size > 50) {
+      const entries = Array.from(searchCache.value.entries())
+      searchCache.value.clear()
+      // Keep most recent 25 entries
+      entries.slice(-25).forEach(([k, v]) => searchCache.value.set(k, v))
+    }
+  }
+  
   updateStats()
+  
+  // Announce results for accessibility
+  announceSearchResults(results.length)
+}
+
+const updateSearchPerformance = (searchTime: number) => {
+  searchPerformance.value.lastSearchTime = searchTime
+  searchPerformance.value.searchCount++
+  
+  // Calculate rolling average
+  const currentAvg = searchPerformance.value.averageSearchTime
+  const count = searchPerformance.value.searchCount
+  searchPerformance.value.averageSearchTime = 
+    (currentAvg * (count - 1) + searchTime) / count
+}
+
+const announceSearchResults = (count: number) => {
+  // For screen readers
+  const message = count === 0 
+    ? 'No results found' 
+    : `Found ${count} result${count !== 1 ? 's' : ''}`
+  
+  console.log(`Search announcement: ${message}`)
 }
 
 const onSearchClear = () => {
   searchResults.value = []
+  searchQuery.value = ''
+  isSearching.value = false
+  searchError.value = null
   updateStats()
+  
+  // Focus back to search input for better UX
+  nextTick(() => {
+    searchRef.value?.$refs?.searchInputRef?.focus()
+  })
 }
 
 const updateStats = async () => {

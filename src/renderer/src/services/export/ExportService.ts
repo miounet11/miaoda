@@ -2,21 +2,83 @@ import type { ChatRecord, MessageRecord } from '@renderer/src/types'
 import { searchService } from '../search/SearchService'
 import { ExportValidator } from './ExportValidator'
 import { PDFExporter } from './PDFExporter'
+import { CSVExporter } from './CSVExporter'
+import { DOCXExporter } from './DOCXExporter'
+import { ZipExporter } from './ZipExporter'
 
 export interface ExportOptions {
-  format: 'markdown' | 'json' | 'html' | 'txt' | 'pdf'
+  format: 'markdown' | 'json' | 'html' | 'txt' | 'pdf' | 'csv' | 'docx' | 'zip'
   chatId?: string
   chatIds?: string[]
   includeSystemMessages?: boolean
   includeTimestamps?: boolean
   includeMetadata?: boolean
+  includeAttachments?: boolean
   dateFrom?: Date
   dateTo?: Date
   title?: string
   author?: string
-  pdfOptions?: {
-    method: 'html2canvas' | 'direct' // PDF generation method
-  }
+  tags?: string[] // Filter by tags
+  preview?: boolean // Preview mode
+  template?: ExportTemplate // Style template
+  batchOptions?: BatchExportOptions
+  pdfOptions?: PDFExportOptions
+  csvOptions?: CSVExportOptions
+  docxOptions?: DOCXExportOptions
+  zipOptions?: ZipExportOptions
+}
+
+// Extended options for different formats
+export interface PDFExportOptions {
+  method: 'html2canvas' | 'direct'
+  theme: 'light' | 'dark' | 'auto'
+  fontSize: 'small' | 'medium' | 'large'
+  pageOrientation: 'portrait' | 'landscape'
+  margins: { top: number; right: number; bottom: number; left: number }
+  includePageNumbers: boolean
+  includeHeader: boolean
+  includeFooter: boolean
+  customCSS?: string
+}
+
+export interface CSVExportOptions {
+  delimiter: ',' | ';' | '\t'
+  includeHeaders: boolean
+  encoding: 'utf-8' | 'utf-16' | 'ascii'
+  flattenContent: boolean // Convert to single line
+}
+
+export interface DOCXExportOptions {
+  template: 'default' | 'academic' | 'business' | 'minimal'
+  fontSize: number
+  fontFamily: string
+  includeTableOfContents: boolean
+  pageBreakBetweenChats: boolean
+  customStyles?: Record<string, any>
+}
+
+export interface ZipExportOptions {
+  compression: 'none' | 'fast' | 'best'
+  includeFormats: ('markdown' | 'json' | 'html' | 'txt' | 'pdf' | 'csv' | 'docx')[]
+  separateFilePerChat: boolean
+  createFolderStructure: boolean
+}
+
+export interface BatchExportOptions {
+  maxConcurrency: number
+  chunkSize: number
+  pauseBetweenChunks: number
+  retryAttempts: number
+}
+
+export interface ExportTemplate {
+  id: string
+  name: string
+  description: string
+  css?: string
+  htmlTemplate?: string
+  variables?: Record<string, any>
+  formats: string[]
 }
 
 export interface ExportResult {
@@ -113,6 +175,15 @@ export class ExportService {
           break
         case 'pdf':
           result = await this.exportToPDF(chatData, options)
+          break
+        case 'csv':
+          result = await this.exportToCSV(chatData, options)
+          break
+        case 'docx':
+          result = await this.exportToDOCX(chatData, options)
+          break
+        case 'zip':
+          result = await this.exportToZip(chatData, options)
           break
         default:
           throw new Error(`Unsupported export format: ${options.format}`)
@@ -701,6 +772,38 @@ export class ExportService {
   }
 
   /**
+   * 导出为CSV格式
+   */
+  private async exportToCSV(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+    const csvExporter = CSVExporter.getInstance()
+    return await csvExporter.exportToCSV(chats, options)
+  }
+
+  /**
+   * 导出为Excel格式
+   */
+  private async exportToExcel(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+    const csvExporter = CSVExporter.getInstance()
+    return await csvExporter.exportToExcel(chats, options)
+  }
+
+  /**
+   * 导出为DOCX格式
+   */
+  private async exportToDOCX(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+    const docxExporter = DOCXExporter.getInstance()
+    return await docxExporter.exportToDOCX(chats, options)
+  }
+
+  /**
+   * 导出为ZIP格式
+   */
+  private async exportToZip(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+    const zipExporter = ZipExporter.getInstance()
+    return await zipExporter.exportToZip(chats, options)
+  }
+
+  /**
    * HTML转义
    */
   private escapeHtml(text: string): string {
@@ -718,15 +821,33 @@ export class ExportService {
    * 下载文件
    */
   downloadFile(result: ExportResult): void {
-    // Special handling for PDF files with data URI
-    if (result.mimeType === 'application/pdf' && result.content.startsWith('data:')) {
-      const pdfExporter = PDFExporter.getInstance()
-      pdfExporter.downloadPDF(result)
-      return
+    // Handle different file types with specialized downloaders
+    const format = result.filename.split('.').pop()?.toLowerCase() || ''
+    
+    // Special handling for binary formats with data URI
+    if (result.content.startsWith('data:')) {
+      switch (format) {
+        case 'pdf':
+          const pdfExporter = PDFExporter.getInstance()
+          pdfExporter.downloadPDF(result)
+          return
+        case 'xlsx':
+        case 'csv':
+          const csvExporter = CSVExporter.getInstance()
+          csvExporter.downloadFile(result)
+          return
+        case 'docx':
+          const docxExporter = DOCXExporter.getInstance()
+          docxExporter.downloadFile(result)
+          return
+        case 'zip':
+          const zipExporter = ZipExporter.getInstance()
+          zipExporter.downloadFile(result)
+          return
+      }
     }
     
     // Validate MIME type matches format
-    const format = result.filename.split('.').pop() || ''
     if (!ExportValidator.validateMimeType(format, result.mimeType)) {
       console.warn(`MIME type ${result.mimeType} doesn't match file format ${format}`)
     }
@@ -734,6 +855,7 @@ export class ExportService {
     // Sanitize filename for security
     const sanitizedFilename = ExportValidator.sanitizeFilename(result.filename)
     
+    // Default handling for text-based formats
     const blob = new Blob([result.content], { type: result.mimeType })
     const url = URL.createObjectURL(blob)
     

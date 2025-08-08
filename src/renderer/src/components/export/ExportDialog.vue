@@ -58,6 +58,33 @@
               />
               <span class="text-sm">PDF (.pdf)</span>
             </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                v-model="options.format"
+                value="csv"
+                class="text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm">CSV/Excel (.csv/.xlsx)</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                v-model="options.format"
+                value="docx"
+                class="text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm">Word Document (.docx)</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                v-model="options.format"
+                value="zip"
+                class="text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm">ZIP Archive (multiple formats)</span>
+            </label>
           </div>
           
           <!-- PDF Options -->
@@ -81,6 +108,102 @@
                   class="text-blue-600 focus:ring-blue-500"
                 />
                 <span class="text-xs">HTML Canvas (Slower, better for formatting)</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- CSV Options -->
+          <div v-if="options.format === 'csv'" class="ml-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <label class="text-xs font-medium text-green-800 dark:text-green-200 mb-2 block">CSV Export Options:</label>
+            <div class="space-y-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="csvOptions.includeHeaders"
+                  class="text-green-600 focus:ring-green-500"
+                />
+                <span class="text-xs">Include column headers</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="csvOptions.flattenContent"
+                  class="text-green-600 focus:ring-green-500"
+                />
+                <span class="text-xs">Flatten multiline content</span>
+              </label>
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-green-700 dark:text-green-300">Format:</label>
+                <select v-model="csvFormat" class="text-xs border rounded px-1 bg-white dark:bg-gray-700">
+                  <option value="csv">CSV (.csv)</option>
+                  <option value="excel">Excel (.xlsx)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- DOCX Options -->
+          <div v-if="options.format === 'docx'" class="ml-4 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <label class="text-xs font-medium text-purple-800 dark:text-purple-200 mb-2 block">Word Document Options:</label>
+            <div class="space-y-2">
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-purple-700 dark:text-purple-300">Template:</label>
+                <select v-model="docxTemplate" class="text-xs border rounded px-1 bg-white dark:bg-gray-700">
+                  <option value="default">Default</option>
+                  <option value="academic">Academic</option>
+                  <option value="business">Business</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </div>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="docxOptions.includeTableOfContents"
+                  class="text-purple-600 focus:ring-purple-500"
+                />
+                <span class="text-xs">Include table of contents</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="docxOptions.pageBreakBetweenChats"
+                  class="text-purple-600 focus:ring-purple-500"
+                />
+                <span class="text-xs">Page break between chats</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- ZIP Options -->
+          <div v-if="options.format === 'zip'" class="ml-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+            <label class="text-xs font-medium text-orange-800 dark:text-orange-200 mb-2 block">ZIP Archive Options:</label>
+            <div class="space-y-2">
+              <div class="text-xs text-orange-700 dark:text-orange-300 mb-2">Include formats:</div>
+              <div class="grid grid-cols-2 gap-1">
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="checkbox" v-model="zipFormats" value="markdown" class="text-orange-600 focus:ring-orange-500" />
+                  <span class="text-xs">Markdown</span>
+                </label>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="checkbox" v-model="zipFormats" value="html" class="text-orange-600 focus:ring-orange-500" />
+                  <span class="text-xs">HTML</span>
+                </label>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="checkbox" v-model="zipFormats" value="json" class="text-orange-600 focus:ring-orange-500" />
+                  <span class="text-xs">JSON</span>
+                </label>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                  <input type="checkbox" v-model="zipFormats" value="pdf" class="text-orange-600 focus:ring-orange-500" />
+                  <span class="text-xs">PDF</span>
+                </label>
+              </div>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="zipOptions.createFolderStructure"
+                  class="text-orange-600 focus:ring-orange-500"
+                />
+                <span class="text-xs">Organize in folders</span>
               </label>
             </div>
           </div>
@@ -264,7 +387,32 @@
       </div>
 
       <!-- Footer -->
-      <div class="p-6 border-t dark:border-gray-700 flex justify-end space-x-3">
+      <div class="p-6 border-t dark:border-gray-700">
+        <!-- Queue Status -->        
+        <div v-if="queueStats.total > 0" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-blue-800 dark:text-blue-200">
+              Export Queue: {{ queueStats.pending }} pending, {{ queueStats.running }} running, {{ queueStats.completed }} completed
+            </div>
+            <button
+              @click="showQueueDialog = true"
+              class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Manage Queue
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <button
+            @click="showAdvancedDialog = true"
+            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/30 rounded-lg transition-colors flex items-center space-x-2"
+          >
+            <Settings class="w-4 h-4" />
+            <span>Advanced Options</span>
+          </button>
+          
+          <div class="flex space-x-3">
         <button
           @click="$emit('update:open', false)"
           :disabled="isExporting"
@@ -272,14 +420,24 @@
         >
           Cancel
         </button>
-        <button
-          @click="handleExport"
-          :disabled="isExporting || !canExport"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
-        >
-          <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          <span>{{ isExporting ? 'Exporting...' : 'Export' }}</span>
-        </button>
+          <button
+            @click="addToQueue"
+            :disabled="!canExport"
+            class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+          >
+            <Plus class="w-4 h-4" />
+            <span>Add to Queue</span>
+          </button>
+          <button
+            @click="handleExport"
+            :disabled="isExporting || !canExport"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+          >
+            <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
+          </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -328,13 +486,28 @@
     :error="exportError"
     @retry="retryExport"
   />
+  
+  <!-- Advanced Export Dialog -->
+  <AdvancedExportDialog 
+    v-model:open="showAdvancedDialog" 
+    :currentChatId="currentChatId"
+  />
+  
+  <!-- Export Queue Dialog -->
+  <ExportQueueDialog 
+    v-model:open="showQueueDialog"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { Settings, Plus } from 'lucide-vue-next'
 import { exportService, type ExportOptions, type ExportResult, type ExportProgress } from '@renderer/src/services/export/ExportService'
+import { exportQueue, type QueueStats } from '@renderer/src/services/export/ExportQueue'
 import type { ChatRecord } from '@renderer/src/types'
 import ExportErrorDialog from './ExportErrorDialog.vue'
+import AdvancedExportDialog from './AdvancedExportDialog.vue'
+import ExportQueueDialog from './ExportQueueDialog.vue'
 
 interface Props {
   open: boolean
@@ -384,6 +557,36 @@ const exportError = ref<{
   type?: string
 } | null>(null)
 const pdfMethod = ref<'direct' | 'html2canvas'>('direct')
+const csvFormat = ref<'csv' | 'excel'>('csv')
+const docxTemplate = ref<'default' | 'academic' | 'business' | 'minimal'>('default')
+const zipFormats = ref<string[]>(['markdown', 'html', 'json'])
+
+// Format-specific options
+const csvOptions = ref({
+  includeHeaders: true,
+  flattenContent: false
+})
+
+const docxOptions = ref({
+  includeTableOfContents: true,
+  pageBreakBetweenChats: true
+})
+
+const zipOptions = ref({
+  createFolderStructure: true
+})
+
+// Dialog states
+const showAdvancedDialog = ref(false)
+const showQueueDialog = ref(false)
+const queueStats = ref<QueueStats>({
+  total: 0,
+  pending: 0,
+  running: 0,
+  completed: 0,
+  failed: 0,
+  cancelled: 0
+})
 
 // Computed
 const canExport = computed(() => {
@@ -457,13 +660,56 @@ const handleExport = async () => {
       dateFrom: useTimeFilter.value && dateFrom.value ? new Date(dateFrom.value) : undefined,
       dateTo: useTimeFilter.value && dateTo.value ? new Date(dateTo.value + 'T23:59:59') : undefined,
       pdfOptions: options.value.format === 'pdf' ? {
-        method: pdfMethod.value
+        method: pdfMethod.value,
+        theme: 'light',
+        fontSize: 'medium',
+        pageOrientation: 'portrait',
+        margins: { top: 72, right: 72, bottom: 72, left: 72 },
+        includePageNumbers: true,
+        includeHeader: true,
+        includeFooter: true
+      } : undefined,
+      csvOptions: options.value.format === 'csv' ? {
+        delimiter: ',',
+        includeHeaders: csvOptions.value.includeHeaders,
+        encoding: 'utf-8',
+        flattenContent: csvOptions.value.flattenContent
+      } : undefined,
+      docxOptions: options.value.format === 'docx' ? {
+        template: docxTemplate.value,
+        fontSize: 22,
+        fontFamily: 'Calibri',
+        includeTableOfContents: docxOptions.value.includeTableOfContents,
+        pageBreakBetweenChats: docxOptions.value.pageBreakBetweenChats
+      } : undefined,
+      zipOptions: options.value.format === 'zip' ? {
+        compression: 'best',
+        includeFormats: zipFormats.value as any[],
+        separateFilePerChat: false,
+        createFolderStructure: zipOptions.value.createFolderStructure
       } : undefined
     }
+    
+    // Handle CSV vs Excel format selection
+    if (options.value.format === 'csv' && csvFormat.value === 'excel') {
+      // Override format for Excel export
+      exportOptions.format = 'csv' // Will be handled by CSVExporter.exportToExcel
+      exportOptions.csvOptions = {
+        ...exportOptions.csvOptions!,
+        delimiter: ',', // Excel will ignore delimiter but keep for consistency
+      }
+    }
 
+    // For Excel format, we'll modify the filename after export
     const result = await exportService.exportChats(exportOptions, (progress) => {
       exportProgress.value = progress
     })
+    
+    // Handle Excel format filename change
+    if (options.value.format === 'csv' && csvFormat.value === 'excel') {
+      result.filename = result.filename.replace('.csv', '.xlsx')
+      result.mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }
     
     // Download the file
     exportService.downloadFile(result)
@@ -495,6 +741,62 @@ const retryExport = () => {
   handleExport()
 }
 
+// Add to queue functionality
+const addToQueue = () => {
+  if (!canExport.value) return
+
+  const exportOptions: ExportOptions = {
+    ...options.value,
+    chatId: exportScope.value === 'current' ? props.currentChatId : undefined,
+    chatIds: exportScope.value === 'selected' ? selectedChatIds.value : undefined,
+    dateFrom: useTimeFilter.value && dateFrom.value ? new Date(dateFrom.value) : undefined,
+    dateTo: useTimeFilter.value && dateTo.value ? new Date(dateTo.value + 'T23:59:59') : undefined,
+    pdfOptions: options.value.format === 'pdf' ? {
+      method: pdfMethod.value,
+      theme: 'light',
+      fontSize: 'medium',
+      pageOrientation: 'portrait',
+      margins: { top: 72, right: 72, bottom: 72, left: 72 },
+      includePageNumbers: true,
+      includeHeader: true,
+      includeFooter: true
+    } : undefined,
+    csvOptions: options.value.format === 'csv' ? {
+      delimiter: ',',
+      includeHeaders: csvOptions.value.includeHeaders,
+      encoding: 'utf-8',
+      flattenContent: csvOptions.value.flattenContent
+    } : undefined,
+    docxOptions: options.value.format === 'docx' ? {
+      template: docxTemplate.value,
+      fontSize: 22,
+      fontFamily: 'Calibri',
+      includeTableOfContents: docxOptions.value.includeTableOfContents,
+      pageBreakBetweenChats: docxOptions.value.pageBreakBetweenChats
+    } : undefined,
+    zipOptions: options.value.format === 'zip' ? {
+      compression: 'best',
+      includeFormats: zipFormats.value as any[],
+      separateFilePerChat: false,
+      createFolderStructure: zipOptions.value.createFolderStructure
+    } : undefined
+  }
+
+  const taskName = `${options.value.format.toUpperCase()} Export - ${
+    exportScope.value === 'current' ? 'Current Chat' :
+    exportScope.value === 'selected' ? `${selectedChatIds.value.length} Chats` :
+    'All Chats'
+  }`
+
+  exportQueue.addTask(taskName, exportOptions, 'normal')
+  updateQueueStats()
+}
+
+// Update queue statistics
+const updateQueueStats = () => {
+  queueStats.value = exportQueue.getStats()
+}
+
 // Watch for scope changes
 watch(exportScope, (newScope) => {
   if (newScope === 'selected' && availableChats.value.length === 0) {
@@ -511,6 +813,14 @@ onMounted(() => {
   } else {
     exportScope.value = 'all'
   }
+  
+  // Set up queue monitoring
+  exportQueue.setTaskCallback(async (task) => {
+    return await exportService.exportChats(task.options)
+  })
+  
+  exportQueue.addStatusCallback(updateQueueStats)
+  updateQueueStats()
 })
 </script>
 

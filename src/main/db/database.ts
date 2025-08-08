@@ -14,7 +14,12 @@ import type { ChatRecord, MessageRecord, SearchIndex } from './types'
 import { ChatService } from './ChatService'
 import { MessageService } from './MessageService'
 import { SearchService } from './SearchService'
+import { SummaryService } from './SummaryService'
+import { AnalyticsService } from './AnalyticsService'
 import { DatabaseInitializer } from './DatabaseInitializer'
+import type { AnalyticsData, AnalyticsFilter } from '../../types/analytics'
+import { SemanticSearchService } from './SemanticSearchService'
+import { VectorDatabase } from './VectorDatabase'
 
 
 /**
@@ -26,6 +31,10 @@ export class LocalDatabase {
   private chatService: ChatService
   private messageService: MessageService
   private searchService: SearchService
+  private summaryService: SummaryService
+  private analyticsService: AnalyticsService
+  private semanticSearchService: SemanticSearchService
+  private vectorDatabase: VectorDatabase
   private initializer: DatabaseInitializer
 
   constructor() {
@@ -57,6 +66,10 @@ export class LocalDatabase {
     this.chatService = new ChatService(this.db)
     this.messageService = new MessageService(this.db)
     this.searchService = new SearchService(this.db)
+    this.summaryService = new SummaryService(this.db)
+    this.analyticsService = new AnalyticsService(this.db)
+    this.vectorDatabase = new VectorDatabase(this.db)
+    this.semanticSearchService = new SemanticSearchService(this.db)
     this.initializer = new DatabaseInitializer(this.db)
   }
 
@@ -130,6 +143,86 @@ export class LocalDatabase {
 
   getSearchStats(): any {
     return this.searchService.getSearchStats()
+  }
+
+  // Summary operations - delegated to SummaryService
+  updateChatSummary(chatId: string, summary: string, tags: string[], keyPoints: string[], tokens?: number): void {
+    this.summaryService.updateChatSummary(chatId, summary, tags, keyPoints, tokens)
+  }
+
+  getChatSummary(chatId: string) {
+    return this.summaryService.getChatSummary(chatId)
+  }
+
+  getAllChatsWithSummaries() {
+    return this.summaryService.getAllChatsWithSummaries()
+  }
+
+  searchChatsByTags(tags: string[]): ChatRecord[] {
+    return this.summaryService.searchChatsByTags(tags)
+  }
+
+  getAllSummaryTags(): string[] {
+    return this.summaryService.getAllSummaryTags()
+  }
+
+  clearChatSummary(chatId: string): void {
+    this.summaryService.clearChatSummary(chatId)
+  }
+
+  needsSummaryUpdate(chatId: string, minMessages?: number, maxAgeHours?: number): boolean {
+    return this.summaryService.needsSummaryUpdate(chatId, minMessages, maxAgeHours)
+  }
+
+  // Analytics operations - delegated to AnalyticsService
+  generateAnalytics(filter: AnalyticsFilter): AnalyticsData {
+    return this.analyticsService.generateAnalytics(filter)
+  }
+
+  getAnalyticsSummary(timeRange: any = '30d'): any {
+    return this.analyticsService.getAnalyticsSummary(timeRange)
+  }
+
+  // Semantic search operations - delegated to SemanticSearchService
+  async buildSemanticIndex(): Promise<{ processed: number, failed: number }> {
+    return this.semanticSearchService.buildSemanticIndex()
+  }
+
+  async semanticSearch(query: SearchQuery): Promise<SearchResult[]> {
+    return this.semanticSearchService.semanticSearch(query)
+  }
+
+  async hybridSearch(query: SearchQuery): Promise<SearchResult[]> {
+    return this.semanticSearchService.hybridSearch(query)
+  }
+
+  async findSimilarMessages(messageId: string, limit = 5): Promise<SearchResult[]> {
+    return this.semanticSearchService.findSimilarMessages(messageId, limit)
+  }
+
+  async updateMessageEmbedding(messageId: string, content: string): Promise<void> {
+    return this.semanticSearchService.updateMessageEmbedding(messageId, content)
+  }
+
+  deleteMessageEmbedding(messageId: string): void {
+    this.semanticSearchService.deleteMessageEmbedding(messageId)
+  }
+
+  getSemanticSearchStats(): any {
+    return this.semanticSearchService.getSemanticSearchStats()
+  }
+
+  // Vector database operations - delegated to VectorDatabase
+  async buildVectorIndex(): Promise<void> {
+    return this.vectorDatabase.buildIndex()
+  }
+
+  async optimizeVectorIndex(): Promise<void> {
+    return this.vectorDatabase.optimize()
+  }
+
+  getVectorIndexStats(): any {
+    return this.vectorDatabase.getIndexStats()
   }
 
   // Database cleanup

@@ -19,7 +19,20 @@ const api = {
     createMessage: (message: any) => ipcRenderer.invoke('db:create-message', message),
     updateMessage: (messageId: string, content: string) => ipcRenderer.invoke('db:update-message', messageId, content),
     getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
-    searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query)
+    searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query),
+    // Summary methods
+    updateChatSummary: (chatId: string, summary: string, tags: string[], keyPoints: string[], tokens?: number) =>
+      ipcRenderer.invoke('db:update-chat-summary', chatId, summary, tags, keyPoints, tokens),
+    getChatSummary: (chatId: string) => ipcRenderer.invoke('db:get-chat-summary', chatId),
+    getAllChatsWithSummaries: () => ipcRenderer.invoke('db:get-all-chats-with-summaries'),
+    searchChatsByTags: (tags: string[]) => ipcRenderer.invoke('db:search-chats-by-tags', tags),
+    getAllSummaryTags: () => ipcRenderer.invoke('db:get-all-summary-tags'),
+    clearChatSummary: (chatId: string) => ipcRenderer.invoke('db:clear-chat-summary', chatId),
+    needsSummaryUpdate: (chatId: string, minMessages?: number, maxAgeHours?: number) =>
+      ipcRenderer.invoke('db:needs-summary-update', chatId, minMessages, maxAgeHours),
+    // Analytics methods
+    generateAnalytics: (filter: any) => ipcRenderer.invoke('db:generate-analytics', filter),
+    getAnalyticsSummary: (timeRange?: string) => ipcRenderer.invoke('db:get-analytics-summary', timeRange)
   },
   search: {
     messages: (searchQuery: any) => ipcRenderer.invoke('search:messages', searchQuery),
@@ -69,7 +82,9 @@ const api = {
       const handler = (_: any, data: any) => callback(data)
       ipcRenderer.on('llm:tool-call', handler)
       return () => ipcRenderer.removeListener('llm:tool-call', handler)
-    }
+    },
+    // Summary generation
+    generateSummary: (prompt: string) => ipcRenderer.invoke('llm:generate-summary', prompt)
   },
   file: {
     select: () => ipcRenderer.invoke('file:select'),

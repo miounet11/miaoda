@@ -304,11 +304,12 @@ watch(() => props.items.length, (newLength, oldLength) => {
   // Efficiently clear measurements for removed items
   if (newLength < oldLength) {
     const keysToDelete: number[] = []
-    measuredHeights.value.forEach((_, index) => {
-      if (index >= newLength) {
+    // OptimizedCache doesn't have forEach, need to iterate differently
+    for (let index = newLength; index < oldLength; index++) {
+      if (measuredHeights.value.has(index)) {
         keysToDelete.push(index)
       }
-    })
+    }
     
     // Use batch deletion for better performance
     keysToDelete.forEach(key => {

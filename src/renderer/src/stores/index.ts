@@ -23,6 +23,8 @@ export type StoreState = {
   settings: ReturnType<typeof useSettingsStore>
   auth: ReturnType<typeof useAuthStore>
   customProviders: ReturnType<typeof useCustomProvidersStore>
+  analytics: ReturnType<typeof useAnalyticsStore>
+  recommendation: ReturnType<typeof useRecommendationStore>
 }
 
 // Re-export stores
@@ -31,6 +33,8 @@ export { useUIStore } from './ui'
 export { useSettingsStore } from './settings'
 export { useAuthStore } from './auth'
 export { useCustomProvidersStore } from './customProviders'
+export { useAnalyticsStore } from './analytics'
+export { useRecommendationStore } from './recommendation'
 
 // Store composition for complex operations
 export const useStores = () => {
@@ -39,12 +43,16 @@ export const useStores = () => {
   const settings = useSettingsStore()
   const auth = useAuthStore()
   const customProviders = useCustomProvidersStore()
+  const analytics = useAnalyticsStore()
+  const recommendation = useRecommendationStore()
 
   return {
     chat,
     ui,
     settings,
     auth,
-    customProviders
+    customProviders,
+    analytics,
+    recommendation
   }
 }

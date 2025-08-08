@@ -64,6 +64,15 @@ export interface Chat {
   tags?: string[]
   archived?: boolean
   starred?: boolean
+  summary?: ChatSummary
+}
+
+export interface ChatSummary {
+  summary: string
+  tags: string[]
+  keyPoints: string[]
+  summaryUpdatedAt?: Date
+  summaryTokens?: number
 }
 
 export interface ChatSettings {
@@ -89,7 +98,36 @@ export interface QuickSuggestion {
   text: string
   category?: string
   icon?: string
-  description?: string
+}
+
+// Database record types (matching main process)
+export interface ChatRecord {
+  id: string
+  title: string
+  created_at: string
+  updated_at: string
+  tags?: string
+  archived?: number
+  starred?: number
+  settings?: string
+  summary?: string
+  summary_tags?: string
+  summary_updated_at?: string
+  summary_tokens?: number
+  key_points?: string
+}
+
+export interface MessageRecord {
+  id: string
+  chat_id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  created_at: string
+  attachments?: string
+  metadata?: string
+  parent_id?: string
+  error?: string
+  error_details?: string
 }
 
 export interface MessageDraft {

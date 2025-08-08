@@ -22,6 +22,17 @@
         </button>
       </div>
     </div>
+
+    <!-- Tag Cloud Filter -->
+    <div class="sidebar-filters p-3 border-b">
+      <TagCloud 
+        ref="tagCloud"
+        :show-when-empty="false"
+        :max-collapsed-tags="4"
+        @tags-changed="handleTagsChanged"
+        @tag-clicked="handleTagClicked"
+      />
+    </div>
     
     <!-- Chat List -->
     <div class="sidebar-content flex-1 overflow-y-auto p-2">
@@ -44,6 +55,28 @@
           <div class="flex-1 min-w-0">
             <div class="font-medium text-sm truncate">{{ chat.title }}</div>
             <div class="text-xs text-muted-foreground mt-0.5">{{ formatTime(chat.updatedAt) }}</div>
+            
+            <!-- Summary Preview -->
+            <div v-if="chat.summary" class="mt-1">
+              <p class="text-xs text-muted-foreground/80 line-clamp-1 leading-relaxed">
+                {{ chat.summary.summary }}
+              </p>
+              <div v-if="chat.summary.tags && chat.summary.tags.length > 0" class="flex flex-wrap gap-1 mt-1">
+                <span
+                  v-for="tag in chat.summary.tags.slice(0, 2)"
+                  :key="tag"
+                  class="inline-flex items-center px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+                >
+                  {{ tag }}
+                </span>
+                <span 
+                  v-if="chat.summary.tags.length > 2"
+                  class="inline-flex items-center px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full"
+                >
+                  +{{ chat.summary.tags.length - 2 }}
+                </span>
+              </div>
+            </div>
           </div>
           
           <!-- Context Menu Trigger -->
@@ -77,15 +110,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Plus, Settings, MessageSquare, MoreVertical } from 'lucide-vue-next'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
+import TagCloud from './TagCloud.vue'
+import type { ChatSummary } from '@renderer/src/types'
 
 interface Chat {
   id: string
   title: string
   updatedAt: Date
   messageCount?: number
+  summary?: ChatSummary
 }
 
 interface Props {
@@ -97,13 +133,18 @@ interface Props {
 
 const props = defineProps<Props>()
 
-defineEmits<{
+const emit = defineEmits<{
   'new-chat': []
   'select-chat': [chatId: string]
   'open-settings': []
   'show-context-menu': [chatId: string, event: MouseEvent]
   'clear-all': []
+  'filter-by-tags': [tags: string[]]
+  'tag-selected': [tag: string]
 }>()
+
+// Refs
+const tagCloud = ref<InstanceType<typeof TagCloud> | null>(null)
 
 const sidebarClasses = computed(() => ({
   'fixed top-0 left-0 h-full md:relative md:translate-x-0': props.isMobile,
@@ -114,6 +155,27 @@ const sidebarClasses = computed(() => ({
 const formatTime = (date: Date) => {
   return formatDistanceToNow(date)
 }
+
+// Tag handling
+const handleTagsChanged = (selectedTags: string[]) => {
+  emit('filter-by-tags', selectedTags)
+}
+
+const handleTagClicked = (tag: string) => {
+  emit('tag-selected', tag)
+}
+
+// Methods to refresh tag cloud when chats are updated
+const refreshTagCloud = () => {
+  if (tagCloud.value) {
+    tagCloud.value.refreshTags()
+  }
+}
+
+// Expose methods for parent components
+defineExpose({
+  refreshTagCloud
+})
 </script>
 
 <style scoped>
@@ -166,6 +228,14 @@ const formatTime = (date: Date) => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Text truncation */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Focus states for accessibility */

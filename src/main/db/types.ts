@@ -11,6 +11,11 @@ export interface ChatRecord {
   archived?: number
   starred?: number
   settings?: string
+  summary?: string
+  summary_tags?: string
+  summary_updated_at?: string
+  summary_tokens?: number
+  key_points?: string
 }
 
 export interface MessageRecord {

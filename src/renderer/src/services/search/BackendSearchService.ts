@@ -128,6 +128,270 @@ export class BackendSearchService {
   }
 
   /**
+   * Build semantic search index
+   */
+  async buildSemanticIndex(): Promise<{ processed: number, failed: number }> {
+    try {
+      return await window.api.search?.buildSemanticIndex?.() || { processed: 0, failed: 0 }
+    } catch (error) {
+      console.error('Failed to build semantic index:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Perform semantic search
+   */
+  async semanticSearch(query: SearchQuery): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.semantic?.(query)
+      
+      if (!results) return []
+
+      // Convert date strings to Date objects
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Semantic search failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Perform hybrid search (combines semantic and lexical)
+   */
+  async hybridSearch(query: SearchQuery): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.hybrid?.(query)
+      
+      if (!results) return await this.searchMessages(query)
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Hybrid search failed:', error)
+      // Fallback to regular search
+      return await this.searchMessages(query)
+    }
+  }
+
+  /**
+   * Find similar messages
+   */
+  async findSimilarMessages(messageId: string, limit = 5): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.findSimilar?.(messageId, limit)
+      
+      if (!results) return []
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Failed to find similar messages:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get semantic search statistics
+   */
+  async getSemanticSearchStats(): Promise<any> {
+    try {
+      return await window.api.search?.getSemanticStats?.() || {}
+    } catch (error) {
+      console.error('Failed to get semantic search stats:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Build vector index
+   */
+  async buildVectorIndex(): Promise<void> {
+    try {
+      return await window.api.search?.buildVectorIndex?.()
+    } catch (error) {
+      console.error('Failed to build vector index:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Optimize vector index
+   */
+  async optimizeVectorIndex(): Promise<void> {
+    try {
+      return await window.api.search?.optimizeVectorIndex?.()
+    } catch (error) {
+      console.error('Failed to optimize vector index:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get vector index statistics
+   */
+  async getVectorIndexStats(): Promise<any> {
+    try {
+      return await window.api.search?.getVectorStats?.() || {}
+    } catch (error) {
+      console.error('Failed to get vector index stats:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Perform multimodal search
+   */
+  async multimodalSearch(query: SearchQuery): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.multimodal?.(query)
+      
+      if (!results) return []
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Multimodal search failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Search in images (OCR and descriptions)
+   */
+  async searchImages(query: string, options: { useOCR?: boolean, useDescriptions?: boolean } = {}): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.images?.(query, options)
+      
+      if (!results) return []
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Image search failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Search in documents
+   */
+  async searchDocuments(query: string): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.documents?.(query)
+      
+      if (!results) return []
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Document search failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Search in audio transcripts
+   */
+  async searchAudio(query: string): Promise<SearchResult[]> {
+    try {
+      const results = await window.api.search?.audio?.(query)
+      
+      if (!results) return []
+
+      return results.map(result => ({
+        ...result,
+        message: {
+          ...result.message,
+          timestamp: new Date(result.message.timestamp)
+        }
+      }))
+    } catch (error) {
+      console.error('Audio search failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get multimodal search statistics
+   */
+  async getMultimodalSearchStats(): Promise<any> {
+    try {
+      return await window.api.search?.getMultimodalStats?.() || {}
+    } catch (error) {
+      console.error('Failed to get multimodal search stats:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get search performance analysis
+   */
+  async getPerformanceAnalysis(timeRange = '7d'): Promise<any> {
+    try {
+      return await window.api.search?.getPerformanceAnalysis?.(timeRange) || {}
+    } catch (error) {
+      console.error('Failed to get performance analysis:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get performance recommendations
+   */
+  async getPerformanceRecommendations(): Promise<any[]> {
+    try {
+      return await window.api.search?.getPerformanceRecommendations?.() || []
+    } catch (error) {
+      console.error('Failed to get performance recommendations:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Optimize search performance
+   */
+  async optimizePerformance(): Promise<any> {
+    try {
+      return await window.api.search?.optimizePerformance?.() || { optimizationsApplied: [], estimatedImprovement: 'No optimizations available' }
+    } catch (error) {
+      console.error('Failed to optimize search performance:', error)
+      throw error
+    }
+  }
+
+  /**
    * Search with advanced filters
    */
   async advancedSearch(

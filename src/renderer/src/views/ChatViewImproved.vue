@@ -96,10 +96,19 @@
       </div>
       
       <!-- 侧边栏底部 -->
-      <div class="sidebar-footer p-4 border-t border-border/50">
+      <div class="sidebar-footer p-4 border-t border-border/50 space-y-2">
+        <button
+          @click="$router.push('/analytics')"
+          class="w-full px-4 py-3 hover:bg-secondary/60 rounded-xl transition-all flex items-center gap-3 font-medium hover:scale-[1.02]"
+          :class="{ 'bg-primary/10 border border-primary/20': $route.name === 'analytics' }"
+        >
+          <BarChart3 :size="20" class="text-muted-foreground" />
+          <span v-if="!sidebarCollapsed" class="text-base">分析统计</span>
+        </button>
         <button
           @click="$router.push('/settings')"
           class="w-full px-4 py-3 hover:bg-secondary/60 rounded-xl transition-all flex items-center gap-3 font-medium hover:scale-[1.02]"
+          :class="{ 'bg-primary/10 border border-primary/20': $route.name === 'settings' }"
         >
           <Settings :size="20" class="text-muted-foreground" />
           <span v-if="!sidebarCollapsed" class="text-base">设置</span>
@@ -180,6 +189,18 @@
         </div>
       </header>
 
+      <!-- 智能摘要区域 -->
+      <div v-if="currentChat && currentChat.messages?.length > 3" class="smart-summary border-b border-border/30 px-6 py-4 bg-secondary/10">
+        <ChatSummary 
+          :chat-id="currentChat.id"
+          :messages="currentMessages"
+          :auto-generate="true"
+          :show-when-empty="false"
+          @summary-updated="handleSummaryUpdated"
+          @tag-clicked="handleTagClicked"
+        />
+      </div>
+
       <!-- 消息区域 -->
       <div 
         class="flex-1 flex flex-col min-h-0"
@@ -188,7 +209,7 @@
         @dragenter.prevent
       >
         <!-- 欢迎界面 -->
-        <div v-if="!currentChat || (!currentChat.messages.length && isInitialized.value && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
+        <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized.value && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
           <div class="text-center py-24 px-6">
             <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
               <Sparkles :size="36" class="text-primary" />
@@ -222,141 +243,27 @@
           </div>
         </div>
         
-        <!-- 增强的消息列表 -->
+        <!-- 性能优化的虚拟消息列表 -->
         <div 
           v-else-if="currentChat && currentChat.messages"
           ref="messagesContainer"
-          class="flex-1 overflow-y-auto px-4 py-6 min-h-0"
+          class="flex-1 min-h-0 relative"
           @scroll="handleMessageScroll"
         >
-          <TransitionGroup name="message">
-            <div
-              v-for="(message, index) in currentChat.messages"
-              :key="message.id"
-              :class="[
-                'message-item mb-6 transition-all duration-300',
-                { 'highlight-flash': highlightedMessageId === message.id },
-                'message-enter-viewport'
-              ]"
-              :data-message-index="index"
-            >
-              <!-- 消息容器 -->
-              <div class="group flex" :class="message.role === 'user' ? 'justify-end' : 'justify-start'">
-                <div class="flex max-w-[80%]" :class="message.role === 'user' ? 'flex-row-reverse' : 'flex-row'">
-                  <!-- 头像 -->
-                  <div class="flex-shrink-0 mx-2">
-                    <div 
-                      class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-                      :class="message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'"
-                    >
-                      <User v-if="message.role === 'user'" :size="16" />
-                      <Sparkles v-else :size="16" />
-                    </div>
-                  </div>
+          <VirtualMessageList
+            ref="virtualMessageList"
+            :messages="currentChat.messages"
+            :is-loading="isLoading"
+            :highlighted-message-id="highlightedMessageId"
+            :auto-scroll="true"
+            :container-height="messagesContainerHeight"
+            @regenerate="handleRegenerateMessage"
+            @copy="handleCopyMessage"
+            @scroll="handleVirtualScroll"
+            class="h-full"
+          />
                   
-                  <!-- 消息内容 -->
-                  <div class="flex-1 min-w-0">
-                    <!-- 回复指示器 -->
-                    <div v-if="message.replyTo" class="mb-2 px-3 py-2 bg-muted/30 rounded-lg border-l-2 border-primary/50">
-                      <div class="text-xs text-muted-foreground mb-1">回复：</div>
-                      <div class="text-sm text-muted-foreground truncate">{{ message.replyTo.content }}</div>
-                    </div>
-                    
-                    <!-- 消息气泡 -->
-                    <div 
-                      class="message-bubble relative px-4 py-3 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group cursor-pointer select-text"
-                      :class="message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground rounded-br-sm hover:bg-primary/90' 
-                        : 'bg-secondary/50 rounded-bl-sm hover:bg-secondary/70'"
-                      @mouseenter="onMessageHover(message.id)"
-                      @mouseleave="onMessageLeave()"
-                      @selectstart="onTextSelectionStart(message.id)"
-                    >
-                      <!-- 文本选择高亮效果 -->
-                      <div 
-                        class="message-content transition-all duration-200"
-                        :class="{
-                          'selection-highlight': selectedTextMessageId === message.id && isTextSelected,
-                          'hover-glow': hoveredMessageId === message.id
-                        }"
-                        @mouseup="onTextSelectionEnd"
-                      >
-                        <!-- Enhanced message content with attachment support -->
-                        <div
-                          :class="[
-                            'message-content-text',
-                            message.role === 'user' ? 'text-white user-message' : 'text-slate-900 dark:text-slate-100 assistant-message'
-                          ]"
-                        >
-                          <component
-                            :is="useSimpleRender ? SimpleMessageContent : MessageContent"
-                            :content="message.content" 
-                            :is-loading="false"
-                            :attachments="message.attachments || []"
-                          />
-                        </div>
-                      </div>
                       
-                      <!-- 消息操作按钮 -->
-                      <Transition name="action-buttons-fade">
-                        <div 
-                          v-if="hoveredMessageId === message.id"
-                          class="absolute top-0 z-10 animate-in"
-                          :class="message.role === 'user' ? 'right-full mr-2' : 'left-full ml-2'"
-                        >
-                          <div class="flex items-center gap-1 p-1 bg-background/95 backdrop-blur-sm rounded-lg shadow-xl border border-border/50 animate-slide-in">
-                            <button
-                              @click="replyToMessage(message)"
-                              class="p-1.5 hover:bg-secondary rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="回复"
-                            >
-                              <RefreshCw :size="14" class="transition-colors" />
-                            </button>
-                            <button
-                              @click="copyMessage(message.content)"
-                              class="p-1.5 hover:bg-secondary rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="复制"
-                            >
-                              <Copy :size="14" class="transition-colors" />
-                            </button>
-                            <button
-                              v-if="message.role === 'assistant'"
-                              @click="regenerateMessage(index)"
-                              class="p-1.5 hover:bg-secondary rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="重新生成"
-                            >
-                              <RefreshCw :size="14" class="transition-colors" />
-                            </button>
-                            <button
-                              @click="deleteMessage(message.id)"
-                              class="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="删除"
-                            >
-                              <Trash2 :size="14" class="transition-colors" />
-                            </button>
-                          </div>
-                        </div>
-                      </Transition>
-                    </div>
-                    
-                    <!-- 时间戳和状态 -->
-                    <div 
-                      class="flex items-center gap-2 mt-1 text-xs text-muted-foreground transition-all duration-200"
-                      :class="message.role === 'user' ? 'justify-end' : 'justify-start'"
-                    >
-                      <span class="transition-all duration-200 hover:text-foreground">{{ formatMessageTime(message.timestamp) }}</span>
-                      <!-- 消息状态指示器 -->
-                      <Transition name="status-fade" mode="out-in">
-                        <MessageStatusIndicator v-if="message.role === 'user'" :key="message.status" :status="message.status || 'sent'" />
-                      </Transition>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TransitionGroup>
         </div>
         
         <!-- 消息加载状态 -->
@@ -383,7 +290,7 @@
         
         <!-- 增强的加载状态 -->
         <Transition name="loading-fade" appear>
-          <div v-if="isLoading && currentChat?.messages.length" class="px-6 py-4">
+          <div v-if="isLoading && currentChat?.messages?.length" class="px-6 py-4">
             <div class="ai-thinking-bubble relative overflow-hidden">
               <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-secondary/20 via-secondary/30 to-secondary/20 rounded-2xl border border-border/30 backdrop-blur-sm">
                 <!-- AI 头像动画 -->
@@ -706,17 +613,20 @@ import {
   MessageSquare, Loader2, AlertCircle, Search, Trash2, Menu,
   Sun, Moon, MoreVertical, Copy, RefreshCw, PanelLeft, PanelLeftClose,
   Sparkles, Code2, Languages, HelpCircle, Check, CheckCircle, XCircle,
-  Clock, ArrowDown
+  Clock, ArrowDown, BarChart3
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useSettingsStore } from '@renderer/src/stores/settings'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
+import { debounce } from '@renderer/src/utils/performance'
 import MessageContent from '@renderer/src/components/MessageContentImproved.vue'
 import SimpleMessageContent from '@renderer/src/components/SimpleMessageContent.vue'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
 import PerformanceTestPanel from '@renderer/src/components/dev/PerformanceTestPanel.vue'
 import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
+import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList.vue'
+import ChatSummary from '@renderer/src/components/chat/ChatSummary.vue'
 
 // 类型定义
 interface Attachment {
@@ -806,6 +716,9 @@ const MessageStatusIndicator = defineComponent({
 const chatStore = useChatStore()
 const settingsStore = useSettingsStore()
 
+// 性能优化相关状态
+const messagesContainerHeight = ref(400)
+
 // Add simple render toggle for debugging
 const useSimpleRender = ref(false)
 
@@ -819,6 +732,7 @@ const messagesContainer = ref<HTMLElement>()
 const messageInput = ref<HTMLTextAreaElement>()
 const virtualMessageList = ref<InstanceType<typeof VirtualMessageList>>()
 const chatContainer = ref<HTMLElement>()
+const resizeObserver = ref<ResizeObserver>()
 
 // 界面状态
 const inputMessage = ref('')
@@ -882,13 +796,18 @@ const currentChatId = computed(() => chatStore.currentChatId)
 const currentChat = computed(() => chatStore.currentChat)
 
 const filteredChats = computed(() => {
-  if (!searchQuery.value) return chats.value
+  const allChats = chats.value || []
+  if (!searchQuery.value) return allChats
   
   const query = searchQuery.value.toLowerCase()
-  return chats.value.filter(chat => 
+  return allChats.filter(chat => 
     chat.title.toLowerCase().includes(query) ||
-    chat.messages.some(msg => msg.content.toLowerCase().includes(query))
+    (chat.messages && chat.messages.some(msg => msg.content.toLowerCase().includes(query)))
   )
+})
+
+const currentMessages = computed(() => {
+  return currentChat.value?.messages || []
 })
 
 const canSend = computed(() => {
@@ -966,6 +885,9 @@ onMounted(async () => {
     } catch (error) {
       console.error('Failed to restore sidebar width:', error)
     }
+    
+    // 初始化消息容器高度监听
+    initializeMessageContainer()
   } catch (error) {
     console.error('Failed to initialize chat view:', error)
     // 即使初始化失败，也应该显示基本界面
@@ -979,6 +901,11 @@ onUnmounted(() => {
   // 清理计时器
   if (inputChangeTimeout.value) {
     clearTimeout(inputChangeTimeout.value)
+  }
+  
+  // 清理尺寸监听器
+  if (resizeObserver.value) {
+    resizeObserver.value.disconnect()
   }
 })
 
@@ -1322,6 +1249,18 @@ const copyMessage = async (content: string) => {
   }
 }
 
+// 摘要相关处理
+const handleSummaryUpdated = (summary: any) => {
+  console.log('Summary updated:', summary)
+  // TODO: 可以在这里更新界面或触发其他操作
+}
+
+const handleTagClicked = (tag: string) => {
+  console.log('Tag clicked:', tag)
+  // TODO: 可以实现根据标签筛选聊天的功能
+  searchQuery.value = tag
+}
+
 const regenerateMessage = async (index: number) => {
   // TODO: 实现重新生成功能
   console.log('Regenerating message at index:', index)
@@ -1346,11 +1285,8 @@ const deleteMessage = async (messageId: string) => {
 
 // 滚动相关方法
 const handleMessageScroll = () => {
-  if (!messagesContainer.value) return
-  
-  const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
-  const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
-  showScrollButton.value = !isNearBottom && scrollHeight > clientHeight
+  // 由于使用了虚拟滚动，这个方法现在由 VirtualMessageList 处理
+  console.log('Legacy scroll handler - now handled by VirtualMessageList')
 }
 
 // 发送消息
@@ -1542,11 +1478,72 @@ const getSendButtonTooltip = () => {
 }
 
 const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTo({
-      top: messagesContainer.value.scrollHeight,
-      behavior: 'smooth'
-    })
+  // 使用虚拟消息列表的滚动方法
+  virtualMessageList.value?.scrollToBottom('smooth')
+}
+
+// 初始化消息容器高度监听
+const initializeMessageContainer = () => {
+  if (!messagesContainer.value) return
+  
+  const updateHeight = () => {
+    if (messagesContainer.value) {
+      messagesContainerHeight.value = messagesContainer.value.clientHeight
+    }
+  }
+  
+  // 初始更新高度
+  nextTick(updateHeight)
+  
+  // 监听尺寸变化
+  resizeObserver.value = new ResizeObserver(debounce(updateHeight, 100))
+  resizeObserver.value.observe(messagesContainer.value)
+}
+
+// 处理虚拟滚动事件
+const handleVirtualScroll = (scrollInfo: any) => {
+  const { scrollTop, scrollHeight, clientHeight } = scrollInfo
+  const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+  showScrollButton.value = !isNearBottom && scrollHeight > clientHeight
+}
+
+// 处理消息复制
+const handleCopyMessage = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content)
+    // TODO: 显示成功提示
+    console.log('Message copied successfully')
+  } catch (error) {
+    console.error('Failed to copy message:', error)
+  }
+}
+
+// 处理消息重新生成
+const handleRegenerateMessage = async (index: number) => {
+  if (!currentChat.value) return
+  
+  try {
+    isLoading.value = true
+    
+    // 获取当前消息之前的所有消息作为上下文
+    const contextMessages = currentChat.value.messages.slice(0, index)
+    const targetMessage = currentChat.value.messages[index]
+    
+    if (targetMessage.role === 'assistant') {
+      // 重新生成助手回复
+      const response = await window.api.llm.sendMessage(
+        contextMessages[contextMessages.length - 1]?.content || '',
+        currentChat.value.id,
+        targetMessage.id
+      )
+      
+      // 更新消息内容
+      await chatStore.updateMessageContent(targetMessage.id, response)
+    }
+  } catch (error) {
+    console.error('Failed to regenerate message:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 

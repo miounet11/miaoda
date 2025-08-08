@@ -93,7 +93,12 @@ export class DatabaseInitializer {
       { name: 'archived', sql: 'ALTER TABLE chats ADD COLUMN archived INTEGER DEFAULT 0' },
       { name: 'starred', sql: 'ALTER TABLE chats ADD COLUMN starred INTEGER DEFAULT 0' },
       { name: 'tags', sql: 'ALTER TABLE chats ADD COLUMN tags TEXT DEFAULT NULL' },
-      { name: 'settings', sql: 'ALTER TABLE chats ADD COLUMN settings TEXT DEFAULT NULL' }
+      { name: 'settings', sql: 'ALTER TABLE chats ADD COLUMN settings TEXT DEFAULT NULL' },
+      { name: 'summary', sql: 'ALTER TABLE chats ADD COLUMN summary TEXT DEFAULT NULL' },
+      { name: 'summary_tags', sql: 'ALTER TABLE chats ADD COLUMN summary_tags TEXT DEFAULT NULL' },
+      { name: 'summary_updated_at', sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL' },
+      { name: 'summary_tokens', sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL' },
+      { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' }
     ]
 
     for (const column of requiredColumns) {

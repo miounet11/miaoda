@@ -1,7 +1,10 @@
 // Re-export all types for easy importing
 export * from './chat'
 export * from './ui'
-export { APIError, APIResponse as APIResponseType } from './api'
+export type { APIError } from './api'
+export * from '../../../types/analytics'
+export * from './recommendation'
+export * from './settings'
 
 // Utility types
 export type Nullable<T> = T | null

@@ -81,6 +81,9 @@ const emit = defineEmits<{
   'regenerate': [index: number]
   'copy': [content: string]
   'scroll': [position: any]
+  'item-measured': [data: { messageId: string, height: number, index: number }]
+  'visibility-change': [visibleRange: { start: number, end: number }]
+  'message-focus': [messageId: string]
 }>()
 
 // Refs
@@ -112,12 +115,24 @@ const processedMessages = computed(() => {
   return processed
 })
 
-// Smart height estimation with caching
+// Enhanced height estimation with multiple caching strategies
 const estimateItemHeight = (message: any, index: number) => {
+  // Try exact cache first
   const cacheKey = `${message.id}-${message.content?.length || 0}`
   
   if (messageHeights.value.has(cacheKey)) {
     return messageHeights.value.get(cacheKey)!
+  }
+  
+  // Try content hash cache for similar messages
+  if (message.content) {
+    const contentHash = hashString(message.content)
+    const cachedHeight = messageHeights.value.get(`content-${contentHash}`)
+    if (cachedHeight !== undefined) {
+      // Store in main cache for faster future access
+      messageHeights.value.set(cacheKey, cachedHeight)
+      return cachedHeight
+    }
   }
   
   let height = 60 // Base height
@@ -156,11 +171,27 @@ const estimateItemHeight = (message: any, index: number) => {
   // Cache the result
   messageHeights.value.set(cacheKey, height)
   
-  // Cleanup cache if too large
+  // Intelligent cache management with LRU-like behavior
   if (messageHeights.value.size > 1000) {
+    // Keep most recent and frequently accessed items
     const entries = Array.from(messageHeights.value.entries())
+    const recentMessages = props.messages.slice(-200).map(m => 
+      `${m.id}-${m.content?.length || 0}`
+    )
+    
     messageHeights.value.clear()
-    entries.slice(-500).forEach(([k, v]) => messageHeights.value.set(k, v))
+    
+    // Preserve recent messages and content hashes
+    entries.forEach(([key, value]) => {
+      if (recentMessages.includes(key) || key.startsWith('content-')) {
+        messageHeights.value.set(key, value)
+      }
+    })
+    
+    // Keep last 300 entries if not enough recent ones
+    if (messageHeights.value.size < 300) {
+      entries.slice(-300).forEach(([k, v]) => messageHeights.value.set(k, v))
+    }
   }
   
   return height
@@ -172,24 +203,33 @@ const shouldShowTimeSeparator = (message: Message, prevMessage: Message | null) 
     return false
   }
   
-  const timeDiff = message.timestamp.getTime() - prevMessage.timestamp.getTime()
+  // Convert to Date if it's a string
+  const messageTime = message.timestamp instanceof Date 
+    ? message.timestamp 
+    : new Date(message.timestamp)
+  const prevMessageTime = prevMessage.timestamp instanceof Date 
+    ? prevMessage.timestamp 
+    : new Date(prevMessage.timestamp)
+  
+  const timeDiff = messageTime.getTime() - prevMessageTime.getTime()
   return timeDiff > 30 * 60 * 1000 // 30 minutes
 }
 
-const formatTime = (timestamp: Date) => {
+const formatTime = (timestamp: Date | string) => {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
   const now = new Date()
-  const diff = now.getTime() - timestamp.getTime()
+  const diff = now.getTime() - date.getTime()
   
   if (diff < 24 * 60 * 60 * 1000) {
-    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   } else if (diff < 7 * 24 * 60 * 60 * 1000) {
-    return timestamp.toLocaleDateString([], { 
+    return date.toLocaleDateString([], { 
       weekday: 'short', 
       hour: '2-digit', 
       minute: '2-digit' 
     })
   } else {
-    return timestamp.toLocaleDateString([], { month: 'short', day: 'numeric' })
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
   }
 }
 
@@ -201,11 +241,13 @@ const getMessageClasses = (message: any) => ({
   'message-pending': message.pending
 })
 
-// Optimized scroll handling
+// Enhanced scroll handling with performance optimization
 const handleScroll = rafThrottle((scrollTop: number, scrollHeight: number, clientHeight: number) => {
   const threshold = 100
   const nearBottom = scrollTop + clientHeight >= scrollHeight - threshold
+  const nearTop = scrollTop < 100
   
+  // Update scroll states only when necessary
   if (isAtBottom.value !== nearBottom) {
     isAtBottom.value = nearBottom
     showScrollButton.value = !nearBottom && scrollTop > 300
@@ -216,19 +258,67 @@ const handleScroll = rafThrottle((scrollTop: number, scrollHeight: number, clien
     }
   }
   
-  emit('scroll', { scrollTop, scrollHeight, clientHeight })
+  // Calculate visible message range for performance insights
+  const visibleStartIndex = Math.floor(scrollTop / 80) // Approximate
+  const visibleEndIndex = Math.min(
+    props.messages.length - 1,
+    Math.ceil((scrollTop + clientHeight) / 80)
+  )
+  
+  // Emit visibility change for external optimization
+  emit('visibility-change', {
+    start: visibleStartIndex,
+    end: visibleEndIndex
+  })
+  
+  // Enhanced scroll event with more context
+  emit('scroll', {
+    scrollTop,
+    scrollHeight,
+    clientHeight,
+    isAtBottom: nearBottom,
+    isAtTop: nearTop,
+    scrollPercentage: (scrollTop / (scrollHeight - clientHeight)) * 100,
+    visibleRange: { start: visibleStartIndex, end: visibleEndIndex }
+  })
 })
 
 const handleItemRendered = (message: any, index: number) => {
-  // Update actual height measurement
+  // Update actual height measurement with improved accuracy
   nextTick(() => {
     const element = document.querySelector(`[data-message-id="${message.id}"]`)
     if (element) {
-      const height = element.getBoundingClientRect().height
-      const cacheKey = `${message.id}-${message.content?.length || 0}`
-      messageHeights.value.set(cacheKey, height)
+      const rect = element.getBoundingClientRect()
+      if (rect.height > 0) {
+        const cacheKey = `${message.id}-${message.content?.length || 0}`
+        messageHeights.value.set(cacheKey, rect.height)
+        
+        // Also cache by content hash for better reuse
+        if (message.content) {
+          const contentHash = hashString(message.content)
+          messageHeights.value.set(`content-${contentHash}`, rect.height)
+        }
+        
+        // Emit for performance monitoring
+        emit('item-measured', {
+          messageId: message.id,
+          height: rect.height,
+          index
+        })
+      }
     }
   })
+}
+
+// Simple hash function for content caching
+const hashString = (str: string): string => {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  return hash.toString()
 }
 
 const handleEditMessage = (message: Message) => {
@@ -241,21 +331,70 @@ const handleDeleteMessage = (message: Message) => {
   console.log('Delete message:', message.id)
 }
 
-// Scroll methods
-const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
-  virtualScrollRef.value?.scrollToBottom(behavior)
-  isAtBottom.value = true
-  showScrollButton.value = false
+// Enhanced scroll methods with animation and callbacks
+const scrollToBottom = (behavior: ScrollBehavior = 'smooth', callback?: () => void) => {
+  if (virtualScrollRef.value) {
+    virtualScrollRef.value.scrollToBottom(behavior)
+    isAtBottom.value = true
+    showScrollButton.value = false
+    
+    if (callback) {
+      // Execute callback after scroll animation completes
+      setTimeout(callback, behavior === 'smooth' ? 300 : 0)
+    }
+  }
 }
 
-const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
-  virtualScrollRef.value?.scrollToTop(behavior)
+const scrollToTop = (behavior: ScrollBehavior = 'smooth', callback?: () => void) => {
+  if (virtualScrollRef.value) {
+    virtualScrollRef.value.scrollToTop(behavior)
+    
+    if (callback) {
+      setTimeout(callback, behavior === 'smooth' ? 300 : 0)
+    }
+  }
 }
 
-const scrollToMessage = (messageId: string) => {
+const scrollToMessage = (messageId: string, highlight: boolean = true, callback?: () => void) => {
   const index = props.messages.findIndex(msg => msg.id === messageId)
-  if (index >= 0) {
-    virtualScrollRef.value?.scrollToIndex(index, 'smooth')
+  if (index >= 0 && virtualScrollRef.value) {
+    virtualScrollRef.value.scrollToIndex(index, 'smooth')
+    
+    if (highlight) {
+      // Emit focus event for highlighting
+      emit('message-focus', messageId)
+    }
+    
+    if (callback) {
+      setTimeout(callback, 300)
+    }
+    
+    return true
+  }
+  return false
+}
+
+// New method: Smooth scroll to specific position
+const scrollToPosition = (position: number, behavior: ScrollBehavior = 'smooth') => {
+  if (virtualScrollRef.value?.containerRef) {
+    virtualScrollRef.value.containerRef.scrollTo({
+      top: position,
+      behavior
+    })
+  }
+}
+
+// New method: Get current scroll information
+const getScrollInfo = () => {
+  if (!virtualScrollRef.value?.containerRef) return null
+  
+  const container = virtualScrollRef.value.containerRef
+  return {
+    scrollTop: container.scrollTop,
+    scrollHeight: container.scrollHeight,
+    clientHeight: container.clientHeight,
+    isAtBottom: isAtBottom.value,
+    scrollPercentage: (container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100
   }
 }
 
@@ -287,11 +426,21 @@ onUnmounted(() => {
   clearTimeout(scrollTimeout)
 })
 
-// Expose methods
+// Expose enhanced methods
 defineExpose({
   scrollToBottom,
   scrollToTop,
-  scrollToMessage
+  scrollToMessage,
+  scrollToPosition,
+  getScrollInfo,
+  // Performance utilities
+  clearHeightCache: () => messageHeights.value.clear(),
+  getCacheSize: () => messageHeights.value.size,
+  // State access
+  getIsAtBottom: () => isAtBottom.value,
+  getUnreadCount: () => unreadCount.value,
+  // Direct virtual scroll access
+  virtualScrollRef
 })
 </script>
 
@@ -498,8 +647,13 @@ defineExpose({
   }
 }
 
-/* Reduced motion support */
+/* Enhanced reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+  .virtual-message-list,
+  .message-scroll-container {
+    scroll-behavior: auto;
+  }
+  
   .message-highlighted {
     animation: none;
     background-color: rgba(59, 130, 246, 0.1);
@@ -516,6 +670,77 @@ defineExpose({
   
   .scroll-to-bottom-btn:hover {
     transform: none;
+  }
+  
+  /* Disable transform animations */
+  .message-item-container {
+    will-change: auto;
+    transform: none;
+  }
+}
+
+/* High refresh rate display optimizations */
+@media (min-resolution: 120dpi) {
+  .message-item-container {
+    /* Smoother animations on high DPI displays */
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .virtual-message-list {
+    /* Better touch scrolling */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  
+  .scroll-to-bottom-btn {
+    /* Larger touch target */
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Modern scrollbar with better performance */
+.message-scroll-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.message-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.message-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.message-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
+}
+
+/* Firefox scrollbar */
+.message-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  .message-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .message-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .message-scroll-container {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }
 }
 </style>

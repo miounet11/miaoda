@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { ExportOptions } from './ExportService'
 
 // Zod schemas for validation
-const ExportFormatSchema = z.enum(['markdown', 'json', 'html', 'txt', 'pdf'])
+const ExportFormatSchema = z.enum(['markdown', 'json', 'html', 'txt', 'pdf', 'csv', 'docx', 'zip'])
 
 const ExportOptionsSchema = z.object({
   format: ExportFormatSchema,
@@ -83,7 +83,7 @@ export class ExportValidator {
    * Validate export format support
    */
   static validateFormat(format: string): boolean {
-    return ['markdown', 'json', 'html', 'txt', 'pdf'].includes(format)
+    return ['markdown', 'json', 'html', 'txt', 'pdf', 'csv', 'xlsx', 'docx', 'zip'].includes(format)
   }
   
   /**
@@ -181,6 +181,18 @@ export class ExportValidator {
       case 'pdf':
         formatMultiplier = 4 // PDF has significant formatting and compression overhead
         break
+      case 'csv':
+        formatMultiplier = 1.1 // CSV has minimal overhead
+        break
+      case 'xlsx':
+        formatMultiplier = 2.5 // Excel has structure and formatting overhead
+        break
+      case 'docx':
+        formatMultiplier = 3.5 // Word documents have significant formatting overhead
+        break
+      case 'zip':
+        formatMultiplier = 3.0 // ZIP contains multiple formats with compression
+        break
     }
     
     const estimatedSize = contentSize * formatMultiplier
@@ -257,7 +269,11 @@ export class ExportValidator {
       'json': ['application/json'],
       'html': ['text/html'],
       'txt': ['text/plain'],
-      'pdf': ['application/pdf']
+      'pdf': ['application/pdf'],
+      'csv': ['text/csv', 'application/csv'],
+      'xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+      'docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+      'zip': ['application/zip', 'application/x-zip-compressed']
     }
     
     return validMimeTypes[format]?.includes(mimeType) ?? false

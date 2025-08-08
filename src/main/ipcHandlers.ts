@@ -29,6 +29,40 @@ export function registerIPCHandlers(
   const llmManager = createLLMManager(mcpManager)
   registerLLMHandlers(llmManager)
 
+  // LLM Summary generation handler
+  ipcMain.handle('llm:generate-summary', async (_, prompt: string) => {
+    try {
+      // Check if LLM is configured
+      if (!llmManager.isConfigured()) {
+        throw new Error('No LLM provider configured')
+      }
+
+      // Use llmManager to send message for summary generation
+      // Create a temporary chat ID for summary generation
+      const tempChatId = `summary-${Date.now()}`
+      let fullResponse = ''
+      
+      // Send message through llmManager
+      await llmManager.sendMessage(
+        prompt,
+        tempChatId,
+        undefined,
+        (chunk) => {
+          fullResponse += chunk
+        }
+      )
+      
+      if (!fullResponse.trim()) {
+        throw new Error('Empty response from LLM provider')
+      }
+
+      return fullResponse
+    } catch (error: any) {
+      logger.error('Failed to generate summary with LLM', 'IPC', error)
+      throw new Error(`Summary generation failed: ${error.message}`)
+    }
+  })
+
   // Note: llm:getProviders replaced by llm:getAllProviders in llmManager.ts
 
   // MCP handlers
@@ -110,6 +144,101 @@ export function registerIPCHandlers(
     return db.searchChats(query)
   })
 
+  // Summary handlers
+  ipcMain.handle('db:update-chat-summary', async (_, chatId, summary, tags, keyPoints, tokens) => {
+    try {
+      db.updateChatSummary(chatId, summary, tags, keyPoints, tokens)
+      return { success: true }
+    } catch (error: any) {
+      logger.error('Failed to update chat summary', 'IPC', error)
+      throw new Error(`Failed to update chat summary: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:get-chat-summary', async (_, chatId) => {
+    try {
+      return db.getChatSummary(chatId)
+    } catch (error: any) {
+      logger.error('Failed to get chat summary', 'IPC', error)
+      throw new Error(`Failed to get chat summary: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:get-all-chats-with-summaries', async () => {
+    try {
+      return db.getAllChatsWithSummaries()
+    } catch (error: any) {
+      logger.error('Failed to get chats with summaries', 'IPC', error)
+      throw new Error(`Failed to get chats with summaries: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:search-chats-by-tags', async (_, tags) => {
+    try {
+      return db.searchChatsByTags(tags)
+    } catch (error: any) {
+      logger.error('Failed to search chats by tags', 'IPC', error)
+      throw new Error(`Failed to search chats by tags: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:get-all-summary-tags', async () => {
+    try {
+      return db.getAllSummaryTags()
+    } catch (error: any) {
+      logger.error('Failed to get summary tags', 'IPC', error)
+      throw new Error(`Failed to get summary tags: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:clear-chat-summary', async (_, chatId) => {
+    try {
+      db.clearChatSummary(chatId)
+      return { success: true }
+    } catch (error: any) {
+      logger.error('Failed to clear chat summary', 'IPC', error)
+      throw new Error(`Failed to clear chat summary: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('db:needs-summary-update', async (_, chatId, minMessages, maxAgeHours) => {
+    try {
+      return db.needsSummaryUpdate(chatId, minMessages, maxAgeHours)
+    } catch (error: any) {
+      logger.error('Failed to check summary update need', 'IPC', error)
+      return false
+    }
+  })
+
+  // Analytics handlers
+  ipcMain.handle('db:generate-analytics', async (_, filter) => {
+    try {
+      logger.debug('Generating analytics', 'IPC', { filter })
+      const result = db.generateAnalytics(filter)
+      logger.debug('Analytics generated successfully', 'IPC', { 
+        timeRange: result.timeRange,
+        totalChats: result.chat.totalChats,
+        totalMessages: result.chat.totalMessages 
+      })
+      return result
+    } catch (error: any) {
+      logger.error('Failed to generate analytics', 'IPC', error)
+      throw error
+    }
+  })
+
+  ipcMain.handle('db:get-analytics-summary', async (_, timeRange) => {
+    try {
+      logger.debug('Getting analytics summary', 'IPC', { timeRange })
+      const result = db.getAnalyticsSummary(timeRange)
+      logger.debug('Analytics summary retrieved', 'IPC', result)
+      return result
+    } catch (error: any) {
+      logger.error('Failed to get analytics summary', 'IPC', error)
+      throw error
+    }
+  })
+
   // Advanced search handlers
   ipcMain.handle('search:messages', async (_, searchQuery) => {
     try {
@@ -156,6 +285,154 @@ export function registerIPCHandlers(
     } catch (error: any) {
       console.error('Failed to get search index status:', error)
       throw new Error(`Failed to get search index status: ${error.message}`)
+    }
+  })
+
+  // Semantic search handlers
+  ipcMain.handle('search:build-semantic-index', async () => {
+    try {
+      return await db.buildSemanticIndex()
+    } catch (error: any) {
+      console.error('Failed to build semantic index:', error)
+      throw new Error(`Failed to build semantic index: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:semantic', async (_, searchQuery) => {
+    try {
+      return await db.semanticSearch(searchQuery)
+    } catch (error: any) {
+      console.error('Failed to perform semantic search:', error)
+      throw new Error(`Failed to perform semantic search: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:hybrid', async (_, searchQuery) => {
+    try {
+      return await db.hybridSearch(searchQuery)
+    } catch (error: any) {
+      console.error('Failed to perform hybrid search:', error)
+      throw new Error(`Failed to perform hybrid search: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:find-similar', async (_, messageId, limit = 5) => {
+    try {
+      return await db.findSimilarMessages(messageId, limit)
+    } catch (error: any) {
+      console.error('Failed to find similar messages:', error)
+      throw new Error(`Failed to find similar messages: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:get-semantic-stats', async () => {
+    try {
+      return db.getSemanticSearchStats()
+    } catch (error: any) {
+      console.error('Failed to get semantic search stats:', error)
+      throw new Error(`Failed to get semantic search stats: ${error.message}`)
+    }
+  })
+
+  // Vector database handlers
+  ipcMain.handle('search:build-vector-index', async () => {
+    try {
+      return await db.buildVectorIndex()
+    } catch (error: any) {
+      console.error('Failed to build vector index:', error)
+      throw new Error(`Failed to build vector index: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:optimize-vector-index', async () => {
+    try {
+      return await db.optimizeVectorIndex()
+    } catch (error: any) {
+      console.error('Failed to optimize vector index:', error)
+      throw new Error(`Failed to optimize vector index: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:get-vector-stats', async () => {
+    try {
+      return db.getVectorIndexStats()
+    } catch (error: any) {
+      console.error('Failed to get vector index stats:', error)
+      throw new Error(`Failed to get vector index stats: ${error.message}`)
+    }
+  })
+
+  // Multimodal search handlers
+  ipcMain.handle('search:multimodal', async (_, searchQuery) => {
+    try {
+      return await db.multimodalSearch?.(searchQuery) || []
+    } catch (error: any) {
+      console.error('Failed to perform multimodal search:', error)
+      throw new Error(`Failed to perform multimodal search: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:images', async (_, query, options) => {
+    try {
+      return await db.searchImages?.(query, options) || []
+    } catch (error: any) {
+      console.error('Failed to search images:', error)
+      throw new Error(`Failed to search images: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:documents', async (_, query) => {
+    try {
+      return await db.searchDocuments?.(query) || []
+    } catch (error: any) {
+      console.error('Failed to search documents:', error)
+      throw new Error(`Failed to search documents: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:audio', async (_, query) => {
+    try {
+      return await db.searchAudio?.(query) || []
+    } catch (error: any) {
+      console.error('Failed to search audio:', error)
+      throw new Error(`Failed to search audio: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:get-multimodal-stats', async () => {
+    try {
+      return db.getMultimodalSearchStats?.() || {}
+    } catch (error: any) {
+      console.error('Failed to get multimodal search stats:', error)
+      throw new Error(`Failed to get multimodal search stats: ${error.message}`)
+    }
+  })
+
+  // Search performance monitoring handlers
+  ipcMain.handle('search:get-performance-analysis', async (_, timeRange = '7d') => {
+    try {
+      return db.getSearchPerformanceAnalysis?.(timeRange) || {}
+    } catch (error: any) {
+      console.error('Failed to get performance analysis:', error)
+      throw new Error(`Failed to get performance analysis: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:get-performance-recommendations', async () => {
+    try {
+      return db.getSearchPerformanceRecommendations?.() || []
+    } catch (error: any) {
+      console.error('Failed to get performance recommendations:', error)
+      throw new Error(`Failed to get performance recommendations: ${error.message}`)
+    }
+  })
+
+  ipcMain.handle('search:optimize-performance', async () => {
+    try {
+      return await db.optimizeSearchPerformance?.() || { optimizationsApplied: [], estimatedImprovement: 'No optimizations available' }
+    } catch (error: any) {
+      console.error('Failed to optimize search performance:', error)
+      throw new Error(`Failed to optimize search performance: ${error.message}`)
     }
   })
 
