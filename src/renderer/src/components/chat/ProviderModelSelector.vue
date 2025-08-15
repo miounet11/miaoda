@@ -322,11 +322,13 @@ const availableProviders = computed(() => {
     icon: '⚡',
     isHealthy: provider.isHealthy || false,
     isCustom: true,
-    models: provider.config.models?.map(m => ({ 
-      id: m, 
-      name: m, 
-      providerId: provider.id 
-    })) || [{ id: provider.config.defaultModel || 'default', name: provider.config.defaultModel || 'Default Model', providerId: provider.id }]
+    models: provider.config.model 
+      ? [{ id: provider.config.model, name: provider.config.model, providerId: provider.id }]
+      : provider.config.models?.map(m => ({ 
+          id: m, 
+          name: m, 
+          providerId: provider.id 
+        })) || [{ id: 'default', name: 'Default Model', providerId: provider.id }]
   }))
 
   return [...standardProviders, ...customProviders]
@@ -396,12 +398,27 @@ const selectProvider = async (provider: ProviderOption) => {
       settingsStore.setModelName(provider.models[0].id)
     }
 
+    // Get the appropriate configuration based on provider type
+    let apiKey = settingsStore.apiKey
+    let baseURL = settingsStore.apiEndpoint
+    let model = settingsStore.modelName
+    
+    // For custom providers, get configuration from customProvidersStore
+    if (provider.isCustom) {
+      const customProvider = customProvidersStore.getProvider(provider.id)
+      if (customProvider) {
+        apiKey = customProvider.config.apiKey
+        baseURL = customProvider.config.baseURL
+        model = customProvider.config.model || model
+      }
+    }
+
     // Apply configuration to backend
     const result = await window.api.llm.setProvider({
       provider: provider.id as any,
-      apiKey: settingsStore.apiKey || undefined,
-      baseURL: settingsStore.apiEndpoint || undefined,
-      model: settingsStore.modelName || undefined
+      apiKey: apiKey || undefined,
+      baseURL: baseURL || undefined,
+      model: model || undefined
     })
 
     if (result.success) {
@@ -496,10 +513,26 @@ watch(() => currentProviderId.value, async () => {
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   // Initialize custom providers if needed
-  customProvidersStore.initialize()
+  await customProvidersStore.initialize()
+  
+  // Load current LLM configuration from backend
+  const config = await window.api.llm.getConfig()
+  if (config) {
+    // Update settings store with the current backend configuration
+    settingsStore.setLLMProvider(config.provider as any)
+    if (config.model) {
+      settingsStore.setModelName(config.model)
+    }
+    if (config.apiKey) {
+      settingsStore.setApiKey(config.apiKey)
+    }
+    if (config.baseURL) {
+      settingsStore.setApiEndpoint(config.baseURL)
+    }
+  }
 })
 
 onUnmounted(() => {

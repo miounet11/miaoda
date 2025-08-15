@@ -91,8 +91,8 @@
             <!-- Unified Provider Configuration -->
             <UnifiedProviderConfig
               v-model:provider="llmConfig.provider"
-              v-model:api-key="llmConfig.apiKey"
-              v-model:base-url="llmConfig.baseURL"
+              v-model:apiKey="llmConfig.apiKey"
+              v-model:baseUrl="llmConfig.baseURL"
               v-model:model="llmConfig.model"
               :custom-providers="customProviders"
               @provider-selected="handleProviderSelected"
@@ -315,23 +315,15 @@
       </div>
     </main>
     
-    <!-- Save Provider Dialog -->
-    <SaveProviderDialog
-      :is-open="showSaveDialog"
-      :config="llmConfig"
-      @close="showSaveDialog = false"
-      @save="handleSaveProvider"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap } from 'lucide-vue-next'
 import ProviderList from '@renderer/src/components/settings/ProviderList.vue'
 import ProviderSelector from '@renderer/src/components/settings/ProviderSelector.vue'
 import UnifiedProviderConfig from '@renderer/src/components/settings/UnifiedProviderConfig.vue'
-import SaveProviderDialog from '@renderer/src/components/settings/SaveProviderDialog.vue'
 import { useCustomProvidersStore } from '@renderer/src/stores/customProviders'
 import type { LLMProvider } from '@renderer/src/types/api'
 
@@ -374,7 +366,6 @@ const llmConfig = reactive({
 
 const statusMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
 const isTestingConnection = ref(false)
-const showSaveDialog = ref(false)
 
 // Computed properties
 const isConfigValid = computed(() => {
@@ -417,117 +408,69 @@ const getActiveTabLabel = () => {
   return tab ? tab.label : 'Settings'
 }
 
-const getPlaceholderURL = () => {
-  switch (llmConfig.provider) {
-    case 'openai':
-      return 'https://api.openai.com/v1'
-    case 'anthropic':
-      return 'https://api.anthropic.com'
-    case 'ollama':
-      return 'http://localhost:11434'
-    default:
-      return ''
-  }
-}
 
-const handleProviderSelected = (config: any) => {
+const handleProviderSelected = async (config: any) => {
   // Update llmConfig based on selected provider
   if (config) {
     llmConfig.provider = config.provider || config.id
     llmConfig.apiKey = config.apiKey || ''
     llmConfig.baseURL = config.baseURL || ''
     llmConfig.model = config.model || ''
+    
+    // Don't auto-save, let the user save manually with the Save button
+    console.log('Provider selected:', config)
+  }
+}
+
+// Auto-save LLM configuration when changed
+const saveConfigurationImmediately = async () => {
+  try {
+    // Save LLM config to backend
+    await window.api.llm.updateConfig({
+      provider: llmConfig.provider,
+      apiKey: llmConfig.apiKey,
+      baseURL: llmConfig.baseURL,
+      model: llmConfig.model
+    })
+    
+    console.log('LLM configuration saved successfully')
+  } catch (error) {
+    console.error('Failed to save LLM configuration:', error)
   }
 }
 
 const saveLLMConfig = async () => {
   statusMessage.value = null
   
-  // Show save dialog
-  showSaveDialog.value = true
-}
-
-const customProvidersStore = useCustomProvidersStore()
-
-const handleSaveProvider = async (data: { name: string, description: string, icon: string, setAsActive: boolean }) => {
-  showSaveDialog.value = false
-  
-  // Create provider configuration for the store - matching backend interface
-  const providerConfig = {
-    name: data.name,
-    displayName: data.name,
-    apiKey: llmConfig.apiKey,
-    baseURL: llmConfig.baseURL || getPlaceholderURL(),  // Changed from baseUrl to baseURL
-    model: llmConfig.model || 'gpt-4',
-    type: 'openai-compatible' as const,  // Added required type field
-    headers: {},
-    parameters: {
-      temperature: 0.7,
-      maxTokens: 4096,
-      topP: 1,
-      frequencyPenalty: 0,
-      presencePenalty: 0
-    }
-  }
-  
-  // Save through the store
-  const result = await customProvidersStore.addProvider(providerConfig)
-  
-  if (result.success && result.id) {
-    // Add to local custom providers list
-    const newProvider: LLMProvider = {
-      id: result.id,
-      displayName: data.name,
-      description: data.description || `Custom configuration for ${llmConfig.provider}`,
-      icon: data.icon,
-      baseProvider: llmConfig.provider,
-      enabled: true,
-      configuration: {
-        baseUrl: llmConfig.baseURL || getPlaceholderURL(),
-        apiKey: llmConfig.apiKey,
-        defaultModel: llmConfig.model || 'gpt-4',
-        headers: {}
-      },
-      models: [llmConfig.model || 'gpt-4'],
-      capabilities: {
-        chat: true,
-        stream: true,
-        functionCalling: llmConfig.provider === 'openai',
-        vision: false
-      }
-    }
+  try {
+    // Directly save the configuration
+    const result = await window.api.llm.setProvider({
+      provider: llmConfig.provider,
+      apiKey: llmConfig.apiKey || undefined,
+      baseURL: llmConfig.baseURL || undefined,
+      model: llmConfig.model || undefined
+    })
     
-    customProviders.value.push(newProvider)
-    
-    if (data.setAsActive) {
-      // Set as active provider
-      const setResult = await window.api.llm.setProvider({
-        provider: result.id,
-        apiKey: llmConfig.apiKey || undefined,
-        baseURL: llmConfig.baseURL || undefined,
-        model: llmConfig.model || undefined
-      })
-      
-      if (setResult.success) {
-        llmConfig.provider = result.id as any
-        statusMessage.value = {
-          type: 'success',
-          text: `Custom provider "${data.name}" saved and activated!`
-        }
+    if (result.success) {
+      statusMessage.value = {
+        type: 'success',
+        text: 'Configuration saved successfully!'
       }
     } else {
       statusMessage.value = {
-        type: 'success',
-        text: `Custom provider "${data.name}" saved successfully!`
+        type: 'error',
+        text: result.error || 'Failed to save configuration'
       }
     }
-  } else {
+  } catch (error: any) {
     statusMessage.value = {
       type: 'error',
-      text: result.error || 'Failed to save custom provider'
+      text: `Failed to save: ${error.message}`
     }
   }
 }
+
+const customProvidersStore = useCustomProvidersStore()
 
 const testConnection = async () => {
   if (isTestingConnection.value || !isConfigValid.value) return
@@ -612,15 +555,6 @@ const loadPlugins = async () => {
   }
 }
 
-const loadCustomProviders = async () => {
-  try {
-    // In a real implementation, this would load from API/storage
-    customProviders.value = []
-  } catch (error) {
-    console.error('Failed to load custom providers:', error)
-    customProviders.value = []
-  }
-}
 
 // Custom Provider Handlers
 const handleProviderAdded = async (provider: LLMProvider) => {
@@ -742,6 +676,25 @@ const handleProvidersReordered = async (providerIds: string[]) => {
   }
 }
 
+// Simple debounce function
+function debounce(func: Function, wait: number) {
+  let timeout: NodeJS.Timeout
+  return function(...args: any[]) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(null, args), wait)
+  }
+}
+
+// Watch for configuration changes and auto-save
+watch([() => llmConfig.provider, () => llmConfig.apiKey, () => llmConfig.baseURL, () => llmConfig.model], 
+  debounce(async () => {
+    if (llmConfig.provider) { // Only save if a provider is selected
+      await saveConfigurationImmediately()
+    }
+  }, 500),
+  { deep: true }
+)
+
 // Load existing config on mount
 onMounted(async () => {
   // Setup responsive behavior
@@ -769,28 +722,43 @@ onMounted(async () => {
   // Load plugins
   await loadPlugins()
   
-  // Load custom providers from store
-  customProviders.value = customProvidersStore.providers.map(p => ({
-    id: p.id,
-    displayName: p.config.displayName || p.config.name,
-    description: p.config.description,
-    icon: '⚡',
-    baseProvider: 'custom',
-    enabled: p.isHealthy,
-    configuration: {
-      baseUrl: p.config.baseUrl,
-      apiKey: p.config.apiKey,
-      defaultModel: p.config.defaultModel,
-      headers: p.config.headers || {}
-    },
-    models: p.config.models || [],
-    capabilities: {
-      chat: true,
-      stream: p.config.capabilities?.streaming || false,
-      functionCalling: p.config.capabilities?.functionCalling || false,
-      vision: p.config.capabilities?.vision || false
+  // Load custom providers from store - creating proper LLMProvider objects
+  customProviders.value = customProvidersStore.providers.map(p => {
+    const provider: LLMProvider = {
+      id: p.id,
+      name: p.config.name,
+      displayName: p.config.displayName || p.config.name,
+      description: '',
+      icon: '⚡',
+      models: [{
+        id: p.config.model,
+        name: p.config.model,
+        displayName: p.config.model,
+        contextLength: 4096,
+        capabilities: {
+          chat: true,
+          streaming: true,
+          toolCalling: false,
+          vision: false
+        }
+      }],
+      capabilities: {
+        chat: true,
+        streaming: true,
+        toolCalling: false,
+        vision: false
+      },
+      configuration: {
+        baseUrl: p.config.baseURL,
+        apiKey: p.config.apiKey,
+        defaultModel: p.config.model,
+        headers: p.config.headers || {}
+      },
+      status: p.isHealthy ? 'connected' : 'disconnected',
+      enabled: p.isHealthy
     }
-  }))
+    return provider
+  })
 })
 
 // Cleanup

@@ -2,7 +2,7 @@ import { LLMProvider, OpenAIProvider, AnthropicProvider, OllamaProvider, CustomO
 import type { CustomProviderManager } from './customProviderManager'
 
 export interface LLMConfig {
-  provider: 'openai' | 'anthropic' | 'ollama' | 'custom'
+  provider: string // Allow any string to support custom provider IDs
   apiKey?: string
   baseURL?: string
   model?: string
@@ -20,7 +20,18 @@ export class ProviderFactory {
   }
 
   static createProvider(config: LLMConfig): LLMProvider {
+    console.log('[ProviderFactory] Creating provider with config:', config)
     this.validateConfig(config)
+
+    // Check if it's a custom provider ID (starts with 'custom-')
+    if (config.provider.startsWith('custom-')) {
+      console.log('[ProviderFactory] Detected custom provider ID:', config.provider)
+      // It's a custom provider, use the provider ID as customProviderId
+      return this.createCustomProvider({
+        ...config,
+        customProviderId: config.provider
+      })
+    }
 
     switch (config.provider) {
       case 'openai':
@@ -49,17 +60,36 @@ export class ProviderFactory {
       throw new Error('Custom provider ID is required for custom providers')
     }
 
+    console.log('[ProviderFactory] Creating custom provider:', config.customProviderId)
     const customConfig = this.customProviderManager.getProvider(config.customProviderId)
+    
     if (!customConfig) {
+      // List available custom providers for debugging
+      const available = this.customProviderManager.getAllProviders()
+      console.error('[ProviderFactory] Available custom providers:', available.map(p => p.id))
       throw new Error(`Custom provider not found: ${config.customProviderId}`)
     }
 
+    console.log('[ProviderFactory] Found custom provider config:', customConfig)
     return new CustomOpenAIProvider(customConfig)
   }
 
   private static validateConfig(config: LLMConfig): void {
     if (!config.provider) {
       throw new Error('Provider is required')
+    }
+
+    // Check if it's a custom provider ID (starts with 'custom-')
+    if (config.provider.startsWith('custom-')) {
+      if (!this.customProviderManager) {
+        throw new Error('Custom provider manager not initialized')
+      }
+      // Check if the custom provider exists
+      const customProvider = this.customProviderManager.getProvider(config.provider)
+      if (!customProvider) {
+        throw new Error(`Custom provider not found: ${config.provider}`)
+      }
+      return // Valid custom provider
     }
 
     switch (config.provider) {

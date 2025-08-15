@@ -110,11 +110,14 @@ export class MessageService {
   }
 
   private notifyChunk(context: MessageContext, chunk: string): void {
+    console.log('[MessageService] Sending chunk:', { context, chunk: chunk.substring(0, 50) })
     if (global.mainWindow) {
       global.mainWindow.webContents.send('llm:chunk', {
         ...context,
         chunk
       })
+    } else {
+      console.error('[MessageService] No mainWindow available for chunk sending')
     }
   }
 

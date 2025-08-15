@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between">
         <h4 class="text-lg font-medium">Select Provider</h4>
         <div v-if="selectedProvider" class="text-sm text-muted-foreground">
-          Current: {{ getProviderDisplayName(selectedProvider) }}
+          Current: {{ getProviderDisplayName(selectedProvider) }} ({{ selectedProvider }})
         </div>
       </div>
 
@@ -16,20 +16,22 @@
           <button
             v-for="provider in builtInProviders"
             :key="provider.id"
-            @click="selectProvider(provider.id)"
+            @click.prevent="selectProvider(provider.id)"
             :class="[
-              'provider-card group relative p-4 rounded-xl border-2 transition-all duration-200',
+              'provider-card group relative p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer',
               selectedProvider === provider.id
-                ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                : 'border-muted hover:border-muted-foreground/50 hover:bg-muted/30'
+                ? 'border-primary border-4 bg-primary/15 shadow-lg shadow-primary/25 ring-4 ring-primary/20'
+                : 'border-border hover:border-primary/50 hover:bg-secondary/50 hover:shadow-md'
             ]"
+            :title="`Select ${provider.name} - Currently: ${selectedProvider === provider.id ? 'Selected' : 'Not selected'}`"
+            type="button"
           >
             <!-- Selection Indicator -->
             <div 
               v-if="selectedProvider === provider.id" 
-              class="absolute top-2 right-2 w-3 h-3 bg-primary rounded-full flex items-center justify-center"
+              class="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-lg z-10"
             >
-              <Check :size="10" class="text-primary-foreground" />
+              <Check :size="12" class="text-primary-foreground font-bold" />
             </div>
             
             <div class="text-2xl mb-2">{{ provider.emoji }}</div>
@@ -60,16 +62,17 @@
         </div>
         
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div
+          <button
             v-for="provider in customProviders"
             :key="provider.id"
-            @click="selectProvider(provider.id)"
+            @click.prevent="selectProvider(provider.id)"
             :class="[
               'provider-card custom-provider group relative p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer',
               selectedProvider === provider.id
                 ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
                 : 'border-muted hover:border-muted-foreground/50 hover:bg-muted/30'
             ]"
+            type="button"
           >
             <!-- Selection and Status Indicators -->
             <div class="absolute top-2 right-2 flex items-center gap-2">
@@ -118,7 +121,7 @@
                 <Trash2 :size="12" />
               </button>
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -271,11 +274,13 @@
       </div>
     </div>
 
-    <!-- Add Custom Provider Form (Inline) -->
-    <div v-if="showAddCustomProviderForm" class="border-t pt-6">
-      <div class="bg-muted/30 rounded-lg p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="text-lg font-medium">Add Custom Provider</h4>
+    <!-- Add Custom Provider Form (Modal Style) -->
+    <div v-if="showAddCustomProviderForm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div class="bg-background rounded-xl border shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-background/95 backdrop-blur-sm border-b p-4 flex items-center justify-between">
+          <h4 class="text-lg font-medium">
+            {{ editingProvider ? 'Edit Provider' : 'Add Custom Provider' }}
+          </h4>
           <button
             @click="cancelAddCustomProvider"
             class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
@@ -283,12 +288,14 @@
             <X :size="16" />
           </button>
         </div>
-
-        <InlineProviderForm
-          :provider="editingProvider"
-          @save="handleCustomProviderSave"
-          @cancel="cancelAddCustomProvider"
-        />
+        
+        <div class="p-4">
+          <InlineProviderForm
+            :provider="editingProvider"
+            @save="handleCustomProviderSave"
+            @cancel="cancelAddCustomProvider"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -348,8 +355,14 @@ const builtInProviders = [
 
 // Computed
 const selectedProvider = computed({
-  get: () => props.provider,
-  set: (value) => emit('update:provider', value)
+  get: () => {
+    console.log('Getting selectedProvider:', props.provider)
+    return props.provider
+  },
+  set: (value) => {
+    console.log('Setting selectedProvider:', value)
+    emit('update:provider', value)
+  }
 })
 
 // Methods
@@ -397,25 +410,31 @@ const getApiKeyHelpText = (providerId: string): string => {
 }
 
 const selectProvider = (providerId: string) => {
-  selectedProvider.value = providerId
+  console.log('Selecting provider:', providerId)
   
-  // Emit provider configuration
+  // First emit the provider update to parent
+  emit('update:provider', providerId)
+  
+  // Then emit provider configuration
   const config = isBuiltInProvider(providerId)
     ? {
         provider: providerId,
+        id: providerId,
         apiKey: props.apiKey,
         baseUrl: props.baseUrl,
+        baseURL: props.baseUrl, // Also include baseURL for compatibility
         model: props.model
       }
     : getCustomProvider(providerId)
   
+  console.log('Emitting provider config:', config)
   emit('provider-selected', config)
 }
 
 const editCustomProvider = (provider: LLMProvider | undefined) => {
   if (provider) {
     editingProvider.value = provider
-    showAddProviderForm.value = true
+    showAddCustomProviderForm.value = true
   }
 }
 
@@ -441,7 +460,7 @@ const handleProviderSave = (providerData: LLMProvider) => {
     emit('custom-provider-added', providerData)
   }
   
-  cancelAddProvider()
+  cancelAddCustomProvider()
   
   // Auto-select the new/updated provider
   selectedProvider.value = providerData.id
@@ -472,11 +491,9 @@ const handleCustomProviderSave = (provider: LLMProvider) => {
   cancelAddCustomProvider()
 }
 
-// Watch for provider changes to emit selection
+// Watch for provider changes (removed selectProvider call to avoid circular updates)
 watch(() => props.provider, (newProvider) => {
-  if (newProvider) {
-    selectProvider(newProvider)
-  }
+  console.log('Provider prop changed to:', newProvider)
 }, { immediate: true })
 
 // Watch for model changes to detect custom model
@@ -552,13 +569,55 @@ watch(() => props.model, (newModel) => {
 }
 
 /* Enhanced visual feedback */
+.provider-card {
+  cursor: pointer !important;
+  user-select: none;
+  background: hsl(var(--card));
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
 .provider-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  background: hsl(var(--accent));
+  z-index: 2;
+}
+
+.provider-card:active {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--primary-rgb, 0, 0, 0), 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: hsl(var(--primary) / 0.1);
 }
 
 /* Status indicators */
 .provider-card.border-primary {
   box-shadow: 0 0 0 1px hsl(var(--primary)), 0 4px 12px rgba(var(--primary-rgb, 0, 0, 0), 0.15);
+  z-index: 3;
+}
+
+/* Ensure all interactive elements work properly */
+.provider-card * {
+  pointer-events: none;
+}
+
+.provider-card button {
+  pointer-events: auto !important;
+  z-index: 10;
+  position: relative;
+}
+
+/* Fix for mobile touch */
+@media (max-width: 768px) {
+  .provider-card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .provider-card:active {
+    background: hsl(var(--primary) / 0.2) !important;
+    transform: scale(0.98);
+  }
 }
 </style>

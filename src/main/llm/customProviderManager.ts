@@ -279,6 +279,8 @@ export class CustomProviderManager {
       const storedProviders = this.store.get('providers', {}) as Record<string, CustomProviderConfig>
       const storedHealth = this.store.get('healthStatus', {}) as Record<string, ProviderHealthStatus>
       
+      console.log('[CustomProviderManager] Loading providers from store:', storedProviders)
+      
       for (const [id, config] of Object.entries(storedProviders)) {
         this.providers.set(id, config)
       }
@@ -288,6 +290,7 @@ export class CustomProviderManager {
       }
       
       logger.info(`Loaded ${this.providers.size} custom providers`, 'CustomProviderManager')
+      console.log('[CustomProviderManager] Loaded providers:', Array.from(this.providers.keys()))
     } catch (error: any) {
       logger.error('Failed to load custom providers', 'CustomProviderManager', { error: error.message })
     }

@@ -494,30 +494,46 @@ export class CustomOpenAIProvider implements LLMProvider {
   }
 
   async sendMessage(message: string | any[], onChunk?: (chunk: string) => void): Promise<string> {
+    console.log('[CustomOpenAIProvider] Starting message send:', { 
+      model: this.config.model,
+      baseURL: this.baseURL,
+      hasOnChunk: !!onChunk
+    })
+    
     // 处理多模态输入
     const messageContent = typeof message === 'string' ? message : message
     
-    const stream = await this.client.chat.completions.create({
-      model: this.config.model,
-      messages: [{ role: 'user', content: messageContent }],
-      temperature: this.config.parameters?.temperature,
-      max_tokens: this.config.parameters?.maxTokens,
-      top_p: this.config.parameters?.topP,
-      frequency_penalty: this.config.parameters?.frequencyPenalty,
-      presence_penalty: this.config.parameters?.presencePenalty,
-      stream: true
-    })
+    try {
+      const stream = await this.client.chat.completions.create({
+        model: this.config.model,
+        messages: [{ role: 'user', content: messageContent }],
+        temperature: this.config.parameters?.temperature,
+        max_tokens: this.config.parameters?.maxTokens,
+        top_p: this.config.parameters?.topP,
+        frequency_penalty: this.config.parameters?.frequencyPenalty,
+        presence_penalty: this.config.parameters?.presencePenalty,
+        stream: true
+      })
 
-    let fullResponse = ''
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || ''
-      if (content) {
-        fullResponse += content
-        onChunk?.(content)
+      let fullResponse = ''
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || ''
+        if (content) {
+          console.log('[CustomOpenAIProvider] Received chunk:', content.substring(0, 50))
+          fullResponse += content
+          if (onChunk) {
+            console.log('[CustomOpenAIProvider] Calling onChunk callback')
+            onChunk(content)
+          }
+        }
       }
-    }
 
-    return fullResponse
+      console.log('[CustomOpenAIProvider] Complete response length:', fullResponse.length)
+      return fullResponse
+    } catch (error: any) {
+      console.error('[CustomOpenAIProvider] Error sending message:', error)
+      throw error
+    }
   }
 
   async sendMessageWithTools(

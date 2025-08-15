@@ -263,10 +263,10 @@ export const useChatStore = defineStore('chat', () => {
     try {
       await window.api.db.createMessage({
         id: message.id,
-        chatId: chat.id,
+        chat_id: chat.id,
         role: message.role,
         content: message.content,
-        timestamp: now.getTime()
+        created_at: now.getTime()
       })
     } catch (error) {
       logger.error('Failed to save message to database', 'ChatStore', error)
@@ -385,10 +385,10 @@ export const useChatStore = defineStore('chat', () => {
           try {
             await window.api.db.createMessage({
               id: assistantMessage.id,
-              chatId: targetChatId,
+              chat_id: targetChatId,
               role: 'assistant',
               content: '',
-              timestamp: now.getTime()
+              created_at: now.getTime()
             })
           } catch (dbError) {
             logger.error('Failed to create initial assistant message in database', 'ChatStore', dbError)
