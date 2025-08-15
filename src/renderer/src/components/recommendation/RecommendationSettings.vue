@@ -41,7 +41,7 @@
                 v-model="localSettings.enableRecommendations"
                 @change="handleSettingsChange"
               >
-              <span class="toggle-slider"></span>
+              <span class="toggle-slider" />
             </label>
           </div>
 
@@ -59,7 +59,7 @@
                 :disabled="!localSettings.enableRecommendations"
                 @change="handleSettingsChange"
               >
-              <span class="toggle-slider"></span>
+              <span class="toggle-slider" />
             </label>
           </div>
 
@@ -77,7 +77,7 @@
                 :disabled="!localSettings.enableRecommendations"
                 @change="handleSettingsChange"
               >
-              <span class="toggle-slider"></span>
+              <span class="toggle-slider" />
             </label>
           </div>
 
@@ -95,7 +95,7 @@
                 :disabled="!localSettings.enableRecommendations"
                 @change="handleSettingsChange"
               >
-              <span class="toggle-slider"></span>
+              <span class="toggle-slider" />
             </label>
           </div>
         </div>

@@ -309,7 +309,7 @@ export const useUIStore = defineStore('ui', () => {
 
   // Legacy keyboard shortcuts (kept for backwards compatibility)
   const handleKeyboardShortcut = (event: KeyboardEvent) => {
-    const { key, ctrlKey, metaKey, shiftKey, altKey } = event
+    const { key, ctrlKey, metaKey, shiftKey } = event
     const cmd = ctrlKey || metaKey
     
     // Don't handle shortcuts when typing in inputs, textareas, or contenteditable elements
@@ -504,7 +504,6 @@ export const useUIStore = defineStore('ui', () => {
 }, {
   persist: {
     key: 'miaoda-ui-store',
-    paths: ['theme', 'sidebarOpen', 'sidebarWidth', 'voiceEnabled'],
     storage: localStorage
   }
 })

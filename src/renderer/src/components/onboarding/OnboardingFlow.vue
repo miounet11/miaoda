@@ -20,11 +20,10 @@
       <div class="p-8 pt-12">
         <Transition name="slide-fade" mode="out-in">
           <div :key="currentStep" class="text-center">
-            
             <!-- 步骤 1: 欢迎 -->
             <div v-if="currentStep === 0" class="space-y-6">
               <div class="relative inline-flex items-center justify-center w-24 h-24 mb-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full animate-pulse-subtle"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full animate-pulse-subtle" />
                 <Sparkles :size="48" class="text-primary animate-sparkle" />
               </div>
               <div>
@@ -41,7 +40,7 @@
             <!-- 步骤 2: 配置 LLM -->
             <div v-else-if="currentStep === 1" class="space-y-6">
               <div class="relative inline-flex items-center justify-center w-24 h-24 mb-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-full" />
                 <Settings :size="48" class="text-blue-500" />
               </div>
               <div>
@@ -68,7 +67,7 @@
             <!-- 步骤 3: 基础功能 -->
             <div v-else-if="currentStep === 2" class="space-y-6">
               <div class="relative inline-flex items-center justify-center w-24 h-24 mb-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-full" />
                 <MessageSquare :size="48" class="text-green-500" />
               </div>
               <div>
@@ -113,7 +112,7 @@
             <!-- 步骤 4: 快捷键 -->
             <div v-else-if="currentStep === 3" class="space-y-6">
               <div class="relative inline-flex items-center justify-center w-24 h-24 mb-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-full" />
                 <Zap :size="48" class="text-purple-500" />
               </div>
               <div>
@@ -147,7 +146,7 @@
             <!-- 步骤 5: 完成 -->
             <div v-else-if="currentStep === 4" class="space-y-6">
               <div class="relative inline-flex items-center justify-center w-24 h-24 mb-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-full animate-pulse-subtle"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-full animate-pulse-subtle" />
                 <CheckCircle :size="48" class="text-green-500" />
               </div>
               <div>
@@ -169,7 +168,6 @@
                 </div>
               </div>
             </div>
-
           </div>
         </Transition>
 

@@ -24,7 +24,7 @@
             @keydown.enter="performSearch"
             @keydown.escape="closeSearch"
             @input="onSearchInput"
-          />
+          >
           
           <div class="search-controls">
             <button

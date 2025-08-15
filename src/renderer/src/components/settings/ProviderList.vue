@@ -103,8 +103,8 @@
                     @change="toggleProvider(provider.id, $event.target.checked)"
                     class="sr-only peer"
                   >
-                  <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors"></div>
-                  <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5"></div>
+                  <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors" />
+                  <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5" />
                 </label>
 
                 <!-- Test Connection -->

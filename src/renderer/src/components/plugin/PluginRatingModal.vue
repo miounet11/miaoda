@@ -21,7 +21,7 @@
                 :src="plugin.icon"
                 :alt="plugin.name"
                 class="icon-image"
-              />
+              >
               <Package v-else :size="32" />
             </div>
             <div class="plugin-details">
@@ -68,7 +68,7 @@
                 class="review-input"
                 rows="4"
                 maxlength="500"
-              ></textarea>
+              />
               <p class="char-count">{{ reviewText.length }}/500</p>
             </div>
 
@@ -95,7 +95,7 @@
                   v-model="isAnonymous"
                   type="checkbox"
                   class="option-checkbox"
-                />
+                >
                 <span class="option-text">匿名发布评价</span>
               </label>
             </div>

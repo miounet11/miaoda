@@ -16,13 +16,12 @@ import type {
   LearningPath,
   RecommendationStats
 } from '../types/recommendation'
-import { RecommendationEngine } from '../services/recommendation/RecommendationEngine'
-import { UserProfileService } from '../services/recommendation/UserProfileService'
+// Services removed during Phase 3 simplification
+// TODO: Re-implement recommendation system if needed
+import { logger } from '../utils/Logger'
 
 export const useRecommendationStore = defineStore('recommendation', () => {
-  // Services
-  const recommendationEngine = new RecommendationEngine()
-  const userProfileService = new UserProfileService()
+  // Services removed - using simplified implementation
 
   // State
   const recommendations = ref<RecommendationItem[]>([])
@@ -143,13 +142,12 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       // 加载统计信息
       await loadStats(userId)
 
-      // 更新推荐引擎配置
-      recommendationEngine.updateConfig(config.value)
+      // Recommendation engine configuration updated (mock)
 
-      console.log('推荐系统初始化完成')
+      // Recommendation system initialized successfully
     } catch (err: any) {
       error.value = err.message || '推荐系统初始化失败'
-      console.error('推荐系统初始化错误:', err)
+      logger.error('Recommendation system initialization failed', 'RecommendationStore', err)
     } finally {
       loading.value = false
     }
@@ -175,23 +173,18 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         currentTime: new Date()
       }
 
-      // 生成推荐
-      const result = await recommendationEngine.generateRecommendations(
-        userId,
-        fullContext,
-        userProfile.value || undefined
-      )
-
-      recommendations.value = result.recommendations
-      lastUpdated.value = result.generatedAt
+      // Generate mock recommendations for now
+      const mockRecommendations: RecommendationItem[] = []
+      recommendations.value = mockRecommendations
+      lastUpdated.value = new Date()
 
       // 保存推荐记录到数据库（通过IPC）
       await saveRecommendationsToDb(userId, result.recommendations)
 
-      console.log(`生成了 ${result.recommendations.length} 个推荐`)
+      // Generated recommendations successfully
     } catch (err: any) {
       error.value = err.message || '推荐生成失败'
-      console.error('推荐生成错误:', err)
+      logger.error('Recommendation generation failed', 'RecommendationStore', err)
     } finally {
       loading.value = false
     }
@@ -212,14 +205,11 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         currentTime: new Date()
       }
 
-      const suggestions = await recommendationEngine.generateSmartSuggestions(
-        fullContext,
-        userProfile.value || undefined
-      )
-
-      smartSuggestions.value = suggestions
+      // Generate mock suggestions for now
+      const mockSuggestions: SmartAssistantSuggestion[] = []
+      smartSuggestions.value = mockSuggestions
     } catch (err: any) {
-      console.error('智能建议生成错误:', err)
+      logger.error('Smart suggestions generation failed', 'RecommendationStore', err)
     }
   }
 
@@ -239,8 +229,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         context
       }
 
-      // 记录到推荐引擎
-      await recommendationEngine.recordUserFeedback(feedback)
+      // Feedback recording simplified for now
 
       // 保存到数据库（通过IPC）
       await saveFeedbackToDb(feedback)
@@ -248,9 +237,9 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       // 更新本地统计
       updateStatsAfterFeedback(action)
 
-      console.log('用户反馈记录成功:', action)
+      // User feedback recorded successfully
     } catch (err: any) {
-      console.error('反馈记录失败:', err)
+      logger.error('Feedback recording failed', 'RecommendationStore', err)
     }
   }
 
@@ -265,10 +254,10 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       // 根据推荐类型执行相应操作
       await executeRecommendation(recommendation)
 
-      console.log('推荐应用成功:', recommendation.title)
+      // Recommendation applied successfully
     } catch (err: any) {
       error.value = err.message || '推荐应用失败'
-      console.error('推荐应用错误:', err)
+      logger.error('Recommendation application failed', 'RecommendationStore', err)
     }
   }
 
@@ -282,22 +271,28 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       // 从数据库获取最新聊天数据
       const { chats, messages } = await getChatDataFromDb(userId)
 
-      // 生成新的用户画像
-      const newProfile = await userProfileService.generateUserProfile(
+      // Generate mock user profile for now
+      const newProfile: UserProfile = {
         userId,
-        chats,
-        messages
-      )
+        totalMessages: messages.length || 0,
+        totalChats: chats.length || 0,
+        interests: [],
+        knowledgeDomains: [],
+        commonScenarios: [],
+        preferredModels: [],
+        interactionPatterns: {},
+        lastUpdated: new Date()
+      }
 
       userProfile.value = newProfile
 
       // 保存到数据库
       await saveUserProfileToDb(newProfile)
 
-      console.log('用户画像更新完成')
+      // User profile updated successfully
     } catch (err: any) {
       error.value = err.message || '用户画像更新失败'
-      console.error('用户画像更新错误:', err)
+      logger.error('User profile update failed', 'RecommendationStore', err)
     } finally {
       loading.value = false
     }
@@ -308,7 +303,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
    */
   function updateConfig(newConfig: Partial<RecommendationConfig>): void {
     config.value = { ...config.value, ...newConfig }
-    recommendationEngine.updateConfig(config.value)
+    // Engine configuration updated (mock)
   }
 
   /**
@@ -327,10 +322,10 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       // 保存到数据库
       await savePersonalizationSettingsToDb(userId, personalizationSettings.value)
 
-      console.log('个性化设置更新完成')
+      // Personalization settings updated successfully
     } catch (err: any) {
       error.value = err.message || '设置更新失败'
-      console.error('设置更新错误:', err)
+      logger.error('Settings update failed', 'RecommendationStore', err)
     }
   }
 
@@ -346,18 +341,23 @@ export const useRecommendationStore = defineStore('recommendation', () => {
     loading.value = true
 
     try {
-      const learningPath = await recommendationEngine.generateLearningPath(
+      // Generate mock learning path for now
+      const mockLearningPath: LearningPath = {
+        id: `path-${Date.now()}`,
         userId,
         topic,
-        userProfile.value
-      )
+        difficulty: 'beginner',
+        estimatedDuration: 60,
+        steps: [],
+        createdAt: new Date(),
+        progress: 0
+      }
+      learningPaths.value.push(mockLearningPath)
 
-      learningPaths.value.push(learningPath)
-
-      console.log('学习路径创建完成:', learningPath.title)
+      // Learning path created successfully
     } catch (err: any) {
       error.value = err.message || '学习路径创建失败'
-      console.error('学习路径创建错误:', err)
+      logger.error('Learning path creation failed', 'RecommendationStore', err)
     } finally {
       loading.value = false
     }
@@ -390,7 +390,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       )
       userProfile.value = profile
     } catch (err) {
-      console.warn('用户画像加载失败，将生成新的画像')
+      logger.warn('User profile loading failed, generating new profile', 'RecommendationStore')
       // 如果没有画像，生成一个新的
       await updateUserProfile(userId)
     }
@@ -404,7 +404,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       )
       personalizationSettings.value = settings
     } catch (err) {
-      console.warn('个性化设置加载失败，使用默认设置')
+      logger.warn('Personalization settings loading failed, using defaults', 'RecommendationStore')
     }
   }
 
@@ -416,7 +416,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
       )
       stats.value = statsData
     } catch (err) {
-      console.warn('统计信息加载失败')
+      logger.warn('Statistics loading failed', 'RecommendationStore')
     }
   }
 
@@ -431,7 +431,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         recommendations
       )
     } catch (err) {
-      console.warn('推荐记录保存失败')
+      logger.warn('Recommendation record save failed', 'RecommendationStore')
     }
   }
 
@@ -442,7 +442,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         feedback
       )
     } catch (err) {
-      console.warn('反馈记录保存失败')
+      logger.warn('Feedback record save failed', 'RecommendationStore')
     }
   }
 
@@ -453,7 +453,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         profile
       )
     } catch (err) {
-      console.warn('用户画像保存失败')
+      logger.warn('User profile save failed', 'RecommendationStore')
     }
   }
 
@@ -468,7 +468,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         settings
       )
     } catch (err) {
-      console.warn('个性化设置保存失败')
+      logger.warn('Personalization settings save failed', 'RecommendationStore')
     }
   }
 
@@ -479,7 +479,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         userId
       )
     } catch (err) {
-      console.error('聊天数据获取失败')
+      logger.error('Chat data retrieval failed', 'RecommendationStore')
       return { chats: [], messages: [] }
     }
   }
@@ -503,31 +503,31 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         await applyContinuationSuggestion(recommendation)
         break
       default:
-        console.log('推荐类型暂不支持自动执行:', recommendation.type)
+        // Recommendation type not supported for auto-execution
     }
   }
 
   async function switchToRecommendedModel(recommendation: RecommendationItem): Promise<void> {
     if (recommendation.metadata?.model) {
       // 这里需要与设置store交互来切换模型
-      console.log('切换到推荐模型:', recommendation.metadata.model)
+      // Switching to recommended model
     }
   }
 
   async function applyRecommendedPrompt(recommendation: RecommendationItem): Promise<void> {
     // 将推荐的提示词填入聊天输入框
-    console.log('应用推荐提示词:', recommendation.content)
+    // Applying recommended prompt
     // 这里需要与聊天store交互
   }
 
   async function startRecommendedTopic(recommendation: RecommendationItem): Promise<void> {
     // 开始新的话题对话
-    console.log('开始推荐话题:', recommendation.title)
+    // Starting recommended topic
   }
 
   async function applyContinuationSuggestion(recommendation: RecommendationItem): Promise<void> {
     // 应用续写建议
-    console.log('应用续写建议:', recommendation.content)
+    // Applying continuation suggestion
   }
 
   function updateStatsAfterFeedback(action: string): void {
@@ -594,7 +594,7 @@ export const useRecommendationStoreWithPersist = () => {
       try {
         store.config = JSON.parse(savedConfig)
       } catch (e) {
-        console.error('Failed to parse saved config:', e)
+        logger.error('Failed to parse saved config', 'RecommendationStore', e)
       }
     }
     
@@ -602,7 +602,7 @@ export const useRecommendationStoreWithPersist = () => {
       try {
         store.personalizationSettings = JSON.parse(savedSettings)
       } catch (e) {
-        console.error('Failed to parse saved settings:', e)
+        logger.error('Failed to parse saved settings', 'RecommendationStore', e)
       }
     }
     

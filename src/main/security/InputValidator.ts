@@ -28,10 +28,10 @@ export const UpdateChatSchema = z.object({
 
 export const MessageSchema = z.object({
   id: SafeID,
-  chatId: SafeID,
+  chat_id: SafeID,
   role: z.enum(['user', 'assistant', 'system']),
   content: SafeString,
-  timestamp: z.number().int().positive(),
+  created_at: z.number().int().positive(),
   attachments: z.array(z.object({
     name: SafeFileName,
     type: z.string().max(50),
@@ -217,10 +217,10 @@ export function auditLog(operation: string, sensitive = false) {
         const result = originalMethod.call(this, ...args)
         console.log(`[AUDIT] ${operation} completed successfully`)
         return result
-      } catch (error) {
-        console.error(`[AUDIT] ${operation} failed:`, error.message)
-        throw error
-      }
+    } catch (error: unknown) {
+      console.error(`[AUDIT] ${operation} failed:`, error instanceof Error ? error.message : String(error))
+      throw error
+    }
     }
 
     return descriptor

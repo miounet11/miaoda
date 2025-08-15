@@ -15,7 +15,7 @@
           max="1000"
           step="10"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-        />
+        >
       </div>
       
       <div>
@@ -30,7 +30,7 @@
           max="5000"
           step="100"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-        />
+        >
       </div>
       
       <div>

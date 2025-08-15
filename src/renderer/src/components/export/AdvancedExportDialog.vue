@@ -96,7 +96,7 @@
                       type="checkbox"
                       v-model="options.includeTimestamps"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    />
+                    >
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include timestamps</span>
                   </label>
                   <label class="flex items-center space-x-3">
@@ -104,7 +104,7 @@
                       type="checkbox"
                       v-model="options.includeSystemMessages"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    />
+                    >
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include system messages</span>
                   </label>
                   <label class="flex items-center space-x-3">
@@ -112,7 +112,7 @@
                       type="checkbox"
                       v-model="options.includeMetadata"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    />
+                    >
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include metadata</span>
                   </label>
                   <label class="flex items-center space-x-3">
@@ -120,7 +120,7 @@
                       type="checkbox"
                       v-model="options.includeAttachments"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    />
+                    >
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include attachments</span>
                   </label>
                 </div>
@@ -170,7 +170,7 @@
                 :disabled="!canExport || isExporting"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
               >
-                <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <Download v-else class="w-4 h-4" />
                 <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
               </button>

@@ -5,7 +5,7 @@
       v-if="sidebarOpen && isMobile"
       class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
       @click="sidebarOpen = false"
-    ></div>
+    />
     
     <!-- Settings Sidebar -->
     <aside 
@@ -78,238 +78,240 @@
       </header>
 
       <div class="flex-1 overflow-y-auto">
-      <div class="max-w-2xl mx-auto p-4 sm:p-6">
-        <!-- LLM Provider Settings -->
-        <div v-if="activeTab === 'llm'" class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">LLM Provider Configuration</h3>
-            <p class="text-muted-foreground mb-6">
-              Select and configure your AI model provider. All settings are managed in one place.
-            </p>
-          </div>
+        <div class="max-w-2xl mx-auto p-4 sm:p-6">
+          <!-- LLM Provider Settings -->
+          <div v-if="activeTab === 'llm'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">LLM Provider Configuration</h3>
+              <p class="text-muted-foreground mb-6">
+                Select and configure your AI model provider. All settings are managed in one place.
+              </p>
+            </div>
 
-          <!-- Unified Provider Configuration -->
-          <UnifiedProviderConfig
-            v-model:provider="llmConfig.provider"
-            v-model:api-key="llmConfig.apiKey"
-            v-model:base-url="llmConfig.baseURL"
-            v-model:model="llmConfig.model"
-            :custom-providers="customProviders"
-            @provider-selected="handleProviderSelected"
-            @custom-provider-added="handleProviderAdded"
-            @custom-provider-updated="handleProviderUpdated"
-            @custom-provider-deleted="handleProviderDeleted"
-            @custom-provider-tested="handleProviderTested"
-          />
+            <!-- Unified Provider Configuration -->
+            <UnifiedProviderConfig
+              v-model:provider="llmConfig.provider"
+              v-model:api-key="llmConfig.apiKey"
+              v-model:base-url="llmConfig.baseURL"
+              v-model:model="llmConfig.model"
+              :custom-providers="customProviders"
+              @provider-selected="handleProviderSelected"
+              @custom-provider-added="handleProviderAdded"
+              @custom-provider-updated="handleProviderUpdated"
+              @custom-provider-deleted="handleProviderDeleted"
+              @custom-provider-tested="handleProviderTested"
+            />
 
-          <!-- Tools and Advanced Settings -->
-          <div class="space-y-4 border-t pt-6">
-            <h4 class="text-lg font-medium">Advanced Settings</h4>
+            <!-- Tools and Advanced Settings -->
+            <div class="space-y-4 border-t pt-6">
+              <h4 class="text-lg font-medium">Advanced Settings</h4>
             
-            <!-- Enable Tools -->
-            <div class="space-y-2">
-              <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
-                <div>
-                  <span class="text-sm font-medium block">Enable MCP Tools</span>
-                  <span class="text-xs text-muted-foreground">Allow AI to use filesystem, code execution, and other tools</span>
-                </div>
-                <input
-                  v-model="toolsEnabled"
-                  @change="toggleTools"
-                  type="checkbox"
-                  class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                />
-              </label>
-            </div>
-
-            <!-- Save and Test Actions -->
-            <div class="flex gap-3 pt-4">
-              <button
-                @click="saveLLMConfig"
-                :disabled="!isConfigValid"
-                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save Configuration
-              </button>
-              <button
-                @click="testConnection"
-                :disabled="!isConfigValid || isTestingConnection"
-                class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <Loader2 v-if="isTestingConnection" :size="16" class="animate-spin" />
-                <Zap v-else :size="16" />
-                {{ isTestingConnection ? 'Testing...' : 'Test Connection' }}
-              </button>
-            </div>
-
-            <!-- Status Message -->
-            <transition name="fade">
-              <div v-if="statusMessage" :class="[
-                'p-4 rounded-lg flex items-start gap-3',
-                statusMessage.type === 'success' 
-                  ? 'bg-green-500/10 border border-green-500/20' 
-                  : 'bg-red-500/10 border border-red-500/20'
-              ]">
-                <Check v-if="statusMessage.type === 'success'" :size="18" class="text-green-600 flex-shrink-0 mt-0.5" />
-                <AlertCircle v-else :size="18" class="text-red-600 flex-shrink-0 mt-0.5" />
-                <div class="flex-1">
-                  <p class="text-sm font-medium" :class="statusMessage.type === 'success' ? 'text-green-800' : 'text-red-800'">
-                    {{ statusMessage.text }}
-                  </p>
-                  <p v-if="statusMessage.type === 'success'" class="text-xs text-green-700 mt-1">
-                    You can now start chatting with your AI assistant.
-                  </p>
-                </div>
-              </div>
-            </transition>
-          </div>
-        </div>
-
-        <!-- Custom Providers -->
-        <div v-if="activeTab === 'providers'" class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">Custom Providers</h3>
-            <p class="text-muted-foreground mb-6">
-              Manage custom LLM providers to extend beyond the default options
-            </p>
-          </div>
-
-          <ProviderList
-            :providers="customProviders"
-            @provider-added="handleProviderAdded"
-            @provider-updated="handleProviderUpdated"
-            @provider-deleted="handleProviderDeleted"
-            @provider-toggled="handleProviderToggled"
-            @provider-tested="handleProviderTested"
-            @providers-reordered="handleProvidersReordered"
-          />
-        </div>
-
-        <!-- Theme Settings -->
-        <div v-if="activeTab === 'appearance'" class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">Appearance</h3>
-            <p class="text-muted-foreground mb-6">
-              Customize the look and feel of the application
-            </p>
-          </div>
-
-          <div class="space-y-4">
-            <label class="block">
-              <span class="text-sm font-medium mb-2 block">Theme</span>
-              <select 
-                v-model="theme"
-                class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="system">System</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <!-- Shortcuts -->
-        <div v-if="activeTab === 'shortcuts'" class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">Keyboard Shortcuts</h3>
-            <p class="text-muted-foreground mb-6">
-              Quick actions to enhance your productivity
-            </p>
-          </div>
-
-          <div class="space-y-3">
-            <div
-              v-for="shortcut in shortcuts"
-              :key="shortcut.key"
-              class="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-            >
-              <span class="text-sm">{{ shortcut.description }}</span>
-              <kbd class="px-2 py-1 text-xs bg-background border rounded">
-                {{ shortcut.key }}
-              </kbd>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plugins -->
-        <div v-if="activeTab === 'plugins'" class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">Plugins</h3>
-            <p class="text-muted-foreground mb-6">
-              Extend MiaoDa Chat with additional features and tools
-            </p>
-          </div>
-
-          <div v-if="plugins.length === 0" class="text-center py-12 bg-muted/30 rounded-lg">
-            <Puzzle :size="48" class="mx-auto mb-4 text-muted-foreground" />
-            <p class="text-muted-foreground">No plugins installed</p>
-            <button class="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-              Browse Plugins
-            </button>
-          </div>
-
-          <div v-else class="space-y-4">
-            <div
-              v-for="plugin in plugins"
-              :key="plugin.id"
-              class="p-4 bg-muted/30 rounded-lg"
-            >
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
-                    <h4 class="font-semibold">{{ plugin.name }}</h4>
-                    <span class="text-xs px-2 py-0.5 bg-muted rounded">v{{ plugin.version }}</span>
+              <!-- Enable Tools -->
+              <div class="space-y-2">
+                <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
+                  <div>
+                    <span class="text-sm font-medium block">Enable MCP Tools</span>
+                    <span class="text-xs text-muted-foreground">Allow AI to use filesystem, code execution, and other tools</span>
                   </div>
-                  <p class="text-sm text-muted-foreground mb-2">{{ plugin.description }}</p>
-                  <div class="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>ID: {{ plugin.id }}</span>
-                    <span v-if="plugin.author">By {{ plugin.author }}</span>
-                  </div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
                   <input
+                    v-model="toolsEnabled"
+                    @change="toggleTools"
                     type="checkbox"
-                    :checked="plugin.enabled"
-                    @change="togglePlugin(plugin.id, $event.target.checked)"
-                    class="sr-only peer"
+                    class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
                   >
-                  <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors"></div>
-                  <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5"></div>
                 </label>
               </div>
+
+              <!-- Save and Test Actions -->
+              <div class="flex gap-3 pt-4">
+                <button
+                  @click="saveLLMConfig"
+                  :disabled="!isConfigValid"
+                  class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Save Configuration
+                </button>
+                <button
+                  @click="testConnection"
+                  :disabled="!isConfigValid || isTestingConnection"
+                  class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  <Loader2 v-if="isTestingConnection" :size="16" class="animate-spin" />
+                  <Zap v-else :size="16" />
+                  {{ isTestingConnection ? 'Testing...' : 'Test Connection' }}
+                </button>
+              </div>
+
+              <!-- Status Message -->
+              <transition name="fade">
+                <div
+                  v-if="statusMessage" :class="[
+                    'p-4 rounded-lg flex items-start gap-3',
+                    statusMessage.type === 'success' 
+                      ? 'bg-green-500/10 border border-green-500/20' 
+                      : 'bg-red-500/10 border border-red-500/20'
+                  ]"
+                >
+                  <Check v-if="statusMessage.type === 'success'" :size="18" class="text-green-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle v-else :size="18" class="text-red-600 flex-shrink-0 mt-0.5" />
+                  <div class="flex-1">
+                    <p class="text-sm font-medium" :class="statusMessage.type === 'success' ? 'text-green-800' : 'text-red-800'">
+                      {{ statusMessage.text }}
+                    </p>
+                    <p v-if="statusMessage.type === 'success'" class="text-xs text-green-700 mt-1">
+                      You can now start chatting with your AI assistant.
+                    </p>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- Custom Providers -->
+          <div v-if="activeTab === 'providers'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">Custom Providers</h3>
+              <p class="text-muted-foreground mb-6">
+                Manage custom LLM providers to extend beyond the default options
+              </p>
+            </div>
+
+            <ProviderList
+              :providers="customProviders"
+              @provider-added="handleProviderAdded"
+              @provider-updated="handleProviderUpdated"
+              @provider-deleted="handleProviderDeleted"
+              @provider-toggled="handleProviderToggled"
+              @provider-tested="handleProviderTested"
+              @providers-reordered="handleProvidersReordered"
+            />
+          </div>
+
+          <!-- Theme Settings -->
+          <div v-if="activeTab === 'appearance'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">Appearance</h3>
+              <p class="text-muted-foreground mb-6">
+                Customize the look and feel of the application
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <label class="block">
+                <span class="text-sm font-medium mb-2 block">Theme</span>
+                <select 
+                  v-model="theme"
+                  class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">System</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Shortcuts -->
+          <div v-if="activeTab === 'shortcuts'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">Keyboard Shortcuts</h3>
+              <p class="text-muted-foreground mb-6">
+                Quick actions to enhance your productivity
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                v-for="shortcut in shortcuts"
+                :key="shortcut.key"
+                class="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+              >
+                <span class="text-sm">{{ shortcut.description }}</span>
+                <kbd class="px-2 py-1 text-xs bg-background border rounded">
+                  {{ shortcut.key }}
+                </kbd>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plugins -->
+          <div v-if="activeTab === 'plugins'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">Plugins</h3>
+              <p class="text-muted-foreground mb-6">
+                Extend MiaoDa Chat with additional features and tools
+              </p>
+            </div>
+
+            <div v-if="plugins.length === 0" class="text-center py-12 bg-muted/30 rounded-lg">
+              <Puzzle :size="48" class="mx-auto mb-4 text-muted-foreground" />
+              <p class="text-muted-foreground">No plugins installed</p>
+              <button class="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                Browse Plugins
+              </button>
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="plugin in plugins"
+                :key="plugin.id"
+                class="p-4 bg-muted/30 rounded-lg"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <h4 class="font-semibold">{{ plugin.name }}</h4>
+                      <span class="text-xs px-2 py-0.5 bg-muted rounded">v{{ plugin.version }}</span>
+                    </div>
+                    <p class="text-sm text-muted-foreground mb-2">{{ plugin.description }}</p>
+                    <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>ID: {{ plugin.id }}</span>
+                      <span v-if="plugin.author">By {{ plugin.author }}</span>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      :checked="plugin.enabled"
+                      @change="togglePlugin(plugin.id, $event.target.checked)"
+                      class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors" />
+                    <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5" />
+                  </label>
+                </div>
               
-              <!-- Plugin capabilities -->
-              <div v-if="plugin.capabilities" class="mt-3 flex gap-2">
-                <span 
-                  v-if="plugin.capabilities.tools"
-                  class="text-xs px-2 py-1 bg-blue-500/10 text-blue-600 rounded"
-                >
-                  Tools
-                </span>
-                <span 
-                  v-if="plugin.capabilities.commands"
-                  class="text-xs px-2 py-1 bg-green-500/10 text-green-600 rounded"
-                >
-                  Commands
-                </span>
-                <span 
-                  v-if="plugin.capabilities.themes"
-                  class="text-xs px-2 py-1 bg-purple-500/10 text-purple-600 rounded"
-                >
-                  Themes
-                </span>
-                <span 
-                  v-if="plugin.capabilities.ui"
-                  class="text-xs px-2 py-1 bg-orange-500/10 text-orange-600 rounded"
-                >
-                  UI
-                </span>
+                <!-- Plugin capabilities -->
+                <div v-if="plugin.capabilities" class="mt-3 flex gap-2">
+                  <span 
+                    v-if="plugin.capabilities.tools"
+                    class="text-xs px-2 py-1 bg-blue-500/10 text-blue-600 rounded"
+                  >
+                    Tools
+                  </span>
+                  <span 
+                    v-if="plugin.capabilities.commands"
+                    class="text-xs px-2 py-1 bg-green-500/10 text-green-600 rounded"
+                  >
+                    Commands
+                  </span>
+                  <span 
+                    v-if="plugin.capabilities.themes"
+                    class="text-xs px-2 py-1 bg-purple-500/10 text-purple-600 rounded"
+                  >
+                    Themes
+                  </span>
+                  <span 
+                    v-if="plugin.capabilities.ui"
+                    class="text-xs px-2 py-1 bg-orange-500/10 text-orange-600 rounded"
+                  >
+                    UI
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </main>
     

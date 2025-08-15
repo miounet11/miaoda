@@ -102,15 +102,15 @@
             <h3 class="chart-title">Search Volume Over Time</h3>
             <div class="chart-legend">
               <div class="legend-item">
-                <div class="legend-color" style="background-color: #3b82f6"></div>
+                <div class="legend-color" style="background-color: #3b82f6" />
                 <span>Total Searches</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color" style="background-color: #10b981"></div>
+                <div class="legend-color" style="background-color: #10b981" />
                 <span>Semantic Searches</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color" style="background-color: #f59e0b"></div>
+                <div class="legend-color" style="background-color: #f59e0b" />
                 <span>Cached Results</span>
               </div>
             </div>
@@ -193,7 +193,7 @@
                       class="type-fill" 
                       :style="{ width: `${(type.count / analytics.totalSearches) * 100}%` }"
                       :class="`fill-${type.name}`"
-                    ></div>
+                    />
                   </div>
                   <span class="type-percentage">{{ Math.round((type.count / analytics.totalSearches) * 100) }}%</span>
                 </div>

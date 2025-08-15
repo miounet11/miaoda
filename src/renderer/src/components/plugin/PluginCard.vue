@@ -8,7 +8,7 @@
           :src="plugin.manifest.icon"
           :alt="plugin.manifest.name"
           class="icon-image"
-        />
+        >
         <Puzzle v-else :size="32" class="icon-default" />
       </div>
       
@@ -57,7 +57,7 @@
               {{ $t('plugin.update') }}
             </button>
             
-            <div class="action-divider"></div>
+            <div class="action-divider" />
             
             <button
               @click="$emit('uninstall', plugin)"
@@ -94,7 +94,7 @@
     <div class="card-footer">
       <div class="status-indicators">
         <div class="status-item" :class="statusClass">
-          <div class="status-dot"></div>
+          <div class="status-dot" />
           <span class="status-text">{{ statusText }}</span>
         </div>
         

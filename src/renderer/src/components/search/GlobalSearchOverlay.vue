@@ -40,7 +40,7 @@
                   @keydown.esc="closeSearch"
                   @keydown.down.prevent="navigateResults(1)"
                   @keydown.up.prevent="navigateResults(-1)"
-                />
+                >
                 <div class="flex items-center gap-2 ml-4">
                   <!-- Search Options -->
                   <button
@@ -84,7 +84,7 @@
                             v-model="searchOptions.scope"
                             value="all"
                             class="text-blue-600 focus:ring-blue-500"
-                          />
+                          >
                           <span class="text-sm">All Messages</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -93,7 +93,7 @@
                             v-model="searchOptions.scope"
                             value="current"
                             class="text-blue-600 focus:ring-blue-500"
-                          />
+                          >
                           <span class="text-sm">Current Chat</span>
                         </label>
                       </div>
@@ -110,7 +110,7 @@
                             type="checkbox"
                             v-model="searchOptions.includeUser"
                             class="text-blue-600 focus:ring-blue-500 rounded"
-                          />
+                          >
                           <span class="text-sm">User Messages</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -118,7 +118,7 @@
                             type="checkbox"
                             v-model="searchOptions.includeAssistant"
                             class="text-blue-600 focus:ring-blue-500 rounded"
-                          />
+                          >
                           <span class="text-sm">Assistant Messages</span>
                         </label>
                       </div>
@@ -135,13 +135,13 @@
                         type="date"
                         v-model="searchOptions.dateFrom"
                         class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800"
-                      />
+                      >
                       <span class="text-gray-500 self-center">to</span>
                       <input
                         type="date"
                         v-model="searchOptions.dateTo"
                         class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800"
-                      />
+                      >
                     </div>
                   </div>
                 </div>

@@ -74,7 +74,7 @@
           :class="`editor-${currentFormat}`"
           :placeholder="$t('notes.placeholder')"
           spellcheck="true"
-        ></textarea>
+        />
       </div>
       
       <!-- Preview -->
@@ -96,7 +96,7 @@
           :class="`preview-${currentFormat}`"
           @scroll="syncScroll"
           v-html="previewContent"
-        ></div>
+        />
       </div>
     </div>
     

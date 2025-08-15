@@ -51,16 +51,16 @@
         
         <!-- Code blocks and formatting -->
         <div v-if="!isStreaming && formattedContent" class="formatted-content">
-          <div v-html="formattedContent" class="content-html"></div>
+          <div v-html="formattedContent" class="content-html" />
         </div>
         
         <!-- Streaming indicators -->
         <div v-if="isStreaming" class="streaming-indicators">
           <div class="typing-indicator">
             <div class="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+              <span />
+              <span />
+              <span />
             </div>
             <span class="typing-text">{{ typingText }}</span>
           </div>
@@ -157,12 +157,12 @@
       
       <div class="regenerate-options">
         <label class="option">
-          <input type="checkbox" v-model="regenerateWithDifferentTemp" />
+          <input type="checkbox" v-model="regenerateWithDifferentTemp">
           <span>Different temperature</span>
         </label>
         
         <label class="option">
-          <input type="checkbox" v-model="regenerateWithDifferentModel" />
+          <input type="checkbox" v-model="regenerateWithDifferentModel">
           <span>Different model</span>
         </label>
       </div>

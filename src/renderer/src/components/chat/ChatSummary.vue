@@ -53,7 +53,7 @@
 
     <!-- Loading State -->
     <div v-if="isGenerating" class="summary-loading flex items-center gap-2 p-2 bg-accent/30 rounded-lg">
-      <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+      <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
       <span class="text-sm text-muted-foreground">Generating summary...</span>
     </div>
 
@@ -97,7 +97,7 @@
               :key="point"
               class="text-sm text-foreground flex items-start gap-2"
             >
-              <span class="w-1 h-1 bg-muted-foreground rounded-full mt-2 flex-shrink-0"></span>
+              <span class="w-1 h-1 bg-muted-foreground rounded-full mt-2 flex-shrink-0" />
               <span class="leading-relaxed">{{ point }}</span>
             </li>
           </ul>
@@ -160,7 +160,7 @@
               class="w-full mt-1 p-2 border rounded-md resize-none"
               rows="4"
               placeholder="Enter summary..."
-            ></textarea>
+            />
           </div>
           <div>
             <label class="text-sm font-medium text-muted-foreground">Tags (comma-separated)</label>
@@ -169,7 +169,7 @@
               type="text"
               class="w-full mt-1 p-2 border rounded-md"
               placeholder="technology, discussion, important"
-            />
+            >
           </div>
           <div>
             <label class="text-sm font-medium text-muted-foreground">Key Points (one per line)</label>
@@ -178,7 +178,7 @@
               class="w-full mt-1 p-2 border rounded-md resize-none"
               rows="4"
               placeholder="Key point 1&#10;Key point 2&#10;Key point 3"
-            ></textarea>
+            />
           </div>
         </div>
         <div class="p-4 border-t flex justify-end gap-2">
@@ -214,7 +214,6 @@ import {
   Tag 
 } from 'lucide-vue-next'
 import type { ChatSummary, Message } from '@renderer/src/types'
-import { SummaryService } from '@renderer/src/services/summary/SummaryService'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
 
 interface Props {
@@ -246,8 +245,7 @@ const editData = ref<Partial<ChatSummary>>({})
 const tagsInput = ref('')
 const keyPointsInput = ref('')
 
-// Service instance
-const summaryService = SummaryService.getInstance()
+// Use IPC for summary operations
 
 // Computed
 const showSummary = computed(() => {
@@ -268,14 +266,62 @@ const generateSummary = async () => {
 
   try {
     isGenerating.value = true
-    const summary = await summaryService.generateSummary(props.chatId, props.messages, {
-      maxLength: 200,
-      includeKeyPoints: true,
-      includeTags: true
-    })
     
-    summaryData.value = summary
-    emit('summary-updated', summary)
+    // Generate summary content using LLM
+    const messageText = props.messages
+      .map(m => `${m.role}: ${m.content}`)
+      .join('\n')
+    
+    const prompt = `Please generate a concise summary of this conversation. Include key points and relevant tags:
+
+${messageText}
+
+Format your response as:
+SUMMARY: [brief summary in 1-2 sentences]
+KEY_POINTS: [bullet points of main topics]
+TAGS: [comma-separated relevant tags]`
+    
+    const summaryText = await window.electronAPI.invoke('llm:generate-summary', prompt)
+    
+    // Parse the response (simplified)
+    const lines = summaryText.split('\n')
+    let summary = ''
+    let keyPoints: string[] = []
+    let tags: string[] = []
+    
+    for (const line of lines) {
+      if (line.startsWith('SUMMARY:')) {
+        summary = line.replace('SUMMARY:', '').trim()
+      } else if (line.startsWith('KEY_POINTS:')) {
+        keyPoints = line.replace('KEY_POINTS:', '').split('•').map(p => p.trim()).filter(p => p)
+      } else if (line.startsWith('TAGS:')) {
+        tags = line.replace('TAGS:', '').split(',').map(t => t.trim()).filter(t => t)
+      }
+    }
+    
+    const chatSummary: ChatSummary = {
+      id: `summary-${props.chatId}-${Date.now()}`,
+      chatId: props.chatId,
+      summary: summary || summaryText.slice(0, 200),
+      keyPoints: keyPoints.length > 0 ? keyPoints : ['Generated summary'],
+      tags: tags.length > 0 ? tags : ['conversation'],
+      wordCount: props.messages.reduce((sum, m) => sum + (m.content?.length || 0), 0),
+      messageCount: props.messages.length,
+      generatedAt: new Date(),
+      lastUpdated: new Date()
+    }
+    
+    // Save to database
+    await window.electronAPI.invoke('db:update-chat-summary', 
+      props.chatId, 
+      chatSummary.summary,
+      chatSummary.tags,
+      chatSummary.keyPoints,
+      chatSummary.wordCount
+    )
+    
+    summaryData.value = chatSummary
+    emit('summary-updated', chatSummary)
     
     // Auto-expand after generation
     isExpanded.value = true

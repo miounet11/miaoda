@@ -41,10 +41,12 @@
           >
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0">
-                <div :class="[
-                  'w-2 h-2 rounded-full mt-2',
-                  result.message.role === 'user' ? 'bg-blue-500' : 'bg-green-500'
-                ]"></div>
+                <div
+                  :class="[
+                    'w-2 h-2 rounded-full mt-2',
+                    result.message.role === 'user' ? 'bg-blue-500' : 'bg-green-500'
+                  ]"
+                />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between">

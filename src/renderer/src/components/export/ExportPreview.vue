@@ -50,7 +50,7 @@
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center h-64">
         <div class="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-          <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span>Generating preview...</span>
         </div>
       </div>
@@ -79,7 +79,7 @@
           <div 
             class="prose dark:prose-invert max-w-none"
             v-html="renderedMarkdown"
-          ></div>
+          />
         </div>
 
         <!-- HTML Preview -->
@@ -89,13 +89,13 @@
             :srcdoc="previewContent"
             class="w-full h-full border-0"
             sandbox="allow-same-origin"
-          ></iframe>
+          />
         </div>
 
         <!-- JSON Preview -->
         <div v-else-if="selectedFormat === 'json'" class="p-6">
           <pre class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 overflow-auto text-sm font-mono">
-            <code class="language-json" v-html="highlightedJson"></code>
+            <code class="language-json" v-html="highlightedJson" />
           </pre>
         </div>
 

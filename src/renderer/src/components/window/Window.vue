@@ -7,14 +7,14 @@
         <button 
           @click="minimizeWindow" 
           class="control-btn minimize-btn"
-          :title="$t('window.minimize')"
+          :title="t('window.minimize')"
         >
           <Minus :size="12" />
         </button>
         <button 
           @click="toggleMaximize" 
           class="control-btn maximize-btn"
-          :title="isMaximized ? $t('window.restore') : $t('window.maximize')"
+          :title="isMaximized ? t('window.restore') : t('window.maximize')"
         >
           <Square :size="12" v-if="!isMaximized" />
           <Copy :size="12" v-else />
@@ -22,7 +22,7 @@
         <button 
           @click="closeWindow" 
           class="control-btn close-btn"
-          :title="$t('window.close')"
+          :title="t('window.close')"
         >
           <X :size="12" />
         </button>
@@ -37,9 +37,16 @@
       <!-- Window Actions -->
       <div class="window-actions">
         <button
+          @click="openSettings"
+          class="settings-btn"
+          :title="t('common.settings')"
+        >
+          <Settings :size="16" />
+        </button>
+        <button
           @click="showWindowMenu"
           class="window-menu-btn"
-          :title="$t('window.menu')"
+          :title="t('window.menu')"
         >
           <MoreHorizontal :size="16" />
         </button>
@@ -82,11 +89,11 @@
       <div v-else class="empty-state">
         <div class="empty-content">
           <FileText :size="48" class="empty-icon" />
-          <h2>{{ $t('window.noTabsTitle') }}</h2>
-          <p>{{ $t('window.noTabsDescription') }}</p>
+          <h2>{{ t('window.noTabsTitle') }}</h2>
+          <p>{{ t('window.noTabsDescription') }}</p>
           <button @click="handleTabAdd" class="add-tab-button">
             <Plus :size="16" />
-            {{ $t('tab.addNew') }}
+            {{ t('tab.addNew') }}
           </button>
         </div>
       </div>
@@ -96,18 +103,18 @@
     <div v-if="showStatusBar" class="window-status-bar">
       <div class="status-left">
         <span class="status-item">
-          {{ $t('window.tabs', { count: windowState?.tabs.length || 0 }) }}
+          {{ t('window.tabs', { count: windowState?.tabs.length || 0 }) }}
         </span>
         <span v-if="connectionStatus" class="status-item connection-status" :class="connectionStatus">
           <Wifi :size="14" v-if="connectionStatus === 'connected'" />
           <WifiOff :size="14" v-else />
-          {{ $t(`connection.${connectionStatus}`) }}
+          {{ t(`connection.${connectionStatus}`) }}
         </span>
       </div>
       
       <div class="status-right">
         <span v-if="activeTab?.type === 'chat'" class="status-item">
-          {{ $t('chat.model') }}: {{ currentModel }}
+          {{ t('chat.model') }}: {{ currentModel }}
         </span>
         <span class="status-item">
           {{ formattedTime }}
@@ -127,14 +134,14 @@
 
     <!-- Resize Handles (for custom window frame) -->
     <div v-if="!isMaximized && allowResize" class="resize-handles">
-      <div class="resize-handle resize-n" @mousedown="startResize('n')"></div>
-      <div class="resize-handle resize-s" @mousedown="startResize('s')"></div>
-      <div class="resize-handle resize-e" @mousedown="startResize('e')"></div>
-      <div class="resize-handle resize-w" @mousedown="startResize('w')"></div>
-      <div class="resize-handle resize-nw" @mousedown="startResize('nw')"></div>
-      <div class="resize-handle resize-ne" @mousedown="startResize('ne')"></div>
-      <div class="resize-handle resize-sw" @mousedown="startResize('sw')"></div>
-      <div class="resize-handle resize-se" @mousedown="startResize('se')"></div>
+      <div class="resize-handle resize-n" @mousedown="startResize('n')" />
+      <div class="resize-handle resize-s" @mousedown="startResize('s')" />
+      <div class="resize-handle resize-e" @mousedown="startResize('e')" />
+      <div class="resize-handle resize-w" @mousedown="startResize('w')" />
+      <div class="resize-handle resize-nw" @mousedown="startResize('nw')" />
+      <div class="resize-handle resize-ne" @mousedown="startResize('ne')" />
+      <div class="resize-handle resize-sw" @mousedown="startResize('sw')" />
+      <div class="resize-handle resize-se" @mousedown="startResize('se')" />
     </div>
   </div>
 </template>
@@ -143,7 +150,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { 
   Minus, Square, Copy, X, MoreHorizontal, Plus, FileText, 
-  Wifi, WifiOff 
+  Wifi, WifiOff, Settings 
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { windowManager, type WindowState, type WindowTab } from '@renderer/src/services/window/WindowManager'
@@ -628,6 +635,10 @@ defineExpose({
 }
 
 .window-menu-btn {
+  @apply p-1 rounded hover:bg-accent transition-colors;
+}
+
+.settings-btn {
   @apply p-1 rounded hover:bg-accent transition-colors;
 }
 

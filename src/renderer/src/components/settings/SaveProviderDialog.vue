@@ -6,7 +6,7 @@
         <div 
           class="fixed inset-0 bg-black/50 backdrop-blur-sm"
           @click="handleCancel"
-        ></div>
+        />
         
         <!-- Dialog -->
         <div class="flex min-h-full items-center justify-center p-4">
@@ -45,7 +45,7 @@
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                   autofocus
                   @keyup.enter="handleSave"
-                />
+                >
               </div>
               
               <!-- Description -->
@@ -59,7 +59,7 @@
                   placeholder="Brief description of this configuration"
                   rows="2"
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                ></textarea>
+                />
               </div>
               
               <!-- Icon Selection -->
@@ -108,7 +108,7 @@
                     v-model="formData.setAsActive"
                     type="checkbox"
                     class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                  />
+                  >
                   <span class="text-sm">Set as active configuration after saving</span>
                 </label>
               </div>

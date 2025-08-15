@@ -1,9 +1,9 @@
 <template>
   <div class="typing-indicator flex items-center gap-2 px-4 py-2">
     <div class="flex items-center gap-1">
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
+      <span class="typing-dot" />
+      <span class="typing-dot" />
+      <span class="typing-dot" />
     </div>
     <span class="text-sm text-muted-foreground">{{ message }}</span>
   </div>

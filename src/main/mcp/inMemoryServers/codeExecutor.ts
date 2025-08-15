@@ -79,17 +79,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return { tools }
 })
 
-// Execute code safely with timeout
+// Execute code safely with timeout and sandboxing
 async function executeCode(
   executor: string,
   args: string[],
   input?: string,
   cwd?: string
 ): Promise<{ output: string; error?: string }> {
+  // Security: Validate executor and args
+  const allowedExecutors = ['node', 'python3']
+  if (!allowedExecutors.includes(executor)) {
+    return { output: '', error: 'Executor not allowed for security reasons' }
+  }
+
+  // Security: Sanitize arguments to prevent injection
+  const sanitizedArgs = args.map(arg => {
+    // Remove potentially dangerous characters
+    return arg.replace(/[;&|`$()<>]/g, '')
+  })
+
   return new Promise((resolve) => {
-    const child = spawn(executor, args, {
+    const child = spawn(executor, sanitizedArgs, {
       cwd: cwd || process.cwd(),
       timeout: 30000, // 30 second timeout
+      env: {
+        ...process.env,
+        // Restrict environment for security
+        NODE_OPTIONS: '--max-old-space-size=128',
+        PYTHONDONTWRITEBYTECODE: '1'
+      },
+      shell: false // Never use shell for security
     })
 
     let output = ''
@@ -159,17 +178,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'execute_shell': {
-        const { command, cwd } = args as { command: string; cwd?: string }
-        const result = await executeCode('sh', ['-c', command], undefined, cwd)
+        // Security: Shell execution is disabled for security reasons
         return {
           content: [
             {
               type: 'text',
-              text: result.error 
-                ? `Error: ${result.error}\n\nOutput:\n${result.output}`
-                : result.output,
+              text: 'Shell execution is disabled for security reasons. Use JavaScript or Python execution instead.',
             },
           ],
+          isError: true,
         }
       }
 

@@ -74,7 +74,7 @@
                     class="toggle-switch"
                     :class="{ 'active': preferences.smartRecommendations }"
                   >
-                    <div class="toggle-thumb"></div>
+                    <div class="toggle-thumb" />
                   </button>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1 ml-6">
@@ -94,7 +94,7 @@
                     class="toggle-switch"
                     :class="{ 'active': preferences.autoModelSwitch }"
                   >
-                    <div class="toggle-thumb"></div>
+                    <div class="toggle-thumb" />
                   </button>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1 ml-6">
@@ -114,7 +114,7 @@
                     class="toggle-switch"
                     :class="{ 'active': preferences.contextAware }"
                   >
-                    <div class="toggle-thumb"></div>
+                    <div class="toggle-thumb" />
                   </button>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1 ml-6">
@@ -156,7 +156,7 @@
                     max="5"
                     step="1"
                     class="w-full"
-                  />
+                  >
                   <div class="flex justify-between text-xs text-muted-foreground mt-1">
                     <span>简洁</span>
                     <span>详细</span>
@@ -229,7 +229,7 @@
         v-if="hasNewFeatures"
         class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center animate-pulse"
       >
-        <div class="w-2 h-2 bg-white rounded-full"></div>
+        <div class="w-2 h-2 bg-white rounded-full" />
       </div>
     </button>
 

@@ -15,7 +15,7 @@
                 :src="plugin.icon"
                 :alt="plugin.name"
                 class="icon-image"
-              />
+              >
               <Package v-else :size="48" class="icon-default" />
             </div>
             
@@ -134,7 +134,7 @@
                         class="screenshot-item"
                         @click="openScreenshot(index)"
                       >
-                        <img :src="screenshot" :alt="`Screenshot ${index + 1}`" />
+                        <img :src="screenshot" :alt="`Screenshot ${index + 1}`">
                       </div>
                     </div>
                   </div>
@@ -142,7 +142,7 @@
                   <!-- Description -->
                   <div class="description">
                     <h3 class="section-title">插件介绍</h3>
-                    <div class="description-content" v-html="formatDescription(plugin.description)"></div>
+                    <div class="description-content" v-html="formatDescription(plugin.description)" />
                   </div>
 
                   <!-- Features -->

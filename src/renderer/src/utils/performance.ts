@@ -240,7 +240,9 @@ export function memoize<T extends (...args: any[]) => any>(
     // LRU eviction
     if (cache.size >= maxSize) {
       const firstKey = cache.keys().next().value
-      cache.delete(firstKey)
+      if (firstKey !== undefined) {
+        cache.delete(firstKey)
+      }
     }
     
     cache.set(key, result)
@@ -308,7 +310,9 @@ export class ImageLoader {
     // LRU cache management
     if (this.cache.size >= this.maxCacheSize) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey)
+      }
     }
     
     this.cache.set(src, promise)

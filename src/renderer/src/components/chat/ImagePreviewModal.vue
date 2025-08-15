@@ -7,7 +7,7 @@
         @click="closeModal"
       >
         <!-- Modal Backdrop -->
-        <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" />
         
         <!-- Modal Content -->
         <div
@@ -80,7 +80,7 @@
                 @load="onImageLoad"
                 @error="onImageError"
                 :style="imageStyles"
-              />
+              >
               
               <!-- Loading State -->
               <div 
@@ -88,7 +88,7 @@
                 class="loading-overlay absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center"
               >
                 <div class="text-white text-center">
-                  <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   <p class="text-sm">加载中...</p>
                 </div>
               </div>
@@ -127,7 +127,7 @@
                   <ZoomIn :size="16" />
                 </button>
                 
-                <div class="w-px h-4 bg-white/30 mx-1"></div>
+                <div class="w-px h-4 bg-white/30 mx-1" />
                 
                 <button
                   @click="resetZoom"

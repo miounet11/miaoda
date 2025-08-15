@@ -88,7 +88,7 @@ export interface UISettings {
   animationsEnabled: boolean
 }
 
-export interface ChatSettings {
+export interface AppChatSettings {
   autoScroll: boolean
   enterToSend: boolean
   showWordCount: boolean
@@ -123,7 +123,7 @@ export interface AdvancedSettings {
 export interface AppSettings {
   llm: LLMSettings
   ui: UISettings
-  chat: ChatSettings
+  chat: AppChatSettings
   privacy: PrivacySettings
   voice: VoiceSettings
   shortcuts: KeyboardShortcuts

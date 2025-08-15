@@ -201,7 +201,7 @@ describe('SummaryService', () => {
 
     await expect(
       summaryService.generateSummary(mockChatId, mockMessages)
-    ).rejects.toThrow('Summary generation failed: LLM API error')
+    ).rejects.toThrow('Summary generation failed: Failed to generate summary using LLM')
   })
 
   it('should handle malformed JSON response from LLM', async () => {

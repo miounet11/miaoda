@@ -58,7 +58,7 @@
             type="checkbox"
             v-model="pdfOptions.includePageNumbers"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Include page numbers</span>
         </label>
         <label class="flex items-center space-x-3">
@@ -66,7 +66,7 @@
             type="checkbox"
             v-model="pdfOptions.includeHeader"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Include header</span>
         </label>
         <label class="flex items-center space-x-3">
@@ -74,7 +74,7 @@
             type="checkbox"
             v-model="pdfOptions.includeFooter"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Include footer</span>
         </label>
       </div>
@@ -116,7 +116,7 @@
             type="checkbox"
             v-model="csvOptions.includeHeaders"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Include column headers</span>
         </label>
         <label class="flex items-center space-x-3">
@@ -124,7 +124,7 @@
             type="checkbox"
             v-model="csvOptions.flattenContent"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Flatten multiline content</span>
         </label>
       </div>
@@ -169,7 +169,7 @@
             min="8"
             max="72"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+          >
         </div>
       </div>
       
@@ -179,7 +179,7 @@
             type="checkbox"
             v-model="docxOptions.includeTableOfContents"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Include table of contents</span>
         </label>
         <label class="flex items-center space-x-3">
@@ -187,7 +187,7 @@
             type="checkbox"
             v-model="docxOptions.pageBreakBetweenChats"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Page break between chats</span>
         </label>
       </div>
@@ -222,7 +222,7 @@
               :value="fmt"
               v-model="zipOptions.includeFormats"
               class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-            />
+            >
             <span class="text-sm text-gray-700 dark:text-gray-300">{{ fmt.toUpperCase() }}</span>
           </label>
         </div>
@@ -234,7 +234,7 @@
             type="checkbox"
             v-model="zipOptions.separateFilePerChat"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Separate file per chat</span>
         </label>
         <label class="flex items-center space-x-3">
@@ -242,7 +242,7 @@
             type="checkbox"
             v-model="zipOptions.createFolderStructure"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Create folder structure</span>
         </label>
       </div>
@@ -259,7 +259,7 @@
             v-model="options.title"
             placeholder="My Chat Export"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+          >
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Author</label>
@@ -268,7 +268,7 @@
             v-model="options.author"
             placeholder="Your Name"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+          >
         </div>
       </div>
     </div>

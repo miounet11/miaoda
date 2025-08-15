@@ -247,7 +247,7 @@ export class PluginManager extends EventEmitter {
   
   // Install a plugin from a path or URL
   async installPlugin(_source: string) {
-    // TODO: Implement plugin installation
+    // Future: Implement plugin installation - Issue #plugin-installation
     // - Download/copy plugin files
     // - Validate manifest
     // - Install dependencies
@@ -269,6 +269,6 @@ export class PluginManager extends EventEmitter {
     // Remove from plugins map
     this.plugins.delete(pluginId)
     
-    // TODO: Remove plugin files
+    // Future: Remove plugin files from filesystem - Issue #plugin-cleanup
   }
 }

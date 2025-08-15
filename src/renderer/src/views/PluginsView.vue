@@ -49,7 +49,7 @@
                     v-if="plugin.manifest?.icon"
                     :src="plugin.manifest.icon"
                     :alt="plugin.manifest.name"
-                  />
+                  >
                   <Puzzle v-else :size="32" />
                 </div>
                 <div class="plugin-details">
@@ -69,8 +69,8 @@
                       type="checkbox"
                       :checked="plugin.enabled"
                       @change="togglePlugin(plugin)"
-                    />
-                    <span class="toggle-slider"></span>
+                    >
+                    <span class="toggle-slider" />
                   </label>
                   <span class="status-text">
                     {{ plugin.enabled ? '已启用' : '已禁用' }}

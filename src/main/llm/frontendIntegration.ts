@@ -228,7 +228,7 @@ export class FrontendIntegrationService {
     lastUsed: string | null
   }> {
     try {
-      // TODO: Implement actual usage tracking
+      // Future: Implement actual usage tracking - Issue #usage-analytics
       // This would require integrating with the message history system
       return {
         messagesCount: 0,

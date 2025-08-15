@@ -126,7 +126,7 @@
                 :type="showApiKey ? 'text' : 'password'"
                 placeholder="Enter your API key..."
                 class="w-full px-3 py-2 pr-10 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+              >
               <button
                 @click="showApiKey = !showApiKey"
                 type="button"
@@ -149,7 +149,7 @@
               type="url"
               :placeholder="getDefaultBaseURL(selectedProviderId)"
               class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
+            >
           </div>
 
           <!-- Model Selection for providers that support it -->
@@ -171,7 +171,7 @@
                 type="text"
                 placeholder="Enter model name"
                 class="flex-1 px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+              >
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="plugin-related">
     <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
+      <div class="loading-spinner" />
       <p>正在加载相关插件...</p>
     </div>
     

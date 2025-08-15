@@ -37,7 +37,8 @@ export default defineConfig({
       '@': resolve(__dirname, 'src/renderer/src'),
       '@renderer': resolve(__dirname, 'src/renderer'),
       '@shared': resolve(__dirname, 'src/shared'),
-      '@main': resolve(__dirname, 'src/main')
+      '@main': resolve(__dirname, 'src/main'),
+      '@test': resolve(__dirname, 'src/test')
     }
   },
   define: {

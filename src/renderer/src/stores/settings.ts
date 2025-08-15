@@ -607,14 +607,6 @@ export const useSettingsStore = defineStore('settings', () => {
 }, {
   persist: {
     key: 'miaoda-settings-store',
-    paths: [
-      'llmProvider', 'apiKey', 'apiEndpoint', 'modelName', 'temperature', 'maxTokens', 'streamingEnabled',
-      'fontSize', 'fontFamily', 'lineHeight', 'messageSpacing', 'showTimestamps', 'showAvatars', 'compactMode', 'animationsEnabled',
-      'autoScroll', 'enterToSend', 'showWordCount', 'spellCheck', 'autoSave', 'autoSaveInterval',
-      'dataCollection', 'crashReporting', 'analytics', 'saveConversations', 'encryptData',
-      'voiceEnabled', 'voiceLanguage', 'voiceRate', 'voicePitch', 'voiceVolume', 'voiceAutoPlay',
-      'keyboardShortcuts', 'enabledPlugins', 'debugMode', 'developmentMode', 'experimentalFeatures', 'betaFeatures'
-    ],
     storage: localStorage
   }
 })

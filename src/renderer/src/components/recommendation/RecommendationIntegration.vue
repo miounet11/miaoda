@@ -88,11 +88,11 @@
           class="status-indicator active"
           :title="`${recommendationStore.recommendations.length} 个推荐`"
         >
-          <div class="indicator-dot"></div>
+          <div class="indicator-dot" />
           <span class="indicator-text">{{ recommendationStore.recommendations.length }}</span>
         </div>
         <div v-else class="status-indicator inactive">
-          <div class="indicator-dot"></div>
+          <div class="indicator-dot" />
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import type { SearchQuery, SearchResult, SearchStats } from '@main/db/searchTypes'
+import { logger } from '../../utils/Logger'
 
 export class BackendSearchService {
   private static instance: BackendSearchService | null = null
@@ -28,7 +29,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Backend search failed:', error)
+      logger.error('Backend search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -44,7 +45,7 @@ export class BackendSearchService {
         lastUpdated: new Date(stats.lastSearchAt || Date.now())
       }
     } catch (error) {
-      console.error('Failed to get search stats:', error)
+      logger.error('Failed to get search stats', 'BackendSearchService', error)
       throw error
     }
   }
@@ -56,7 +57,7 @@ export class BackendSearchService {
     try {
       return await window.api.search.rebuildIndex()
     } catch (error) {
-      console.error('Failed to rebuild search index:', error)
+      logger.error('Failed to rebuild search index', 'BackendSearchService', error)
       throw error
     }
   }
@@ -68,7 +69,7 @@ export class BackendSearchService {
     try {
       return await window.api.search.optimizeIndex()
     } catch (error) {
-      console.error('Failed to optimize search index:', error)
+      logger.error('Failed to optimize search index', 'BackendSearchService', error)
       throw error
     }
   }
@@ -80,7 +81,7 @@ export class BackendSearchService {
     try {
       return await window.api.search.getIndexStatus()
     } catch (error) {
-      console.error('Failed to get search index status:', error)
+      logger.error('Failed to get search index status', 'BackendSearchService', error)
       throw error
     }
   }
@@ -134,7 +135,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.buildSemanticIndex?.() || { processed: 0, failed: 0 }
     } catch (error) {
-      console.error('Failed to build semantic index:', error)
+      logger.error('Failed to build semantic index', 'BackendSearchService', error)
       throw error
     }
   }
@@ -157,7 +158,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Semantic search failed:', error)
+      logger.error('Semantic search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -179,7 +180,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Hybrid search failed:', error)
+      logger.error('Hybrid search failed', 'BackendSearchService', error)
       // Fallback to regular search
       return await this.searchMessages(query)
     }
@@ -202,7 +203,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Failed to find similar messages:', error)
+      logger.error('Failed to find similar messages', 'BackendSearchService', error)
       throw error
     }
   }
@@ -214,7 +215,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.getSemanticStats?.() || {}
     } catch (error) {
-      console.error('Failed to get semantic search stats:', error)
+      logger.error('Failed to get semantic search stats', 'BackendSearchService', error)
       throw error
     }
   }
@@ -226,7 +227,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.buildVectorIndex?.()
     } catch (error) {
-      console.error('Failed to build vector index:', error)
+      logger.error('Failed to build vector index', 'BackendSearchService', error)
       throw error
     }
   }
@@ -238,7 +239,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.optimizeVectorIndex?.()
     } catch (error) {
-      console.error('Failed to optimize vector index:', error)
+      logger.error('Failed to optimize vector index', 'BackendSearchService', error)
       throw error
     }
   }
@@ -250,7 +251,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.getVectorStats?.() || {}
     } catch (error) {
-      console.error('Failed to get vector index stats:', error)
+      logger.error('Failed to get vector index stats', 'BackendSearchService', error)
       throw error
     }
   }
@@ -272,7 +273,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Multimodal search failed:', error)
+      logger.error('Multimodal search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -294,7 +295,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Image search failed:', error)
+      logger.error('Image search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -316,7 +317,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Document search failed:', error)
+      logger.error('Document search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -338,7 +339,7 @@ export class BackendSearchService {
         }
       }))
     } catch (error) {
-      console.error('Audio search failed:', error)
+      logger.error('Audio search failed', 'BackendSearchService', error)
       throw error
     }
   }
@@ -350,7 +351,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.getMultimodalStats?.() || {}
     } catch (error) {
-      console.error('Failed to get multimodal search stats:', error)
+      logger.error('Failed to get multimodal search stats', 'BackendSearchService', error)
       throw error
     }
   }
@@ -362,7 +363,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.getPerformanceAnalysis?.(timeRange) || {}
     } catch (error) {
-      console.error('Failed to get performance analysis:', error)
+      logger.error('Failed to get performance analysis', 'BackendSearchService', error)
       throw error
     }
   }
@@ -374,7 +375,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.getPerformanceRecommendations?.() || []
     } catch (error) {
-      console.error('Failed to get performance recommendations:', error)
+      logger.error('Failed to get performance recommendations', 'BackendSearchService', error)
       throw error
     }
   }
@@ -386,7 +387,7 @@ export class BackendSearchService {
     try {
       return await window.api.search?.optimizePerformance?.() || { optimizationsApplied: [], estimatedImprovement: 'No optimizations available' }
     } catch (error) {
-      console.error('Failed to optimize search performance:', error)
+      logger.error('Failed to optimize search performance', 'BackendSearchService', error)
       throw error
     }
   }

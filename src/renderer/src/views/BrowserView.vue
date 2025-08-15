@@ -40,7 +40,7 @@
           @focus="selectAll"
           class="address-input"
           :placeholder="$t('browser.enterUrl')"
-        />
+        >
         <button
           @click="navigate"
           class="navigate-btn"
@@ -77,7 +77,7 @@
             <div
               class="progress-bar"
               :style="{ width: `${loadingProgress}%` }"
-            ></div>
+            />
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@
         @load="handleLoad"
         @error="handleError"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-      ></iframe>
+      />
     </div>
     
     <!-- Developer Tools -->
@@ -290,11 +290,11 @@ const selectAll = (event: Event) => {
 
 const toggleBookmark = () => {
   isBookmarked.value = !isBookmarked.value
-  // TODO: Implement bookmark functionality
+  // Future: Implement bookmark functionality - Issue #bookmark-feature
 }
 
 const showOptions = () => {
-  // TODO: Show browser options menu
+  // Future: Show browser options menu - Issue #browser-options-menu
 }
 
 const handleLoad = () => {

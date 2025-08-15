@@ -52,7 +52,7 @@
           type="text"
           :placeholder="$t('plugin.searchPlugins')"
           class="search-input"
-        />
+        >
       </div>
       
       <div class="filter-tabs">

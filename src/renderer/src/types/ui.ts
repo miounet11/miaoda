@@ -97,8 +97,10 @@ export interface ToastMessage {
   title: string
   message?: string
   duration?: number
+  timeout?: number
   actions?: ToastAction[]
   persistent?: boolean
+  timestamp?: Date
 }
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'

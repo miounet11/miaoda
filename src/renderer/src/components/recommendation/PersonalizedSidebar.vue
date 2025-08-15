@@ -13,7 +13,7 @@
               <div 
                 class="completeness-fill" 
                 :style="{ width: `${profileCompleteness}%` }"
-              ></div>
+              />
             </div>
             <span class="completeness-text">{{ profileCompleteness }}% 完整</span>
           </div>
@@ -95,7 +95,7 @@
                   <div 
                     class="level-fill proficiency" 
                     :style="{ width: `${domain.proficiencyLevel}%` }"
-                  ></div>
+                  />
                 </div>
                 <span class="level-value">{{ Math.round(domain.proficiencyLevel) }}</span>
               </div>
@@ -105,7 +105,7 @@
                   <div 
                     class="level-fill interest" 
                     :style="{ width: `${domain.interestLevel}%` }"
-                  ></div>
+                  />
                 </div>
                 <span class="level-value">{{ Math.round(domain.interestLevel) }}</span>
               </div>
@@ -173,7 +173,7 @@
               v-model="personalizationSettings.enableRecommendations"
               @change="updateSettings"
             >
-            <span class="toggle-slider"></span>
+            <span class="toggle-slider" />
           </label>
         </div>
 
@@ -188,7 +188,7 @@
               v-model="personalizationSettings.enableSmartSuggestions"
               @change="updateSettings"
             >
-            <span class="toggle-slider"></span>
+            <span class="toggle-slider" />
           </label>
         </div>
 
@@ -235,7 +235,7 @@
                 <div 
                   class="progress-fill" 
                   :style="{ width: `${path.progress}%` }"
-                ></div>
+                />
               </div>
               <span class="progress-text">{{ path.progress }}%</span>
             </div>

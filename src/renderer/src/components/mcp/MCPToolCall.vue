@@ -54,7 +54,7 @@
     
     <!-- Progress Bar -->
     <div v-if="call.status === 'running'" class="progress-bar">
-      <div class="progress-fill" :style="{ width: progressWidth + '%' }"></div>
+      <div class="progress-fill" :style="{ width: progressWidth + '%' }" />
     </div>
     
     <!-- Call Details (Expandable) -->

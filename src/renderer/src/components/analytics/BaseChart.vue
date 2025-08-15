@@ -3,7 +3,7 @@
     <div
       ref="chartContainer"
       class="chart-container w-full h-full"
-    ></div>
+    />
   </div>
 </template>
 

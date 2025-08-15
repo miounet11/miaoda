@@ -20,23 +20,23 @@
         <div class="flex items-center justify-between mt-4">
           <div class="flex items-center space-x-6 text-sm">
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <div class="w-3 h-3 bg-gray-400 rounded-full" />
               <span class="text-gray-600 dark:text-gray-400">Total: {{ queueStats.total }}</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+              <div class="w-3 h-3 bg-yellow-400 rounded-full" />
               <span class="text-gray-600 dark:text-gray-400">Pending: {{ queueStats.pending }}</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+              <div class="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
               <span class="text-gray-600 dark:text-gray-400">Running: {{ queueStats.running }}</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+              <div class="w-3 h-3 bg-green-400 rounded-full" />
               <span class="text-gray-600 dark:text-gray-400">Completed: {{ queueStats.completed }}</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+              <div class="w-3 h-3 bg-red-400 rounded-full" />
               <span class="text-gray-600 dark:text-gray-400">Failed: {{ queueStats.failed }}</span>
             </div>
           </div>
@@ -83,7 +83,7 @@
                       getStatusColor(task.status),
                       task.status === 'running' ? 'animate-pulse' : ''
                     ]"
-                  ></div>
+                  />
                   <div class="flex-1 min-w-0">
                     <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {{ task.name }}
@@ -120,7 +120,7 @@
                     <div 
                       class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
                       :style="{ width: task.progress + '%' }"
-                    ></div>
+                    />
                   </div>
                 </div>
                 

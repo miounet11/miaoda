@@ -16,7 +16,7 @@
             @focus="onSearchFocus"
             @blur="onSearchBlur"
             @input="onSearchInput"
-          />
+          >
           
           <div class="search-actions">
             <button
@@ -109,22 +109,22 @@
           <h4 class="section-title">{{ $t('search.searchOptions') }}</h4>
           <div class="options-grid">
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.caseSensitive" />
+              <input type="checkbox" v-model="searchOptions.caseSensitive">
               <span>{{ $t('search.caseSensitive') }}</span>
             </label>
             
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.wholeWords" />
+              <input type="checkbox" v-model="searchOptions.wholeWords">
               <span>{{ $t('search.wholeWords') }}</span>
             </label>
             
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.useRegex" />
+              <input type="checkbox" v-model="searchOptions.useRegex">
               <span>{{ $t('search.useRegex') }}</span>
             </label>
             
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.fuzzyMatch" />
+              <input type="checkbox" v-model="searchOptions.fuzzyMatch">
               <span>{{ $t('search.fuzzyMatch') }}</span>
             </label>
           </div>
@@ -143,7 +143,7 @@
                     type="checkbox" 
                     :value="'user'" 
                     v-model="searchFilters.roles"
-                  />
+                  >
                   <User :size="14" />
                   <span>{{ $t('message.user') }}</span>
                 </label>
@@ -153,7 +153,7 @@
                     type="checkbox" 
                     :value="'assistant'" 
                     v-model="searchFilters.roles"
-                  />
+                  >
                   <Bot :size="14" />
                   <span>{{ $t('message.assistant') }}</span>
                 </label>
@@ -163,7 +163,7 @@
                     type="checkbox" 
                     :value="'system'" 
                     v-model="searchFilters.roles"
-                  />
+                  >
                   <Settings :size="14" />
                   <span>{{ $t('message.system') }}</span>
                 </label>
@@ -179,14 +179,14 @@
                   v-model="dateRangeStart"
                   class="date-input"
                   :max="dateRangeEnd"
-                />
+                >
                 <span class="date-separator">{{ $t('search.to') }}</span>
                 <input
                   type="date"
                   v-model="dateRangeEnd"
                   class="date-input"
                   :min="dateRangeStart"
-                />
+                >
               </div>
             </div>
             
@@ -200,7 +200,7 @@
                   :placeholder="$t('search.minLength')"
                   class="length-input"
                   min="0"
-                />
+                >
                 <span class="length-separator">-</span>
                 <input
                   type="number"
@@ -208,7 +208,7 @@
                   :placeholder="$t('search.maxLength')"
                   class="length-input"
                   min="0"
-                />
+                >
               </div>
             </div>
             
@@ -222,7 +222,7 @@
                   :placeholder="$t('search.enterTags')"
                   class="tags-input"
                   @keydown="onTagKeydown"
-                />
+                >
                 
                 <div v-if="searchFilters.tags && searchFilters.tags.length > 0" class="selected-tags">
                   <span
@@ -263,7 +263,7 @@
               class="max-results-input"
               min="1"
               max="1000"
-            />
+            >
           </div>
         </div>
       </div>

@@ -6,7 +6,8 @@ import type {
   TimeRange,
   AnalyticsExportConfig
 } from '../types'
-import { AnalyticsService } from '../services/analytics/AnalyticsService'
+// Import removed - using IPC calls instead
+// import { AnalyticsService } from '../services/analytics/AnalyticsService'
 
 export const useAnalyticsStore = defineStore('analytics', () => {
   // State
@@ -27,8 +28,8 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     averagePerDay: number
   } | null>(null)
 
-  // Services
-  const analyticsService = new AnalyticsService()
+  // Use IPC calls instead of local service
+  const { electronAPI } = window
 
   // Computed
   const isLoaded = computed(() => analyticsData.value !== null)
@@ -40,8 +41,17 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   })
 
   // Time range options
-  const timeRangeOptions = computed(() => analyticsService.getTimeRangeOptions())
-  const exportFormatOptions = computed(() => analyticsService.getExportFormatOptions())
+  const timeRangeOptions = computed(() => [
+    { value: '7d', label: '7 Days' },
+    { value: '30d', label: '30 Days' },
+    { value: '90d', label: '90 Days' },
+    { value: '1y', label: '1 Year' }
+  ])
+  const exportFormatOptions = computed(() => [
+    { value: 'json', label: 'JSON' },
+    { value: 'csv', label: 'CSV' },
+    { value: 'xlsx', label: 'Excel' }
+  ])
 
   // Chart data computed properties
   const chartData = computed(() => {
@@ -75,7 +85,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
       const finalFilter = { ...currentFilter.value, ...filter }
       currentFilter.value = finalFilter
 
-      const data = await analyticsService.generateAnalytics(finalFilter)
+      const data = await electronAPI.invoke('db:generate-analytics', finalFilter)
       analyticsData.value = data
       lastUpdated.value = new Date()
     } catch (err: any) {
@@ -88,7 +98,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
 
   async function loadSummary(timeRange: TimeRange = '30d') {
     try {
-      const summaryData = await analyticsService.getAnalyticsSummary(timeRange)
+      const summaryData = await electronAPI.invoke('db:get-analytics-summary', timeRange)
       summary.value = summaryData
     } catch (err: any) {
       console.error('Failed to load analytics summary:', err)
@@ -114,7 +124,8 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     error.value = null
 
     try {
-      await analyticsService.exportAnalytics(config)
+      // Export functionality would need to be implemented via IPC
+      throw new Error('Export functionality not yet implemented')
     } catch (err: any) {
       error.value = err.message || 'Failed to export analytics'
       console.error('Analytics export failed:', err)
@@ -129,7 +140,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     summary.value = null
     lastUpdated.value = null
     error.value = null
-    analyticsService.clearCache()
+    // Cache clearing handled by backend
   }
 
   function clearError() {

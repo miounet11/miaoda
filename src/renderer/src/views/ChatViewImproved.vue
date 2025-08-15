@@ -3,8 +3,8 @@
     <!-- 侧边栏 -->
     <aside 
       v-show="!sidebarCollapsed"
-      class="sidebar flex flex-col transition-all duration-300 overflow-hidden border-r border-border/50"
-      :style="{ width: sidebarWidth + 'px' }"
+      class="sidebar flex flex-col transition-all duration-300 overflow-hidden border-r border-border/50 flex-shrink-0"
+      :style="{ width: sidebarWidth + 'px', minWidth: '240px', maxWidth: '360px' }"
     >
       <!-- 侧边栏头部 -->
       <div class="sidebar-header p-5 border-b border-border/50 flex-shrink-0">
@@ -39,7 +39,7 @@
             type="text"
             placeholder="搜索聊天记录..."
             class="w-full pl-11 pr-4 py-3 bg-secondary/60 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all border border-transparent focus:border-primary/20"
-          />
+          >
         </div>
       </div>
       
@@ -125,7 +125,7 @@
     />
 
     <!-- 主聊天区域 -->
-    <main class="flex-1 flex flex-col min-w-0 min-h-0">
+    <main class="flex-1 flex flex-col min-w-0 min-h-0 relative">
       <!-- Simplified Chat Header -->
       <header class="chat-header h-14 px-4 sm:px-6 border-b border-border/30 flex items-center justify-between bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-md">
         <!-- Left side: Mobile menu + Title -->
@@ -145,7 +145,7 @@
             </h1>
             <!-- Subtle status indicator -->
             <div v-if="isLoading" class="flex items-center gap-1.5 mt-0.5">
-              <div class="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+              <div class="w-1 h-1 bg-primary rounded-full animate-pulse" />
               <span class="text-xs text-muted-foreground">AI is thinking...</span>
             </div>
             <div v-else-if="currentChat?.messages?.length" class="mt-0.5">
@@ -188,6 +188,16 @@
             <Moon v-else :size="18" class="text-blue-600 group-hover:text-blue-500 transition-colors" />
           </button>
           
+          <!-- Settings button (visible when sidebar is collapsed) -->
+          <button
+            v-if="sidebarCollapsed || isMobile"
+            @click="$router.push('/settings')"
+            class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
+            title="Settings"
+          >
+            <Settings :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+          </button>
+          
           <!-- More menu -->
           <div class="relative">
             <button
@@ -203,9 +213,11 @@
             
             <!-- Header dropdown menu -->
             <Transition name="menu-slide">
-              <div v-if="showHeaderMenu" 
-                   class="absolute top-full mt-2 right-0 w-56 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
-                   @click="showHeaderMenu = false">
+              <div
+                v-if="showHeaderMenu" 
+                class="absolute top-full mt-2 right-0 w-56 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
+                @click="showHeaderMenu = false"
+              >
                 <div class="p-2">
                   <!-- Mobile model selector -->
                   <div v-if="isMobile" class="sm:hidden mb-2 pb-2 border-b border-border/40">
@@ -327,8 +339,6 @@
             @scroll="handleVirtualScroll"
             class="h-full"
           />
-                  
-                      
         </div>
         
         <!-- Enhanced loading state with skeleton -->
@@ -361,16 +371,16 @@
                     <Sparkles :size="16" class="text-white animate-sparkle" />
                   </div>
                   <!-- 思考波纹 -->
-                  <div class="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping"></div>
-                  <div class="absolute inset-0 rounded-full border-2 border-primary/10 animate-ping" style="animation-delay: 0.5s;"></div>
+                  <div class="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+                  <div class="absolute inset-0 rounded-full border-2 border-primary/10 animate-ping" style="animation-delay: 0.5s;" />
                 </div>
                 
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
                     <div class="thinking-dots flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0s"></span>
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.3s"></span>
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.6s"></span>
+                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0s" />
+                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.3s" />
+                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.6s" />
                     </div>
                     <span class="text-sm font-medium text-foreground animate-text-shimmer">AI 正在思考</span>
                   </div>
@@ -378,13 +388,13 @@
                   
                   <!-- 进度条 -->
                   <div class="mt-2 w-full bg-secondary/50 rounded-full h-1 overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-primary to-primary/50 animate-progress-wave"></div>
+                    <div class="h-full bg-gradient-to-r from-primary to-primary/50 animate-progress-wave" />
                   </div>
                 </div>
               </div>
               
               <!-- 背景动效 -->
-              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer-bg"></div>
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer-bg" />
             </div>
           </div>
         </Transition>
@@ -444,7 +454,7 @@
                       :src="attachment.data" 
                       :alt="attachment.name"
                       class="h-20 w-20 object-cover rounded-lg border border-border"
-                    />
+                    >
                     <button
                       @click="removeAttachment(index)"
                       class="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
@@ -523,9 +533,9 @@
                   class="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-primary/60"
                 >
                   <div class="typing-indicator">
-                    <span class="typing-dot" style="animation-delay: 0s"></span>
-                    <span class="typing-dot" style="animation-delay: 0.2s"></span>
-                    <span class="typing-dot" style="animation-delay: 0.4s"></span>
+                    <span class="typing-dot" style="animation-delay: 0s" />
+                    <span class="typing-dot" style="animation-delay: 0.2s" />
+                    <span class="typing-dot" style="animation-delay: 0.4s" />
                   </div>
                 </div>
               </div>
@@ -552,20 +562,20 @@
                   <div 
                     v-if="isRecording" 
                     class="absolute inset-0 rounded-xl border-2 border-destructive/30 animate-recording-pulse"
-                  ></div>
+                  />
                   <div 
                     v-if="isRecording" 
                     class="absolute inset-0 rounded-xl border-2 border-destructive/20 animate-recording-pulse" 
                     style="animation-delay: 0.5s;"
-                  ></div>
+                  />
                   
                   <!-- 音频可视化条 -->
                   <div v-if="isRecording" class="absolute bottom-1 left-1 right-1 flex items-end gap-0.5 h-1">
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0s; height: 20%"></div>
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.1s; height: 60%"></div>
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.2s; height: 40%"></div>
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.3s; height: 80%"></div>
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.4s; height: 30%"></div>
+                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0s; height: 20%" />
+                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.1s; height: 60%" />
+                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.2s; height: 40%" />
+                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.3s; height: 80%" />
+                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.4s; height: 30%" />
                   </div>
                   
                   <Mic :size="isMobile ? 24 : 22" :class="{ 'animate-bounce': isRecording }" />
@@ -634,7 +644,7 @@
                 <Transition name="hint-fade">
                   <div v-if="isFocused && inputMessage.length === 0" class="flex items-center gap-2 text-muted-foreground/50">
                     <span>输入想法...</span>
-                    <div class="animate-pulse w-2 h-4 bg-primary/30 rounded-full"></div>
+                    <div class="animate-pulse w-2 h-4 bg-primary/30 rounded-full" />
                   </div>
                 </Transition>
               </div>
@@ -690,8 +700,7 @@ import { useSettingsStore } from '@renderer/src/stores/settings'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 import { debounce } from '@renderer/src/utils/performance'
-import MessageContent from '@renderer/src/components/MessageContentImproved.vue'
-import SimpleMessageContent from '@renderer/src/components/SimpleMessageContent.vue'
+import UnifiedMessageContent from '@renderer/src/components/UnifiedMessageContent.vue'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
 import PerformanceTestPanel from '@renderer/src/components/dev/PerformanceTestPanel.vue'
 import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
@@ -699,6 +708,7 @@ import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList
 import ChatSummary from '@renderer/src/components/chat/ChatSummary.vue'
 import ProgressiveOnboarding from '@renderer/src/components/onboarding/ProgressiveOnboarding.vue'
 import SkeletonLoader from '@renderer/src/components/ui/SkeletonLoader.vue'
+import { logger } from '@renderer/src/utils/Logger'
 
 // 类型定义
 interface Attachment {
@@ -769,7 +779,7 @@ const MessageStatusIndicator = defineComponent({
             title: '发送失败，点击重试',
             onClick: () => {
               // 触发重试逻辑
-              console.log('Retry message sending')
+              // Retry message sending
             }
           }, [
             h(XCircle, { size: 12, class: 'transition-all duration-300 hover:scale-110 animate-error-shake' }),
@@ -904,24 +914,24 @@ const currentProviderIcon = computed(() => {
 
 // 生命周期
 onMounted(async () => {
-  console.log('[ChatViewImproved] Component mounting...')
+  // Component mounting
   try {
     // 初始化 chat store with error handling
-    console.log('[ChatViewImproved] Initializing chat store...')
+    // Initializing chat store
     try {
       await chatStore.initialize()
-      console.log('[ChatViewImproved] Chat store initialized successfully')
+      // Chat store initialized successfully
     } catch (storeError) {
-      console.error('[ChatViewImproved] Failed to initialize chat store:', storeError)
+      logger.error('Failed to initialize chat store', 'ChatViewImproved', storeError)
       // Continue anyway - the app should still be usable
     }
     
     // 检查 LLM 配置
     try {
       isConfigured.value = await window.api.llm.isConfigured()
-      console.log('[ChatViewImproved] LLM configured:', isConfigured.value)
+      // LLM configured check complete
     } catch (error) {
-      console.error('Failed to check LLM configuration:', error)
+      logger.error('Failed to check LLM configuration', 'ChatViewImproved', error)
       isConfigured.value = false
     }
     
@@ -936,14 +946,14 @@ onMounted(async () => {
     try {
       initializeVoiceRecognition()
     } catch (error) {
-      console.error('Failed to initialize voice recognition:', error)
+      logger.error('Failed to initialize voice recognition', 'ChatViewImproved', error)
     }
     
     // 注册快捷键
     try {
       setupShortcuts()
     } catch (error) {
-      console.error('Failed to setup shortcuts:', error)
+      logger.error('Failed to setup shortcuts', 'ChatViewImproved', error)
     }
     
     // 恢复侧边栏宽度
@@ -956,13 +966,13 @@ onMounted(async () => {
         }
       }
     } catch (error) {
-      console.error('Failed to restore sidebar width:', error)
+      logger.error('Failed to restore sidebar width', 'ChatViewImproved', error)
     }
     
     // 初始化消息容器高度监听
     initializeMessageContainer()
   } catch (error) {
-    console.error('Failed to initialize chat view:', error)
+    logger.error('Failed to initialize chat view', 'ChatViewImproved', error)
     // 即使初始化失败，也应该显示基本界面
   }
 })
@@ -1019,7 +1029,7 @@ const formatTime = (date: Date | string | undefined) => {
     if (isNaN(dateObj.getTime())) return '刚刚'
     return formatDistanceToNow(dateObj)
   } catch (error) {
-    console.warn('Invalid date format:', date)
+    logger.warn('Invalid date format', 'formatTime', date)
     return '刚刚'
   }
 }
@@ -1035,7 +1045,7 @@ const formatMessageTime = (date: Date | string | undefined) => {
       minute: '2-digit'
     })
   } catch (error) {
-    console.warn('Invalid date format:', date)
+    logger.warn('Invalid date format', 'formatDateDivider', date)
     return ''
   }
 }
@@ -1050,17 +1060,17 @@ const toggleTheme = () => {
   try {
     localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
   } catch (error) {
-    console.error('Failed to save theme preference:', error)
+    logger.error('Failed to save theme preference', 'toggleTheme', error)
   }
 }
 
 // 语音输入相关方法
 const initializeVoiceRecognition = () => {
-  console.log('[Voice] Initializing voice recognition...')
+  // Initializing voice recognition
   
   // 检查语音识别支持
   const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
-  console.log('[Voice] Speech recognition supported:', hasSpeechRecognition)
+  // Speech recognition availability checked
   
   if (hasSpeechRecognition) {
     try {
@@ -1073,14 +1083,14 @@ const initializeVoiceRecognition = () => {
       
       recognition.value.onstart = () => {
         isRecording.value = true
-        console.log('[Voice] Recording started')
+        // Voice recording started
       }
       
       recognition.value.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript
         const confidence = event.results[0][0].confidence
         
-        console.log('[Voice] Transcript:', transcript, 'Confidence:', confidence)
+        // Voice transcript received
         
         if (confidence > 0.7) {
           inputMessage.value = transcript
@@ -1089,23 +1099,23 @@ const initializeVoiceRecognition = () => {
       }
       
       recognition.value.onerror = (event: any) => {
-        console.error('[Voice] Recognition error:', event.error)
+        logger.error('Voice recognition error', 'VoiceRecognition', event.error)
         isRecording.value = false
       }
       
       recognition.value.onend = () => {
         isRecording.value = false
-        console.log('[Voice] Recording ended')
+        // Voice recording ended
       }
       
       isVoiceSupported.value = true
-      console.log('[Voice] Voice recognition initialized successfully')
+      // Voice recognition initialized successfully
     } catch (error) {
-      console.error('[Voice] Failed to initialize speech recognition:', error)
+      logger.error('Failed to initialize speech recognition', 'VoiceRecognition', error)
       isVoiceSupported.value = false
     }
   } else {
-    console.log('[Voice] Speech recognition not supported in this browser')
+    // Speech recognition not supported in this browser
     isVoiceSupported.value = false
   }
 }
@@ -1315,28 +1325,28 @@ const onTextSelectionEnd = () => {
 const copyMessage = async (content: string) => {
   try {
     await navigator.clipboard.writeText(content)
-    // TODO: 显示复制成功提示动画
-    console.log('Message copied successfully')
+    // TODO: Add toast notification for copy success
+    // Message copied successfully
   } catch (error) {
-    console.error('Failed to copy message:', error)
+    logger.error('Failed to copy message', 'copyMessage', error)
   }
 }
 
 // 摘要相关处理
 const handleSummaryUpdated = (summary: any) => {
-  console.log('Summary updated:', summary)
-  // TODO: 可以在这里更新界面或触发其他操作
+  // Summary updated
+  // TODO: Update UI or trigger other operations based on summary
 }
 
 const handleTagClicked = (tag: string) => {
-  console.log('Tag clicked:', tag)
-  // TODO: 可以实现根据标签筛选聊天的功能
+  // Tag clicked
+  // TODO: Implement chat filtering by tags
   searchQuery.value = tag
 }
 
 const regenerateMessage = async (index: number) => {
-  // TODO: 实现重新生成功能
-  console.log('Regenerating message at index:', index)
+  // TODO: Implement message regeneration functionality
+  // Regenerating message
 }
 
 const replyToMessage = (message: any) => {
@@ -1359,7 +1369,7 @@ const deleteMessage = async (messageId: string) => {
 // 滚动相关方法
 const handleMessageScroll = () => {
   // 由于使用了虚拟滚动，这个方法现在由 VirtualMessageList 处理
-  console.log('Legacy scroll handler - now handled by VirtualMessageList')
+  // Legacy scroll handler - now handled by VirtualMessageList
 }
 
 // 发送消息
@@ -1445,7 +1455,7 @@ const sendMessage = async () => {
   const userMessage = await chatStore.addMessage({
     role: 'user',
     content: displayContent,
-    status: 'sending',
+    timestamp: new Date(),
     replyTo: replyingTo.value,
     attachments: messageAttachments // 保存附件信息
   })
@@ -1468,7 +1478,8 @@ const sendMessage = async () => {
   if (!isConfigured.value) {
     await chatStore.addMessage({
       role: 'assistant',
-      content: '请先在设置中配置 LLM 提供商。'
+      content: '请先在设置中配置 LLM 提供商。',
+      timestamp: new Date()
     })
     return
   }
@@ -1478,21 +1489,22 @@ const sendMessage = async () => {
   // 创建助手消息
   const assistantMessage = await chatStore.addMessage({
     role: 'assistant',
-    content: ''
+    content: '',
+    timestamp: new Date()
   })
   
   try {
     // 设置流式响应监听
     let streamedContent = ''
-    console.log('[ChatView] Setting up chunk listener for message:', assistantMessage.id)
+    // Setting up chunk listener for message
     
     const cleanupChunk = window.api.llm.onChunk((data: any) => {
-      console.log('[ChatView] Received chunk:', { data, currentChatId: currentChat.value?.id, assistantMessageId: assistantMessage.id })
+      // Received chunk data
       
       if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
-        console.log('[ChatView] Processing chunk for our message')
+        // Processing chunk for our message
         streamedContent += data.chunk
-        console.log('[ChatView] Accumulated content length:', streamedContent.length)
+        // Accumulated content updated
         
         // 使用store的方法更新消息内容
         chatStore.updateMessageContent(assistantMessage.id, streamedContent)
@@ -1501,29 +1513,29 @@ const sendMessage = async () => {
           scrollToBottom()
         })
       } else {
-        console.log('[ChatView] Chunk not for our message - ignoring')
+        // Chunk not for our message - ignoring
       }
     })
     
     // 发送到 LLM - 使用正确的消息格式
-    console.log('[ChatView] Sending message to LLM:', { messageContent, hasImages, chatId: currentChat.value!.id, messageId: assistantMessage.id })
+    // Sending message to LLM
     const response = await window.api.llm.sendMessage(
       messageContent,
       currentChat.value!.id,
       assistantMessage.id
     )
     
-    console.log('[ChatView] LLM response received:', { responseLength: response.length, responsePreview: response.substring(0, 100) })
+    // LLM response received
     
     // 更新最终响应
-    console.log('[ChatView] Updating final response in store')
+    // Updating final response in store
     
     // Test with a simple message first
     const testResponse = response || "测试响应内容 - 如果你看到这个，说明更新机制是工作的"
-    console.log('[ChatView] Using response:', testResponse)
+    // Using fallback test response
     
     await chatStore.updateMessageContent(assistantMessage.id, testResponse)
-    console.log('[ChatView] Final response updated')
+    // Final response updated
     
     cleanupChunk()
   } catch (error: any) {
@@ -1584,10 +1596,10 @@ const handleVirtualScroll = (scrollInfo: any) => {
 const handleCopyMessage = async (content: string) => {
   try {
     await navigator.clipboard.writeText(content)
-    // TODO: 显示成功提示
-    console.log('Message copied successfully')
+    // TODO: Add toast notification for copy success
+    // Message copied successfully
   } catch (error) {
-    console.error('Failed to copy message:', error)
+    logger.error('Failed to copy message', 'copyMessage', error)
   }
 }
 
@@ -1614,7 +1626,7 @@ const handleRegenerateMessage = async (index: number) => {
       await chatStore.updateMessageContent(targetMessage.id, response)
     }
   } catch (error) {
-    console.error('Failed to regenerate message:', error)
+    logger.error('Failed to regenerate message', 'handleRegenerateMessage', error)
   } finally {
     isLoading.value = false
   }
@@ -1660,19 +1672,19 @@ const cleanupShortcuts = () => {
 
 // Provider/Model selector event handlers
 const handleProviderChanged = (providerId: string) => {
-  console.log('[ChatView] Provider changed to:', providerId)
+  // Provider changed
   // The ProviderModelSelector already handles the backend update
   // You might want to show a toast notification here
 }
 
 const handleModelChanged = (modelId: string) => {
-  console.log('[ChatView] Model changed to:', modelId)
+  // Model changed
   // The ProviderModelSelector already handles the backend update
   // You might want to show a toast notification here
 }
 
 const handleSettingsOpened = () => {
-  console.log('[ChatView] Settings opened from provider selector')
+  // Settings opened from provider selector
   // Additional logic if needed when settings are opened
 }
 
@@ -1691,7 +1703,7 @@ const exportCurrentChat = () => {
   if (!currentChat.value) return
   
   // TODO: Implement chat export functionality
-  console.log('Exporting current chat:', currentChat.value.id)
+  // Exporting current chat
   
   // For now, create a simple text export
   const chatData = {
@@ -1714,21 +1726,21 @@ const shareCurrentChat = () => {
   if (!currentChat.value) return
   
   // TODO: Implement chat sharing functionality
-  console.log('Sharing current chat:', currentChat.value.id)
+  // Sharing current chat
   
   if (navigator.share) {
     navigator.share({
       title: `Chat: ${currentChat.value.title}`,
       text: `Check out this conversation: ${currentChat.value.title}`,
       url: `${window.location.origin}/chat/${currentChat.value.id}`
-    }).catch(console.error)
+    }).catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
   } else {
     // Fallback to clipboard
     const shareUrl = `${window.location.origin}/chat/${currentChat.value.id}`
     navigator.clipboard.writeText(shareUrl).then(() => {
-      // TODO: Show toast notification
-      console.log('Share URL copied to clipboard')
-    }).catch(console.error)
+      // TODO: Add toast notification for share URL copied
+      // Share URL copied to clipboard
+    }).catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
   }
 }
 
@@ -1739,14 +1751,14 @@ const clearCurrentChat = () => {
   if (confirm('Are you sure you want to clear this conversation? This cannot be undone.')) {
     // Clear messages but keep the chat
     currentChat.value.messages = []
-    // TODO: Update in database
-    console.log('Cleared current chat:', currentChat.value.id)
+    // TODO: Persist cleared chat state to database
+    // Cleared current chat
   }
 }
 
 // Onboarding handlers
 const handleStartSampleConversation = async (sample: any) => {
-  console.log('Starting sample conversation:', sample)
+  // Starting sample conversation
   
   // Create a new chat for the sample
   const newChat = await chatStore.createChat()
@@ -1754,7 +1766,8 @@ const handleStartSampleConversation = async (sample: any) => {
   // Add the sample conversation
   await chatStore.addMessage({
     role: 'user',
-    content: sample.prompt
+    content: sample.prompt,
+    timestamp: new Date()
   })
   
   // Add a pre-written AI response to demonstrate the interface
@@ -1892,7 +1905,8 @@ What specific aspect would you like me to explain further?`
     await chatStore.addMessage({
       role: 'assistant',
       content: sampleResponses[sample.id as keyof typeof sampleResponses] || 
-               `Thanks for that interesting question about "${sample.title}"! I'd be happy to help you explore this topic further. What specific aspects would you like to focus on?`
+               `Thanks for that interesting question about "${sample.title}"! I'd be happy to help you explore this topic further. What specific aspects would you like to focus on?`,
+      timestamp: new Date()
     })
     
     // Scroll to show the conversation
@@ -1902,7 +1916,7 @@ What specific aspect would you like me to explain further?`
 }
 
 const handleOnboardingComplete = () => {
-  console.log('Onboarding completed')
+  // Onboarding completed
   // Any additional setup can be done here
 }
 </script>

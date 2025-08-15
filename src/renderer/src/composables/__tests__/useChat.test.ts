@@ -15,6 +15,12 @@ const mockApi = {
     updateMessage: vi.fn(),
     deleteMessage: vi.fn()
   },
+  chat: {
+    getChats: vi.fn(),
+    createChat: vi.fn(),
+    updateChat: vi.fn(),
+    deleteChat: vi.fn()
+  },
   llm: {
     sendMessage: vi.fn()
   },

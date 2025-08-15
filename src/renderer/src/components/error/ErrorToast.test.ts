@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountComponent, nextTick } from '../../../../../test/utils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mountComponent, nextTick } from '@test/utils'
+import { flushPromises } from '@vue/test-utils'
 import ErrorToast from './ErrorToast.vue'
 
 describe('ErrorToast', () => {
@@ -13,10 +14,11 @@ describe('ErrorToast', () => {
     vi.useRealTimers()
   })
   
-  it('renders without errors initially', () => {
+  it('renders without errors initially', async () => {
     const wrapper = mountComponent(ErrorToast)
+    await flushPromises()
     
-    expect(wrapper.find('.toast-container').exists()).toBe(true)
+    expect(wrapper.find('.teleport-stub .toast-container').exists()).toBe(true)
     expect(wrapper.findAll('.error-toast').length).toBe(0)
   })
   
@@ -30,6 +32,7 @@ describe('ErrorToast', () => {
       severity: 'error'
     })
     
+    await flushPromises()
     await nextTick()
     
     const toast = wrapper.find('.error-toast')
@@ -48,6 +51,7 @@ describe('ErrorToast', () => {
       severity: 'error'
     })
     
+    await flushPromises()
     await nextTick()
     
     let toast = wrapper.find('.error-toast')
@@ -55,11 +59,14 @@ describe('ErrorToast', () => {
     
     // Test warning severity
     component.dismissAll()
+    await flushPromises()
+    
     component.showError({
       title: 'Warning',
       severity: 'warning'
     })
     
+    await flushPromises()
     await nextTick()
     
     toast = wrapper.find('.error-toast')
@@ -76,6 +83,7 @@ describe('ErrorToast', () => {
       duration: 1000
     })
     
+    await flushPromises()
     await nextTick()
     
     // Should exist initially
@@ -83,6 +91,7 @@ describe('ErrorToast', () => {
     
     // Fast-forward time
     vi.advanceTimersByTime(1000)
+    await flushPromises()
     await nextTick()
     
     // Should be dismissed
@@ -98,6 +107,7 @@ describe('ErrorToast', () => {
       severity: 'info'
     })
     
+    await flushPromises()
     await nextTick()
     
     // Should exist initially
@@ -105,6 +115,8 @@ describe('ErrorToast', () => {
     
     // Click close button
     await wrapper.find('.toast-close').trigger('click')
+    
+    await flushPromises()
     await nextTick()
     
     // Should be dismissed
@@ -125,6 +137,7 @@ describe('ErrorToast', () => {
       severity: 'warning'
     })
     
+    await flushPromises()
     await nextTick()
     
     const toasts = wrapper.findAll('.error-toast')
@@ -140,12 +153,14 @@ describe('ErrorToast', () => {
     component.showError({ title: 'Error 1', severity: 'error' })
     component.showError({ title: 'Error 2', severity: 'warning' })
     
+    await flushPromises()
     await nextTick()
     
     expect(wrapper.findAll('.error-toast').length).toBe(2)
     
     component.dismissAll()
     
+    await flushPromises()
     await nextTick()
     
     expect(wrapper.findAll('.error-toast').length).toBe(0)
@@ -161,11 +176,14 @@ describe('ErrorToast', () => {
       severity: 'error'
     })
     
+    await flushPromises()
     await nextTick()
     
-    expect(wrapper.find('[data-lucide="alert-circle"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="alertcircle-icon"]').exists()).toBe(true)
     
     component.dismissAll()
+    await flushPromises()
+    await nextTick()
     
     // Test warning icon (AlertTriangle)
     component.showError({
@@ -173,8 +191,9 @@ describe('ErrorToast', () => {
       severity: 'warning'
     })
     
+    await flushPromises()
     await nextTick()
     
-    expect(wrapper.find('[data-lucide="alert-triangle"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="alerttriangle-icon"]').exists()).toBe(true)
   })
 })

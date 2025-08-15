@@ -14,7 +14,7 @@
           <div 
             class="progress-fill" 
             :style="{ width: `${status.progress}%` }"
-          ></div>
+          />
         </div>
         <span class="progress-text">{{ status.progress }}%</span>
       </div>

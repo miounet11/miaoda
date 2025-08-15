@@ -41,6 +41,30 @@ const api = {
     optimizeIndex: () => ipcRenderer.invoke('search:optimize-index'),
     getIndexStatus: () => ipcRenderer.invoke('search:get-index-status')
   },
+  window: {
+    // Window management APIs
+    createWindow: (options?: any) => ipcRenderer.invoke('window:create', options),
+    closeWindow: (windowId: string) => ipcRenderer.invoke('window:close', windowId),
+    focusWindow: (windowId: string) => ipcRenderer.invoke('window:focus', windowId),
+    minimizeWindow: (windowId: string) => ipcRenderer.invoke('window:minimize', windowId),
+    maximizeWindow: (windowId: string) => ipcRenderer.invoke('window:maximize', windowId),
+    restoreWindow: (windowId: string) => ipcRenderer.invoke('window:restore', windowId),
+    getWindowState: (windowId: string) => ipcRenderer.invoke('window:get-state', windowId),
+    getAllWindows: () => ipcRenderer.invoke('window:get-all'),
+    // Window event listeners
+    onWindowCreated: (callback: Function) => {
+      ipcRenderer.on('window:created', (_, ...args) => callback(...args))
+    },
+    onWindowClosed: (callback: Function) => {
+      ipcRenderer.on('window:closed', (_, ...args) => callback(...args))
+    },
+    onWindowFocused: (callback: Function) => {
+      ipcRenderer.on('window:focused', (_, ...args) => callback(...args))
+    },
+    onWindowStateChanged: (callback: Function) => {
+      ipcRenderer.on('window:state-changed', (_, ...args) => callback(...args))
+    }
+  },
   llm: {
     setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
     sendMessage: (message: string | any[], chatId: string, messageId: string) => 

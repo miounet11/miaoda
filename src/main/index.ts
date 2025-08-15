@@ -8,6 +8,7 @@ import { PluginManager } from './plugins/pluginManager'
 import { registerShortcuts } from './shortcuts'
 import { registerIPCHandlers } from './ipcHandlers'
 import { logger } from './utils/Logger'
+import { memoryMonitor } from './performance/MemoryMonitor'
 
 let mainWindow: BrowserWindow | null = null
 const mcpManager = new MCPManager()
@@ -59,10 +60,15 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.miaoda.chat')
+  
+  // Log application startup
+  logger.logStartup()
 
   // Initialize database first
   try {
+    logger.time('database-init')
     db = new LocalDatabase()
+    logger.timeEnd('database-init')
     logger.info('Database initialized successfully', 'Main')
   } catch (error) {
     logger.error('Failed to initialize database', 'Main', error)
@@ -90,6 +96,12 @@ app.whenReady().then(() => {
   
   // Initialize MCP after window is created
   initializeMCP().catch(error => logger.error('MCP initialization failed', 'Main', error))
+  
+  // Start memory monitoring in production
+  if (!is.dev) {
+    memoryMonitor.startMonitoring()
+    logger.info('Memory monitoring started', 'Main')
+  }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

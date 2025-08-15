@@ -11,55 +11,55 @@
     <template v-else>
       <!-- Multi-Window Layout -->
       <div v-if="useMultiWindow" class="flex-1 overflow-hidden">
-      <Window
-        ref="mainWindowRef"
-        :window-id="activeWindowId"
-        :show-header="!isMac"
-        :show-status-bar="true"
-        @window-close="handleWindowClose"
-        @window-minimize="handleWindowMinimize"
-        @window-maximize="handleWindowMaximize"
-        @window-focus="handleWindowFocus"
-        @tab-change="handleTabChange"
-      />
-    </div>
-    
-    <!-- Legacy Single-Window Layout (fallback) -->
-    <div v-else class="flex-1 overflow-hidden">
-      <!-- Title bar for Windows/Linux -->
-      <div v-if="!isMac" class="title-bar h-8 bg-background border-b flex items-center px-4">
-        <span class="text-sm font-medium">MiaoDa Chat</span>
+        <Window
+          ref="mainWindowRef"
+          :window-id="activeWindowId"
+          :show-header="!isMac"
+          :show-status-bar="true"
+          @window-close="handleWindowClose"
+          @window-minimize="handleWindowMinimize"
+          @window-maximize="handleWindowMaximize"
+          @window-focus="handleWindowFocus"
+          @tab-change="handleTabChange"
+        />
       </div>
+    
+      <!-- Legacy Single-Window Layout (fallback) -->
+      <div v-else class="flex-1 overflow-hidden">
+        <!-- Title bar for Windows/Linux -->
+        <div v-if="!isMac" class="title-bar h-8 bg-background border-b flex items-center px-4">
+          <span class="text-sm font-medium">MiaoDa Chat</span>
+        </div>
       
-      <!-- Main content -->
-      <div class="flex-1 overflow-hidden">
-        <router-view />
+        <!-- Main content -->
+        <div class="flex-1 overflow-hidden">
+          <router-view />
+        </div>
       </div>
-    </div>
     
-    <!-- Global Loading Overlay -->
-    <div v-if="isLoading" class="loading-overlay">
-      <div class="loading-content">
-        <Loader :size="32" class="animate-spin" />
-        <p>{{ loadingMessage }}</p>
+      <!-- Global Loading Overlay -->
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-content">
+          <Loader :size="32" class="animate-spin" />
+          <p>{{ loadingMessage }}</p>
+        </div>
       </div>
-    </div>
     
-    <!-- Global Error Toast -->
-    <ErrorToast
-      v-if="globalError"
-      :message="globalError"
-      @close="clearGlobalError"
-    />
+      <!-- Global Error Toast -->
+      <ErrorToast
+        v-if="globalError"
+        :message="globalError"
+        @close="clearGlobalError"
+      />
     
-    <!-- Toast Container -->
-    <ToastContainer />
+      <!-- Toast Container -->
+      <ToastContainer />
     
-    <!-- Shortcuts Help Modal -->
-    <ShortcutsHelpModal />
+      <!-- Shortcuts Help Modal -->
+      <ShortcutsHelpModal />
     
-    <!-- Quick Search Modal -->
-    <QuickSearchModal />
+      <!-- Quick Search Modal -->
+      <QuickSearchModal />
     </template>
   </div>
 </template>
@@ -78,6 +78,7 @@ import { windowManager } from '@renderer/src/services/window/WindowManager'
 import { mcpService } from '@renderer/src/services/mcp/MCPService'
 import { useUIStore } from '@renderer/src/stores/ui'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
+import { logger } from '@renderer/src/utils/Logger'
 
 const router = useRouter()
 const uiStore = useUIStore()
@@ -88,8 +89,8 @@ const { shortcuts } = useGlobalShortcuts()
 // Refs
 const mainWindowRef = ref<InstanceType<typeof Window>>()
 
-// State - 暂时禁用多窗口模式以解决空白页面问题
-const useMultiWindow = ref(false) // Feature flag for multi-window support
+// State - 默认禁用多窗口模式以提高兼容性
+const useMultiWindow = ref(false) // Feature flag for multi-window support (disabled by default for better compatibility)
 const activeWindowId = ref<string | null>(null)
 const isLoading = ref(false)
 const loadingMessage = ref('')
@@ -103,7 +104,7 @@ const isMac = computed(() => navigator.platform.toLowerCase().includes('mac'))
 
 // Methods
 const initializeApplication = async () => {
-  console.log('[App] Starting application initialization...')
+  logger.info('Starting application initialization', 'App')
   try {
     isLoading.value = true
     loadingMessage.value = 'Initializing application...'
@@ -114,7 +115,7 @@ const initializeApplication = async () => {
     // Try to initialize window manager
     initPromises.push(
       initializeWindowManager().catch(error => {
-        console.error('[App] Window manager initialization failed:', error)
+        logger.error('Window manager initialization failed', 'App', error)
         // Continue without multi-window support
         useMultiWindow.value = false
       })
@@ -123,7 +124,7 @@ const initializeApplication = async () => {
     // Try to initialize MCP service
     initPromises.push(
       initializeMCPService().catch(error => {
-        console.error('[App] MCP service initialization failed:', error)
+        logger.error('MCP service initialization failed', 'App', error)
         // Continue without MCP - not critical
       })
     )
@@ -137,7 +138,7 @@ const initializeApplication = async () => {
     }
     
   } catch (error) {
-    console.error('Failed to initialize application:', error)
+    logger.error('Failed to initialize application', 'App', error)
     globalError.value = 'Failed to initialize application. Please try restarting.'
     
     // Fallback to single-window mode
@@ -154,11 +155,11 @@ const initializeWindowManager = async () => {
     // Window manager initializes automatically
     // Set up event listeners
     windowManager.on('window-created', (window) => {
-      console.log('Window created:', window.id)
+      // Window created
     })
     
     windowManager.on('window-closed', (windowId) => {
-      console.log('Window closed:', windowId)
+      // Window closed
       
       // If this was the active window, switch to another
       if (activeWindowId.value === windowId) {
@@ -172,7 +173,7 @@ const initializeWindowManager = async () => {
     })
     
   } catch (error) {
-    console.error('Failed to initialize window manager:', error)
+    logger.error('Failed to initialize window manager', 'App', error)
     throw error
   }
 }
@@ -182,25 +183,25 @@ const initializeMCPService = async () => {
     // MCP service initializes automatically
     // Set up event listeners
     mcpService.on('server-connected', (server) => {
-      console.log('MCP server connected:', server.name)
+      // MCP server connected
     })
     
     mcpService.on('server-disconnected', (serverId) => {
-      console.log('MCP server disconnected:', serverId)
+      // MCP server disconnected
     })
     
     mcpService.on('tool-call-error', (call, error) => {
-      console.error('MCP tool call failed:', call.name, error)
+      logger.error('MCP tool call failed', 'App', error)
     })
     
   } catch (error) {
-    console.error('Failed to initialize MCP service:', error)
+    logger.error('Failed to initialize MCP service', 'App', error)
     // MCP service failure is not critical for basic functionality
   }
 }
 
 const handleWindowClose = (windowId: string) => {
-  console.log('Handling window close:', windowId)
+  // Handling window close
   
   // If this is the last window, quit the application
   const remainingWindows = windowManager.getWindows()
@@ -212,20 +213,20 @@ const handleWindowClose = (windowId: string) => {
 }
 
 const handleWindowMinimize = (windowId: string) => {
-  console.log('Handling window minimize:', windowId)
+  // Handling window minimize
 }
 
 const handleWindowMaximize = (windowId: string) => {
-  console.log('Handling window maximize:', windowId)
+  // Handling window maximize
 }
 
 const handleWindowFocus = (windowId: string) => {
   activeWindowId.value = windowId
-  console.log('Handling window focus:', windowId)
+  // Handling window focus
 }
 
 const handleTabChange = (windowId: string, tabId: string) => {
-  console.log('Handling tab change:', windowId, tabId)
+  // Handling tab change
   
   // Update router if needed for legacy compatibility
   const window = windowManager.getWindow(windowId)
@@ -283,10 +284,10 @@ const setupGlobalShortcuts = () => {
           handleToggleSidebar()
           break
         default:
-          console.log('Unknown shortcut action:', action)
+          // Unknown shortcut action
       }
     } catch (error) {
-      console.error('Failed to handle shortcut:', action, error)
+      logger.error('Failed to handle shortcut', 'App', error)
     }
   }
   
@@ -396,7 +397,7 @@ const handleToggleSidebar = () => {
 const handleGlobalError = (error: Error | string) => {
   const message = error instanceof Error ? error.message : error
   globalError.value = message
-  console.error('Global error:', message)
+  logger.error('Global error', 'App', message)
   
   // Auto-clear error after 5 seconds
   setTimeout(() => {
@@ -423,7 +424,7 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 
 // Error handling
 onErrorCaptured((error, instance, info) => {
-  console.error('[App] Error captured:', error, info)
+  logger.error('Error captured', 'App', error)
   
   // Show critical error fallback for unrecoverable errors
   if (error?.message?.includes('Cannot read') || 
@@ -459,7 +460,7 @@ onMounted(async () => {
     window.addEventListener('beforeunload', handleBeforeUnload)
     
   } catch (error) {
-    console.error('Failed to start application:', error)
+    logger.error('Failed to start application', 'App', error)
     handleGlobalError('Failed to start application')
   }
 })

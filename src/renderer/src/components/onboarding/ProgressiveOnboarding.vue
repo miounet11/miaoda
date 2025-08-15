@@ -166,7 +166,7 @@
             <ArrowLeft :size="16" />
             Back
           </button>
-          <div v-else></div>
+          <div v-else />
           
           <div class="flex items-center gap-3">
             <!-- Step indicators -->

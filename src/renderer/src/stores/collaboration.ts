@@ -245,7 +245,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     const fullOperation: Operation = {
       id: generateOperationId(),
       timestamp: new Date(),
-      causality: [], // TODO: 实现因果关系追踪
+      causality: [], // Future: Implement causality tracking - Issue #causality-tracking
       userId: currentUserId.value,
       ...operation
     }
@@ -379,7 +379,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   // ============ 事件处理 ============
   function handleIncomingOperation(operation: Operation) {
-    // TODO: 实现操作应用逻辑
+    // Future: Implement operation application logic - Issue #operation-application
     console.log('Received operation:', operation)
     
     // 移除对应的待处理操作

@@ -16,7 +16,7 @@
             max="5"
             step="1"
             class="flex-1"
-          />
+          >
           <span class="text-sm font-medium text-gray-900 dark:text-white w-8">{{ concurrency }}</span>
         </div>
         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">

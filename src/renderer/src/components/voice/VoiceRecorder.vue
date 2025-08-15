@@ -10,13 +10,13 @@
         :title="recordButtonTitle"
       >
         <component :is="recordIcon" :size="20" />
-        <span class="record-pulse" v-if="isRecording"></span>
+        <span class="record-pulse" v-if="isRecording" />
       </button>
       
       <div class="recording-info">
         <div v-if="isRecording" class="recording-status">
           <div class="status-indicator">
-            <div class="pulse-dot"></div>
+            <div class="pulse-dot" />
             <span class="status-text">{{ $t('voice.recording') }}</span>
           </div>
           
@@ -77,7 +77,7 @@
         class="waveform-canvas"
         :width="canvasWidth"
         :height="canvasHeight"
-      ></canvas>
+      />
       
       <div class="waveform-overlay">
         <div class="volume-level">
@@ -86,7 +86,7 @@
             <div 
               class="volume-fill" 
               :style="{ width: `${currentVolume * 100}%` }"
-            ></div>
+            />
           </div>
         </div>
       </div>

@@ -98,7 +98,7 @@
             class="model-indicator flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-md"
             :title="`当前模型: ${currentModel.name}`"
           >
-            <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <div class="w-2 h-2 bg-primary rounded-full animate-pulse" />
             <span class="text-xs font-medium text-primary">{{ currentModel.shortName }}</span>
           </div>
         </div>
@@ -139,7 +139,7 @@
               class="paste-hint absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-primary text-primary-foreground text-xs rounded whitespace-nowrap pointer-events-none"
             >
               图片已复制，粘贴试试
-              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-primary"></div>
+              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-primary" />
             </div>
           </Transition>
         </div>
@@ -178,9 +178,9 @@
                 class="typing-indicator flex items-center gap-1"
               >
                 <div class="flex gap-0.5">
-                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0s" />
+                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s" />
+                  <div class="w-1 h-1 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s" />
                 </div>
               </div>
             </Transition>
@@ -233,13 +233,13 @@
           >
             <!-- 录音波纹效果 -->
             <div v-if="isRecording" class="absolute inset-0">
-              <div class="absolute inset-0 rounded-xl border-2 border-destructive/30 animate-ping"></div>
-              <div class="absolute inset-0 rounded-xl border-2 border-destructive/20 animate-ping" style="animation-delay: 0.5s;"></div>
+              <div class="absolute inset-0 rounded-xl border-2 border-destructive/30 animate-ping" />
+              <div class="absolute inset-0 rounded-xl border-2 border-destructive/20 animate-ping" style="animation-delay: 0.5s;" />
             </div>
             
             <!-- 音频可视化 -->
             <div v-if="isRecording" class="absolute bottom-1 left-1 right-1 flex items-end gap-0.5 h-1">
-              <div v-for="i in 8" :key="i" class="flex-1 bg-destructive-foreground/60 rounded-full animate-audio-bar" :style="{ animationDelay: `${i * 0.1}s` }"></div>
+              <div v-for="i in 8" :key="i" class="flex-1 bg-destructive-foreground/60 rounded-full animate-audio-bar" :style="{ animationDelay: `${i * 0.1}s` }" />
             </div>
             
             <Mic :size="22" :class="{ 'animate-bounce': isRecording }" />

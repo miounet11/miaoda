@@ -55,7 +55,10 @@ export function mountComponent(
       plugins: [pinia, router, i18n],
       stubs: {
         'router-link': true,
-        'router-view': true
+        'router-view': true,
+        'Teleport': {
+          template: '<div class="teleport-stub"><slot /></div>'
+        }
       }
     },
     ...options

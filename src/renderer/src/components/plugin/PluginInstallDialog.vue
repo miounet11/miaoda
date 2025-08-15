@@ -31,7 +31,7 @@
                   :placeholder="$t('plugin.pluginUrlPlaceholder')"
                   class="text-input"
                   @keydown.enter="installFromUrl"
-                />
+                >
               </div>
               
               <div class="method-actions">
@@ -65,7 +65,7 @@
                   accept=".zip,.tar.gz,.plugin"
                   @change="handleFileSelect"
                   class="file-input"
-                />
+                >
                 
                 <div
                   @drop="handleDrop"
@@ -120,7 +120,7 @@
                     :placeholder="$t('plugin.searchRegistry')"
                     class="search-input"
                     @input="searchRegistry"
-                  />
+                  >
                 </div>
                 
                 <div class="category-filters">
@@ -161,7 +161,7 @@
                         :src="plugin.icon"
                         :alt="plugin.name"
                         class="icon-image"
-                      />
+                      >
                       <Puzzle v-else :size="24" />
                     </div>
                     
@@ -204,7 +204,7 @@
           <div
             class="progress-fill"
             :style="{ width: `${installProgress.progress * 100}%` }"
-          ></div>
+          />
         </div>
         
         <p class="progress-description">{{ installProgress.description }}</p>

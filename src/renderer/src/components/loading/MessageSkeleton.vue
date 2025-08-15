@@ -1,10 +1,10 @@
 <template>
   <div class="message-skeleton flex gap-3">
-    <div class="skeleton-avatar"></div>
+    <div class="skeleton-avatar" />
     <div class="skeleton-content flex-1">
-      <div class="skeleton-line w-3/4"></div>
-      <div class="skeleton-line w-1/2"></div>
-      <div class="skeleton-line w-5/6"></div>
+      <div class="skeleton-line w-3/4" />
+      <div class="skeleton-line w-1/2" />
+      <div class="skeleton-line w-5/6" />
     </div>
   </div>
 </template>

@@ -54,7 +54,7 @@
     <!-- Message Preview -->
     <div class="message-preview">
       <div class="preview-content" :class="{ 'expanded': isExpanded }">
-        <div v-if="highlightedContent" class="highlighted-content" v-html="highlightedContent"></div>
+        <div v-if="highlightedContent" class="highlighted-content" v-html="highlightedContent" />
         <div v-else class="raw-content">{{ result.message.content }}</div>
         
         <!-- Message Metadata -->
@@ -114,7 +114,7 @@
           class="match-item"
         >
           <div class="match-field">{{ match.field }}</div>
-          <div class="match-text" v-html="match.highlighted"></div>
+          <div class="match-text" v-html="match.highlighted" />
         </div>
         
         <button

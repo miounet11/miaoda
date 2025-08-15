@@ -6,7 +6,8 @@ const mockErrorToast = {
   showError: vi.fn(),
   show: vi.fn(),
   hide: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
+  clearAll: vi.fn()
 }
 
 describe('useErrorHandler', () => {
@@ -21,7 +22,7 @@ describe('useErrorHandler', () => {
       
       handleError('Test error message', 'Test Context')
       
-      expect(mockErrorToast.showErrorError).toHaveBeenCalledWith({
+      expect(mockErrorToast.showError).toHaveBeenCalledWith({
         title: 'Test Context',
         message: 'Test error message',
         severity: 'error'
@@ -34,7 +35,7 @@ describe('useErrorHandler', () => {
       
       handleError(error, 'Test Context')
       
-      expect(mockErrorToast.showErrorError).toHaveBeenCalledWith({
+      expect(mockErrorToast.showError).toHaveBeenCalledWith({
         title: 'Test Context',
         message: 'Test error object',
         severity: 'error'

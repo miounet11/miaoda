@@ -1,6 +1,24 @@
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 
+// Re-export stores first
+export { useChatStore } from './chat'
+export { useUIStore } from './ui'
+export { useSettingsStore } from './settings'
+export { useAuthStore } from './auth'
+export { useCustomProvidersStore } from './customProviders'
+export { useAnalyticsStore } from './analytics'
+export { useRecommendationStore } from './recommendation'
+
+// Import stores after re-exporting them
+import { useChatStore } from './chat'
+import { useUIStore } from './ui'
+import { useSettingsStore } from './settings'
+import { useAuthStore } from './auth'
+import { useCustomProvidersStore } from './customProviders'
+import { useAnalyticsStore } from './analytics'
+import { useRecommendationStore } from './recommendation'
+
 // Create pinia instance
 export const pinia = createPinia()
 
@@ -26,15 +44,6 @@ export type StoreState = {
   analytics: ReturnType<typeof useAnalyticsStore>
   recommendation: ReturnType<typeof useRecommendationStore>
 }
-
-// Re-export stores
-export { useChatStore } from './chat'
-export { useUIStore } from './ui'
-export { useSettingsStore } from './settings'
-export { useAuthStore } from './auth'
-export { useCustomProvidersStore } from './customProviders'
-export { useAnalyticsStore } from './analytics'
-export { useRecommendationStore } from './recommendation'
 
 // Store composition for complex operations
 export const useStores = () => {

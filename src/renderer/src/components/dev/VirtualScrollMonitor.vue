@@ -37,7 +37,7 @@
     
     <!-- Performance Chart -->
     <div class="chart-container">
-      <canvas ref="chartCanvas" width="300" height="100"></canvas>
+      <canvas ref="chartCanvas" width="300" height="100" />
     </div>
     
     <!-- Detailed Stats -->

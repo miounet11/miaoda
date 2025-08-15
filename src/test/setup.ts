@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi, expect } from 'vitest'
 
 // Mock lucide-vue-next globally
 vi.mock('lucide-vue-next', () => {
@@ -40,6 +40,8 @@ vi.mock('lucide-vue-next', () => {
     CheckCircle: createMockIcon('CheckCircle'),
     XCircle: createMockIcon('XCircle'),
     Loader2: createMockIcon('Loader2'),
+    FileText: createMockIcon('FileText'),
+    Package: createMockIcon('Package'),
     // Add more icons as needed
   }
 })
@@ -57,6 +59,38 @@ const mockElectronAPI = {
     file: {
       select: vi.fn().mockResolvedValue([]),
       paste: vi.fn().mockResolvedValue({ name: 'test.png', data: 'data:image/png;base64,test' })
+    },
+    db: {
+      getAllChats: vi.fn().mockResolvedValue([]),
+      getChat: vi.fn().mockResolvedValue(null),
+      createChat: vi.fn().mockResolvedValue('new-chat-id'),
+      updateChat: vi.fn().mockResolvedValue(true),
+      deleteChat: vi.fn().mockResolvedValue(true),
+      getMessages: vi.fn().mockResolvedValue([]),
+      addMessage: vi.fn().mockResolvedValue('new-message-id'),
+      updateMessage: vi.fn().mockResolvedValue(true),
+      deleteMessage: vi.fn().mockResolvedValue(true),
+      searchMessages: vi.fn().mockResolvedValue([]),
+      exportChat: vi.fn().mockResolvedValue('# Chat Export\n\nChat content...')
+    },
+    chat: {
+      getAllChats: vi.fn().mockResolvedValue([]),
+      getChat: vi.fn().mockResolvedValue(null),
+      createChat: vi.fn().mockResolvedValue('new-chat-id'),
+      updateChat: vi.fn().mockResolvedValue(true),
+      deleteChat: vi.fn().mockResolvedValue(true),
+      getMessages: vi.fn().mockResolvedValue([]),
+      sendMessage: vi.fn().mockResolvedValue({ id: 'new-message-id' }),
+      retryMessage: vi.fn().mockResolvedValue({ id: 'retry-message-id' }),
+      deleteMessage: vi.fn().mockResolvedValue(true),
+      updateMessage: vi.fn().mockResolvedValue(true),
+      exportChat: vi.fn().mockResolvedValue('# Chat Export\n\nChat content...'),
+      searchChats: vi.fn().mockResolvedValue([])
+    },
+    settings: {
+      get: vi.fn().mockResolvedValue({}),
+      set: vi.fn().mockResolvedValue(true),
+      getAll: vi.fn().mockResolvedValue({})
     }
   }
 }
@@ -106,6 +140,33 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 
 // Mock HTMLElement.scrollIntoView
 HTMLElement.prototype.scrollIntoView = vi.fn()
+
+// Mock Node.js fs functions for main process tests
+vi.mock('fs', () => ({
+  existsSync: vi.fn().mockReturnValue(true),
+  mkdirSync: vi.fn(),
+  readFileSync: vi.fn().mockReturnValue(''),
+  writeFileSync: vi.fn(),
+  statSync: vi.fn().mockReturnValue({ isDirectory: () => false }),
+  readdirSync: vi.fn().mockReturnValue([])
+}))
+
+// Mock path functions
+vi.mock('path', () => ({
+  join: vi.fn().mockImplementation((...args) => args.join('/')),
+  resolve: vi.fn().mockImplementation((...args) => args.join('/')),
+  dirname: vi.fn().mockReturnValue('/mock/dir'),
+  basename: vi.fn().mockReturnValue('mock-file.txt'),
+  extname: vi.fn().mockReturnValue('.txt')
+}))
+
+// Mock os functions
+vi.mock('os', () => ({
+  homedir: vi.fn().mockReturnValue('/mock/home'),
+  tmpdir: vi.fn().mockReturnValue('/mock/tmp'),
+  platform: vi.fn().mockReturnValue('darwin'),
+  arch: vi.fn().mockReturnValue('x64')
+}))
 
 // Mock VoiceService
 vi.mock('@renderer/src/services/voice/VoiceService', () => {
@@ -164,6 +225,52 @@ vi.mock('@renderer/src/services/voice/VoiceService', () => {
   return {
     VoiceService: vi.fn().mockImplementation(() => mockVoiceService),
     voiceService: mockVoiceService
+  }
+})
+
+// Mock chat store
+vi.mock('@renderer/src/stores/chat', () => {
+  const mockChatStore = {
+    chats: [],
+    currentChatId: null,
+    currentChat: null,
+    messages: new Map(),
+    isLoading: false,
+    isGenerating: false,
+    isInitialized: false,
+    
+    // Methods
+    createChat: vi.fn().mockImplementation(async (title) => {
+      const id = 'new-chat-' + Date.now()
+      const chat = {
+        id,
+        title: title || 'New Chat',
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      mockChatStore.chats.push(chat)
+      return id
+    }),
+    selectChat: vi.fn().mockImplementation(async (chatId) => {
+      mockChatStore.currentChatId = chatId
+      mockChatStore.currentChat = mockChatStore.chats.find(c => c.id === chatId) || null
+    }),
+    deleteChat: vi.fn().mockResolvedValue(true),
+    updateChatTitle: vi.fn().mockResolvedValue(true),
+    clearChat: vi.fn().mockResolvedValue(true),
+    archiveChat: vi.fn().mockResolvedValue(true),
+    sendMessage: vi.fn().mockResolvedValue('new-message-id'),
+    editMessage: vi.fn().mockResolvedValue(true),
+    deleteMessage: vi.fn().mockResolvedValue(true),
+    retryMessage: vi.fn().mockResolvedValue(true),
+    getChatMessages: vi.fn().mockReturnValue([]),
+    loadChats: vi.fn().mockResolvedValue([]),
+    loadMessages: vi.fn().mockResolvedValue([])
+  }
+  
+  return {
+    useChatStore: vi.fn(() => mockChatStore)
   }
 })
 

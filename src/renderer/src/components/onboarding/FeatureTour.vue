@@ -64,53 +64,53 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <!-- 步骤指示器 -->
-              <div class="flex gap-1">
-                <div
-                  v-for="(_, index) in tours"
-                  :key="index"
-                  class="w-2 h-2 rounded-full transition-all duration-300"
-                  :class="[
-                    index === currentStepIndex 
-                      ? 'bg-primary scale-125' 
-                      : index < currentStepIndex 
-                        ? 'bg-green-500' 
-                        : 'bg-secondary'
-                  ]"
-                />
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <button
-                v-if="currentStepIndex > 0"
-                @click="previousStep"
-                class="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-lg"
-              >
-                上一步
-              </button>
-              
-              <button
-                @click="nextStep"
-                class="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors flex items-center gap-1"
-              >
-                {{ isLastStep ? '完成' : '下一步' }}
-                <component :is="isLastStep ? Check : ArrowRight" :size="12" />
-              </button>
-            </div>
-          </div>
-          
-          <!-- 跳过按钮 -->
-          <div class="text-center mt-3">
-            <button
-              @click="skip"
-              class="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
-            >
-              跳过导览
-            </button>
+          <div class="flex gap-1">
+            <div
+              v-for="(_, index) in tours"
+              :key="index"
+              class="w-2 h-2 rounded-full transition-all duration-300"
+              :class="[
+                index === currentStepIndex 
+                  ? 'bg-primary scale-125' 
+                  : index < currentStepIndex 
+                    ? 'bg-green-500' 
+                    : 'bg-secondary'
+              ]"
+            />
           </div>
         </div>
+            
+        <div class="flex items-center gap-2">
+          <button
+            v-if="currentStepIndex > 0"
+            @click="previousStep"
+            class="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-lg"
+          >
+            上一步
+          </button>
+              
+          <button
+            @click="nextStep"
+            class="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors flex items-center gap-1"
+          >
+            {{ isLastStep ? '完成' : '下一步' }}
+            <component :is="isLastStep ? Check : ArrowRight" :size="12" />
+          </button>
+        </div>
+      </div>
+          
+      <!-- 跳过按钮 -->
+      <div class="text-center mt-3">
+        <button
+          @click="skip"
+          class="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
+        >
+          跳过导览
+        </button>
       </div>
     </div>
+  </div>
+  </div>
   </div>
 </template>
 

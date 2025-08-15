@@ -65,7 +65,7 @@
       v-if="isOpen"
       class="language-overlay"
       @click="closeDropdown"
-    ></div>
+    />
   </div>
 </template>
 

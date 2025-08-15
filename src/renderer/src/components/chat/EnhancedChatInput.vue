@@ -43,7 +43,7 @@
                   :src="attachment.data" 
                   :alt="attachment.name"
                   class="preview-image"
-                />
+                >
                 <!-- Image Actions -->
                 <div class="image-actions">
                   <button 
@@ -122,7 +122,7 @@
             <Mic :size="18" class="voice-icon" />
             <!-- Recording indicator -->
             <div v-if="isRecording" class="recording-indicator">
-              <div class="recording-pulse"></div>
+              <div class="recording-pulse" />
             </div>
           </button>
         </div>
@@ -272,7 +272,7 @@
               :src="previewImageSrc"
               class="preview-modal-image"
               alt="Image preview"
-            />
+            >
           </div>
         </div>
       </Transition>

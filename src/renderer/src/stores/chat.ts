@@ -21,7 +21,7 @@ export const useChatStore = defineStore('chat', () => {
   // Helper to ensure messages.value is always a Map
   const ensureMessagesMap = () => {
     if (!(messages.value instanceof Map)) {
-      console.warn('[ChatStore] messages.value was not a Map, reinitializing...')
+      logger.warn('Messages was not a Map, reinitializing', 'ChatStore')
       messages.value = new Map()
     }
   }
@@ -63,9 +63,9 @@ export const useChatStore = defineStore('chat', () => {
   // Load chats from database
   const loadChats = async () => {
     try {
-      console.log('[ChatStore] Starting to load chats...')
+      // Starting to load chats
       const dbChats = await window.api.db.getAllChats()
-      console.log(`[ChatStore] Loaded ${dbChats.length} chats from database`)
+      // Chats loaded from database
       
       chats.value = dbChats.map(chat => ({
         ...chat,
@@ -76,11 +76,11 @@ export const useChatStore = defineStore('chat', () => {
       
       // Load messages for all chats to ensure they persist after refresh
       // This is important for data persistence
-      console.log('[ChatStore] Loading messages for all chats...')
+      // Loading messages for all chats
       for (const chat of chats.value) {
         try {
           const dbMessages = await window.api.db.getMessages(chat.id)
-          console.log(`[ChatStore] Loading ${dbMessages.length} messages for chat ${chat.id} (${chat.title})`)
+          // Loading messages for chat
           chat.messages = dbMessages.map(msg => ({
             id: msg.id,
             role: msg.role,
@@ -196,7 +196,7 @@ export const useChatStore = defineStore('chat', () => {
       ensureMessagesMap()
       messages.value.set(chatId, mappedMessages)
       
-      console.log(`Loaded ${mappedMessages.length} messages for chat ${chatId}`)
+      // Messages loaded for chat
     } catch (error) {
       logger.error('Failed to load messages', 'ChatStore', error)
       handleError(error)
@@ -263,10 +263,10 @@ export const useChatStore = defineStore('chat', () => {
     try {
       await window.api.db.createMessage({
         id: message.id,
-        chat_id: chat.id,
+        chatId: chat.id,
         role: message.role,
         content: message.content,
-        created_at: now.toISOString()
+        timestamp: now.getTime()
       })
     } catch (error) {
       logger.error('Failed to save message to database', 'ChatStore', error)
@@ -302,32 +302,32 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   const updateMessageContent = async (messageId: string, content: string) => {
-    console.log('[ChatStore] updateMessageContent called:', { messageId, contentLength: content.length, contentPreview: content.substring(0, 100) })
+    // Updating message content
     
     if (!currentChat.value) {
-      console.log('[ChatStore] No current chat available')
+      // No current chat available
       return
     }
 
     // Find and update the message in memory
     const message = currentChat.value.messages.find(m => m.id === messageId)
     if (!message) {
-      console.log('[ChatStore] Message not found for update:', messageId)
+      // Message not found for update
       logger.error('Message not found for update', 'ChatStore', { messageId })
       return
     }
 
-    console.log('[ChatStore] Updating message content in memory:', { before: message.content.length, after: content.length })
+    // Updating message content in memory
     message.content = content
 
     // Update in database
     try {
-      console.log('[ChatStore] Calling database update...')
+      // Calling database update
       await window.api.db.updateMessage(messageId, content)
-      console.log('[ChatStore] Database update successful')
+      // Database update successful
       logger.info('Message content updated in database', 'ChatStore', { messageId, contentLength: content.length })
     } catch (error) {
-      console.error('[ChatStore] Database update failed:', error)
+      logger.error('Database update failed', 'ChatStore', error)
       logger.error('Failed to update message in database', 'ChatStore', error)
     }
   }
@@ -385,10 +385,10 @@ export const useChatStore = defineStore('chat', () => {
           try {
             await window.api.db.createMessage({
               id: assistantMessage.id,
-              chat_id: targetChatId,
+              chatId: targetChatId,
               role: 'assistant',
               content: '',
-              created_at: now.toISOString()
+              timestamp: now.getTime()
             })
           } catch (dbError) {
             logger.error('Failed to create initial assistant message in database', 'ChatStore', dbError)
@@ -474,7 +474,7 @@ export const useChatStore = defineStore('chat', () => {
   const setupStreamingListeners = () => {
     // Listen for streaming chunks
     window.api.on?.('llm:chunk', (data: { chatId: string; messageId: string; chunk: string }) => {
-      console.log('[ChatStore] Received chunk:', data)
+      // Received chunk data
       
       // Find the streaming message and update it
       const chat = chats.value.find(c => c.id === data.chatId)
@@ -489,7 +489,7 @@ export const useChatStore = defineStore('chat', () => {
 
     // Listen for streaming completion
     window.api.on?.('llm:stream-complete', async (data: { chatId: string; messageId: string; finalContent: string }) => {
-      console.log('[ChatStore] Stream complete:', data)
+      // Stream complete
       
       const chat = chats.value.find(c => c.id === data.chatId)
       if (chat && streamingMessageId.value) {
@@ -515,7 +515,7 @@ export const useChatStore = defineStore('chat', () => {
 
   // Initialize on mount
   const initialize = async () => {
-    console.log('[ChatStore] Initializing chat store...')
+    // Initializing chat store
     
     // Set up streaming listeners
     setupStreamingListeners()
@@ -525,31 +525,31 @@ export const useChatStore = defineStore('chat', () => {
     
     // Create default chat if no chats exist
     if (chats.value.length === 0) {
-      console.log('[ChatStore] No chats found, creating default chat...')
+      // No chats found, creating default chat
       await createChat()
     } else {
       // If we have a persisted currentChatId, ensure it's valid
       if (currentChatId.value) {
         const currentChatData = chats.value.find(c => c.id === currentChatId.value)
         if (!currentChatData) {
-          console.log('[ChatStore] Current chat ID is invalid, selecting first chat...')
+          // Current chat ID is invalid, selecting first chat
           currentChatId.value = chats.value[0].id
         } else {
           // Ensure messages are loaded for current chat
           if (!currentChatData.messages || currentChatData.messages.length === 0) {
-            console.log('[ChatStore] Loading messages for current chat...')
+            // Loading messages for current chat
             await loadMessages(currentChatId.value)
           }
         }
       } else {
         // No current chat selected, select the first one
-        console.log('[ChatStore] No current chat, selecting first chat...')
+        // No current chat, selecting first chat
         currentChatId.value = chats.value[0].id
       }
     }
     
-    console.log('[ChatStore] Initialization complete. Current chat:', currentChatId.value)
-    console.log('[ChatStore] Messages loaded:', currentChat.value?.messages?.length || 0)
+    // Initialization complete
+    // Messages loaded
   }
   
   return {

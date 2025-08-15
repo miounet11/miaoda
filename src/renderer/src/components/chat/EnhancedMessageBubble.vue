@@ -22,7 +22,7 @@
         v-if="message.role === 'assistant' && isLoading"
         class="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"
       >
-        <div class="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-ping opacity-75"></div>
+        <div class="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-ping opacity-75" />
       </div>
     </div>
 
@@ -38,7 +38,7 @@
         <div 
           v-if="message.role === 'assistant'"
           class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 rounded-inherit opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        ></div>
+        />
 
         <!-- Message Status Indicator -->
         <div 
@@ -62,14 +62,14 @@
         <div v-if="isLoading && !message.content" class="loading-content">
           <div class="thinking-animation">
             <div class="thinking-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+              <span />
+              <span />
+              <span />
             </div>
             <div class="thinking-waves">
-              <div class="wave"></div>
-              <div class="wave"></div>
-              <div class="wave"></div>
+              <div class="wave" />
+              <div class="wave" />
+              <div class="wave" />
             </div>
           </div>
         </div>
@@ -78,6 +78,7 @@
         <div v-else class="message-text">
           <component
             :is="MessageContentComponent"
+            variant="enhanced"
             :content="message.content"
             :is-loading="isLoading"
             :attachments="message.attachments"
@@ -167,9 +168,9 @@
         >
           <div class="typing-text">AI正在输入</div>
           <div class="typing-dots">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span />
+            <span />
+            <span />
           </div>
         </div>
       </div>
@@ -224,7 +225,7 @@ import {
   Check, CheckCheck, Clock, AlertCircle, Loader2
 } from 'lucide-vue-next'
 import ActionButton from './ActionButton.vue'
-import MessageContentEnhanced from '../MessageContentEnhanced.vue'
+import UnifiedMessageContent from '../UnifiedMessageContent.vue'
 import { formatDistanceToNow } from '@/utils/time'
 import { useResponsive } from '@/composables/useResponsive'
 import { voiceService } from '@/services/voice/VoiceService'
@@ -286,7 +287,7 @@ const isPlayingVoice = ref(false)
 const hoverTimeout = ref<NodeJS.Timeout>()
 
 // Message Content Component
-const MessageContentComponent = MessageContentEnhanced
+const MessageContentComponent = UnifiedMessageContent
 
 // Computed Properties
 const messageLayoutClasses = computed(() => ({

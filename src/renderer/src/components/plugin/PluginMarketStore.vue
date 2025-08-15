@@ -19,7 +19,7 @@
               class="search-input"
               @input="onSearchInput"
               @keyup.enter="performSearch"
-            />
+            >
             <button
               v-if="searchQuery"
               @click="clearSearch"
@@ -84,7 +84,7 @@
                 type="checkbox"
                 :value="pricing.value"
                 class="pricing-checkbox"
-              />
+              >
               <span class="pricing-label">{{ pricing.label }}</span>
               <span class="pricing-count">{{ getPricingCount(pricing.value) }}</span>
             </label>
@@ -122,7 +122,7 @@
               v-model="onlyVerified"
               type="checkbox"
               class="filter-checkbox"
-            />
+            >
             <Shield :size="16" />
             <span>仅显示认证插件</span>
           </label>
@@ -131,7 +131,7 @@
               v-model="onlyFeatured"
               type="checkbox"
               class="filter-checkbox"
-            />
+            >
             <Sparkles :size="16" />
             <span>推荐插件</span>
           </label>
@@ -206,7 +206,7 @@
                       :src="plugin.icon"
                       :alt="plugin.name"
                       class="icon-image"
-                    />
+                    >
                     <Package v-else :size="24" />
                   </div>
                   <div class="featured-meta">
@@ -232,7 +232,7 @@
         <!-- Plugin Grid/List -->
         <div class="plugins-section">
           <div v-if="loading" class="loading-state">
-            <div class="loading-spinner"></div>
+            <div class="loading-spinner" />
             <p>正在加载插件...</p>
           </div>
           

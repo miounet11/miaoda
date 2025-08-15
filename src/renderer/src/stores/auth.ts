@@ -486,9 +486,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 })
 
-// Mock authentication service
+// Mock authentication service - ONLY FOR DEVELOPMENT
+// TODO: Replace with real authentication service before production
 const mockAuthService = {
   async login(credentials: any): Promise<AuthSession> {
+    // Development only - remove in production
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Authentication service not configured for production')
+    }
+    
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     

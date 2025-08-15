@@ -36,9 +36,9 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="tag-loading">
       <div class="animate-pulse flex space-x-2">
-        <div class="h-6 bg-accent rounded-full w-16"></div>
-        <div class="h-6 bg-accent rounded-full w-20"></div>
-        <div class="h-6 bg-accent rounded-full w-14"></div>
+        <div class="h-6 bg-accent rounded-full w-16" />
+        <div class="h-6 bg-accent rounded-full w-20" />
+        <div class="h-6 bg-accent rounded-full w-14" />
       </div>
     </div>
 

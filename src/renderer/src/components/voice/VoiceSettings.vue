@@ -42,8 +42,8 @@
                   v-model="config.recognition.continuous"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -56,8 +56,8 @@
                   v-model="config.recognition.interimResults"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -75,7 +75,7 @@
                 step="1"
                 class="setting-slider"
                 @input="onConfigChange"
-              />
+              >
             </div>
             
             <!-- Noise Suppression -->
@@ -92,7 +92,7 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              />
+              >
             </div>
           </div>
         </div>
@@ -146,7 +146,7 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              />
+              >
             </div>
             
             <!-- Pitch -->
@@ -163,7 +163,7 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              />
+              >
             </div>
             
             <!-- Volume -->
@@ -180,7 +180,7 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              />
+              >
             </div>
             
             <!-- Language -->
@@ -236,8 +236,8 @@
                   v-model="config.permissions.autoStart"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
           </div>
@@ -260,8 +260,8 @@
                   v-model="config.ui.showWaveform"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -274,8 +274,8 @@
                   v-model="config.ui.showConfidence"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -288,8 +288,8 @@
                   v-model="config.ui.highlightKeywords"
                   @change="onConfigChange"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@
                     v-model="voiceSearch"
                     :placeholder="$t('voice.searchVoices')"
                     class="voice-search"
-                  />
+                  >
                   
                   <select v-model="voiceLanguageFilter" class="voice-language-filter">
                     <option value="">{{ $t('voice.allLanguages') }}</option>
@@ -384,7 +384,7 @@
                 accept=".json"
                 @change="handleImportFile"
                 style="display: none"
-              />
+              >
             </div>
           </div>
         </div>

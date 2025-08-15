@@ -72,7 +72,7 @@
                 placeholder="gpt-4, claude-3-sonnet, etc."
                 class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                 required
-              />
+              >
             </div>
             
             <div>
@@ -82,7 +82,7 @@
                 type="text"
                 placeholder="e.g., GPT-4 Turbo"
                 class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-              />
+              >
             </div>
           </div>
 
@@ -113,7 +113,7 @@
                   placeholder="8192"
                   class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                   required
-                />
+                >
                 <div class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   tokens
                 </div>
@@ -131,7 +131,7 @@
                   step="100"
                   placeholder="4096"
                   class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                />
+                >
                 <div class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   tokens
                 </div>
@@ -157,7 +157,7 @@
                     step="0.0001"
                     placeholder="0.0100"
                     class="w-full px-3 py-2 pl-6 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                  />
+                  >
                   <div class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                     $
                   </div>
@@ -174,7 +174,7 @@
                     step="0.0001"
                     placeholder="0.0300"
                     class="w-full px-3 py-2 pl-6 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                  />
+                  >
                   <div class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                     $
                   </div>
@@ -196,7 +196,7 @@
                   v-model="model.capabilities[key]"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                />
+                >
                 <span class="truncate">{{ capability.label }}</span>
               </label>
             </div>

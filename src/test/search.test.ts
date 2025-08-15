@@ -12,6 +12,7 @@ vi.mock('electron', () => ({
 
 // Mock fs
 vi.mock('fs', () => ({
+  default: {},
   mkdirSync: vi.fn(),
   existsSync: vi.fn(() => true)
 }))

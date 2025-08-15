@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mountComponent } from '../../../../../test/utils'
+import { mountComponent } from '../../../../test/utils'
 import MessageSkeleton from './MessageSkeleton.vue'
 
 describe('MessageSkeleton', () => {

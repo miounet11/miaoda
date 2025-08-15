@@ -9,7 +9,7 @@
             value="current"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Current conversation only</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -18,7 +18,7 @@
             value="selected"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Selected conversations</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -27,7 +27,7 @@
             value="all"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">All conversations</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -36,7 +36,7 @@
             value="filtered"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          />
+          >
           <span class="text-sm text-gray-700 dark:text-gray-300">Filtered conversations</span>
         </label>
       </div>
@@ -65,7 +65,7 @@
       <div class="max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg">
         <div v-if="loadingChats" class="flex items-center justify-center py-8">
           <div class="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-            <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
             <span class="text-sm">Loading conversations...</span>
           </div>
         </div>
@@ -86,7 +86,7 @@
               :value="chat.id"
               v-model="selected"
               class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-            />
+            >
             <div class="flex-1 min-w-0">
               <div class="font-medium text-gray-900 dark:text-white truncate">
                 {{ chat.title || 'Untitled Conversation' }}

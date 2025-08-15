@@ -5,7 +5,7 @@
       <div
         class="w-2 h-2 rounded-full transition-colors duration-300"
         :class="connectionStatusClass"
-      ></div>
+      />
       <span class="text-xs text-gray-600 dark:text-gray-400">
         {{ connectionStatusText }}
       </span>
@@ -42,7 +42,7 @@
           <div
             class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white dark:border-gray-800"
             :class="getStatusIndicatorClass(participant.status)"
-          ></div>
+          />
         </div>
         
         <!-- 更多用户指示器 -->

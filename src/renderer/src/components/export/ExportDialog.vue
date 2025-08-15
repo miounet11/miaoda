@@ -19,7 +19,7 @@
                 v-model="options.format"
                 value="markdown"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Markdown (.md)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -28,7 +28,7 @@
                 v-model="options.format"
                 value="json"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">JSON (.json)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -37,7 +37,7 @@
                 v-model="options.format"
                 value="html"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">HTML (.html)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -46,7 +46,7 @@
                 v-model="options.format"
                 value="txt"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Plain Text (.txt)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -55,7 +55,7 @@
                 v-model="options.format"
                 value="pdf"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">PDF (.pdf)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -64,7 +64,7 @@
                 v-model="options.format"
                 value="csv"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">CSV/Excel (.csv/.xlsx)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -73,7 +73,7 @@
                 v-model="options.format"
                 value="docx"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Word Document (.docx)</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -82,7 +82,7 @@
                 v-model="options.format"
                 value="zip"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">ZIP Archive (multiple formats)</span>
             </label>
           </div>
@@ -97,7 +97,7 @@
                   v-model="pdfMethod"
                   value="direct"
                   class="text-blue-600 focus:ring-blue-500"
-                />
+                >
                 <span class="text-xs">Direct (Faster, better for text)</span>
               </label>
               <label class="flex items-center space-x-2 cursor-pointer">
@@ -106,7 +106,7 @@
                   v-model="pdfMethod"
                   value="html2canvas"
                   class="text-blue-600 focus:ring-blue-500"
-                />
+                >
                 <span class="text-xs">HTML Canvas (Slower, better for formatting)</span>
               </label>
             </div>
@@ -121,7 +121,7 @@
                   type="checkbox"
                   v-model="csvOptions.includeHeaders"
                   class="text-green-600 focus:ring-green-500"
-                />
+                >
                 <span class="text-xs">Include column headers</span>
               </label>
               <label class="flex items-center space-x-2 cursor-pointer">
@@ -129,7 +129,7 @@
                   type="checkbox"
                   v-model="csvOptions.flattenContent"
                   class="text-green-600 focus:ring-green-500"
-                />
+                >
                 <span class="text-xs">Flatten multiline content</span>
               </label>
               <div class="flex items-center space-x-2">
@@ -160,7 +160,7 @@
                   type="checkbox"
                   v-model="docxOptions.includeTableOfContents"
                   class="text-purple-600 focus:ring-purple-500"
-                />
+                >
                 <span class="text-xs">Include table of contents</span>
               </label>
               <label class="flex items-center space-x-2 cursor-pointer">
@@ -168,7 +168,7 @@
                   type="checkbox"
                   v-model="docxOptions.pageBreakBetweenChats"
                   class="text-purple-600 focus:ring-purple-500"
-                />
+                >
                 <span class="text-xs">Page break between chats</span>
               </label>
             </div>
@@ -181,19 +181,19 @@
               <div class="text-xs text-orange-700 dark:text-orange-300 mb-2">Include formats:</div>
               <div class="grid grid-cols-2 gap-1">
                 <label class="flex items-center space-x-1 cursor-pointer">
-                  <input type="checkbox" v-model="zipFormats" value="markdown" class="text-orange-600 focus:ring-orange-500" />
+                  <input type="checkbox" v-model="zipFormats" value="markdown" class="text-orange-600 focus:ring-orange-500">
                   <span class="text-xs">Markdown</span>
                 </label>
                 <label class="flex items-center space-x-1 cursor-pointer">
-                  <input type="checkbox" v-model="zipFormats" value="html" class="text-orange-600 focus:ring-orange-500" />
+                  <input type="checkbox" v-model="zipFormats" value="html" class="text-orange-600 focus:ring-orange-500">
                   <span class="text-xs">HTML</span>
                 </label>
                 <label class="flex items-center space-x-1 cursor-pointer">
-                  <input type="checkbox" v-model="zipFormats" value="json" class="text-orange-600 focus:ring-orange-500" />
+                  <input type="checkbox" v-model="zipFormats" value="json" class="text-orange-600 focus:ring-orange-500">
                   <span class="text-xs">JSON</span>
                 </label>
                 <label class="flex items-center space-x-1 cursor-pointer">
-                  <input type="checkbox" v-model="zipFormats" value="pdf" class="text-orange-600 focus:ring-orange-500" />
+                  <input type="checkbox" v-model="zipFormats" value="pdf" class="text-orange-600 focus:ring-orange-500">
                   <span class="text-xs">PDF</span>
                 </label>
               </div>
@@ -202,7 +202,7 @@
                   type="checkbox"
                   v-model="zipOptions.createFolderStructure"
                   class="text-orange-600 focus:ring-orange-500"
-                />
+                >
                 <span class="text-xs">Organize in folders</span>
               </label>
             </div>
@@ -219,7 +219,7 @@
                 v-model="exportScope"
                 value="current"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Current conversation</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -228,7 +228,7 @@
                 v-model="exportScope"
                 value="all"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">All conversations</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -237,7 +237,7 @@
                 v-model="exportScope"
                 value="selected"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Selected conversations</span>
             </label>
           </div>
@@ -264,7 +264,7 @@
                   :value="chat.id"
                   v-model="selectedChatIds"
                   class="text-blue-600 focus:ring-blue-500"
-                />
+                >
                 <div class="flex-1 min-w-0">
                   <div class="font-medium truncate text-gray-900 dark:text-white">{{ chat.title }}</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -286,7 +286,7 @@
               type="checkbox"
               v-model="useTimeFilter"
               class="text-blue-600 focus:ring-blue-500"
-            />
+            >
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">Filter by date range</label>
           </div>
           <div v-if="useTimeFilter" class="grid grid-cols-2 gap-3">
@@ -296,7 +296,7 @@
                 type="date"
                 v-model="dateFrom"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              >
             </div>
             <div class="space-y-2">
               <label class="text-xs text-gray-500 dark:text-gray-400">To Date</label>
@@ -304,7 +304,7 @@
                 type="date"
                 v-model="dateTo"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              >
             </div>
           </div>
         </div>
@@ -318,7 +318,7 @@
                 type="checkbox"
                 v-model="options.includeTimestamps"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Include timestamps</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -326,7 +326,7 @@
                 type="checkbox"
                 v-model="options.includeSystemMessages"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Include system messages</span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
@@ -334,7 +334,7 @@
                 type="checkbox"
                 v-model="options.includeMetadata"
                 class="text-blue-600 focus:ring-blue-500"
-              />
+              >
               <span class="text-sm">Include metadata</span>
             </label>
           </div>
@@ -351,7 +351,7 @@
                 v-model="options.title"
                 placeholder="My Chat Export"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              >
             </div>
             <div class="space-y-2">
               <label class="text-xs text-gray-500 dark:text-gray-400">Author</label>
@@ -360,7 +360,7 @@
                 v-model="options.author"
                 placeholder="Your Name"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              >
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@
             <div 
               class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
               :style="{ width: exportProgress.progress + '%' }"
-            ></div>
+            />
           </div>
           <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Stage: {{ exportProgress.stage }}</span>
@@ -413,29 +413,29 @@
           </button>
           
           <div class="flex space-x-3">
-        <button
-          @click="$emit('update:open', false)"
-          :disabled="isExporting"
-          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
-        >
-          Cancel
-        </button>
-          <button
-            @click="addToQueue"
-            :disabled="!canExport"
-            class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
-          >
-            <Plus class="w-4 h-4" />
-            <span>Add to Queue</span>
-          </button>
-          <button
-            @click="handleExport"
-            :disabled="isExporting || !canExport"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
-          >
-            <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
-          </button>
+            <button
+              @click="$emit('update:open', false)"
+              :disabled="isExporting"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              @click="addToQueue"
+              :disabled="!canExport"
+              class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+            >
+              <Plus class="w-4 h-4" />
+              <span>Add to Queue</span>
+            </button>
+            <button
+              @click="handleExport"
+              :disabled="isExporting || !canExport"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+            >
+              <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -490,7 +490,7 @@
   <!-- Advanced Export Dialog -->
   <AdvancedExportDialog 
     v-model:open="showAdvancedDialog" 
-    :currentChatId="currentChatId"
+    :current-chat-id="currentChatId"
   />
   
   <!-- Export Queue Dialog -->

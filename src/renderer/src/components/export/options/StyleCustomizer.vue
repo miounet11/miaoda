@@ -51,7 +51,7 @@
                 :key="color"
                 :style="{ backgroundColor: color }"
                 class="w-4 h-4 rounded"
-              ></div>
+              />
             </div>
             <div class="text-sm font-medium text-gray-900 dark:text-white">{{ theme.name }}</div>
           </div>

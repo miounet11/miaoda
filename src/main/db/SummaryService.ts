@@ -94,7 +94,7 @@ export class SummaryService {
 
     return chats.map(chat => ({
       ...chat,
-      summaryData: this.getChatSummary(chat.id)
+      summaryData: this.getChatSummary(chat.id) || undefined
     }))
   }
 

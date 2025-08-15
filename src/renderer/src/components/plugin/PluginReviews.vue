@@ -35,7 +35,7 @@
               <div 
                 class="bar-fill" 
                 :style="{ width: `${getRatingPercentage(rating)}%` }"
-              ></div>
+              />
             </div>
             <span class="rating-count">{{ getRatingCount(rating) }}</span>
           </div>
@@ -70,7 +70,7 @@
     <!-- Reviews List -->
     <div class="reviews-list">
       <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
+        <div class="loading-spinner" />
         <p>正在加载评价...</p>
       </div>
       
@@ -98,7 +98,7 @@
                   :src="review.userAvatar"
                   :alt="review.userName"
                   class="avatar-image"
-                />
+                >
                 <User v-else :size="20" />
               </div>
               <div class="reviewer-details">

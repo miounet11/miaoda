@@ -71,7 +71,7 @@
           type="text"
           :placeholder="getPlaceholder()"
           :disabled="isSearching"
-        />
+        >
 
         <div class="input-actions">
           <!-- Semantic Search Toggle -->
@@ -143,13 +143,13 @@
                 v-model="filters.dateRange.start"
                 type="date"
                 class="filter-input date-input"
-              />
+              >
               <span class="date-separator">to</span>
               <input
                 v-model="filters.dateRange.end"
                 type="date"
                 class="filter-input date-input"
-              />
+              >
             </div>
           </div>
 
@@ -162,7 +162,7 @@
                   v-model="filters.roles"
                   type="checkbox"
                   value="user"
-                />
+                >
                 <span>User</span>
               </label>
               <label class="checkbox-item">
@@ -170,7 +170,7 @@
                   v-model="filters.roles"
                   type="checkbox"
                   value="assistant"
-                />
+                >
                 <span>Assistant</span>
               </label>
               <label class="checkbox-item">
@@ -178,7 +178,7 @@
                   v-model="filters.roles"
                   type="checkbox"
                   value="system"
-                />
+                >
                 <span>System</span>
               </label>
             </div>
@@ -195,7 +195,7 @@
                 max="1"
                 step="0.1"
                 class="threshold-slider"
-              />
+              >
               <span class="slider-value">{{ (semanticOptions.threshold * 100).toFixed(0) }}%</span>
             </div>
           </div>
@@ -222,7 +222,7 @@
             <input
               v-model="semanticOptions.includeContext"
               type="checkbox"
-            />
+            >
             <span>Include conversation context</span>
           </label>
           
@@ -230,7 +230,7 @@
             <input
               v-model="semanticOptions.expandQuery"
               type="checkbox"
-            />
+            >
             <span>Expand query with synonyms</span>
           </label>
           
@@ -238,7 +238,7 @@
             <input
               v-model="semanticOptions.useCrossLingual"
               type="checkbox"
-            />
+            >
             <span>Cross-lingual search</span>
           </label>
         </div>
@@ -253,7 +253,7 @@
             <input
               v-model="options.useCache"
               type="checkbox"
-            />
+            >
             <span>Use search cache</span>
           </label>
           
@@ -261,7 +261,7 @@
             <input
               v-model="options.prefetchResults"
               type="checkbox"
-            />
+            >
             <span>Prefetch related results</span>
           </label>
         </div>

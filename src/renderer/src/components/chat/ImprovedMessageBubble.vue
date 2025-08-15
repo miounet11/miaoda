@@ -53,17 +53,18 @@
             <SkeletonLoader variant="message" :count="1" size="md" />
             <div class="loading-indicator flex items-center gap-2 mt-3 text-sm text-muted-foreground">
               <div class="thinking-dots flex gap-1">
-                <div class="dot animate-thinking" style="animation-delay: 0s"></div>
-                <div class="dot animate-thinking" style="animation-delay: 0.3s"></div>
-                <div class="dot animate-thinking" style="animation-delay: 0.6s"></div>
+                <div class="dot animate-thinking" style="animation-delay: 0s" />
+                <div class="dot animate-thinking" style="animation-delay: 0.3s" />
+                <div class="dot animate-thinking" style="animation-delay: 0.6s" />
               </div>
               <span>AI is thinking...</span>
             </div>
           </div>
           
           <!-- Message content with improved typography -->
-          <div v-else class="message-content" :class="contentClasses">
-            <MessageContentEnhanced
+          <div v-else class="message-content group" :class="contentClasses">
+            <UnifiedMessageContent
+              variant="improved"
               :content="message.content"
               :is-loading="isLoading"
               :attachments="message.attachments"
@@ -164,8 +165,10 @@
                   </button>
                   
                   <Transition name="menu-slide">
-                    <div v-if="showMoreActions" 
-                         class="more-actions-menu absolute top-full right-0 mt-1 w-36 bg-background/95 backdrop-blur-md border border-border/60 rounded-lg shadow-xl z-50">
+                    <div
+                      v-if="showMoreActions" 
+                      class="more-actions-menu absolute top-full right-0 mt-1 w-36 bg-background/95 backdrop-blur-md border border-border/60 rounded-lg shadow-xl z-50"
+                    >
                       <div class="p-1">
                         <button
                           v-if="message.role === 'user'"
@@ -223,7 +226,7 @@ import {
   Copy, Check, Volume2, VolumeX, RefreshCw, MoreVertical, Edit2, 
   Trash2, Share, Quote, User, Bot, Loader2, XCircle, AlertCircle 
 } from 'lucide-vue-next'
-import MessageContentEnhanced from '../MessageContentEnhanced.vue'
+import UnifiedMessageContent from '../UnifiedMessageContent.vue'
 import SkeletonLoader from '../ui/SkeletonLoader.vue'
 import AttachmentPreview from './AttachmentPreview.vue'
 import { formatDistanceToNow } from '@renderer/src/utils/time'

@@ -10,13 +10,13 @@
         :title="synthesisButtonTitle"
       >
         <component :is="synthesisIcon" :size="20" />
-        <span class="synthesis-pulse" v-if="isSynthesizing"></span>
+        <span class="synthesis-pulse" v-if="isSynthesizing" />
       </button>
       
       <div class="synthesis-info">
         <div v-if="isSynthesizing" class="synthesis-status">
           <div class="status-indicator">
-            <div class="pulse-dot"></div>
+            <div class="pulse-dot" />
             <span class="status-text">{{ $t('voice.synthesizing') }}</span>
           </div>
           
@@ -108,7 +108,7 @@
         :maxlength="maxTextLength"
         rows="4"
         @input="onTextInput"
-      ></textarea>
+      />
       
       <div class="input-footer">
         <div class="character-count">
@@ -145,7 +145,7 @@
             max="3.0"
             step="0.1"
             class="parameter-slider"
-          />
+          >
         </div>
         
         <!-- Pitch -->
@@ -161,7 +161,7 @@
             max="2.0"
             step="0.1"
             class="parameter-slider"
-          />
+          >
         </div>
         
         <!-- Volume -->
@@ -177,7 +177,7 @@
             max="1"
             step="0.1"
             class="parameter-slider"
-          />
+          >
         </div>
       </div>
     </div>

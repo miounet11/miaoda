@@ -50,7 +50,7 @@
                   :style="{ 
                     width: `${(keyword.count / maxKeywordCount) * 100}%` 
                   }"
-                ></div>
+                />
               </div>
             </div>
           </div>

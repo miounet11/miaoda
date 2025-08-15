@@ -19,7 +19,7 @@
             <div class="flex items-center gap-2 mb-1">
               <span class="text-sm font-medium text-foreground">{{ currentSuggestion.title }}</span>
               <div class="flex items-center gap-1">
-                <div class="w-1 h-1 bg-primary/40 rounded-full animate-pulse"></div>
+                <div class="w-1 h-1 bg-primary/40 rounded-full animate-pulse" />
                 <span class="text-xs text-primary font-medium">智能建议</span>
               </div>
             </div>

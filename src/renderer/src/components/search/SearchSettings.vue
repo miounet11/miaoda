@@ -33,7 +33,7 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              />
+              >
             </div>
             
             <!-- Search Delay -->
@@ -50,7 +50,7 @@
                 step="50"
                 class="setting-slider"
                 @change="saveSettings"
-              />
+              >
             </div>
             
             <!-- Auto Highlight -->
@@ -62,8 +62,8 @@
                   v-model="settings.autoHighlight"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -76,8 +76,8 @@
                   v-model="settings.saveRecentSearches"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
           </div>
@@ -100,8 +100,8 @@
                   v-model="settings.defaultOptions.caseSensitive"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -114,8 +114,8 @@
                   v-model="settings.defaultOptions.wholeWords"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -128,8 +128,8 @@
                   v-model="settings.defaultOptions.fuzzyMatch"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -147,7 +147,7 @@
                 step="0.05"
                 class="setting-slider"
                 @change="saveSettings"
-              />
+              >
             </div>
             
             <!-- Highlight Matches -->
@@ -159,8 +159,8 @@
                   v-model="settings.defaultOptions.highlightMatches"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -202,7 +202,7 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              />
+              >
             </div>
             
             <!-- Index Batch Size -->
@@ -219,7 +219,7 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              />
+              >
             </div>
             
             <!-- Auto Index -->
@@ -231,8 +231,8 @@
                   v-model="settings.performance.autoIndex"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
             
@@ -245,8 +245,8 @@
                   v-model="settings.performance.backgroundIndexing"
                   @change="saveSettings"
                   class="toggle-input"
-                />
-                <span class="toggle-slider"></span>
+                >
+                <span class="toggle-slider" />
               </div>
             </div>
           </div>
@@ -316,7 +316,7 @@
               accept=".json"
               @change="handleImportFile"
               style="display: none"
-            />
+            >
           </div>
         </div>
       </div>

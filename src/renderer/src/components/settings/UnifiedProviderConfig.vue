@@ -143,7 +143,7 @@
               placeholder="Enter your API key..."
               class="w-full px-3 py-2.5 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               required
-            />
+            >
             <button
               @click="showApiKey = !showApiKey"
               type="button"
@@ -170,7 +170,7 @@
             type="url"
             :placeholder="getDefaultBaseURL(selectedProvider)"
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          />
+          >
           <p class="text-xs text-muted-foreground mt-1">
             Leave empty to use the default endpoint
           </p>
@@ -189,7 +189,7 @@
             placeholder="llama2, mistral, codellama, etc."
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             required
-          />
+          >
           <p class="text-xs text-muted-foreground mt-1">
             Make sure the model is downloaded in Ollama (e.g., `ollama pull llama2`)
           </p>
@@ -216,7 +216,7 @@
               placeholder="Enter custom model name (e.g., gpt-4-1106-preview)"
               class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               autofocus
-            />
+            >
             <button
               @click="showCustomModelInput = false; $emit('update:model', 'gpt-4')"
               class="text-sm text-muted-foreground hover:text-foreground transition-colors"

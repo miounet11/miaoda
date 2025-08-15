@@ -29,7 +29,7 @@
         ref="editorRef"
         class="editor"
         :class="{ 'editor-readonly': readOnly }"
-      ></div>
+      />
     </div>
     
     <div class="file-status">

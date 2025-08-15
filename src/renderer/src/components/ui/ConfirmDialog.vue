@@ -26,7 +26,7 @@
             </h3>
             <div class="text-muted-foreground">
               <p v-if="typeof message === 'string'">{{ message }}</p>
-              <div v-else v-html="message"></div>
+              <div v-else v-html="message" />
             </div>
           </div>
         </div>

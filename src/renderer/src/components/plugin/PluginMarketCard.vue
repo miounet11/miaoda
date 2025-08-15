@@ -17,7 +17,7 @@
             :src="plugin.icon"
             :alt="plugin.name"
             class="plugin-icon"
-          />
+          >
           <Package v-else :size="32" class="plugin-icon-default" />
         </div>
         
@@ -106,7 +106,7 @@
               :src="plugin.icon"
               :alt="plugin.name"
               class="plugin-icon"
-            />
+            >
             <Package v-else :size="40" class="plugin-icon-default" />
           </div>
           

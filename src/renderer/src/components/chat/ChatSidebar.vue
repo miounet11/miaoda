@@ -23,7 +23,7 @@
             type="text"
             placeholder="Search conversations..."
             class="w-full pl-9 pr-3 py-2 bg-secondary/40 border border-transparent rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-200 placeholder:text-muted-foreground"
-          />
+          >
         </div>
       </div>
     </div>
@@ -61,10 +61,12 @@
         >
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0 mt-0.5">
-              <div :class="[
-                'w-2 h-2 rounded-full transition-colors duration-200',
-                currentChatId === chat.id ? 'bg-primary' : 'bg-muted-foreground/30'
-              ]" />
+              <div
+                :class="[
+                  'w-2 h-2 rounded-full transition-colors duration-200',
+                  currentChatId === chat.id ? 'bg-primary' : 'bg-muted-foreground/30'
+                ]"
+              />
             </div>
             
             <div class="flex-1 min-w-0">
@@ -81,8 +83,10 @@
                 </div>
                 
                 <!-- Message Count Badge -->
-                <div v-if="chat.messageCount && chat.messageCount > 0" 
-                     class="px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium">
+                <div
+                  v-if="chat.messageCount && chat.messageCount > 0" 
+                  class="px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium"
+                >
                   {{ chat.messageCount }}
                 </div>
               </div>
@@ -128,8 +132,10 @@
           
           <!-- Dropdown Menu -->
           <Transition name="menu-slide">
-            <div v-if="showMoreMenu" 
-                 class="absolute bottom-full mb-2 right-0 w-48 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50">
+            <div
+              v-if="showMoreMenu" 
+              class="absolute bottom-full mb-2 right-0 w-48 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
+            >
               <div class="p-2">
                 <button
                   @click="handleMoreAction('settings')"

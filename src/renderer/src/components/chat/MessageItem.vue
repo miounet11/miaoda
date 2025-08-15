@@ -30,8 +30,9 @@
           </div>
           
           <!-- Message Content -->
-          <MessageContentEnhanced
+          <UnifiedMessageContent
             v-else
+            variant="enhanced"
             :content="message.content"
             :is-loading="isLoading"
             :attachments="message.attachments"
@@ -179,7 +180,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bot, User, Sparkles, Copy, Edit2, RefreshCw, Trash2, Volume2, Loader2, Paperclip, FileText } from 'lucide-vue-next'
 import TypingIndicator from '../loading/TypingIndicator.vue'
-import MessageContentEnhanced from '../MessageContentEnhanced.vue'
+import UnifiedMessageContent from '../UnifiedMessageContent.vue'
 import VoiceSynthesis from '@renderer/src/components/voice/VoiceSynthesis.vue'
 // Simplified imports for now - will implement full UI components later
 // import ActionButton from '../ui/ActionButton.vue'

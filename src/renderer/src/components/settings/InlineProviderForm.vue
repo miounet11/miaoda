@@ -19,7 +19,7 @@
                 : 'border-muted-foreground/20 focus:border-primary'
             ]"
             required
-          />
+          >
           <p 
             v-if="isDisplayNameTaken" 
             class="text-xs text-red-600 mt-1"
@@ -57,7 +57,7 @@
             placeholder="🔧"
             maxlength="2"
             class="w-16 px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
-          />
+          >
           <div class="flex gap-1">
             <button
               v-for="emoji in quickEmojis"
@@ -81,7 +81,7 @@
           type="text"
           placeholder="Brief description of this provider"
           class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-        />
+        >
       </div>
     </div>
 
@@ -101,7 +101,7 @@
             placeholder="https://api.example.com/v1"
             class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             required
-          />
+          >
         </div>
         
         <div>
@@ -117,7 +117,7 @@
               placeholder="Enter your API key"
               class="w-full px-3 py-2 pr-10 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               :required="form.requiresAuth"
-            />
+            >
             <button
               type="button"
               @click="showApiKey = !showApiKey"
@@ -137,7 +137,7 @@
             v-model="form.requiresAuth"
             type="checkbox"
             class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-          />
+          >
           <span class="text-sm">Requires Authentication</span>
         </label>
         
@@ -146,7 +146,7 @@
             v-model="form.supportsStreaming"
             type="checkbox"
             class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-          />
+          >
           <span class="text-sm">Supports Streaming</span>
         </label>
       </div>
@@ -182,13 +182,13 @@
             placeholder="Model ID (e.g., gpt-4)"
             class="flex-1 px-2 py-1 bg-background border border-muted-foreground/20 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
             required
-          />
+          >
           <input
             v-model="model.displayName"
             type="text"
             placeholder="Display Name"
             class="flex-1 px-2 py-1 bg-background border border-muted-foreground/20 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-          />
+          >
           <button
             type="button"
             @click="removeModel(index)"

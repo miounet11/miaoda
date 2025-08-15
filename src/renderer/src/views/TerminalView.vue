@@ -323,7 +323,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
       
     case 'Tab':
       event.preventDefault()
-      // TODO: Implement tab completion
+      // Future: Implement tab completion - Issue #terminal-tab-completion
       break
       
     case 'c':

@@ -39,13 +39,13 @@
               v-if="attachment.status === 'uploading'"
               class="upload-progress absolute inset-0 bg-black/60 rounded-lg flex flex-col items-center justify-center z-10"
             >
-              <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mb-2"></div>
+              <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mb-2" />
               <span class="text-xs text-white font-medium">上传中...</span>
               <div class="w-full max-w-[60px] h-1 bg-white/30 rounded-full mt-2 overflow-hidden">
                 <div 
                   class="h-full bg-white transition-all duration-300" 
                   :style="{ width: `${attachment.uploadProgress || 0}%` }"
-                ></div>
+                />
               </div>
             </div>
 
@@ -59,9 +59,9 @@
               </div>
               <span class="text-xs text-white font-medium">AI分析中...</span>
               <div class="mt-1 flex space-x-1">
-                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0s" />
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s" />
+                <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s" />
               </div>
             </div>
 
@@ -93,7 +93,7 @@
               @load="onImageLoad(attachment)"
               @error="onImageError(attachment)"
               @click="openImagePreview(attachment)"
-            />
+            >
 
             <!-- Enhanced Hover Overlay -->
             <div class="attachment-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200">
@@ -149,45 +149,46 @@
             </div>
           </div>
         
-        <!-- File Attachment -->
-        <div v-else class="file-attachment flex items-center gap-2 px-3 py-2 bg-muted rounded-lg border border-border">
-          <div class="file-icon">
-            <FileText v-if="attachment.type === 'text'" :size="16" class="text-blue-500" />
-            <File v-else :size="16" class="text-gray-500" />
-          </div>
-          
-          <div class="file-info flex-1 min-w-0">
-            <div class="file-name text-sm font-medium truncate">{{ attachment.name }}</div>
-            <div v-if="attachment.size" class="file-size text-xs text-muted-foreground">
-              {{ formatFileSize(attachment.size) }}
+          <!-- File Attachment -->
+          <div v-else class="file-attachment flex items-center gap-2 px-3 py-2 bg-muted rounded-lg border border-border">
+            <div class="file-icon">
+              <FileText v-if="attachment.type === 'text'" :size="16" class="text-blue-500" />
+              <File v-else :size="16" class="text-gray-500" />
             </div>
-          </div>
           
-          <button
-            @click="$emit('remove', attachment.id)"
-            class="remove-btn p-1 hover:bg-background rounded transition-colors text-muted-foreground hover:text-foreground"
-            title="Remove attachment"
-          >
-            <X :size="12" />
-          </button>
+            <div class="file-info flex-1 min-w-0">
+              <div class="file-name text-sm font-medium truncate">{{ attachment.name }}</div>
+              <div v-if="attachment.size" class="file-size text-xs text-muted-foreground">
+                {{ formatFileSize(attachment.size) }}
+              </div>
+            </div>
+          
+            <button
+              @click="$emit('remove', attachment.id)"
+              class="remove-btn p-1 hover:bg-background rounded transition-colors text-muted-foreground hover:text-foreground"
+              title="Remove attachment"
+            >
+              <X :size="12" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     
-    <!-- Upload Progress (if needed) -->
-    <div v-if="uploadProgress.length > 0" class="upload-progress mt-2 space-y-1">
-      <div
-        v-for="progress in uploadProgress"
-        :key="progress.id"
-        class="progress-item flex items-center gap-2 text-sm"
-      >
-        <div class="progress-bar flex-1 h-1 bg-muted rounded-full overflow-hidden">
-          <div
-            class="progress-fill h-full bg-primary transition-all duration-300"
-            :style="{ width: `${progress.progress}%` }"
-          ></div>
+      <!-- Upload Progress (if needed) -->
+      <div v-if="uploadProgress.length > 0" class="upload-progress mt-2 space-y-1">
+        <div
+          v-for="progress in uploadProgress"
+          :key="progress.id"
+          class="progress-item flex items-center gap-2 text-sm"
+        >
+          <div class="progress-bar flex-1 h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              class="progress-fill h-full bg-primary transition-all duration-300"
+              :style="{ width: `${progress.progress}%` }"
+            />
+          </div>
+          <span class="progress-text text-xs text-muted-foreground">{{ progress.progress }}%</span>
         </div>
-        <span class="progress-text text-xs text-muted-foreground">{{ progress.progress }}%</span>
       </div>
     </div>
   </div>

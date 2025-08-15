@@ -69,7 +69,7 @@
                   :disabled="isEditing"
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all disabled:opacity-50"
                   required
-                />
+                >
                 <p class="text-xs text-muted-foreground mt-1">
                   Unique identifier (cannot be changed)
                 </p>
@@ -86,7 +86,7 @@
                   placeholder="e.g., My Custom OpenAI"
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   required
-                />
+                >
               </div>
             </div>
 
@@ -113,7 +113,7 @@
                   placeholder="🤖"
                   maxlength="2"
                   class="w-16 px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
-                />
+                >
                 <div class="flex gap-2 flex-wrap">
                   <button
                     v-for="emoji in commonEmojis"
@@ -146,7 +146,7 @@
                 placeholder="https://api.example.com/v1"
                 class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 required
-              />
+              >
             </div>
 
             <!-- API Key -->
@@ -163,7 +163,7 @@
                   placeholder="Enter your API key"
                   class="w-full px-3 py-2 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   :required="form.requiresAuth"
-                />
+                >
                 <button
                   type="button"
                   @click="showApiKey = !showApiKey"
@@ -186,7 +186,7 @@
                   v-model="form.requiresAuth"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                />
+                >
               </label>
             </div>
 
@@ -207,7 +207,7 @@
                     type="text"
                     placeholder="Optional organization identifier"
                     class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
+                  >
                 </div>
 
                 <!-- Timeout and Retries -->
@@ -222,7 +222,7 @@
                       max="300"
                       placeholder="30"
                       class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
+                    >
                   </div>
                   
                   <div>
@@ -235,7 +235,7 @@
                       max="10"
                       placeholder="3"
                       class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
+                    >
                   </div>
                 </div>
               </div>
@@ -255,7 +255,7 @@
                   v-model="form.capabilities[key]"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                />
+                >
                 <div>
                   <span class="text-sm font-medium block">{{ capability.label }}</span>
                   <span class="text-xs text-muted-foreground">{{ capability.description }}</span>
