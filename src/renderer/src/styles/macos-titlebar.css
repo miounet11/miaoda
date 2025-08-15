@@ -1,0 +1,67 @@
+/* macOS 窗口控制按钮适配 */
+
+/* macOS 系统下的标题栏区域保留 */
+.platform-darwin .sidebar {
+  /* 为 macOS 窗口控制按钮预留空间 */
+  padding-top: 28px !important;
+}
+
+/* 避免内容与窗口控制按钮重叠 */
+.platform-darwin .sidebar-header {
+  /* 确保侧边栏头部不会与控制按钮重叠 */
+  margin-top: 0;
+}
+
+/* 当侧边栏折叠时的处理 */
+.platform-darwin .main-header {
+  /* 主区域头部也需要预留空间 */
+  padding-top: 28px;
+}
+
+/* 拖动区域 */
+.platform-darwin .titlebar-drag-region {
+  /* 可拖动区域 */
+  -webkit-app-region: drag;
+  height: 28px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* 窗口控制按钮区域不可拖动 */
+.platform-darwin .window-controls-region {
+  -webkit-app-region: no-drag;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 70px;
+  height: 28px;
+  z-index: 1001;
+}
+
+/* Electron 无框窗口模式下的适配 */
+.platform-darwin.frameless {
+  /* 无框窗口需要更多的顶部空间 */
+  .sidebar {
+    padding-top: 32px !important;
+  }
+  
+  .main-content {
+    padding-top: 32px;
+  }
+}
+
+/* 动态类名支持 */
+.pt-8 {
+  padding-top: 2rem; /* 32px */
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .platform-darwin .sidebar {
+    /* 移动端不需要额外的顶部空间 */
+    padding-top: 0 !important;
+  }
+}

@@ -1,5 +1,7 @@
 @import './animations.css';
 @import './message-fix.css';
+@import '../../styles/mobile-improvements.css';
+@import '../../styles/macos-titlebar.css';
 
 @tailwind base;
 @tailwind components;

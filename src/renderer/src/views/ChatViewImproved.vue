@@ -4,6 +4,7 @@
     <aside 
       v-show="!sidebarCollapsed"
       class="sidebar flex flex-col transition-all duration-300 overflow-hidden border-r border-border/50 flex-shrink-0"
+      :class="{ 'pt-8': isMacOS }"
       :style="{ width: sidebarWidth + 'px', minWidth: '240px', maxWidth: '360px' }"
     >
       <!-- 侧边栏头部 -->
@@ -912,10 +913,16 @@ const currentProviderIcon = computed(() => {
   return providerIcons[settingsStore.llmProvider as keyof typeof providerIcons] || '🤖'
 })
 
+// 检测是否为 macOS
+const isMacOS = ref(false)
+
 // 生命周期
 onMounted(async () => {
   // Component mounting
   try {
+    // 检测操作系统
+    isMacOS.value = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+    
     // 初始化 chat store with error handling
     // Initializing chat store
     try {
