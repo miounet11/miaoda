@@ -134,8 +134,7 @@
     </div>
     
     <!-- Main Content -->
-    <div v-else-if="content" ref="contentElement" :class="proseClasses">
-      <!-- Content will be rendered here based on renderMode -->
+    <div v-else-if="content" ref="contentElement" :class="proseClasses" v-html="renderedContent">
     </div>
 
     <!-- Actions (enhanced variants) -->
@@ -179,67 +178,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUpdated, nextTick, watch, PropType } from 'vue'
+import { computed, ref, onMounted, onUpdated, nextTick, PropType } from 'vue'
 import { marked } from 'marked'
 import { FileText, Copy, Edit, Trash2, Maximize2, Download, X, AlertCircle } from 'lucide-vue-next'
 import hljs from 'highlight.js'
 import { logger } from '../utils/Logger'
 
-// Configure marked renderer with enhanced features
-const renderer = new marked.Renderer()
-
-// Custom code block renderer with copy functionality
-renderer.code = (code, language) => {
-  const codeId = 'code-' + Math.random().toString(36).substr(2, 9)
-  const highlighted = language && hljs.getLanguage(language)
-    ? hljs.highlight(code, { language }).value
-    : hljs.highlightAuto(code).value
-  
-  return `
-    <div class="code-block-wrapper relative group my-4">
-      <div class="code-header flex items-center justify-between px-4 py-2 bg-muted/50 rounded-t-lg border border-b-0">
-        <span class="text-xs font-mono text-muted-foreground">${language || 'plaintext'}</span>
-        <button 
-          class="copy-button inline-flex items-center gap-1 px-2 py-1 text-xs bg-background hover:bg-secondary rounded transition-colors"
-          data-code-id="${codeId}"
-          title="复制代码"
-        >
-          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span class="copy-text">复制</span>
-        </button>
-      </div>
-      <pre class="!mt-0 !rounded-t-none"><code id="${codeId}" class="hljs language-${language || 'plaintext'}">${highlighted}</code></pre>
-    </div>
-  `
-}
-
-// Custom image renderer
-renderer.image = (href, title, text) => {
-  return `
-    <img 
-      src="${href}" 
-      alt="${text}" 
-      title="${title || ''}" 
-      loading="lazy" 
-      class="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity my-2"
-      onclick="window.open('${href}', '_blank')"
-    />
-  `
-}
-
+// Configure marked with simplified options
 marked.setOptions({
-  renderer,
-  highlight: function(code, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return hljs.highlight(code, { language: lang }).value
-      } catch (__) {}
-    }
-    return hljs.highlightAuto(code).value
-  },
   breaks: true,
   gfm: true
 })
@@ -404,11 +350,13 @@ const renderedContent = computed(() => {
     }
     
     if (props.renderMode === 'markdown') {
-      return marked(props.content)
+      // Use marked.parse for markdown rendering
+      return marked.parse(props.content) as string
     } else if (props.renderMode === 'html') {
       return props.content
     }
-    return props.content
+    // Default to markdown rendering for better formatting
+    return marked.parse(props.content) as string
   } catch (error) {
     logger.error('Failed to render content', 'UnifiedMessageContent', { error })
     return props.content
@@ -508,25 +456,14 @@ const setupCodeCopyButtons = () => {
   })
 }
 
-// Update content when it changes
-const updateContent = async () => {
-  if (!contentElement.value) return
-  
-  if (props.variant === 'simple') {
-    contentElement.value.textContent = props.content
-  } else {
-    contentElement.value.innerHTML = renderedContent.value
-    await nextTick()
-    setupCodeCopyButtons()
-  }
-}
+// Lifecycle - setup code copy buttons when content changes
+onMounted(() => {
+  nextTick(() => setupCodeCopyButtons())
+})
 
-// Lifecycle
-onMounted(updateContent)
-onUpdated(updateContent)
-
-watch(() => props.content, updateContent)
-watch(() => props.variant, updateContent)
+onUpdated(() => {
+  nextTick(() => setupCodeCopyButtons())
+})
 </script>
 
 <style scoped>
