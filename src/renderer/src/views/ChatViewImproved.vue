@@ -1493,10 +1493,10 @@ const sendMessage = async () => {
   
   isLoading.value = true
   
-  // 创建助手消息
+  // 创建助手消息 - 使用占位符内容避免验证错误
   const assistantMessage = await chatStore.addMessage({
     role: 'assistant',
-    content: '',
+    content: '...',  // 使用占位符避免空内容验证错误
     timestamp: new Date()
   })
   

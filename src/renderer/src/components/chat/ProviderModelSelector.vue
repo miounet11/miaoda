@@ -40,7 +40,7 @@
     <Transition name="dropdown">
       <div
         v-if="isOpen"
-        class="dropdown-menu absolute top-full right-0 mt-2 w-80 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+        class="dropdown-menu absolute top-full right-0 mt-2 w-80 bg-background border border-border rounded-xl shadow-xl z-[9999] overflow-hidden"
         @click.stop
       >
         <!-- Header -->
