@@ -291,7 +291,7 @@ export const useChatStore = defineStore('chat', () => {
         await window.api.db.updateChat(
           chat.id,
           newTitle,
-          now.toISOString()
+          Date.now() // 使用时间戳而不是字符串
         )
       } catch (error) {
         logger.error('Failed to update chat title', 'ChatStore', error)
@@ -302,22 +302,22 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   const updateMessageContent = async (messageId: string, content: string) => {
-    // Updating message content
+    console.log('[ChatStore] Updating message content', { messageId, contentLength: content?.length, contentPreview: content?.substring(0, 50) })
     
     if (!currentChat.value) {
-      // No current chat available
+      console.error('[ChatStore] No current chat available')
       return
     }
 
     // Find and update the message in memory
     const message = currentChat.value.messages.find(m => m.id === messageId)
     if (!message) {
-      // Message not found for update
+      console.error('[ChatStore] Message not found for update', { messageId })
       logger.error('Message not found for update', 'ChatStore', { messageId })
       return
     }
 
-    // Updating message content in memory
+    console.log('[ChatStore] Found message, updating content', { oldContent: message.content?.substring(0, 50), newContent: content?.substring(0, 50) })
     message.content = content
 
     // Update in database

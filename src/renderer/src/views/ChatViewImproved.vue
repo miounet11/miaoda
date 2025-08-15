@@ -1503,45 +1503,52 @@ const sendMessage = async () => {
   try {
     // 设置流式响应监听
     let streamedContent = ''
-    // Setting up chunk listener for message
+    const currentMessageId = assistantMessage.id
+    const currentChatId = currentChat.value?.id
+    
+    console.log('[ChatView] Setting up chunk listener', { chatId: currentChatId, messageId: currentMessageId })
     
     const cleanupChunk = window.api.llm.onChunk((data: any) => {
-      // Received chunk data
+      console.log('[ChatView] Received chunk data', { 
+        data, 
+        matchesChat: data.chatId === currentChatId,
+        matchesMessage: data.messageId === currentMessageId 
+      })
       
-      if (data.chatId === currentChat.value?.id && data.messageId === assistantMessage.id) {
-        // Processing chunk for our message
+      if (data.chatId === currentChatId && data.messageId === currentMessageId) {
         streamedContent += data.chunk
-        // Accumulated content updated
+        console.log('[ChatView] Updating message with chunk', { 
+          messageId: currentMessageId, 
+          chunkLength: data.chunk.length,
+          totalLength: streamedContent.length 
+        })
         
         // 使用store的方法更新消息内容
-        chatStore.updateMessageContent(assistantMessage.id, streamedContent)
+        chatStore.updateMessageContent(currentMessageId, streamedContent)
         
         nextTick(() => {
           scrollToBottom()
         })
-      } else {
-        // Chunk not for our message - ignoring
       }
     })
     
     // 发送到 LLM - 使用正确的消息格式
-    // Sending message to LLM
+    console.log('[ChatView] Sending message to LLM', { messageContent, chatId: currentChat.value!.id, messageId: assistantMessage.id })
     const response = await window.api.llm.sendMessage(
       messageContent,
       currentChat.value!.id,
       assistantMessage.id
     )
     
-    // LLM response received
+    console.log('[ChatView] LLM response received', { response, responseLength: response?.length })
     
     // 更新最终响应
-    // Updating final response in store
-    
     // Test with a simple message first
     const testResponse = response || "测试响应内容 - 如果你看到这个，说明更新机制是工作的"
-    // Using fallback test response
+    console.log('[ChatView] Using response', { testResponse, length: testResponse?.length })
     
     await chatStore.updateMessageContent(assistantMessage.id, testResponse)
+    console.log('[ChatView] Message content updated')
     // Final response updated
     
     cleanupChunk()

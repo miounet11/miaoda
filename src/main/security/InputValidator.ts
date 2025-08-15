@@ -6,7 +6,8 @@
 import { z } from 'zod'
 
 // Common validation schemas
-const SafeString = z.string().min(1).max(10000).regex(/^[a-zA-Z0-9\s\-_.,!?@#$%^&*()+={}[\]|\\:";'<>~`/]*$/)
+// Allow most Unicode characters including Chinese, emojis, etc.
+const SafeString = z.string().min(1).max(10000)
 const SafeID = z.string().min(1).max(100).regex(/^[a-zA-Z0-9\-_]+$/)
 const SafeFileName = z.string().min(1).max(255).regex(/^[^<>:"|?*\\/]+$/)
 const SafeUrl = z.string().url().max(2048)
