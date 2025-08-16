@@ -9,7 +9,7 @@
         <!-- New Chat Button -->
         <button 
           @click="$emit('new-chat')"
-          class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2.5 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+          class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-2.5 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] btn-interactive magnetic-hover ripple"
         >
           <Plus :size="18" class="animate-in" />
           <span class="tracking-wide">New Chat</span>
@@ -22,7 +22,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search conversations..."
-            class="w-full pl-9 pr-3 py-2 bg-secondary/40 border border-transparent rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-200 placeholder:text-muted-foreground"
+            class="w-full pl-9 pr-3 py-2 bg-secondary/40 border border-transparent rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-300 placeholder:text-muted-foreground input-enhanced focus-glow"
           >
         </div>
       </div>
@@ -53,18 +53,18 @@
           :key="chat.id"
           @click="$emit('select-chat', chat.id)"
           :class="[
-            'chat-item px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 relative group border',
+            'chat-item sidebar-item px-3 py-3 rounded-xl cursor-pointer transition-all duration-300 relative group border transform',
             currentChatId === chat.id 
-              ? 'bg-primary/15 border-primary/30 shadow-sm ring-1 ring-primary/20' 
-              : 'hover:bg-secondary/40 border-transparent hover:border-border/40 hover:shadow-sm'
+              ? 'bg-primary/15 border-primary/30 shadow-sm ring-1 ring-primary/20 active' 
+              : 'hover:bg-secondary/40 border-transparent hover:border-border/40 hover:shadow-sm hover:translate-x-1'
           ]"
         >
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0 mt-0.5">
               <div
                 :class="[
-                  'w-2 h-2 rounded-full transition-colors duration-200',
-                  currentChatId === chat.id ? 'bg-primary' : 'bg-muted-foreground/30'
+                  'w-2 h-2 rounded-full transition-all duration-300',
+                  currentChatId === chat.id ? 'bg-primary scale-125 animate-pulse' : 'bg-muted-foreground/30'
                 ]"
               />
             </div>
@@ -97,8 +97,8 @@
               <button
                 @click.stop="toggleContextMenu(chat.id, $event)"
                 :class="[
-                  'p-1.5 rounded-lg transition-colors duration-150',
-                  activeContextMenuId === chat.id ? 'bg-secondary text-foreground' : 'hover:bg-background/70'
+                  'p-1.5 rounded-lg transition-all duration-200 btn-interactive',
+                  activeContextMenuId === chat.id ? 'bg-secondary text-foreground rotate-90' : 'hover:bg-background/70 hover:rotate-90'
                 ]"
                 title="More options"
               >

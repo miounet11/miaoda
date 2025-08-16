@@ -1,7 +1,7 @@
 <template>
   <div 
-    class="message-item group relative"
-    :class="messageClasses"
+    class="message-item group relative message-hover transition-all duration-300"
+    :class="[messageClasses, { 'message-appear': isNewMessage }]"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
     @focusin="handleFocusIn"
@@ -10,8 +10,8 @@
     <!-- Modern Message Layout -->
     <div class="flex gap-3 w-full" :class="layoutClasses">
       <!-- Avatar -->
-      <div class="avatar-container flex-shrink-0" :class="avatarClasses">
-        <div class="avatar" :class="avatarStyle">
+      <div class="avatar-container flex-shrink-0 transition-transform duration-200 group-hover:scale-105" :class="avatarClasses">
+        <div class="avatar float-breathe" :class="avatarStyle">
           <component :is="avatarIcon" :size="16" class="avatar-icon" />
         </div>
       </div>
@@ -20,8 +20,8 @@
       <div class="message-content-wrapper flex-1 min-w-0">
         <!-- Message Bubble -->
         <div 
-          class="message-bubble group/bubble"
-          :class="bubbleClasses"
+          class="message-bubble group/bubble transition-all duration-200 hover:shadow-lg"
+          :class="[bubbleClasses, { 'elastic-click': !isLoading }]"
           @click="handleBubbleClick"
         >
           <!-- Loading State -->
@@ -63,7 +63,7 @@
               <div class="action-buttons">
                 <button
                   @click="handleCopy"
-                  class="action-button"
+                  class="action-button btn-interactive ripple"
                   title="Copy message"
                 >
                   <Copy :size="14" />
@@ -82,7 +82,7 @@
                 <button
                   v-if="message.role === 'user'"
                   @click="$emit('edit')"
-                  class="action-button"
+                  class="action-button btn-interactive ripple"
                   title="Edit message"
                 >
                   <Edit2 :size="14" />
@@ -91,7 +91,7 @@
                 <button
                   v-if="message.role === 'assistant' && !isLoading"
                   @click="$emit('retry')"
-                  class="action-button"
+                  class="action-button btn-interactive ripple"
                   title="Regenerate response"
                 >
                   <RefreshCw :size="14" />
@@ -99,7 +99,7 @@
                 
                 <button
                   @click="handleDelete"
-                  class="action-button destructive"
+                  class="action-button destructive btn-interactive error-shake-enhanced"
                   title="Delete message"
                 >
                   <Trash2 :size="14" />

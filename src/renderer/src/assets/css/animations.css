@@ -1,8 +1,20 @@
-/* 高级动画和过渡效果 */
+/* MiaoDa Chat 高级微交互动画库 */
 
-/* 平滑过渡 */
+/* ========== 核心过渡系统 ========== */
+
+/* 全局平滑过渡 */
 * {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 缓动函数变量 */
+:root {
+  --ease-in-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-gentle: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 消息进入动画 */
@@ -258,6 +270,276 @@
   scroll-behavior: smooth;
 }
 
+/* ========== 微交互效果 ========== */
+
+/* 波纹点击效果 */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: all 0.4s var(--ease-gentle);
+  pointer-events: none;
+}
+
+.ripple-effect:active::after {
+  transform: scale(1);
+  opacity: 1;
+  transition-duration: 0.1s;
+}
+
+/* 磁性悬停效果 */
+.magnetic-hover {
+  transition: all 0.3s var(--ease-spring);
+}
+
+.magnetic-hover:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 弹性点击效果 */
+.elastic-click {
+  transition: transform 0.2s var(--ease-bounce);
+}
+
+.elastic-click:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+/* 浮动呼吸效果 */
+.float-breathe {
+  animation: floatBreathe 4s ease-in-out infinite;
+}
+
+@keyframes floatBreathe {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.01);
+  }
+}
+
+/* 聚焦光环效果 */
+.focus-glow {
+  transition: all 0.3s var(--ease-gentle);
+}
+
+.focus-glow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3), 
+              0 0 20px rgba(var(--primary-rgb), 0.1);
+  animation: focusGlow 1s ease-in-out;
+}
+
+@keyframes focusGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3), 
+                0 0 20px rgba(var(--primary-rgb), 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2), 
+                0 0 30px rgba(var(--primary-rgb), 0.15);
+  }
+}
+
+/* ========== 状态指示动画 ========== */
+
+/* 成功检查动画 */
+.success-check {
+  animation: successPop 0.6s var(--ease-bounce);
+}
+
+@keyframes successPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 错误摇晃增强版 */
+.error-shake-enhanced {
+  animation: errorShakeEnhanced 0.6s var(--ease-gentle);
+}
+
+@keyframes errorShakeEnhanced {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); }
+}
+
+/* 警告脉冲 */
+.warning-pulse {
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+    opacity: 0.8;
+  }
+}
+
+/* ========== 高级过渡效果 ========== */
+
+/* 模糊滑入 */
+.blur-slide-enter-active {
+  transition: all 0.4s var(--ease-spring);
+}
+
+.blur-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+  filter: blur(10px);
+}
+
+/* 缩放旋转进入 */
+.scale-rotate-enter-active {
+  transition: all 0.5s var(--ease-bounce);
+}
+
+.scale-rotate-enter-from {
+  opacity: 0;
+  transform: scale(0.3) rotate(-180deg);
+}
+
+/* 弹性滑动 */
+.elastic-slide-enter-active {
+  transition: all 0.6s var(--ease-spring);
+}
+
+.elastic-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-100px) scale(0.8);
+}
+
+/* ========== 加载和等待状态 ========== */
+
+/* 脉冲加载点 */
+.pulse-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.pulse-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulseDots 1.5s ease-in-out infinite;
+}
+
+.pulse-dots span:nth-child(1) { animation-delay: 0s; }
+.pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+.pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulseDots {
+  0%, 60%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  30% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+/* 进度波浪 */
+.progress-wave {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(var(--primary-rgb), 0.4) 50%, 
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: progressWave 2s ease-in-out infinite;
+}
+
+@keyframes progressWave {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ========== 文字和内容动画 ========== */
+
+/* 打字机效果 */
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid var(--primary);
+  white-space: nowrap;
+  animation: typewriter 3s steps(30) 1s both, 
+             blinkCursor 1s step-end infinite;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blinkCursor {
+  50% { border-color: transparent; }
+}
+
+/* 字符淡入效果 */
+.char-fade-in {
+  animation: charFadeIn 0.8s var(--ease-gentle) both;
+}
+
+@keyframes charFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotateX(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+/* ========== 主题和色彩动画 ========== */
+
+/* 主题切换动画 */
+.theme-transition {
+  transition: all 0.3s var(--ease-gentle);
+}
+
+/* 颜色渐变动画 */
+.gradient-shift {
+  background: linear-gradient(-45deg, 
+    var(--primary), 
+    var(--secondary), 
+    var(--accent), 
+    var(--primary));
+  background-size: 400% 400%;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ========== 可访问性和性能优化 ========== */
+
+/* GPU 加速优化 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
 /* 减少动画（可访问性） */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -267,5 +549,29 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  .magnetic-hover:hover {
+    transform: none;
+  }
+  
+  .float-breathe {
+    animation: none;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .focus-glow:focus-visible {
+    outline: 3px solid var(--primary);
+    box-shadow: none;
+  }
+  
+  .magnetic-hover {
+    border: 2px solid transparent;
+  }
+  
+  .magnetic-hover:hover {
+    border-color: var(--primary);
   }
 }

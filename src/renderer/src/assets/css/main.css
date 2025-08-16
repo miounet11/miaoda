@@ -2,6 +2,7 @@
 @import './message-fix.css';
 @import '../../styles/mobile-improvements.css';
 @import '../../styles/macos-titlebar.css';
+@import '../../styles/micro-interactions.css';
 
 @tailwind base;
 @tailwind components;

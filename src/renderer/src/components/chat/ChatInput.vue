@@ -60,12 +60,13 @@
       
       <!-- Input Container -->
       <div class="input-container relative">
-        <div class="input-wrapper flex items-end gap-1 sm:gap-2 p-2 bg-muted/50 rounded-2xl border border-transparent focus-within:border-primary/20 transition-all">
+        <div class="input-wrapper flex items-end gap-1 sm:gap-2 p-2 bg-muted/50 rounded-2xl border border-transparent focus-within:border-primary/20"
+             :class="inputWrapperClasses">
           <!-- Action Buttons -->
           <div class="input-actions flex gap-1 pb-1">
             <button
               @click="selectFiles"
-              class="action-btn p-2 hover:bg-background rounded-lg transition-colors group"
+              class="action-btn btn-interactive ripple p-2 hover:bg-background rounded-lg transition-all duration-200 group hover:scale-110 active:scale-95"
               title="Attach files (images, documents)"
               :disabled="disabled"
             >
@@ -105,8 +106,8 @@
             <button
               @click="handleSend"
               :disabled="!canSend"
-              class="send-btn p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="sendButtonClasses"
+              class="send-btn btn-interactive elastic-click p-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
+              :class="[sendButtonClasses, sendButtonAnimationClass]"
               :title="sendButtonTooltip"
             >
               <Send :size="16" class="sm:w-[18px] sm:h-[18px]" />
@@ -130,7 +131,7 @@
         </div>
         
         <!-- Keyboard Hints -->
-        <div class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block">
+        <div class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           Press <kbd class="kbd">Enter</kbd> to send, 
           <kbd class="kbd">Shift+Enter</kbd> for new line,
           <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Enter</kbd> to force send
@@ -140,7 +141,9 @@
         </div>
         
         <!-- Character Count -->
-        <div v-if="showCharCount && inputText.length > 0" class="char-count absolute -bottom-6 right-0 text-xs text-muted-foreground">
+        <div v-if="showCharCount && inputText.length > 0" 
+             class="char-count absolute -bottom-6 right-0 text-xs transition-all duration-300"
+             :class="[charCountClasses, charCountAnimationClass]">
           {{ inputText.length }}{{ maxLength ? `/${maxLength}` : '' }}
         </div>
       </div>
@@ -223,6 +226,14 @@ const showVisionWarning = ref(false)
 const visionWarningDismissed = ref(false)
 const showAttachmentDropZone = ref(false)
 
+// 新增微交互状态
+const isTyping = ref(false)
+const isFocused = ref(false)
+const sendButtonState = ref<'normal' | 'sending' | 'success' | 'error'>('normal')
+const typingTimeout = ref<NodeJS.Timeout | null>(null)
+const lastSendTime = ref(0)
+const inputAnimationClass = ref('')
+
 // Platform detection
 const isMac = navigator.platform.toLowerCase().includes('mac')
 
@@ -281,8 +292,18 @@ const canSend = computed(() => {
 
 const sendButtonClasses = computed(() => ({
   'bg-primary text-primary-foreground hover:bg-primary/90': canSend.value,
-  'bg-muted-foreground/20 text-muted-foreground': !canSend.value
+  'bg-muted-foreground/20 text-muted-foreground': !canSend.value,
+  'animate-pulse': sendButtonState.value === 'sending',
+  'success-check': sendButtonState.value === 'success',
+  'error-shake-enhanced': sendButtonState.value === 'error'
 }))
+
+const sendButtonAnimationClass = computed(() => {
+  if (sendButtonState.value === 'sending') return 'float-breathe'
+  if (sendButtonState.value === 'success') return ''
+  if (sendButtonState.value === 'error') return ''
+  return ''
+})
 
 const sendButtonTooltip = computed(() => {
   if (!props.isConfigured) return 'Configure LLM provider first'
@@ -299,6 +320,31 @@ const placeholder = computed(() => {
   return props.placeholder
 })
 
+// 新增计算属性用于微交互
+const charCountStatus = computed(() => {
+  if (!props.maxLength) return 'normal'
+  const ratio = inputText.value.length / props.maxLength
+  if (ratio >= 1) return 'error'
+  if (ratio >= 0.8) return 'warning'
+  return 'normal'
+})
+
+const inputWrapperClasses = computed(() => ({
+  'typing': isTyping.value,
+  'drop-zone-active': showAttachmentDropZone.value
+}))
+
+const sendButtonClasses = computed(() => ({
+  'bg-primary text-primary-foreground hover:bg-primary/90': canSend.value,
+  'bg-muted-foreground/20 text-muted-foreground': !canSend.value,
+  'sent-success': sendButtonState.value === 'success'
+}))
+
+const charCountClasses = computed(() => ({
+  'warning': charCountStatus.value === 'warning',
+  'error': charCountStatus.value === 'error'
+}))
+
 
 // Auto-resize textarea
 const adjustTextareaHeight = () => {
@@ -311,6 +357,15 @@ const adjustTextareaHeight = () => {
 // Handle input events
 const handleInput = () => {
   adjustTextareaHeight()
+  
+  // 打字状态检测
+  isTyping.value = true
+  if (typingTimeout.value) {
+    clearTimeout(typingTimeout.value)
+  }
+  typingTimeout.value = setTimeout(() => {
+    isTyping.value = false
+  }, 1000)
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
@@ -333,9 +388,18 @@ const handleSend = () => {
   
   if (!message && messageAttachments.length === 0) return
   
+  // 防止快速重复发送
+  const now = Date.now()
+  if (now - lastSendTime.value < 500) return
+  lastSendTime.value = now
+  
+  // 发送状态动画
+  sendButtonState.value = 'sending'
+  
   // Clear input
   inputText.value = ''
   attachments.value = []
+  isTyping.value = false
   
   // Reset textarea height
   if (textareaRef.value) {
@@ -344,6 +408,14 @@ const handleSend = () => {
   
   // Emit send event
   emit('send', message, messageAttachments)
+  
+  // 成功状态动画
+  setTimeout(() => {
+    sendButtonState.value = 'success'
+    setTimeout(() => {
+      sendButtonState.value = 'normal'
+    }, 600)
+  }, 100)
 }
 
 // File handling
@@ -686,22 +758,65 @@ defineExpose({
   font-family: ui-monospace, SFMono-Regular, monospace;
 }
 
+.action-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: scale(1.1) translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.95) translateY(0px);
+  transition-duration: 0.1s;
+}
+
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: scale(0.95);
 }
 
 .send-btn {
   transform: scale(1);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .send-btn:hover:not(:disabled) {
-  transform: scale(1.05);
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.25);
 }
 
 .send-btn:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: scale(0.98) translateY(0px);
+  transition-duration: 0.1s;
+}
+
+/* 发送按钮成功状态 */
+.send-btn.sent-success {
+  animation: sendSuccess 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 波纹点击效果 */
+.send-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+.send-btn:active:not(:disabled)::after {
+  transform: scale(1);
+  opacity: 1;
+  transition-duration: 0.1s;
 }
 
 .config-warning {
@@ -717,6 +832,45 @@ defineExpose({
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* 新增动画 */
+@keyframes sendSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); background: var(--success, #10b981); }
+  100% { transform: scale(1); }
+}
+
+@keyframes typingPulse {
+  0%, 100% { border-color: rgba(var(--primary-rgb), 0.2); }
+  50% { border-color: rgba(var(--primary-rgb), 0.4); }
+}
+
+@keyframes charCountPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* 附件拖拽区域动画 */
+@keyframes dropZonePulse {
+  0%, 100% {
+    border-color: rgba(var(--primary-rgb), 0.3);
+    background: rgba(var(--primary-rgb), 0.05);
+  }
+  50% {
+    border-color: rgba(var(--primary-rgb), 0.6);
+    background: rgba(var(--primary-rgb), 0.1);
+  }
+}
+
+.drop-zone-active {
+  animation: dropZonePulse 1.5s ease-in-out infinite;
 }
 
 @keyframes slideUp {
@@ -740,8 +894,34 @@ defineExpose({
 }
 
 /* Focus states */
+.input-wrapper {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .input-wrapper:focus-within {
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2), 0 8px 25px rgba(var(--primary-rgb), 0.1);
+  transform: translateY(-1px);
+  background: rgba(var(--background-rgb), 0.95);
+}
+
+/* 输入中状态指示 */
+.input-wrapper.typing {
+  animation: typingPulse 2s ease-in-out infinite;
+}
+
+/* 字符计数动画 */
+.char-count {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.char-count.warning {
+  color: var(--warning);
+  animation: charCountPulse 1s ease-in-out infinite;
+}
+
+.char-count.error {
+  color: var(--destructive);
+  animation: shake 0.5s ease-in-out;
 }
 
 /* Responsive adjustments */
