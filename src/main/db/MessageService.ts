@@ -27,22 +27,48 @@ export class MessageService extends BaseDatabaseService {
           throw new Error(`Message with ID ${message.id} already exists`)
         }
 
-        const stmt = this.db.prepare(
-          'INSERT INTO messages (id, chat_id, role, content, created_at, attachments, metadata, parent_id, error, error_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        )
+        // Check if timestamp column exists (for backward compatibility)
+        const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+        const hasTimestamp = columns.some(col => col.name === 'timestamp')
         
-        stmt.run(
-          message.id,
-          message.chat_id,
-          message.role,
-          message.content,
-          message.created_at || Date.now(),
-          JSON.stringify(message.attachments) || null,
-          JSON.stringify(message.metadata) || null,
-          message.parent_id || null,
-          message.error || null,
-          message.error_details || null
-        )
+        const createdAt = message.created_at || Date.now()
+        
+        if (hasTimestamp) {
+          // Include both timestamp and created_at for backward compatibility
+          const stmt = this.db.prepare(
+            'INSERT INTO messages (id, chat_id, role, content, created_at, timestamp, attachments, metadata, parent_id, error, error_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          )
+          stmt.run(
+            message.id,
+            message.chat_id,
+            message.role,
+            message.content,
+            createdAt,
+            createdAt, // Also set timestamp for backward compatibility
+            JSON.stringify(message.attachments) || null,
+            JSON.stringify(message.metadata) || null,
+            message.parent_id || null,
+            message.error || null,
+            message.error_details || null
+          )
+        } else {
+          // New schema - only created_at
+          const stmt = this.db.prepare(
+            'INSERT INTO messages (id, chat_id, role, content, created_at, attachments, metadata, parent_id, error, error_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          )
+          stmt.run(
+            message.id,
+            message.chat_id,
+            message.role,
+            message.content,
+            createdAt,
+            JSON.stringify(message.attachments) || null,
+            JSON.stringify(message.metadata) || null,
+            message.parent_id || null,
+            message.error || null,
+            message.error_details || null
+          )
+        }
       })()
     } catch (error) {
       logger.error('Failed to create message', 'MessageService', { 
@@ -60,14 +86,20 @@ export class MessageService extends BaseDatabaseService {
     try {
       this.validateId(chatId)
 
-      const stmt = this.db.prepare(
-        'SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at ASC'
-      )
-      const messages = stmt.all(chatId) as MessageRecord[]
+      // Check which column exists for ordering
+      const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      const hasCreatedAt = columns.some(col => col.name === 'created_at')
+      const orderColumn = hasCreatedAt ? 'created_at' : 'timestamp'
 
-      // Safely parse JSON fields
+      const stmt = this.db.prepare(
+        `SELECT * FROM messages WHERE chat_id = ? ORDER BY ${orderColumn} ASC`
+      )
+      const messages = stmt.all(chatId) as any[]
+
+      // Safely parse JSON fields and normalize timestamp/created_at
       return messages.map(msg => ({
         ...msg,
+        created_at: msg.created_at || msg.timestamp, // Ensure created_at is always set
         attachments: msg.attachments ? JSON.parse(msg.attachments) : null,
         metadata: msg.metadata ? JSON.parse(msg.metadata) : null
       }))
@@ -220,13 +252,19 @@ export class MessageService extends BaseDatabaseService {
    */
   getRecentMessages(limit: number = 50): MessageRecord[] {
     try {
+      // Check which column exists for ordering
+      const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      const hasCreatedAt = columns.some(col => col.name === 'created_at')
+      const orderColumn = hasCreatedAt ? 'created_at' : 'timestamp'
+
       const stmt = this.db.prepare(
-        'SELECT * FROM messages ORDER BY created_at DESC LIMIT ?'
+        `SELECT * FROM messages ORDER BY ${orderColumn} DESC LIMIT ?`
       )
-      const messages = stmt.all(limit) as MessageRecord[]
+      const messages = stmt.all(limit) as any[]
 
       return messages.map(msg => ({
         ...msg,
+        created_at: msg.created_at || msg.timestamp, // Ensure created_at is always set
         attachments: msg.attachments ? JSON.parse(msg.attachments) : null,
         metadata: msg.metadata ? JSON.parse(msg.metadata) : null
       }))

@@ -115,6 +115,18 @@ export class DatabaseInitializer {
     const messageColumns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
     const columnNames = new Set(messageColumns.map(col => col.name))
 
+    // Handle timestamp to created_at migration
+    if (columnNames.has('timestamp') && !columnNames.has('created_at')) {
+      // Add created_at column first
+      this.db.exec('ALTER TABLE messages ADD COLUMN created_at TEXT')
+      // Copy timestamp data to created_at
+      this.db.exec('UPDATE messages SET created_at = timestamp')
+      // Update column names after adding created_at
+      const updatedColumns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      columnNames.clear()
+      updatedColumns.forEach(col => columnNames.add(col.name))
+    }
+
     const requiredColumns = [
       { name: 'attachments', sql: 'ALTER TABLE messages ADD COLUMN attachments TEXT DEFAULT NULL' },
       { name: 'metadata', sql: 'ALTER TABLE messages ADD COLUMN metadata TEXT DEFAULT NULL' },
@@ -122,6 +134,11 @@ export class DatabaseInitializer {
       { name: 'error', sql: 'ALTER TABLE messages ADD COLUMN error TEXT DEFAULT NULL' },
       { name: 'error_details', sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL' }
     ]
+
+    // Only add created_at if it doesn't exist and timestamp doesn't exist either
+    if (!columnNames.has('created_at') && !columnNames.has('timestamp')) {
+      requiredColumns.push({ name: 'created_at', sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT' })
+    }
 
     for (const column of requiredColumns) {
       if (!columnNames.has(column.name)) {
