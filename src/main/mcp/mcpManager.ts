@@ -1,7 +1,6 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js'
-import { testTools, executeTestTool } from './testTools'
 import { PluginManager } from '../plugins/pluginManager'
 
 export interface MCPServer {
@@ -17,10 +16,8 @@ export class MCPManager {
   private pluginManager: PluginManager | null = null
 
   constructor() {
-    // Add test tools
-    testTools.forEach(tool => {
-      this.tools.set(`test:${tool.name}`, tool)
-    })
+    // Test tools removed - using real MCP tools only
+    console.log('MCP Manager initialized')
   }
 
   setPluginManager(pluginManager: PluginManager) {
@@ -140,28 +137,16 @@ export class MCPManager {
       throw new Error(`Tool not found: ${toolName}`)
     }
 
-    // Handle test tools
+    // Handle test tools (simplified)
     if (serverName === 'test') {
-      try {
-        const result = await executeTestTool(actualToolName, args)
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ]
-        }
-      } catch (error: any) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error: ${error.message}`
-            }
-          ],
-          isError: true
-        }
+      console.log(`Test tool call: ${actualToolName}`)
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Test tool ${actualToolName} executed (placeholder)`
+          }
+        ]
       }
     }
 

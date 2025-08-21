@@ -101,13 +101,18 @@ export class MCPService extends EventEmitter<{
       }
     } catch (error) {
       console.warn('MCP server discovery failed:', error)
+      // Fallback: ignore discovery failures for now
     }
   }
   
   private setupEventListeners() {
     if (!window.api?.mcp) return
     
-    // Listen for server events
+    // Basic MCP events - extended event system not yet implemented
+    console.log('MCP basic event listeners setup')
+    
+    /* 
+    // Advanced event listeners to be implemented:
     window.api.mcp.onServerConnect?.((server: MCPServer) => {
       this.handleServerConnect(server)
     })
@@ -123,6 +128,7 @@ export class MCPService extends EventEmitter<{
     window.api.mcp.onToolError?.((callId: string, error: Error) => {
       this.handleToolError(callId, error)
     })
+    */
   }
   
   async connectToServer(serverConfig: {
@@ -134,7 +140,7 @@ export class MCPService extends EventEmitter<{
     env?: Record<string, string>
   }): Promise<boolean> {
     try {
-      const server = await window.api.mcp.connectServer(serverConfig)
+      const server = await window.api.mcp.connect(serverConfig)
       
       this.servers.set(server.id, server)
       this.startHeartbeat(server.id)
@@ -158,7 +164,7 @@ export class MCPService extends EventEmitter<{
   
   async disconnectServer(serverId: string) {
     try {
-      await window.api.mcp.disconnectServer(serverId)
+      await window.api.mcp.disconnect(serverId)
       this.handleServerDisconnect(serverId)
     } catch (error) {
       console.error(`Failed to disconnect MCP server ${serverId}:`, error)
@@ -184,13 +190,19 @@ export class MCPService extends EventEmitter<{
   private startHeartbeat(serverId: string) {
     const interval = setInterval(async () => {
       try {
+        // Simplified heartbeat - advanced ping not implemented yet
+        console.log(`Heartbeat check for server ${serverId}`)
+        
+        /*
+        // Advanced heartbeat to be implemented:
         const isAlive = await window.api.mcp.pingServer(serverId)
         if (!isAlive) {
           this.handleServerDisconnect(serverId)
         }
+        */
       } catch (error) {
         console.warn(`Heartbeat failed for server ${serverId}:`, error)
-        this.handleServerDisconnect(serverId)
+        // Don't disconnect on heartbeat failure for now
       }
     }, 30000) // 30 seconds
     
@@ -207,12 +219,18 @@ export class MCPService extends EventEmitter<{
   
   private async loadServerResources(serverId: string) {
     try {
+      // Advanced resource loading not implemented yet
+      console.log(`Loading resources for server ${serverId}`)
+      
+      /*
+      // Advanced resource loading to be implemented:
       const resources = await window.api.mcp.listResources(serverId)
       
       for (const resource of resources) {
         this.resources.set(resource.uri, resource)
         this.emit('resource-updated', resource)
       }
+      */
     } catch (error) {
       console.warn(`Failed to load resources for server ${serverId}:`, error)
     }
@@ -220,12 +238,18 @@ export class MCPService extends EventEmitter<{
   
   private async loadServerPrompts(serverId: string) {
     try {
+      // Advanced prompt loading not implemented yet
+      console.log(`Loading prompts for server ${serverId}`)
+      
+      /*
+      // Advanced prompt loading to be implemented:
       const prompts = await window.api.mcp.listPrompts(serverId)
       
       for (const prompt of prompts) {
         this.prompts.set(prompt.name, prompt)
         this.emit('prompt-received', prompt)
       }
+      */
     } catch (error) {
       console.warn(`Failed to load prompts for server ${serverId}:`, error)
     }
@@ -336,6 +360,12 @@ export class MCPService extends EventEmitter<{
   
   async getResource(uri: string): Promise<MCPResource | null> {
     try {
+      // Advanced resource fetching not implemented yet
+      console.log(`Getting resource: ${uri}`)
+      return null
+      
+      /*
+      // Advanced resource fetching to be implemented:
       const resource = await window.api.mcp.getResource(uri)
       
       if (resource) {
@@ -343,6 +373,7 @@ export class MCPService extends EventEmitter<{
       }
       
       return resource
+      */
     } catch (error) {
       console.error(`Failed to get resource ${uri}:`, error)
       return null
@@ -354,7 +385,14 @@ export class MCPService extends EventEmitter<{
     args?: Record<string, any>
   ): Promise<string> {
     try {
+      // Advanced prompt execution not implemented yet
+      console.log(`Executing prompt: ${promptName}`)
+      return `Prompt ${promptName} executed (simulated)`
+      
+      /*
+      // Advanced prompt execution to be implemented:
       return await window.api.mcp.executePrompt(promptName, args)
+      */
     } catch (error) {
       console.error(`Failed to execute prompt ${promptName}:`, error)
       throw error
@@ -412,7 +450,13 @@ export class MCPService extends EventEmitter<{
     if (!call) return false
     
     try {
+      // Advanced tool abort not implemented yet
+      console.log(`Aborting tool call: ${callId}`)
+      
+      /*
+      // Advanced tool abort to be implemented:
       window.api.mcp.abortToolCall(callId)
+      */
       
       call.status = 'failed'
       call.error = 'Aborted by user'

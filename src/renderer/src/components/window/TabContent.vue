@@ -64,12 +64,8 @@ import { defineAsyncComponent } from 'vue'
 
 const ChatView = defineAsyncComponent(() => import('@/views/ChatViewImproved.vue'))
 const SettingsView = defineAsyncComponent(() => import('@/views/SettingsView.vue'))
-const ToolsView = defineAsyncComponent(() => import('@/views/ToolsView.vue'))
 const PluginsView = defineAsyncComponent(() => import('@/views/PluginsView.vue'))
-const FileView = defineAsyncComponent(() => import('@/views/FileView.vue'))
-const BrowserView = defineAsyncComponent(() => import('@/views/BrowserView.vue'))
-const TerminalView = defineAsyncComponent(() => import('@/views/TerminalView.vue'))
-const NotesView = defineAsyncComponent(() => import('@/views/NotesView.vue'))
+const AnalyticsView = defineAsyncComponent(() => import('@/views/AnalyticsView.vue'))
 
 // Props
 interface Props {
@@ -103,12 +99,8 @@ const isDev = computed(() => import.meta.env.DEV)
 const componentMap = {
   chat: ChatView,
   settings: SettingsView,
-  tools: ToolsView,
   plugins: PluginsView,
-  file: FileView,
-  browser: BrowserView,
-  terminal: TerminalView,
-  notes: NotesView,
+  analytics: AnalyticsView,
   custom: null // Will be handled dynamically
 }
 

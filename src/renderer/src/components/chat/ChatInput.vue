@@ -1,6 +1,6 @@
 <template>
-  <div class="chat-input border-t bg-background/95 backdrop-blur px-2 sm:px-4 py-3 sm:py-4">
-    <div class="max-w-3xl mx-auto">
+  <div class="chat-input-container border-t bg-background/95 backdrop-blur">
+    <div class="chat-input-wrapper max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <!-- Configuration Warning -->
       <div v-if="!isConfigured" class="config-warning mb-3 p-3 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-2">
         <AlertCircle :size="16" class="text-warning flex-shrink-0" />
@@ -60,17 +60,17 @@
       
       <!-- Input Container -->
       <div class="input-container relative">
-        <div class="input-wrapper flex items-end gap-1 sm:gap-2 p-2 bg-muted/50 rounded-2xl border border-transparent focus-within:border-primary/20"
+        <div class="input-wrapper flex items-end gap-2 sm:gap-3 p-3 bg-muted/40 rounded-2xl border border-transparent focus-within:border-primary/30 focus-within:bg-background/60 focus-within:shadow-sm transition-all duration-200"
              :class="inputWrapperClasses">
           <!-- Action Buttons -->
-          <div class="input-actions flex gap-1 pb-1">
+          <div class="input-actions flex gap-1 pb-0.5">
             <button
               @click="selectFiles"
-              class="action-btn btn-interactive ripple p-2 hover:bg-background rounded-lg transition-all duration-200 group hover:scale-110 active:scale-95"
+              class="action-btn btn-interactive ripple p-2.5 hover:bg-background rounded-xl transition-all duration-200 group hover:scale-105 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
               title="Attach files (images, documents)"
               :disabled="disabled"
             >
-              <Paperclip :size="16" class="group-hover:text-primary transition-colors sm:w-[18px] sm:h-[18px]" />
+              <Paperclip :size="18" class="group-hover:text-primary transition-colors sm:w-[20px] sm:h-[20px]" />
             </button>
             
             <!-- Voice Input Button -->
@@ -94,23 +94,26 @@
             @keydown="handleKeydown"
             @paste="handlePaste"
             @input="handleInput"
+            @focus="handleFocus"
+            @blur="handleBlur"
             :placeholder="placeholder"
             :disabled="disabled"
-            class="message-input flex-1 min-h-[36px] sm:min-h-[40px] max-h-[150px] sm:max-h-[200px] px-2 py-2 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-sm sm:text-base"
+            class="chat-input-field flex-1 min-h-[40px] sm:min-h-[44px] max-h-[160px] sm:max-h-[240px] px-3 py-2.5 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-sm sm:text-base leading-relaxed"
+            style="font-family: system-ui, -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif; line-height: 1.75; letter-spacing: 0.02em; word-break: break-word; ime-mode: active;"
             rows="1"
             data-chat-input
           />
           
           <!-- Send Button -->
-          <div class="pb-1">
+          <div class="send-button-container pb-0.5">
             <button
               @click="handleSend"
               :disabled="!canSend"
-              class="send-btn btn-interactive elastic-click p-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
+              class="send-button btn-interactive elastic-click p-2.5 sm:p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
               :class="[sendButtonClasses, sendButtonAnimationClass]"
               :title="sendButtonTooltip"
             >
-              <Send :size="16" class="sm:w-[18px] sm:h-[18px]" />
+              <Send :size="18" class="sm:w-[20px] sm:h-[20px]" />
             </button>
           </div>
         </div>
@@ -233,6 +236,9 @@ const sendButtonState = ref<'normal' | 'sending' | 'success' | 'error'>('normal'
 const typingTimeout = ref<NodeJS.Timeout | null>(null)
 const lastSendTime = ref(0)
 const inputAnimationClass = ref('')
+const focusRipple = ref(false)
+const textHighlight = ref(false)
+const charCountPulse = ref(false)
 
 // Platform detection
 const isMac = navigator.platform.toLowerCase().includes('mac')
@@ -331,7 +337,10 @@ const charCountStatus = computed(() => {
 
 const inputWrapperClasses = computed(() => ({
   'typing': isTyping.value,
-  'drop-zone-active': showAttachmentDropZone.value
+  'focused': isFocused.value,
+  'drop-zone-active': showAttachmentDropZone.value,
+  'focus-ripple': focusRipple.value,
+  'text-highlight': textHighlight.value
 }))
 
 const sendButtonClasses = computed(() => ({
@@ -339,6 +348,13 @@ const sendButtonClasses = computed(() => ({
   'bg-muted-foreground/20 text-muted-foreground': !canSend.value,
   'sent-success': sendButtonState.value === 'success'
 }))
+
+const charCountAnimationClass = computed(() => {
+  if (charCountPulse.value) return 'char-count-pulse'
+  if (charCountStatus.value === 'warning') return 'char-count-warning'
+  if (charCountStatus.value === 'error') return 'char-count-error'
+  return ''
+})
 
 const charCountClasses = computed(() => ({
   'warning': charCountStatus.value === 'warning',
@@ -360,12 +376,24 @@ const handleInput = () => {
   
   // 打字状态检测
   isTyping.value = true
+  textHighlight.value = true
+  
   if (typingTimeout.value) {
     clearTimeout(typingTimeout.value)
   }
+  
   typingTimeout.value = setTimeout(() => {
     isTyping.value = false
+    textHighlight.value = false
   }, 1000)
+  
+  // 字符计数脉冲效果
+  if (props.showCharCount && inputText.value.length > 0) {
+    charCountPulse.value = true
+    setTimeout(() => {
+      charCountPulse.value = false
+    }, 300)
+  }
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
@@ -380,8 +408,34 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+// Focus and blur handlers for enhanced interactions
+const handleFocus = () => {
+  isFocused.value = true
+  focusRipple.value = true
+  
+  setTimeout(() => {
+    focusRipple.value = false
+  }, 600)
+}
+
+const handleBlur = () => {
+  isFocused.value = false
+}
+
 const handleSend = () => {
-  if (!canSend.value) return
+  if (!canSend.value) {
+    // Error feedback for failed send
+    sendButtonState.value = 'error'
+    const sendButton = document.querySelector('.send-btn')
+    if (sendButton) {
+      sendButton.classList.add('error-shake')
+      setTimeout(() => {
+        sendButton.classList.remove('error-shake')
+        sendButtonState.value = 'normal'
+      }, 400)
+    }
+    return
+  }
   
   const message = inputText.value.trim()
   const messageAttachments = [...attachments.value]
@@ -395,6 +449,15 @@ const handleSend = () => {
   
   // 发送状态动画
   sendButtonState.value = 'sending'
+  
+  // 输入框清空动画
+  const textarea = textareaRef.value
+  if (textarea) {
+    textarea.classList.add('clear-animation')
+    setTimeout(() => {
+      textarea.classList.remove('clear-animation')
+    }, 300)
+  }
   
   // Clear input
   inputText.value = ''
@@ -414,7 +477,7 @@ const handleSend = () => {
     sendButtonState.value = 'success'
     setTimeout(() => {
       sendButtonState.value = 'normal'
-    }, 600)
+    }, 800)
   }, 100)
 }
 
@@ -836,25 +899,100 @@ defineExpose({
 
 /* 新增动画 */
 @keyframes sendSuccess {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); background: var(--success, #10b981); }
-  100% { transform: scale(1); }
+  0% { 
+    transform: scale(1); 
+    background: var(--primary);
+  }
+  50% { 
+    transform: scale(1.2); 
+    background: var(--success, #10b981); 
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  }
+  100% { 
+    transform: scale(1); 
+    background: var(--primary);
+  }
 }
 
 @keyframes typingPulse {
-  0%, 100% { border-color: rgba(var(--primary-rgb), 0.2); }
-  50% { border-color: rgba(var(--primary-rgb), 0.4); }
+  0%, 100% { 
+    border-color: rgba(var(--primary-rgb), 0.2); 
+    box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.1);
+  }
+  50% { 
+    border-color: rgba(var(--primary-rgb), 0.4); 
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+  }
 }
 
 @keyframes charCountPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.6; 
+    transform: scale(1.1);
+  }
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes errorShake {
+  0%, 100% { 
+    transform: translateX(0) scale(1);
+    background: var(--destructive);
+  }
+  25% { 
+    transform: translateX(-4px) scale(0.98);
+    background: #dc2626;
+  }
+  75% { 
+    transform: translateX(4px) scale(0.98);
+    background: #dc2626;
+  }
+}
+
+@keyframes focusRipple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes clearAnimation {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes textHighlight {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* 附件拖拽区域动画 */
@@ -896,6 +1034,26 @@ defineExpose({
 /* Focus states */
 .input-wrapper {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.input-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(var(--primary-rgb), 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.4s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.input-wrapper.focus-ripple::before {
+  opacity: 1;
+  transform: scale(1);
+  animation: focusRipple 0.6s ease-out;
 }
 
 .input-wrapper:focus-within {
@@ -904,24 +1062,55 @@ defineExpose({
   background: rgba(var(--background-rgb), 0.95);
 }
 
+.input-wrapper.focused {
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3), 0 8px 30px rgba(var(--primary-rgb), 0.15);
+}
+
 /* 输入中状态指示 */
 .input-wrapper.typing {
   animation: typingPulse 2s ease-in-out infinite;
 }
 
+.input-wrapper.text-highlight .message-input {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--primary-rgb), 0.05),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: textHighlight 1s ease-in-out;
+}
+
 /* 字符计数动画 */
 .char-count {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+}
+
+.char-count.char-count-pulse {
+  animation: charCountPulse 0.3s ease-out;
 }
 
 .char-count.warning {
   color: var(--warning);
-  animation: charCountPulse 1s ease-in-out infinite;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
 
 .char-count.error {
   color: var(--destructive);
   animation: shake 0.5s ease-in-out;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Send button enhanced states */
+.send-btn.error-shake {
+  animation: errorShake 0.4s ease-in-out;
+}
+
+/* Text input clear animation */
+.message-input.clear-animation {
+  animation: clearAnimation 0.3s ease-out;
 }
 
 /* Responsive adjustments */

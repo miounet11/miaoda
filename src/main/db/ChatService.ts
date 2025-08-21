@@ -41,13 +41,23 @@ export class ChatService extends BaseDatabaseService {
   }
 
   /**
-   * Delete a chat record
+   * Delete a chat record and all associated messages
    */
   deleteChat(id: string): void {
     this.validateId(id)
 
-    const stmt = this.db.prepare('DELETE FROM chats WHERE id = ?')
-    stmt.run(id)
+    // Use a transaction to ensure data consistency
+    const transaction = this.db.transaction(() => {
+      // Delete all messages associated with this chat
+      const deleteMessagesStmt = this.db.prepare('DELETE FROM messages WHERE chat_id = ?')
+      deleteMessagesStmt.run(id)
+      
+      // Delete the chat record
+      const deleteChatStmt = this.db.prepare('DELETE FROM chats WHERE id = ?')
+      deleteChatStmt.run(id)
+    })
+    
+    transaction()
   }
 
   /**

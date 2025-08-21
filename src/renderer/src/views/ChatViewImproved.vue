@@ -50,6 +50,7 @@
           <div
             v-for="chat in filteredChats"
             :key="chat.id"
+            :data-chat-id="chat.id"
             @click="selectChat(chat.id)"
             class="chat-item group"
             :class="[
@@ -78,7 +79,7 @@
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   @click.stop="deleteChat(chat.id)"
-                  class="p-1 hover:bg-background rounded transition-colors"
+                  class="delete-btn p-1 hover:bg-background rounded transition-colors"
                   title="删除聊天"
                 >
                   <Trash2 :size="14" class="text-muted-foreground hover:text-destructive" />
@@ -287,8 +288,17 @@
         @dragenter.prevent
       >
         <!-- 欢迎界面 -->
-        <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized.value && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
+        <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
           <div class="text-center py-24 px-6">
+            <!-- Debug info for welcome screen -->
+            <div v-if="isDevelopment" class="mb-4 p-2 bg-muted/20 rounded text-xs">
+              Current Chat: {{ currentChat?.id || 'None' }}<br>
+              Messages Length: {{ currentChat?.messages?.length || 0 }}<br>
+              Initialized: {{ isInitialized ? 'Yes' : 'No' }}<br>
+              Loading: {{ isLoading ? 'Yes' : 'No' }}<br>
+              Total Chats: {{ chats.length }}
+            </div>
+            
             <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
               <Sparkles :size="36" class="text-primary" />
             </div>
@@ -328,6 +338,14 @@
           class="flex-1 min-h-0 relative"
           @scroll="handleMessageScroll"
         >
+          <!-- Debug info (remove in production) -->
+          <div v-if="isDevelopment" class="fixed top-4 right-4 bg-background/80 p-2 rounded text-xs z-50">
+            Chat: {{ currentChat?.id?.slice(-8) }}<br>
+            Messages: {{ currentChat?.messages?.length || 0 }}<br>
+            Initialized: {{ isInitialized ? 'Yes' : 'No' }}<br>
+            Loading: {{ isLoading ? 'Yes' : 'No' }}
+          </div>
+          
           <VirtualMessageList
             ref="virtualMessageList"
             :messages="currentChat.messages"
@@ -343,7 +361,7 @@
         </div>
         
         <!-- Enhanced loading state with skeleton -->
-        <div v-else-if="!isInitialized.value || (isLoading && !currentChat?.messages?.length)" class="flex-1 p-6">
+        <div v-else-if="!isInitialized || (isLoading && !currentChat?.messages?.length)" class="flex-1 p-6">
           <SkeletonLoader variant="header" class="mb-6" />
           <SkeletonLoader variant="message" :count="3" class="mb-6" />
           <SkeletonLoader variant="input" />
@@ -683,7 +701,10 @@
     />
     
     <!-- 性能测试面板（仅开发环境） -->
-    <PerformanceTestPanel v-if="isDevelopment" />
+    <!-- Performance panel removed for production -->
+    <div v-if="isDevelopment" class="dev-info text-xs opacity-50 p-2">
+      Development mode active
+    </div>
   </div>
 </template>
 
@@ -703,11 +724,9 @@ import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts
 import { debounce } from '@renderer/src/utils/performance'
 import UnifiedMessageContent from '@renderer/src/components/UnifiedMessageContent.vue'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
-import PerformanceTestPanel from '@renderer/src/components/dev/PerformanceTestPanel.vue'
 import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
 import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList.vue'
 import ChatSummary from '@renderer/src/components/chat/ChatSummary.vue'
-import ProgressiveOnboarding from '@renderer/src/components/onboarding/ProgressiveOnboarding.vue'
 import SkeletonLoader from '@renderer/src/components/ui/SkeletonLoader.vue'
 import { logger } from '@renderer/src/utils/Logger'
 
@@ -807,6 +826,7 @@ const useSimpleRender = ref(false)
 
 // 获取初始化状态
 const isInitialized = computed(() => chatStore.isInitialized)
+const isDevelopment = import.meta.env.DEV
 
 // Initialize global shortcuts
 const { shortcuts } = useGlobalShortcuts()
@@ -830,7 +850,6 @@ const inputChangeTimeout = ref<NodeJS.Timeout>()
 const isDark = ref(false)
 const isMobile = ref(false)
 const highlightedMessageId = ref<string>()
-const isDevelopment = ref(import.meta.env.MODE === 'development')
 const showScrollButton = ref(false)
 const replyingTo = ref<any>(null)
 const inputCharacterCount = ref(0)
@@ -1023,8 +1042,58 @@ const selectChat = (chatId: string) => {
 }
 
 const deleteChat = async (chatId: string) => {
-  if (confirm('确定要删除这个聊天吗？')) {
-    await chatStore.deleteChat(chatId)
+  try {
+    // Find the chat to get its title for user feedback
+    const chat = chatStore.chats.find(c => c.id === chatId)
+    const chatTitle = chat?.title || '聊天'
+    const messageCount = chat?.messages?.length || 0
+
+    // Show enhanced confirmation dialog with more details
+    const confirmed = confirm(
+      `确定要删除"${chatTitle}"吗？\n\n` +
+      `此聊天包含 ${messageCount} 条消息，删除后无法恢复。\n\n` +
+      `点击"确定"继续删除，点击"取消"保留聊天。`
+    )
+    if (!confirmed) return
+
+    // Show loading state
+    const deleteButton = document.querySelector(`[data-chat-id="${chatId}"] .delete-btn`) as HTMLElement
+    if (deleteButton) {
+      deleteButton.style.opacity = '0.5'
+      deleteButton.style.pointerEvents = 'none'
+    }
+
+    try {
+      // Call the store to delete the chat
+      await chatStore.deleteChat(chatId)
+      
+      // Provide user feedback
+      console.log(`Chat "${chatTitle}" (${messageCount} messages) deleted successfully`)
+      logger.info('Chat deleted successfully from UI', 'ChatViewImproved', { chatId, chatTitle, messageCount })
+      
+      // Show success feedback (temporary visual feedback)
+      setTimeout(() => {
+        console.log('删除成功:', chatTitle)
+      }, 100)
+      
+    } catch (error) {
+      // Restore button state on error
+      if (deleteButton) {
+        deleteButton.style.opacity = '1'
+        deleteButton.style.pointerEvents = 'auto'
+      }
+      throw error
+    }
+    // toastService.success(`已删除聊天：${chatTitle}`)
+    
+  } catch (error) {
+    console.error('Failed to delete chat:', error)
+    
+    // Show error message to user
+    alert('删除聊天失败，请重试')
+    
+    // Optional: Show error toast
+    // toastService.error('删除聊天失败，请重试')
   }
 }
 
@@ -1400,6 +1469,11 @@ const sendMessage = async () => {
   inputMessage.value = ''
   attachments.value = []
   
+  // 发送消息后滚动到底部
+  nextTick(() => {
+    scrollToBottom('smooth')
+  })
+  
   // 构建消息内容 - 支持多模态输入
   let messageContent: any
   const hasImages = messageAttachments.some(att => att.type === 'image' && att.data)
@@ -1549,7 +1623,11 @@ const sendMessage = async () => {
     
     await chatStore.updateMessageContent(assistantMessage.id, testResponse)
     console.log('[ChatView] Message content updated')
-    // Final response updated
+    
+    // AI回复完成后滚动到底部
+    nextTick(() => {
+      scrollToBottom('smooth')
+    })
     
     cleanupChunk()
   } catch (error: any) {

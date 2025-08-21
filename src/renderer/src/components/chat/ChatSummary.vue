@@ -113,8 +113,9 @@
             <span
               v-for="tag in summaryData.tags"
               :key="tag"
-              class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full cursor-pointer hover:bg-primary/20 transition-colors"
-              @click="$emit('tag-clicked', tag)"
+              class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full cursor-pointer hover:bg-primary/20 transition-all duration-200 transform hover:scale-105"
+              :class="{ 'tag-clicked': tagAnimations[tag] }"
+              @click="handleTagClick(tag)"
             >
               {{ tag }}
             </span>
@@ -239,6 +240,9 @@ const isExpanded = ref(false)
 const isGenerating = ref(false)
 const showEditModal = ref(false)
 const isSaving = ref(false)
+const isHovered = ref(false)
+const tagAnimations = ref<Record<string, boolean>>({})
+const summaryAnimationState = ref<'idle' | 'generating' | 'success' | 'error'>('idle')
 
 // Edit modal data
 const editData = ref<Partial<ChatSummary>>({})
@@ -258,7 +262,24 @@ const canGenerate = computed(() => {
 
 // Methods
 const toggleExpansion = () => {
+  const wasExpanded = isExpanded.value
   isExpanded.value = !isExpanded.value
+  
+  // Add micro-interaction feedback
+  const summaryElement = document.querySelector('.chat-summary')
+  if (summaryElement) {
+    if (isExpanded.value) {
+      summaryElement.classList.add('expanding')
+      setTimeout(() => {
+        summaryElement.classList.remove('expanding')
+      }, 300)
+    } else {
+      summaryElement.classList.add('collapsing')
+      setTimeout(() => {
+        summaryElement.classList.remove('collapsing')
+      }, 300)
+    }
+  }
 }
 
 const generateSummary = async () => {
@@ -281,7 +302,7 @@ SUMMARY: [brief summary in 1-2 sentences]
 KEY_POINTS: [bullet points of main topics]
 TAGS: [comma-separated relevant tags]`
     
-    const summaryText = await window.electronAPI.invoke('llm:generate-summary', prompt)
+    const summaryText = await window.api.llm.generateSummary(prompt)
     
     // Parse the response (simplified)
     const lines = summaryText.split('\n')
@@ -312,7 +333,7 @@ TAGS: [comma-separated relevant tags]`
     }
     
     // Save to database
-    await window.electronAPI.invoke('db:update-chat-summary', 
+    await window.api.db.updateChatSummary(
       props.chatId, 
       chatSummary.summary,
       chatSummary.tags,
@@ -361,7 +382,12 @@ const saveSummary = async () => {
       keyPoints: keyPointsInput.value.split('\n').map(point => point.trim()).filter(point => point)
     }
 
-    await summaryService.updateSummary(props.chatId, updatedSummary)
+    await window.api.db.updateChatSummary(
+      props.chatId, 
+      updatedSummary.summary,
+      updatedSummary.tags,
+      updatedSummary.keyPoints
+    )
     
     summaryData.value = {
       ...summaryData.value!,
@@ -383,12 +409,23 @@ const clearSummary = async () => {
   if (!confirm('Are you sure you want to clear this summary?')) return
 
   try {
-    await summaryService.clearSummary(props.chatId)
+    await window.api.db.clearChatSummary(props.chatId)
     summaryData.value = null
     emit('summary-updated', null)
   } catch (error) {
     console.error('Failed to clear summary:', error)
   }
+}
+
+// Enhanced tag click handler
+const handleTagClick = (tag: string) => {
+  // Add click animation
+  tagAnimations.value[tag] = true
+  setTimeout(() => {
+    tagAnimations.value[tag] = false
+  }, 300)
+  
+  emit('tag-clicked', tag)
 }
 
 const formatRelativeTime = (date: Date) => {
@@ -398,7 +435,7 @@ const formatRelativeTime = (date: Date) => {
 // Load existing summary on mount
 const loadSummary = async () => {
   try {
-    const summary = await summaryService.getChatSummary(props.chatId)
+    const summary = await window.api.db.getChatSummary(props.chatId)
     summaryData.value = summary
     
     if (summary) {
@@ -414,7 +451,7 @@ const checkSummaryUpdate = async () => {
   if (!props.autoGenerate || isGenerating.value) return
 
   try {
-    const needsUpdate = await summaryService.needsSummaryUpdate(props.chatId)
+    const needsUpdate = await window.api.db.needsSummaryUpdate(props.chatId)
     if (needsUpdate && props.messages.length >= 5) {
       // Auto-generate summary for conversations that need it
       await generateSummary()
@@ -447,7 +484,32 @@ onMounted(() => {
 
 <style scoped>
 .chat-summary {
-  @apply border-b pb-3 mb-3;
+  @apply border-b pb-3 mb-3 transition-all duration-300;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-summary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  transition: left 0.6s ease;
+}
+
+.chat-summary:hover::before {
+  left: 100%;
+}
+
+.chat-summary.expanding {
+  animation: summaryExpand 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-summary.collapsing {
+  animation: summaryCollapse 0.3s ease-in;
 }
 
 .line-clamp-2 {
@@ -457,13 +519,139 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* Animation for expand/collapse */
+@keyframes summaryExpand {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.15);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 10px rgba(var(--primary-rgb), 0.1);
+  }
+}
+
+@keyframes summaryCollapse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+@keyframes tagClick {
+  0% {
+    transform: scale(1) rotate(0deg);
+    background: rgba(var(--primary-rgb), 0.1);
+  }
+  50% {
+    transform: scale(1.15) rotate(2deg);
+    background: rgba(var(--primary-rgb), 0.2);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    background: rgba(var(--primary-rgb), 0.15);
+  }
+}
+
+@keyframes generatePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0.2);
+  }
+}
+
+/* Tag interactions */
+.tag-clicked {
+  animation: tagClick 0.3s ease-out;
+}
+
+/* Button states */
+.generating-pulse {
+  animation: generatePulse 1s ease-in-out infinite;
+}
+
+/* Enhanced transitions */
 .summary-expanded {
-  animation: slideDown 0.2s ease-out;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
 }
 
 .summary-collapsed {
-  animation: slideUp 0.2s ease-out;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Hover effects for interactive elements */
+.summary-header button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-header button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.3s ease;
+}
+
+.summary-header button:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.summary-header button:active::before {
+  animation: rippleEffect 0.6s ease-out;
+}
+
+/* Empty state button enhancement */
+.summary-empty button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-empty button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.15);
+}
+
+.summary-empty button:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* Accessibility - Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .chat-summary,
+  .chat-summary *,
+  .tag-clicked {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .chat-summary.expanding,
+  .chat-summary.collapsing {
+    transform: none !important;
+  }
+  
+  .summary-header button:hover {
+    transform: none !important;
+  }
 }
 
 @keyframes slideDown {

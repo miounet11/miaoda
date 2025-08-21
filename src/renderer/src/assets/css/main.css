@@ -1,8 +1,8 @@
 @import './animations.css';
-@import './message-fix.css';
 @import '../../styles/mobile-improvements.css';
 @import '../../styles/macos-titlebar.css';
 @import '../../styles/micro-interactions.css';
+@import '../../styles/layout-optimizations.css';
 
 @tailwind base;
 @tailwind components;
@@ -30,6 +30,11 @@
     --input: 220 13% 91%;
     --ring: 224 71.4% 4.1%;
     --radius: 0.75rem;
+    
+    /* RGB values for enhanced styling */
+    --primary-rgb: 28, 28, 30;
+    --muted-rgb: 245, 245, 247;
+    --border-rgb: 229, 229, 234;
   }
 
   .dark {
@@ -52,6 +57,11 @@
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 216 12.2% 83.9%;
+    
+    /* RGB values for dark mode */
+    --primary-rgb: 248, 250, 252;
+    --muted-rgb: 55, 65, 81;
+    --border-rgb: 75, 85, 99;
   }
 }
 

@@ -7,7 +7,8 @@ const api = {
     connect: (server: any) => ipcRenderer.invoke('mcp:connect', server),
     disconnect: (name: string) => ipcRenderer.invoke('mcp:disconnect', name),
     getTools: () => ipcRenderer.invoke('mcp:get-tools'),
-    callTool: (toolName: string, args: any) => ipcRenderer.invoke('mcp:call-tool', toolName, args)
+    callTool: (toolName: string, args: any) => ipcRenderer.invoke('mcp:call-tool', toolName, args),
+    discoverServers: () => ipcRenderer.invoke('mcp:discover-servers')
   },
   db: {
     createChat: (chat: any) => ipcRenderer.invoke('db:create-chat', chat),

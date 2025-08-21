@@ -38,6 +38,11 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
+    
+    // Open DevTools in development mode
+    if (is.dev) {
+      mainWindow?.webContents.openDevTools()
+    }
   })
 
   // Make mainWindow globally accessible

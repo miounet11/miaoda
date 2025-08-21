@@ -457,16 +457,55 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   const deleteChat = async (chatId: string) => {
-    // Delete from database
-    await window.api.db.deleteChat(chatId)
-    
-    const index = chats.value.findIndex(chat => chat.id === chatId)
-    if (index > -1) {
+    try {
+      // Delete from database first
+      await window.api.db.deleteChat(chatId)
+      
+      // Find the index of the chat to be deleted
+      const index = chats.value.findIndex(chat => chat.id === chatId)
+      if (index === -1) {
+        logger.warn('Chat not found in local state', 'ChatStore', { chatId })
+        return
+      }
+      
+      // Remove from local state
       chats.value.splice(index, 1)
       
+      // Clean up the messages Map
+      ensureMessagesMap()
+      messages.value.delete(chatId)
+      
+      // Handle current chat selection
       if (currentChatId.value === chatId) {
-        currentChatId.value = chats.value[0]?.id || null
+        // If this was the current chat, select another one
+        if (chats.value.length > 0) {
+          currentChatId.value = chats.value[0].id
+          // Load messages for the new current chat
+          await loadMessages(chats.value[0].id)
+        } else {
+          currentChatId.value = null
+          // Create a new chat if no chats remain
+          await createChat()
+        }
+        
+        // Update localStorage
+        try {
+          if (currentChatId.value) {
+            localStorage.setItem('lastSelectedChatId', currentChatId.value)
+          } else {
+            localStorage.removeItem('lastSelectedChatId')
+          }
+        } catch (error) {
+          logger.error('Failed to update last selected chat in localStorage', 'ChatStore', error)
+        }
       }
+      
+      logger.info('Chat deleted successfully', 'ChatStore', { chatId })
+      
+    } catch (error) {
+      logger.error('Failed to delete chat', 'ChatStore', error)
+      handleError(error, 'Delete Chat')
+      throw error // Re-throw to let the UI handle it
     }
   }
   

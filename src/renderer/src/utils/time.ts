@@ -1,31 +1,47 @@
-export function formatDistanceToNow(date: Date | string | number): string {
+export function formatDistanceToNow(date: Date | string | number | null | undefined): string {
   try {
+    // Handle null/undefined gracefully
+    if (date === null || date === undefined) {
+      return 'just now'
+    }
+    
     // Handle different input types
     let dateObj: Date
     
     if (date instanceof Date) {
       dateObj = date
     } else if (typeof date === 'string') {
+      // Handle empty strings
+      if (date.trim() === '') {
+        return 'just now'
+      }
       dateObj = new Date(date)
     } else if (typeof date === 'number') {
+      // Handle zero or negative numbers
+      if (date <= 0) {
+        return 'just now'
+      }
       dateObj = new Date(date)
     } else {
-      // If date is null, undefined, or invalid type
-      return 'unknown'
+      // If date is other invalid type, be more user-friendly
+      console.warn('Invalid date type provided to formatDistanceToNow:', typeof date, date)
+      return 'just now'
     }
     
     // Check if date is valid
     if (isNaN(dateObj.getTime())) {
-      console.warn('Invalid date provided to formatDistanceToNow:', date)
-      return 'unknown'
+      console.warn('Invalid date value provided to formatDistanceToNow:', date)
+      return 'just now'
     }
     
     const now = new Date()
     const diff = now.getTime() - dateObj.getTime()
     
-    // Handle future dates
-    if (diff < 0) {
-      return 'in the future'
+    // Handle future dates gracefully
+    if (diff < -86400000) { // More than 1 day in future
+      return dateObj.toLocaleDateString()
+    } else if (diff < 0) {
+      return 'just now' // Treat near-future as "just now"
     }
     
     const seconds = Math.floor(diff / 1000)
@@ -42,11 +58,45 @@ export function formatDistanceToNow(date: Date | string | number): string {
       return `${hours}h ago`
     } else if (minutes > 0) {
       return `${minutes}m ago`
+    } else if (seconds > 30) {
+      return 'moments ago'
     } else {
       return 'just now'
     }
   } catch (error) {
     console.error('Error formatting date:', error, 'Input:', date)
-    return 'unknown'
+    return 'just now' // More user-friendly fallback
   }
+}
+
+// Additional helper function for more precise time formatting
+export function formatTimeWithFallback(timestamp: any): string {
+  // First try the main function
+  const result = formatDistanceToNow(timestamp)
+  
+  // If we get an unexpected result, try additional fallbacks
+  if (result === 'just now' && timestamp) {
+    try {
+      // Try to extract useful info from the timestamp object
+      if (typeof timestamp === 'object' && timestamp !== null) {
+        // Check for common timestamp properties
+        if ('_seconds' in timestamp && '_nanoseconds' in timestamp) {
+          // Firestore timestamp format
+          const seconds = timestamp._seconds || timestamp.seconds
+          const date = new Date(seconds * 1000)
+          return formatDistanceToNow(date)
+        } else if ('toDate' in timestamp && typeof timestamp.toDate === 'function') {
+          // Firestore timestamp with toDate method
+          return formatDistanceToNow(timestamp.toDate())
+        } else if ('getTime' in timestamp && typeof timestamp.getTime === 'function') {
+          // Date-like object
+          return formatDistanceToNow(timestamp.getTime())
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to extract time from object:', timestamp, e)
+    }
+  }
+  
+  return result
 }

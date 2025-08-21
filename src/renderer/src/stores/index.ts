@@ -8,7 +8,6 @@ export { useSettingsStore } from './settings'
 export { useAuthStore } from './auth'
 export { useCustomProvidersStore } from './customProviders'
 export { useAnalyticsStore } from './analytics'
-export { useRecommendationStore } from './recommendation'
 
 // Import stores after re-exporting them
 import { useChatStore } from './chat'
@@ -17,7 +16,6 @@ import { useSettingsStore } from './settings'
 import { useAuthStore } from './auth'
 import { useCustomProvidersStore } from './customProviders'
 import { useAnalyticsStore } from './analytics'
-import { useRecommendationStore } from './recommendation'
 
 // Create pinia instance
 export const pinia = createPinia()
@@ -42,7 +40,6 @@ export type StoreState = {
   auth: ReturnType<typeof useAuthStore>
   customProviders: ReturnType<typeof useCustomProvidersStore>
   analytics: ReturnType<typeof useAnalyticsStore>
-  recommendation: ReturnType<typeof useRecommendationStore>
 }
 
 // Store composition for complex operations
@@ -53,7 +50,6 @@ export const useStores = () => {
   const auth = useAuthStore()
   const customProviders = useCustomProvidersStore()
   const analytics = useAnalyticsStore()
-  const recommendation = useRecommendationStore()
 
   return {
     chat,
@@ -61,7 +57,6 @@ export const useStores = () => {
     settings,
     auth,
     customProviders,
-    analytics,
-    recommendation
+    analytics
   }
 }

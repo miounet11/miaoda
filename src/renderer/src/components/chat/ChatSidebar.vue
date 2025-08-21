@@ -4,32 +4,33 @@
     :class="sidebarClasses"
   >
     <!-- Header -->
-    <div class="sidebar-header p-4 border-b border-border/40">
-      <div class="flex flex-col gap-3">
+    <div class="sidebar-header p-5 border-b border-border/40">
+      <div class="flex flex-col gap-4">
         <!-- New Chat Button -->
         <button 
           @click="$emit('new-chat')"
-          class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-2.5 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] btn-interactive magnetic-hover ripple"
+          class="w-full px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] btn-interactive magnetic-hover ripple min-h-[48px]"
         >
-          <Plus :size="18" class="animate-in" />
-          <span class="tracking-wide">New Chat</span>
+          <Plus :size="20" class="animate-in" />
+          <span class="tracking-wide text-base">新建聊天</span>
         </button>
         
         <!-- Quick Search -->
         <div class="relative">
-          <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search :size="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search conversations..."
-            class="w-full pl-9 pr-3 py-2 bg-secondary/40 border border-transparent rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-300 placeholder:text-muted-foreground input-enhanced focus-glow"
+            placeholder="搜索对话记录..."
+            class="search-input w-full pl-10 pr-4 py-3 bg-secondary/40 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-300 placeholder:text-muted-foreground input-enhanced focus-glow min-h-[44px]"
+            style="font-family: system-ui, -apple-system, 'PingFang SC', sans-serif; ime-mode: active;"
           >
         </div>
       </div>
     </div>
     
     <!-- Chat List -->
-    <div class="sidebar-content flex-1 overflow-y-auto p-3 space-y-1">
+    <div class="sidebar-content flex-1 overflow-y-auto p-4 space-y-2">
       <!-- Empty State -->
       <div v-if="filteredChats.length === 0 && !searchQuery" class="empty-state text-center py-12">
         <div class="inline-flex items-center justify-center w-12 h-12 mb-3 bg-primary/10 rounded-full">
@@ -47,16 +48,16 @@
       </div>
       
       <!-- Chat Items -->
-      <TransitionGroup name="chat-list" tag="div" class="space-y-1">
+      <TransitionGroup name="chat-list" tag="div" class="space-y-2">
         <div 
           v-for="chat in filteredChats" 
           :key="chat.id"
           @click="$emit('select-chat', chat.id)"
           :class="[
-            'chat-item sidebar-item px-3 py-3 rounded-xl cursor-pointer transition-all duration-300 relative group border transform',
+            'chat-list-item sidebar-item px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300 relative group border transform hover:scale-[1.01] active:scale-[0.99]',
             currentChatId === chat.id 
-              ? 'bg-primary/15 border-primary/30 shadow-sm ring-1 ring-primary/20 active' 
-              : 'hover:bg-secondary/40 border-transparent hover:border-border/40 hover:shadow-sm hover:translate-x-1'
+              ? 'bg-primary/12 border-primary/25 shadow-md ring-1 ring-primary/20 active translate-x-1' 
+              : 'hover:bg-secondary/50 border-transparent hover:border-border/40 hover:shadow-sm hover:translate-x-2'
           ]"
         >
           <div class="flex items-start gap-3">

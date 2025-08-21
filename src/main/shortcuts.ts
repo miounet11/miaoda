@@ -38,6 +38,18 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
       action: () => {
         mainWindow.webContents.send('shortcut:next-chat')
       }
+    },
+    {
+      accelerator: 'CommandOrControl+Shift+I',
+      action: () => {
+        mainWindow.webContents.toggleDevTools()
+      }
+    },
+    {
+      accelerator: 'F12',
+      action: () => {
+        mainWindow.webContents.toggleDevTools()
+      }
     }
   ]
 
@@ -69,6 +81,8 @@ export function registerShortcutHandlers() {
       { key: 'Cmd/Ctrl+Shift+K', description: 'Clear Chat' },
       { key: 'Cmd/Ctrl+[', description: 'Previous Chat' },
       { key: 'Cmd/Ctrl+]', description: 'Next Chat' },
+      { key: 'Cmd/Ctrl+Shift+I', description: 'Toggle Developer Tools' },
+      { key: 'F12', description: 'Toggle Developer Tools' },
       { key: 'Enter', description: 'Send Message' },
       { key: 'Shift+Enter', description: 'New Line' },
       { key: 'Cmd/Ctrl+V', description: 'Paste Image' }

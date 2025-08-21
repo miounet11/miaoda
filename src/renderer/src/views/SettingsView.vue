@@ -426,7 +426,7 @@ const handleProviderSelected = async (config: any) => {
 const saveConfigurationImmediately = async () => {
   try {
     // Save LLM config to backend
-    await window.api.llm.updateConfig({
+    await window.api.llm.setProvider({
       provider: llmConfig.provider,
       apiKey: llmConfig.apiKey,
       baseURL: llmConfig.baseURL,

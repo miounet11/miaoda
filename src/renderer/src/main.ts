@@ -7,6 +7,8 @@ import en from './locales/en'
 import zh from './locales/zh-CN'
 import './assets/css/main.css'
 import './styles/mobile-improvements.css'
+import './styles/micro-interactions.css'
+import './styles/layout-optimizations.css'
 
 const app = createApp(App)
 

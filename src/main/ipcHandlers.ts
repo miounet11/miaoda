@@ -179,6 +179,10 @@ export function registerIPCHandlers(
   ipcMain.handle('mcp:get-servers', () => {
     return getAllServers()
   })
+  
+  ipcMain.handle('mcp:discover-servers', () => {
+    return getAllServers() // Return same as get-servers for compatibility
+  })
 
   ipcMain.handle('mcp:connect', async (_, server) => {
     await mcpManager.connectServer(server)
@@ -340,10 +344,10 @@ export function registerIPCHandlers(
   ipcMain.handle('db:update-message', async (_, messageId, content) => {
     const validatedUpdate = InputValidator.validateMessageInput({ 
       id: messageId, 
-      chatId: 'temp', 
+      chat_id: 'temp-chat-id', 
       role: 'user', 
       content, 
-      timestamp: Date.now() 
+      created_at: Date.now() 
     })
     db.updateMessage(validatedUpdate.id, validatedUpdate.content)
   })

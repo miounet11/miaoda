@@ -77,6 +77,7 @@ export class DatabaseInitializer {
     try {
       this.migrateChatTable()
       this.migrateMessageTable()
+      this.migrateSearchIndex()
     } catch (error) {
       throw new Error(`Migration failed: ${error}`)
     }
@@ -144,6 +145,63 @@ export class DatabaseInitializer {
       if (!columnNames.has(column.name)) {
         this.db.exec(column.sql)
       }
+    }
+  }
+
+  /**
+   * Migrate search_index table - fix FTS5 virtual table issues
+   */
+  private migrateSearchIndex(): void {
+    try {
+      // Check if there are old search_index related triggers
+      const oldTriggers = this.db.prepare(`
+        SELECT name FROM sqlite_master 
+        WHERE type='trigger' 
+        AND name IN ('search_index_delete', 'search_index_insert', 'search_index_update')
+      `).all() as Array<{name: string}>
+
+      // Remove old problematic triggers
+      for (const trigger of oldTriggers) {
+        this.db.exec(`DROP TRIGGER IF EXISTS ${trigger.name}`)
+      }
+
+      // Check if search_index exists and what type it is
+      const searchIndexInfo = this.db.prepare(`
+        SELECT name, sql FROM sqlite_master 
+        WHERE type='table' AND name='search_index'
+      `).get() as {name: string, sql: string} | undefined
+
+      // If search_index exists and is a virtual table or has wrong structure, drop it
+      if (searchIndexInfo && (
+        searchIndexInfo.sql.includes('VIRTUAL TABLE') || 
+        searchIndexInfo.sql.includes('fts5') ||
+        searchIndexInfo.sql.includes('fts4')
+      )) {
+        this.db.exec('DROP TABLE IF EXISTS search_index')
+      }
+
+      // Recreate search_index as regular table if it doesn't exist with correct structure
+      const currentSearchIndex = this.db.prepare("PRAGMA table_info(search_index)").all() as Array<{name: string}>
+      const hasMessageId = currentSearchIndex.some(col => col.name === 'message_id')
+      
+      if (!hasMessageId) {
+        // Drop and recreate with correct structure
+        this.db.exec('DROP TABLE IF EXISTS search_index')
+        this.db.exec(`
+          CREATE TABLE IF NOT EXISTS search_index (
+            message_id TEXT PRIMARY KEY,
+            chat_id TEXT NOT NULL,
+            content_normalized TEXT NOT NULL,
+            tokens TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+            FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
+          )
+        `)
+      }
+    } catch (error) {
+      // Log error but don't fail initialization
+      console.warn('Search index migration warning:', error)
     }
   }
 
