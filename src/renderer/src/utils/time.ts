@@ -23,14 +23,13 @@ export function formatDistanceToNow(date: Date | string | number | null | undefi
       }
       dateObj = new Date(date)
     } else {
-      // If date is other invalid type, be more user-friendly
-      console.warn('Invalid date type provided to formatDistanceToNow:', typeof date, date)
+      // Don't log warnings for invalid types as they're handled gracefully
       return 'just now'
     }
     
     // Check if date is valid
     if (isNaN(dateObj.getTime())) {
-      console.warn('Invalid date value provided to formatDistanceToNow:', date)
+      // Don't log warnings for invalid dates as they're handled gracefully
       return 'just now'
     }
     

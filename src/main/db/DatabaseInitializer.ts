@@ -27,6 +27,14 @@ export class DatabaseInitializer {
   }
 
   private createTables(): void {
+    // Create existing tables
+    this.createChatTables()
+    
+    // Create authentication tables
+    this.createAuthTables()
+  }
+
+  private createChatTables(): void {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS chats (
         id TEXT PRIMARY KEY,
@@ -36,7 +44,9 @@ export class DatabaseInitializer {
         tags TEXT DEFAULT NULL,
         archived INTEGER DEFAULT 0,
         starred INTEGER DEFAULT 0,
-        settings TEXT DEFAULT NULL
+        settings TEXT DEFAULT NULL,
+        user_id TEXT DEFAULT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
 
       CREATE TABLE IF NOT EXISTS messages (
@@ -73,11 +83,148 @@ export class DatabaseInitializer {
     `)
   }
 
+  private createAuthTables(): void {
+    this.db.exec(`
+      -- Users table for authentication
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        name TEXT NOT NULL,
+        avatar_url TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        last_active_at INTEGER,
+        is_active INTEGER DEFAULT 1,
+        email_verified INTEGER DEFAULT 0,
+        preferences TEXT, -- JSON blob for user preferences
+        encryption_key_id TEXT,
+        backup_codes TEXT, -- JSON array of encrypted backup codes
+        failed_login_attempts INTEGER DEFAULT 0,
+        locked_until INTEGER DEFAULT NULL,
+        password_changed_at INTEGER NOT NULL
+      );
+
+      -- User sessions for session management
+      CREATE TABLE IF NOT EXISTS user_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        device_id TEXT NOT NULL,
+        device_name TEXT,
+        device_type TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        access_token_hash TEXT NOT NULL,
+        refresh_token_hash TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        last_used_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        is_active INTEGER DEFAULT 1,
+        location TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- Authentication methods (2FA, biometric, etc.)
+      CREATE TABLE IF NOT EXISTS auth_methods (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        method_type TEXT NOT NULL, -- 'password', 'totp', 'backup_code', 'biometric'
+        method_data TEXT NOT NULL, -- encrypted method-specific data
+        is_enabled INTEGER DEFAULT 1,
+        created_at INTEGER NOT NULL,
+        last_used_at INTEGER,
+        setup_completed INTEGER DEFAULT 0,
+        backup_codes_generated INTEGER DEFAULT 0,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- Password reset tokens
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token_hash TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        used_at INTEGER,
+        ip_address TEXT,
+        user_agent TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- Email verification tokens
+      CREATE TABLE IF NOT EXISTS email_verification_tokens (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token_hash TEXT NOT NULL,
+        email TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        used_at INTEGER,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- User encryption keys for data protection
+      CREATE TABLE IF NOT EXISTS user_encryption_keys (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        key_type TEXT NOT NULL, -- 'master', 'data', 'sync'
+        encrypted_key TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        expires_at INTEGER,
+        is_active INTEGER DEFAULT 1,
+        key_version INTEGER DEFAULT 1,
+        derivation_params TEXT, -- JSON blob for key derivation parameters
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- Authentication audit logs
+      CREATE TABLE IF NOT EXISTS auth_audit_logs (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        session_id TEXT,
+        action TEXT NOT NULL, -- 'login', 'logout', 'register', 'password_change', etc.
+        details TEXT, -- JSON blob with action-specific details
+        ip_address TEXT,
+        user_agent TEXT,
+        success INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        risk_score INTEGER DEFAULT 0 -- Risk assessment score
+      );
+
+      -- Device fingerprints for security
+      CREATE TABLE IF NOT EXISTS device_fingerprints (
+        id TEXT PRIMARY KEY,
+        device_id TEXT NOT NULL,
+        user_id TEXT,
+        fingerprint_hash TEXT NOT NULL,
+        trusted INTEGER DEFAULT 0,
+        first_seen_at INTEGER NOT NULL,
+        last_seen_at INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+
+      -- Rate limiting for security
+      CREATE TABLE IF NOT EXISTS rate_limits (
+        id TEXT PRIMARY KEY,
+        identifier TEXT NOT NULL, -- IP, user_id, etc.
+        action TEXT NOT NULL, -- 'login', 'register', 'password_reset'
+        attempts INTEGER DEFAULT 1,
+        window_start INTEGER NOT NULL,
+        blocked_until INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+    `)
+  }
+
   private runMigrations(): void {
     try {
       this.migrateChatTable()
       this.migrateMessageTable()
       this.migrateSearchIndex()
+      this.migrateAuthTables()
     } catch (error) {
       throw new Error(`Migration failed: ${error}`)
     }
@@ -205,14 +352,115 @@ export class DatabaseInitializer {
     }
   }
 
+  /**
+   * Migrate authentication tables - add new columns as needed
+   */
+  private migrateAuthTables(): void {
+    // Add user_id column to chats if it doesn't exist
+    const chatTables = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='chats'").all()
+    if (chatTables.length > 0) {
+      const chatColumns = this.db.prepare("PRAGMA table_info(chats)").all() as Array<{name: string}>
+      const chatColumnNames = new Set(chatColumns.map(col => col.name))
+      
+      if (!chatColumnNames.has('user_id')) {
+        this.db.exec('ALTER TABLE chats ADD COLUMN user_id TEXT DEFAULT NULL')
+      }
+    }
+
+    // Migrate existing auth tables if they need updates
+    const authTables = ['users', 'user_sessions', 'auth_methods']
+    
+    for (const tableName of authTables) {
+      const tables = this.db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}'`).all()
+      if (tables.length === 0) continue
+
+      const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{name: string}>
+      const columnNames = new Set(columns.map(col => col.name))
+
+      // Add missing columns based on table
+      switch (tableName) {
+        case 'users':
+          const userColumns = [
+            { name: 'failed_login_attempts', sql: `ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0` },
+            { name: 'locked_until', sql: `ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL` },
+            { name: 'password_changed_at', sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}` }
+          ]
+          for (const column of userColumns) {
+            if (!columnNames.has(column.name)) {
+              this.db.exec(column.sql)
+            }
+          }
+          break
+
+        case 'auth_methods':
+          const authMethodColumns = [
+            { name: 'setup_completed', sql: `ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0` },
+            { name: 'backup_codes_generated', sql: `ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0` }
+          ]
+          for (const column of authMethodColumns) {
+            if (!columnNames.has(column.name)) {
+              this.db.exec(column.sql)
+            }
+          }
+          break
+      }
+    }
+  }
+
   private createIndexes(): void {
     this.db.exec(`
-      -- Performance indexes
+      -- Chat and message performance indexes
       CREATE INDEX IF NOT EXISTS idx_messages_chat_id ON messages(chat_id);
       CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
       CREATE INDEX IF NOT EXISTS idx_chats_updated_at ON chats(updated_at);
       CREATE INDEX IF NOT EXISTS idx_chats_archived ON chats(archived);
       CREATE INDEX IF NOT EXISTS idx_chats_starred ON chats(starred);
+      CREATE INDEX IF NOT EXISTS idx_chats_user_id ON chats(user_id);
+      
+      -- Authentication performance indexes
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
+      CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
+      CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
+      
+      -- Session management indexes
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_device_id ON user_sessions(device_id);
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_active ON user_sessions(is_active);
+      CREATE INDEX IF NOT EXISTS idx_user_sessions_last_used ON user_sessions(last_used_at);
+      
+      -- Authentication methods indexes
+      CREATE INDEX IF NOT EXISTS idx_auth_methods_user_id ON auth_methods(user_id);
+      CREATE INDEX IF NOT EXISTS idx_auth_methods_type ON auth_methods(method_type);
+      CREATE INDEX IF NOT EXISTS idx_auth_methods_enabled ON auth_methods(is_enabled);
+      
+      -- Token management indexes
+      CREATE INDEX IF NOT EXISTS idx_password_reset_user_id ON password_reset_tokens(user_id);
+      CREATE INDEX IF NOT EXISTS idx_password_reset_expires ON password_reset_tokens(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_email_verification_user_id ON email_verification_tokens(user_id);
+      CREATE INDEX IF NOT EXISTS idx_email_verification_expires ON email_verification_tokens(expires_at);
+      
+      -- Encryption key indexes
+      CREATE INDEX IF NOT EXISTS idx_user_keys_user_id ON user_encryption_keys(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_keys_type ON user_encryption_keys(key_type);
+      CREATE INDEX IF NOT EXISTS idx_user_keys_active ON user_encryption_keys(is_active);
+      
+      -- Audit and security indexes
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON auth_audit_logs(user_id);
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON auth_audit_logs(action);
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON auth_audit_logs(created_at);
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_success ON auth_audit_logs(success);
+      
+      -- Device fingerprint indexes
+      CREATE INDEX IF NOT EXISTS idx_device_fingerprints_device_id ON device_fingerprints(device_id);
+      CREATE INDEX IF NOT EXISTS idx_device_fingerprints_user_id ON device_fingerprints(user_id);
+      CREATE INDEX IF NOT EXISTS idx_device_fingerprints_trusted ON device_fingerprints(trusted);
+      
+      -- Rate limiting indexes
+      CREATE INDEX IF NOT EXISTS idx_rate_limits_identifier ON rate_limits(identifier);
+      CREATE INDEX IF NOT EXISTS idx_rate_limits_action ON rate_limits(action);
+      CREATE INDEX IF NOT EXISTS idx_rate_limits_window_start ON rate_limits(window_start);
+      CREATE INDEX IF NOT EXISTS idx_rate_limits_blocked_until ON rate_limits(blocked_until);
     `)
   }
 

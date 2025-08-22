@@ -234,6 +234,80 @@
             </div>
           </div>
 
+          <!-- Language Settings -->
+          <div v-if="activeTab === 'language'" class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-4">Language Settings</h3>
+              <p class="text-muted-foreground mb-6">
+                Choose your preferred language for the interface. All settings and messages will be displayed in the selected language.
+              </p>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Current Language Display -->
+              <div class="bg-muted/30 p-6 rounded-lg">
+                <div class="flex items-center gap-4 mb-4">
+                  <Globe :size="24" class="text-primary" />
+                  <div>
+                    <h4 class="font-semibold">Interface Language</h4>
+                    <p class="text-sm text-muted-foreground">Select your preferred language for the user interface</p>
+                  </div>
+                </div>
+                
+                <!-- Language Selector Component -->
+                <LanguageSelector 
+                  :show-native="true"
+                  :show-header="false"
+                  :show-footer="true"
+                  size="large"
+                  variant="default"
+                  @language-change="handleLanguageChange"
+                />
+              </div>
+
+              <!-- Language Information -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-muted/20 rounded-lg">
+                  <h5 class="font-semibold mb-2 flex items-center gap-2">
+                    <Check :size="16" class="text-green-500" />
+                    Supported Languages
+                  </h5>
+                  <ul class="text-sm text-muted-foreground space-y-1">
+                    <li>🇺🇸 English</li>
+                    <li>🇨🇳 简体中文 (Simplified Chinese)</li>
+                    <li>🇯🇵 日本語 (Japanese)</li>
+                    <li>🇮🇳 हिन्दी (Hindi)</li>
+                  </ul>
+                </div>
+                
+                <div class="p-4 bg-muted/20 rounded-lg">
+                  <h5 class="font-semibold mb-2 flex items-center gap-2">
+                    <AlertCircle :size="16" class="text-blue-500" />
+                    Translation Notes
+                  </h5>
+                  <p class="text-sm text-muted-foreground">
+                    Language changes apply immediately to the interface. 
+                    AI model responses will still be in the language you communicate with the model.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Reset to Default -->
+              <div class="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
+                <div>
+                  <h5 class="font-semibold">Reset Language Settings</h5>
+                  <p class="text-sm text-muted-foreground">Reset to browser's default language</p>
+                </div>
+                <button 
+                  @click="resetLanguage"
+                  class="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg transition-colors"
+                >
+                  Reset to Default
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Plugins -->
           <div v-if="activeTab === 'plugins'" class="space-y-6">
             <div>
@@ -320,10 +394,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap, Globe } from 'lucide-vue-next'
 import ProviderList from '@renderer/src/components/settings/ProviderList.vue'
 import ProviderSelector from '@renderer/src/components/settings/ProviderSelector.vue'
 import UnifiedProviderConfig from '@renderer/src/components/settings/UnifiedProviderConfig.vue'
+import LanguageSelector from '@renderer/src/components/settings/LanguageSelector.vue'
 import { useCustomProvidersStore } from '@renderer/src/stores/customProviders'
 import type { LLMProvider } from '@renderer/src/types/api'
 
@@ -331,6 +406,7 @@ const tabs = [
   { id: 'llm', label: 'LLM Provider', icon: Bot },
   { id: 'providers', label: 'Custom Providers', icon: Server },
   { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'language', label: 'Language', icon: Globe },
   { id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
   { id: 'plugins', label: 'Plugins', icon: Puzzle }
 ]
@@ -406,6 +482,31 @@ const handleResize = () => {
 const getActiveTabLabel = () => {
   const tab = tabs.find(t => t.id === activeTab.value)
   return tab ? tab.label : 'Settings'
+}
+
+// Language handling functions
+const handleLanguageChange = async (locale: any) => {
+  try {
+    console.log('Language changed to:', locale)
+    // The LanguageSelector component handles the actual language change
+    // We can add any additional logic here if needed
+  } catch (error) {
+    console.error('Failed to change language:', error)
+  }
+}
+
+const resetLanguage = async () => {
+  try {
+    // Import the i18n service dynamically to avoid circular dependencies
+    const { useI18nService, getDefaultLocale } = await import('@renderer/src/services/i18n')
+    const i18nService = useI18nService()
+    const defaultLocale = getDefaultLocale()
+    
+    await i18nService.setLocale(defaultLocale)
+    console.log('Language reset to default:', defaultLocale)
+  } catch (error) {
+    console.error('Failed to reset language:', error)
+  }
 }
 
 

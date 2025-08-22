@@ -80,8 +80,8 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       lastError.value = null
       
-      // Mock authentication - replace with actual auth service
-      const response = await mockAuthService.login({
+      // Call real backend authentication via IPC
+      const response = await authService.login({
         email,
         password,
         deviceId: deviceId.value,
@@ -118,8 +118,8 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       lastError.value = null
       
-      // Mock SSO authentication
-      const response = await mockAuthService.loginWithSSO({
+      // Call real backend authentication via IPC
+      const response = await authService.loginWithSSO({
         provider,
         deviceId: deviceId.value
       })
@@ -150,7 +150,7 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('You must accept the terms and conditions')
       }
       
-      const response = await mockAuthService.register({
+      const response = await authService.register({
         ...userData,
         deviceId: deviceId.value
       })
@@ -170,7 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async (allDevices = false) => {
     try {
       if (session.value) {
-        await mockAuthService.logout({
+        await authService.logout({
           sessionId: sessionId.value,
           allDevices
         })
@@ -191,7 +191,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      const response = await mockAuthService.refreshToken(session.value.refreshToken)
+      const response = await authService.refreshToken(session.value.refreshToken)
       session.value = response
       return response
     } catch (error) {
@@ -209,7 +209,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       
-      const updatedUser = await mockAuthService.updateProfile(currentUser.value.id, updates)
+      const updatedUser = await authService.updateProfile(currentUser.value.id, updates)
       
       if (session.value) {
         session.value.user = updatedUser
@@ -232,7 +232,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       
-      await mockAuthService.changePassword({
+      await authService.changePassword({
         userId: currentUser.value.id,
         currentPassword,
         newPassword
@@ -251,7 +251,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       
-      await mockAuthService.forgotPassword(email)
+      await authService.forgotPassword(email)
       
       return true
     } catch (error: any) {
@@ -266,7 +266,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       
-      await mockAuthService.resetPassword(token, newPassword)
+      await authService.resetPassword(token, newPassword)
       
       return true
     } catch (error: any) {
@@ -283,7 +283,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      const setup = await mockAuthService.setupTwoFactor(currentUser.value.id)
+      const setup = await authService.setupTwoFactor(currentUser.value.id)
       return setup // Returns QR code and backup codes
     } catch (error: any) {
       lastError.value = error.message
@@ -297,7 +297,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      await mockAuthService.verifyTwoFactor(currentUser.value.id, code)
+      await authService.verifyTwoFactor(currentUser.value.id, code)
       twoFactorEnabled.value = true
       return true
     } catch (error: any) {
@@ -312,7 +312,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      await mockAuthService.disableTwoFactor(currentUser.value.id, password)
+      await authService.disableTwoFactor(currentUser.value.id, password)
       twoFactorEnabled.value = false
       return true
     } catch (error: any) {
@@ -327,7 +327,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      const sessions = await mockAuthService.getActiveSessions(currentUser.value.id)
+      const sessions = await authService.getActiveSessions()
       activeSessions.value = sessions
       return sessions
     } catch (error: any) {
@@ -342,7 +342,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     
     try {
-      await mockAuthService.revokeSession(sessionIdToRevoke)
+      await authService.revokeSession(sessionIdToRevoke)
       
       if (sessionIdToRevoke === sessionId.value) {
         // Current session was revoked
@@ -487,194 +487,189 @@ export const useAuthStore = defineStore('auth', () => {
 })
 
 // Mock authentication service - ONLY FOR DEVELOPMENT
-// TODO: Replace with real authentication service before production
-const mockAuthService = {
+// Replace with real IPC calls to backend authentication service
+const authService = {
   async login(credentials: any): Promise<AuthSession> {
-    // Development only - remove in production
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Authentication service not configured for production')
-    }
+    // Call real backend authentication via IPC
+    const response = await window.electronAPI.auth.login({
+      email: credentials.email,
+      password: credentials.password,
+      deviceId: credentials.deviceId,
+      deviceName: 'MiaoDa Chat Desktop',
+      deviceType: 'desktop',
+      rememberMe: credentials.rememberMe,
+      ipAddress: '127.0.0.1', // Local application
+      userAgent: navigator.userAgent
+    })
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    if (credentials.email === 'demo@example.com' && credentials.password === 'password') {
-      const user: User = {
-        id: 'user123',
-        email: credentials.email,
-        name: 'Demo User',
-        avatar: 'https://ui-avatars.com/api/?name=Demo+User',
-        createdAt: new Date('2024-01-01'),
+    return {
+      accessToken: response.session.access_token,
+      refreshToken: response.session.refresh_token,
+      expiresAt: new Date(response.session.expires_at),
+      user: {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        avatar: response.user.avatar_url,
+        createdAt: new Date(response.user.created_at),
         lastActiveAt: new Date(),
-        preferences: {
+        preferences: response.user.preferences || {
           theme: 'system',
           language: 'en',
           timezone: 'UTC'
         }
       }
-      
-      return {
-        accessToken: 'mock_access_token',
-        refreshToken: 'mock_refresh_token',
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-        user
-      }
-    } else {
-      throw new Error('Invalid email or password')
     }
   },
   
   async loginWithSSO(params: any): Promise<AuthSession> {
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Mock successful SSO login
-    const user: User = {
-      id: 'sso_user123',
-      email: `user@${params.provider}.com`,
-      name: `${params.provider} User`,
-      avatar: `https://ui-avatars.com/api/?name=${params.provider}+User`,
-      createdAt: new Date('2024-01-01'),
-      lastActiveAt: new Date(),
-      preferences: {
-        theme: 'system',
-        language: 'en',
-        timezone: 'UTC'
-      }
-    }
-    
-    return {
-      accessToken: 'mock_sso_access_token',
-      refreshToken: 'mock_sso_refresh_token',
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      user
-    }
+    throw new Error('SSO authentication not yet implemented')
   },
   
   async register(userData: any): Promise<AuthSession> {
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    
-    const user: User = {
-      id: 'new_user_' + Date.now(),
+    const response = await window.electronAPI.auth.register({
       email: userData.email,
+      password: userData.password,
       name: userData.name,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}`,
-      createdAt: new Date(),
-      lastActiveAt: new Date(),
-      preferences: {
-        theme: 'system',
-        language: 'en',
-        timezone: 'UTC'
-      }
-    }
+      acceptTerms: userData.acceptTerms,
+      deviceId: userData.deviceId,
+      deviceName: 'MiaoDa Chat Desktop',
+      deviceType: 'desktop',
+      ipAddress: '127.0.0.1',
+      userAgent: navigator.userAgent
+    })
     
     return {
-      accessToken: 'mock_new_access_token',
-      refreshToken: 'mock_new_refresh_token',
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      user
+      accessToken: response.session.access_token,
+      refreshToken: response.session.refresh_token,
+      expiresAt: new Date(response.session.expires_at),
+      user: {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        avatar: response.user.avatar_url,
+        createdAt: new Date(response.user.created_at),
+        lastActiveAt: new Date(),
+        preferences: response.user.preferences || {
+          theme: 'system',
+          language: 'en',
+          timezone: 'UTC'
+        }
+      }
     }
   },
   
   async logout(params: any): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    // Mock logout
+    if (sessionId.value) {
+      await window.electronAPI.auth.logout({
+        sessionId: sessionId.value,
+        allDevices: params.allDevices
+      })
+    }
   },
   
   async refreshToken(refreshToken: string): Promise<AuthSession> {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    // Mock token refresh
-    const currentSession = JSON.parse(localStorage.getItem('miaoda-auth-store') || '{}')
+    const response = await window.electronAPI.auth.refreshToken({
+      refreshToken
+    })
     
     return {
-      ...currentSession.session,
-      accessToken: 'mock_refreshed_access_token',
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000)
+      accessToken: response.session.access_token,
+      refreshToken: response.session.refresh_token,
+      expiresAt: new Date(response.session.expires_at),
+      user: {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        avatar: response.user.avatar_url,
+        createdAt: new Date(response.user.created_at),
+        lastActiveAt: new Date(),
+        preferences: response.user.preferences || {
+          theme: 'system',
+          language: 'en',
+          timezone: 'UTC'
+        }
+      }
     }
   },
   
   async updateProfile(userId: string, updates: Partial<User>): Promise<User> {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    // Mock profile update
-    const currentSession = JSON.parse(localStorage.getItem('miaoda-auth-store') || '{}')
-    const currentUser = currentSession.session?.user
+    const response = await window.electronAPI.auth.updateProfile({
+      sessionId: sessionId.value,
+      updates
+    })
     
     return {
-      ...currentUser,
-      ...updates,
-      lastActiveAt: new Date()
+      id: response.user.id,
+      email: response.user.email,
+      name: response.user.name,
+      avatar: response.user.avatar_url,
+      createdAt: new Date(response.user.created_at),
+      lastActiveAt: new Date(),
+      preferences: response.user.preferences || {
+        theme: 'system',
+        language: 'en',
+        timezone: 'UTC'
+      }
     }
   },
   
   async changePassword(params: any): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    if (params.currentPassword !== 'password') {
-      throw new Error('Current password is incorrect')
-    }
-    
-    // Mock password change
+    await window.electronAPI.auth.changePassword({
+      sessionId: sessionId.value,
+      currentPassword: params.currentPassword,
+      newPassword: params.newPassword
+    })
   },
   
   async forgotPassword(email: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    // Mock forgot password
+    await window.electronAPI.auth.requestPasswordReset({
+      email,
+      ipAddress: '127.0.0.1',
+      userAgent: navigator.userAgent
+    })
   },
   
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    // Mock password reset
+    await window.electronAPI.auth.confirmPasswordReset({
+      token,
+      newPassword,
+      ipAddress: '127.0.0.1',
+      userAgent: navigator.userAgent
+    })
   },
   
   async setupTwoFactor(userId: string): Promise<any> {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    return {
-      qrCode: 'mock_qr_code_data',
-      backupCodes: ['123456', '234567', '345678', '456789', '567890']
-    }
+    // This will be implemented with MFA integration
+    throw new Error('Two-factor authentication setup not yet implemented')
   },
   
   async verifyTwoFactor(userId: string, code: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    if (code !== '123456') {
-      throw new Error('Invalid verification code')
-    }
+    throw new Error('Two-factor authentication verification not yet implemented')
   },
   
   async disableTwoFactor(userId: string, password: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    if (password !== 'password') {
-      throw new Error('Invalid password')
-    }
+    throw new Error('Two-factor authentication disable not yet implemented')
   },
   
-  async getActiveSessions(userId: string): Promise<any[]> {
-    await new Promise(resolve => setTimeout(resolve, 600))
+  async getActiveSessions(): Promise<any[]> {
+    const sessions = await window.electronAPI.auth.getSessions({
+      sessionId: sessionId.value
+    })
     
-    return [
-      {
-        id: 'session1',
-        deviceName: 'MacBook Pro',
-        location: 'San Francisco, CA',
-        lastActive: new Date(),
-        current: true
-      },
-      {
-        id: 'session2',
-        deviceName: 'iPhone',
-        location: 'San Francisco, CA',
-        lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        current: false
-      }
-    ]
+    return sessions.map((session: any) => ({
+      id: session.id,
+      deviceName: session.device_name || 'Unknown Device',
+      location: session.location || 'Unknown Location',
+      lastActive: new Date(session.last_used_at),
+      current: session.is_current
+    }))
   },
   
-  async revokeSession(sessionId: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    // Mock session revoke
+  async revokeSession(sessionIdToRevoke: string): Promise<void> {
+    await window.electronAPI.auth.revokeSession({
+      sessionId: sessionId.value,
+      targetSessionId: sessionIdToRevoke
+    })
   }
 }

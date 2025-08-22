@@ -126,8 +126,8 @@ export class OpenAIProvider implements LLMProvider {
     if (responseMessage.tool_calls) {
       for (const toolCall of responseMessage.tool_calls) {
         if (onToolCall) {
-          const args = JSON.parse(toolCall.function.arguments)
-          const result = await onToolCall(toolCall.function.name, args)
+          const args = JSON.parse((toolCall as any).function.arguments)
+          const result = await onToolCall((toolCall as any).function.name, args)
           
           // Add tool result to messages
           messages.push(responseMessage)
@@ -572,8 +572,8 @@ export class CustomOpenAIProvider implements LLMProvider {
     if (responseMessage.tool_calls) {
       for (const toolCall of responseMessage.tool_calls) {
         if (onToolCall) {
-          const args = JSON.parse(toolCall.function.arguments)
-          const result = await onToolCall(toolCall.function.name, args)
+          const args = JSON.parse((toolCall as any).function.arguments)
+          const result = await onToolCall((toolCall as any).function.name, args)
           
           // Add tool result to messages
           messages.push(responseMessage)

@@ -12,6 +12,32 @@ export interface FileInfo {
 declare global {
   interface Window {
     electron: ElectronAPI
+    electronAPI: {
+      getAppVersion: () => Promise<string>
+      auth: {
+        login: (credentials: any) => Promise<any>
+        register: (userData: any) => Promise<any>
+        logout: (params: any) => Promise<any>
+        refreshToken: (data: { refreshToken: string }) => Promise<any>
+        validateSession: (data: { sessionId: string }) => Promise<any>
+        requestPasswordReset: (request: any) => Promise<any>
+        confirmPasswordReset: (request: any) => Promise<any>
+        getSessions: (data: { sessionId: string }) => Promise<any>
+        revokeSession: (data: { sessionId: string; targetSessionId: string }) => Promise<any>
+        updateProfile: (data: any) => Promise<any>
+        changePassword: (data: any) => Promise<any>
+      }
+      // Include all other existing APIs for electronAPI
+      mcp: any
+      db: any
+      search: any
+      llm: any
+      file: any
+      shortcuts: any
+      plugins: any
+      export: any
+      invoke: (channel: string, ...args: any[]) => Promise<any>
+    }
     api: {
       getAppVersion: () => Promise<string>
       mcp: {

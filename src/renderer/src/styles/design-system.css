@@ -1,0 +1,365 @@
+/**
+ * 顶级UI设计规范 - 对标Claude.ai & Grok.com
+ * 
+ * 基于用户反馈的UI问题分析：
+ * 1. 顶部文字与软件边框距离不合理
+ * 2. 字体大小需要优化
+ * 3. 对话框左右边距需要调整
+ * 4. 整体间距系统需要标准化
+ */
+
+/* ============== 全局设计令牌 ============== */
+:root {
+  /* === 间距系统 (8px基准) === */
+  --space-xs: 4px;      /* 0.25rem */
+  --space-sm: 8px;      /* 0.5rem */
+  --space-md: 16px;     /* 1rem */
+  --space-lg: 24px;     /* 1.5rem */
+  --space-xl: 32px;     /* 2rem */
+  --space-2xl: 48px;    /* 3rem */
+  --space-3xl: 64px;    /* 4rem */
+  
+  /* === 字体层级系统 === */
+  --font-size-xs: 12px;    /* 0.75rem - 辅助信息 */
+  --font-size-sm: 14px;    /* 0.875rem - 次要文本 */
+  --font-size-base: 16px;  /* 1rem - 主体文本 */
+  --font-size-lg: 18px;    /* 1.125rem - 重要文本 */
+  --font-size-xl: 20px;    /* 1.25rem - 标题 */
+  --font-size-2xl: 24px;   /* 1.5rem - 主标题 */
+  --font-size-3xl: 32px;   /* 2rem - 大标题 */
+  
+  /* === 行高系统 === */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* === 布局约束 === */
+  --header-height: 64px;           /* 顶部栏固定高度 */
+  --sidebar-width: 280px;          /* 侧边栏宽度 */
+  --content-max-width: 768px;      /* 对话内容最大宽度 */
+  --content-padding: var(--space-lg); /* 内容区内边距 */
+  --safe-area-top: 16px;           /* 顶部安全距离 */
+  --safe-area-bottom: 16px;        /* 底部安全距离 */
+  
+  /* === 边距系统 === */
+  --container-padding-x: var(--space-lg);  /* 容器水平内边距 */
+  --container-padding-y: var(--space-md);  /* 容器垂直内边距 */
+  --dialog-padding: var(--space-xl);       /* 对话框内边距 */
+  --message-spacing: var(--space-md);      /* 消息间距 */
+  
+  /* === 阴影层级 === */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+  
+  /* === 边框半径 === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  
+  /* === 过渡动画 === */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 250ms ease-out;
+  --transition-slow: 350ms ease-out;
+}
+
+/* ============== 响应式断点 ============== */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+    --container-padding-x: var(--space-md);
+    --container-padding-y: var(--space-sm);
+    --content-padding: var(--space-md);
+    --font-size-base: 16px; /* 防止iOS缩放 */
+  }
+}
+
+/* ============== 顶部区域优化 ============== */
+.chat-header {
+  height: var(--header-height);
+  padding: 0 var(--container-padding-x);
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  
+  /* 解决顶部文字与边框距离问题 */
+  display: flex;
+  align-items: center;
+  min-height: var(--header-height);
+  padding-top: var(--safe-area-top);
+}
+
+.chat-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: hsl(var(--foreground));
+  margin: 0;
+  
+  /* 防止文字被截断 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+/* ============== 对话框容器优化 ============== */
+.messages-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--content-padding);
+  
+  /* 确保左右边距一致 */
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.message-bubble {
+  margin-bottom: var(--message-spacing);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  
+  /* 优化消息框的视觉层级 */
+  box-shadow: var(--shadow-sm);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.1);
+}
+
+.message-content {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: hsl(var(--foreground));
+  
+  /* 确保文字可读性 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============== 侧边栏优化 ============== */
+.sidebar {
+  width: var(--sidebar-width);
+  border-right: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  
+  /* 顶部对齐 */
+  padding-top: var(--safe-area-top);
+}
+
+.sidebar-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+.sidebar-header h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+/* ============== 输入区域优化 ============== */
+.input-area {
+  padding: var(--space-lg) var(--container-padding-x);
+  padding-bottom: calc(var(--space-lg) + var(--safe-area-bottom));
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.input-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: end;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-xl);
+  background: hsl(var(--background));
+  
+  /* 聚焦状态 */
+  transition: all var(--transition-normal);
+}
+
+.input-container:focus-within {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.1);
+}
+
+/* ============== 按钮系统 ============== */
+.btn-primary {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  /* 确保按钮可点击性 */
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.btn-primary:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.btn-secondary:hover {
+  background: hsl(var(--secondary) / 0.8);
+  border-color: hsl(var(--border) / 0.8);
+}
+
+/* ============== 文字层级系统 ============== */
+.text-heading-1 {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.025em;
+}
+
+.text-heading-2 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.015em;
+}
+
+.text-heading-3 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  line-height: var(--line-height-normal);
+}
+
+.text-body-lg {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+}
+
+.text-body {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+.text-body-sm {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.text-caption {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: hsl(var(--muted-foreground));
+}
+
+/* ============== 状态指示器 ============== */
+.status-info {
+  font-size: var(--font-size-sm);
+  color: hsl(var(--muted-foreground));
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+/* ============== 响应式优化 ============== */
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 0 var(--space-md);
+    height: 56px;
+  }
+  
+  .chat-title {
+    font-size: var(--font-size-base);
+    max-width: 200px;
+  }
+  
+  .messages-container {
+    padding: var(--space-md);
+  }
+  
+  .input-area {
+    padding: var(--space-md);
+  }
+  
+  .sidebar {
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* ============== 无障碍优化 ============== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .message-bubble {
+    border-width: 2px;
+  }
+  
+  .input-container {
+    border-width: 2px;
+  }
+}
+
+/* ============== 焦点管理 ============== */
+.focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* ============== 性能优化 ============== */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
+}

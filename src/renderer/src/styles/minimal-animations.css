@@ -1,0 +1,356 @@
+/**
+ * 精简动效系统 - Minimal Animation System
+ * 
+ * 设计原则：
+ * 1. 只保留有意义的动效
+ * 2. 注重功能性而非装饰性
+ * 3. 提升用户体验的流畅度
+ * 4. 减少认知负担
+ */
+
+/* ============== 禁用无关动效 ============== */
+
+/* 移除所有scale变换动效 */
+* {
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+}
+
+/* 禁用不必要的transform动画 */
+.animate-pulse,
+.animate-spin,
+.animate-ping,
+.animate-bounce,
+.pulse,
+.spin,
+.ping,
+.bounce {
+  animation: none !important;
+}
+
+/* 移除hover scale效果 */
+.hover\:scale-105:hover,
+.hover\:scale-110:hover,
+.hover\:scale-95:hover,
+.group-hover\:scale-105,
+.group-hover\:scale-110,
+[class*="scale"]:hover {
+  transform: none !important;
+}
+
+/* 移除active scale效果 */
+.active\:scale-95:active,
+.active\:scale-90:active,
+[class*="scale"]:active {
+  transform: none !important;
+}
+
+/* ============== 保留有意义的动效 ============== */
+
+/* === 1. 加载指示器（必要的功能动效）=== */
+.loading-spinner {
+  animation: spin 1s linear infinite !important;
+}
+
+.loading-dots {
+  animation: loadingDots 1.5s ease-in-out infinite !important;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loadingDots {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  80%, 100% { opacity: 0; }
+}
+
+/* === 2. 状态反馈动效 === */
+.feedback-success {
+  animation: feedbackFlash 0.6s ease-out !important;
+  --feedback-color: hsl(var(--success-500));
+}
+
+.feedback-error {
+  animation: feedbackFlash 0.6s ease-out !important;
+  --feedback-color: hsl(var(--error-500));
+}
+
+.feedback-warning {
+  animation: feedbackFlash 0.6s ease-out !important;
+  --feedback-color: hsl(var(--warning-500));
+}
+
+@keyframes feedbackFlash {
+  0% {
+    background-color: transparent;
+    border-color: transparent;
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--feedback-color) 10%, transparent);
+    border-color: var(--feedback-color);
+  }
+  100% {
+    background-color: transparent;
+    border-color: transparent;
+  }
+}
+
+/* === 3. 页面过渡动效（提升体验）=== */
+.page-transition-enter-active {
+  transition: opacity 0.3s ease !important;
+}
+
+.page-transition-leave-active {
+  transition: opacity 0.2s ease !important;
+}
+
+.page-transition-enter-from,
+.page-transition-leave-to {
+  opacity: 0 !important;
+}
+
+/* === 4. 模态框动效（用户预期）=== */
+.modal-transition-enter-active {
+  transition: all 0.3s ease !important;
+}
+
+.modal-transition-leave-active {
+  transition: all 0.2s ease !important;
+}
+
+.modal-transition-enter-from {
+  opacity: 0 !important;
+  transform: translateY(-20px) !important;
+}
+
+.modal-transition-leave-to {
+  opacity: 0 !important;
+  transform: translateY(-10px) !important;
+}
+
+.modal-backdrop-enter-active,
+.modal-backdrop-leave-active {
+  transition: opacity 0.3s ease !important;
+}
+
+.modal-backdrop-enter-from,
+.modal-backdrop-leave-to {
+  opacity: 0 !important;
+}
+
+/* === 5. 消息出现动效（内容相关）=== */
+.message-appear {
+  animation: messageAppear 0.4s ease-out !important;
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === 6. 按钮交互反馈（功能必需）=== */
+.btn-feedback:active {
+  transform: translateY(1px) !important;
+  transition: transform 0.1s ease !important;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(1px) !important;
+}
+
+/* === 7. 焦点状态动效（无障碍必需）=== */
+.focus-ring:focus,
+.focus-ring:focus-visible {
+  outline: 2px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+  transition: outline-color 0.2s ease !important;
+}
+
+/* === 8. 悬停状态优化（减少干扰）=== */
+.hover-lift:hover {
+  transform: translateY(-2px) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.hover-highlight:hover {
+  background-color: hsl(var(--surface-hover)) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.hover-border:hover {
+  border-color: hsl(var(--border)) !important;
+  transition: border-color 0.2s ease !important;
+}
+
+/* ============== 性能优化动效 ============== */
+
+/* 只为关键元素启用GPU加速 */
+.gpu-optimized {
+  will-change: transform, opacity !important;
+  transform: translateZ(0) !important;
+}
+
+/* 为频繁变化的元素优化 */
+.message-list,
+.chat-list,
+.input-container,
+.modal-backdrop {
+  will-change: auto !important;
+}
+
+/* ============== 禁用装饰性动效 ============== */
+
+/* 移除所有装饰性的脉搏效果 */
+.animate-pulse-glow,
+.animate-sparkle,
+.animate-shimmer-bg,
+.pulse-glow,
+.sparkle,
+.shimmer-bg {
+  animation: none !important;
+}
+
+/* 移除彩虹色彩动效 */
+.gradient-animation,
+.color-cycle,
+.rainbow-text {
+  animation: none !important;
+  background: hsl(var(--text-primary)) !important;
+  color: hsl(var(--text-primary)) !important;
+}
+
+/* 移除过于花哨的过渡效果 */
+.fancy-transition,
+.wobble,
+.shake,
+.rubber-band,
+.flip {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* ============== 响应式动效控制 ============== */
+
+/* 移动端简化动效 */
+@media (max-width: 768px) {
+  .message-appear,
+  .page-transition-enter-active,
+  .page-transition-leave-active {
+    animation-duration: 0.2s !important;
+  }
+  
+  .hover-lift:hover,
+  .hover-highlight:hover,
+  .hover-border:hover {
+    transition-duration: 0.1s !important;
+  }
+}
+
+/* 低性能设备优化 */
+@media (prefers-reduced-motion: reduce) {
+  /* 完全禁用所有动效 */
+  *, 
+  *::before, 
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* 只保留必要的状态变化 */
+  .focus-ring:focus,
+  .focus-ring:focus-visible {
+    transition: none !important;
+  }
+}
+
+/* 高对比度模式下简化动效 */
+@media (prefers-contrast: high) {
+  .feedback-success,
+  .feedback-error,
+  .feedback-warning {
+    animation: none !important;
+    border: 2px solid var(--feedback-color) !important;
+  }
+}
+
+/* ============== 智能动效启用 ============== */
+
+/* 只在用户交互时启用动效 */
+.interactive-element {
+  transition: none !important;
+}
+
+.interactive-element:hover,
+.interactive-element:focus,
+.interactive-element:active {
+  transition: all 0.2s ease !important;
+}
+
+/* 基于用户偏好的动效控制 */
+@media (prefers-reduced-motion: no-preference) {
+  .optional-animation {
+    transition: all 0.3s ease !important;
+  }
+}
+
+/* ============== 内容相关动效保留 ============== */
+
+/* 打字机效果（内容展示需要） */
+.typewriter {
+  animation: typewriter 2s steps(40, end) !important;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* 进度条动效（功能必需） */
+.progress-bar {
+  transition: width 0.3s ease !important;
+}
+
+.progress-indeterminate {
+  animation: progressIndeterminate 2s linear infinite !important;
+}
+
+@keyframes progressIndeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============== 调试和开发辅助 ============== */
+
+/* 开发环境中显示无动效元素 */
+.development .no-animation {
+  outline: 1px dashed orange !important;
+  outline-offset: 2px !important;
+}
+
+/* 性能监控类 */
+.animation-heavy {
+  /* 标记动效密集的元素供调试 */
+  position: relative;
+}
+
+.animation-heavy::after {
+  content: '🎭' !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  font-size: 12px !important;
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+}

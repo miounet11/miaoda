@@ -94,14 +94,21 @@ export class MCPService extends EventEmitter<{
   
   private async discoverServers() {
     try {
+      // Check if MCP API is available
+      if (!window.api?.mcp?.discoverServers) {
+        console.debug('MCP API not available, skipping server discovery')
+        return
+      }
+      
       const discoveredServers = await window.api.mcp.discoverServers()
       
       for (const serverInfo of discoveredServers) {
-        await this.connectToServer(serverInfo)
+        // Limit retries during discovery to prevent spam
+        await this.connectToServer(serverInfo, 1)
       }
     } catch (error) {
-      console.warn('MCP server discovery failed:', error)
-      // Fallback: ignore discovery failures for now
+      console.debug('MCP server discovery failed (this is normal if MCP is not configured):', error)
+      // Gracefully handle discovery failures
     }
   }
   
@@ -138,24 +145,58 @@ export class MCPService extends EventEmitter<{
     command?: string
     args?: string[]
     env?: Record<string, string>
-  }): Promise<boolean> {
+  }, maxRetries: number = 2): Promise<boolean> {
     try {
+      // Check if we have an MCP API available
+      if (!window.api?.mcp?.connect) {
+        // Only log once per server to avoid spam
+        if (!this.connectionRetryDelays.has(serverConfig.id + '_api_unavailable')) {
+          console.warn(`MCP API not available, disabling MCP server ${serverConfig.name}`)
+          this.connectionRetryDelays.set(serverConfig.id + '_api_unavailable', 999) // Mark as permanently disabled
+        }
+        return false
+      }
+      
       const server = await window.api.mcp.connect(serverConfig)
+      
+      // Validate server response
+      if (!server || !server.id) {
+        throw new Error(`Invalid server response: missing server.id for ${serverConfig.name}`)
+      }
       
       this.servers.set(server.id, server)
       this.startHeartbeat(server.id)
       this.emit('server-connected', server)
       
+      // Reset retry count on successful connection
+      this.connectionRetryDelays.delete(serverConfig.id)
+      this.connectionRetryDelays.delete(serverConfig.id + '_api_unavailable')
+      
       return true
     } catch (error) {
-      console.error(`Failed to connect to MCP server ${serverConfig.name}:`, error)
+      const currentRetryCount = this.connectionRetryDelays.get(serverConfig.id) || 0
       
-      // Schedule retry with exponential backoff
-      const retryDelay = this.connectionRetryDelays.get(serverConfig.id) || 1000
-      this.connectionRetryDelays.set(serverConfig.id, Math.min(retryDelay * 2, 30000))
+      if (currentRetryCount >= maxRetries) {
+        // Only log the final failure, not every retry
+        console.error(`MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`)
+        this.connectionRetryDelays.set(serverConfig.id + '_disabled', 999) // Mark as permanently disabled
+        this.connectionRetryDelays.delete(serverConfig.id)
+        return false
+      }
+      
+      // Only log first retry to reduce spam
+      if (currentRetryCount === 0) {
+        console.warn(`MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`)
+      }
+      
+      // Increment retry count
+      this.connectionRetryDelays.set(serverConfig.id, currentRetryCount + 1)
+      
+      // Schedule retry with exponential backoff, but limit to reasonable delay
+      const retryDelay = Math.min(2000 * Math.pow(2, currentRetryCount), 10000)
       
       setTimeout(() => {
-        this.connectToServer(serverConfig)
+        this.connectToServer(serverConfig, maxRetries)
       }, retryDelay)
       
       return false
@@ -190,18 +231,17 @@ export class MCPService extends EventEmitter<{
   private startHeartbeat(serverId: string) {
     const interval = setInterval(async () => {
       try {
-        // Simplified heartbeat - advanced ping not implemented yet
-        console.log(`Heartbeat check for server ${serverId}`)
-        
-        /*
-        // Advanced heartbeat to be implemented:
-        const isAlive = await window.api.mcp.pingServer(serverId)
-        if (!isAlive) {
-          this.handleServerDisconnect(serverId)
+        // Only perform heartbeat if advanced ping is available
+        if (window.api?.mcp?.pingServer) {
+          const isAlive = await window.api.mcp.pingServer(serverId)
+          if (!isAlive) {
+            console.debug(`Server ${serverId} heartbeat failed, disconnecting`)
+            this.handleServerDisconnect(serverId)
+          }
         }
-        */
+        // Skip heartbeat logging to reduce console noise
       } catch (error) {
-        console.warn(`Heartbeat failed for server ${serverId}:`, error)
+        console.debug(`Heartbeat failed for server ${serverId}:`, error)
         // Don't disconnect on heartbeat failure for now
       }
     }, 30000) // 30 seconds

@@ -4,6 +4,8 @@ import type { I18n, I18nOptions } from 'vue-i18n'
 // Import language files
 import en from '@/locales/en'
 import zhCN from '@/locales/zh-CN'
+import ja from '@/locales/ja'
+import hi from '@/locales/hi'
 
 // Supported locales
 export const SUPPORTED_LOCALES = {
@@ -21,6 +23,22 @@ export const SUPPORTED_LOCALES = {
     flag: '🇨🇳',
     rtl: false,
     dateFormat: 'yyyy年MM月dd日',
+    timeFormat: 'HH:mm'
+  },
+  'ja': {
+    name: 'Japanese',
+    nativeName: '日本語',
+    flag: '🇯🇵',
+    rtl: false,
+    dateFormat: 'yyyy年MM月dd日',
+    timeFormat: 'HH:mm'
+  },
+  'hi': {
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+    rtl: false,
+    dateFormat: 'dd/MM/yyyy',
     timeFormat: 'HH:mm'
   }
 } as const
@@ -70,7 +88,9 @@ const i18nOptions: I18nOptions = {
   fallbackLocale: 'en',
   messages: {
     en,
-    'zh-CN': zhCN
+    'zh-CN': zhCN,
+    ja,
+    hi
   },
   globalInjection: true,
   silentTranslationWarn: false,
@@ -89,8 +109,10 @@ const i18nOptions: I18nOptions = {
     ).join(' ')
   },
   pluralizationRules: {
-    // Chinese doesn't have plural forms
+    // Chinese and Japanese don't have plural forms
     'zh-CN': (choice: number) => 0,
+    'ja': (choice: number) => 0,
+    'hi': (choice: number) => choice === 1 ? 0 : 1,
     'en': (choice: number) => choice === 1 ? 0 : 1
   },
   datetimeFormats: {
@@ -133,6 +155,46 @@ const i18nOptions: I18nOptions = {
         minute: 'numeric',
         hour12: false
       }
+    },
+    'ja': {
+      short: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      },
+      long: {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: 'numeric',
+        minute: 'numeric'
+      },
+      time: {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      }
+    },
+    'hi': {
+      short: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      },
+      long: {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: 'numeric',
+        minute: 'numeric'
+      },
+      time: {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      }
     }
   },
   numberFormats: {
@@ -157,6 +219,40 @@ const i18nOptions: I18nOptions = {
       currency: {
         style: 'currency',
         currency: 'CNY',
+        currencyDisplay: 'symbol'
+      },
+      decimal: {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      },
+      percent: {
+        style: 'percent',
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      }
+    },
+    'ja': {
+      currency: {
+        style: 'currency',
+        currency: 'JPY',
+        currencyDisplay: 'symbol'
+      },
+      decimal: {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      },
+      percent: {
+        style: 'percent',
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      }
+    },
+    'hi': {
+      currency: {
+        style: 'currency',
+        currency: 'INR',
         currencyDisplay: 'symbol'
       },
       decimal: {
@@ -353,9 +449,24 @@ export class I18nService {
     const locale = this.getCurrentLocale()
     const localeInfo = this.getLocaleInfo()
     
+    let defaultCurrency = 'USD'
+    switch (locale) {
+      case 'zh-CN':
+        defaultCurrency = 'CNY'
+        break
+      case 'ja':
+        defaultCurrency = 'JPY'
+        break
+      case 'hi':
+        defaultCurrency = 'INR'
+        break
+      default:
+        defaultCurrency = 'USD'
+    }
+    
     return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: currency || (locale === 'zh-CN' ? 'CNY' : 'USD')
+      currency: currency || defaultCurrency
     }).format(amount)
   }
 

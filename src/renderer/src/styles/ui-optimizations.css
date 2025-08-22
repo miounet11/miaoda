@@ -1,0 +1,660 @@
+/* MiaoDa Chat UI 优化样式 - 2025版本 */
+/* 基于现代AI聊天界面设计最佳实践 */
+
+/* ================================ */
+/* 1. 设计令牌系统 (Design Tokens) */
+/* ================================ */
+
+:root {
+  /* 间距系统 (基于 4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* 字体系统 */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+
+  /* 字重 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* 行高 */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* 圆角系统 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* 阴影系统 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* 动画时长 */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* 缓动函数 */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* 优化后的色彩系统 */
+  --chat-primary: 59 130 246; /* blue-500 */
+  --chat-primary-hover: 37 99 235; /* blue-600 */
+  --chat-surface: 249 250 251; /* gray-50 */
+  --chat-surface-hover: 243 244 246; /* gray-100 */
+  --chat-border: 229 231 235; /* gray-200 */
+  --chat-text-primary: 17 24 39; /* gray-900 */
+  --chat-text-secondary: 107 114 128; /* gray-500 */
+  --chat-text-muted: 156 163 175; /* gray-400 */
+}
+
+.dark {
+  --chat-surface: 17 24 39; /* gray-900 */
+  --chat-surface-hover: 31 41 55; /* gray-800 */
+  --chat-border: 55 65 81; /* gray-700 */
+  --chat-text-primary: 249 250 251; /* gray-50 */
+  --chat-text-secondary: 156 163 175; /* gray-400 */
+  --chat-text-muted: 107 114 128; /* gray-500 */
+}
+
+/* ================================ */
+/* 2. 聊天头部优化 */
+/* ================================ */
+
+.chat-header {
+  /* 新的标准高度和间距 */
+  height: 56px !important;
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid rgb(var(--chat-border) / 0.2);
+  backdrop-filter: blur(12px);
+  background: rgb(var(--background) / 0.95);
+}
+
+.chat-header h1 {
+  font-size: var(--text-lg) !important;
+  font-weight: var(--font-semibold) !important;
+  line-height: var(--leading-tight) !important;
+  color: rgb(var(--chat-text-primary)) !important;
+  margin: 0;
+}
+
+.chat-header .status-info {
+  font-size: var(--text-sm);
+  color: rgb(var(--chat-text-secondary));
+  margin-top: 2px;
+}
+
+.chat-header button {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-fast) var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-header button:hover {
+  background: rgb(var(--chat-surface-hover));
+  transform: scale(1.05);
+}
+
+.chat-header button svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* ================================ */
+/* 3. 侧边栏优化 */
+/* ================================ */
+
+.sidebar {
+  background: rgb(var(--background));
+  border-right: 1px solid rgb(var(--chat-border) / 0.3);
+}
+
+.sidebar-header {
+  padding: var(--space-5) var(--space-4) !important;
+  border-bottom: 1px solid rgb(var(--chat-border) / 0.2);
+}
+
+.sidebar-header h1 {
+  font-size: var(--text-xl) !important;
+  font-weight: var(--font-bold) !important;
+  color: rgb(var(--chat-text-primary)) !important;
+  margin: 0;
+}
+
+.sidebar-header button {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+/* 搜索框优化 */
+.sidebar .search-container {
+  padding: var(--space-3) var(--space-4);
+}
+
+.sidebar input[type="text"] {
+  height: 40px !important;
+  padding: 0 var(--space-3) 0 44px !important;
+  border-radius: var(--radius-xl) !important;
+  background: rgb(var(--chat-surface)) !important;
+  border: 1px solid rgb(var(--chat-border) / 0.5) !important;
+  font-size: var(--text-sm) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.sidebar input[type="text"]:focus {
+  background: rgb(var(--background)) !important;
+  border-color: rgb(var(--chat-primary) / 0.5) !important;
+  box-shadow: 0 0 0 3px rgb(var(--chat-primary) / 0.1);
+}
+
+/* 聊天项目优化 */
+.chat-item {
+  margin: var(--space-1) var(--space-3) !important;
+  padding: var(--space-4) !important;
+  border-radius: var(--radius-lg) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+  min-height: 72px !important;
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background: rgb(var(--chat-surface-hover)) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.chat-item.active,
+.chat-item[class*="bg-primary"] {
+  background: rgb(var(--chat-primary) / 0.1) !important;
+  border: 1px solid rgb(var(--chat-primary) / 0.2) !important;
+}
+
+.chat-item h3 {
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-semibold) !important;
+  line-height: var(--leading-tight) !important;
+  margin-bottom: var(--space-1) !important;
+  color: rgb(var(--chat-text-primary)) !important;
+}
+
+.chat-item p {
+  font-size: var(--text-sm) !important;
+  color: rgb(var(--chat-text-secondary)) !important;
+  line-height: var(--leading-normal) !important;
+}
+
+/* 侧边栏底部 */
+.sidebar-footer {
+  padding: var(--space-4) !important;
+  border-top: 1px solid rgb(var(--chat-border) / 0.2);
+}
+
+.sidebar-footer button {
+  width: 100% !important;
+  height: 44px !important;
+  padding: 0 var(--space-4) !important;
+  border-radius: var(--radius-lg) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-medium) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+  margin-bottom: var(--space-2);
+}
+
+.sidebar-footer button:hover {
+  background: rgb(var(--chat-surface-hover)) !important;
+  transform: scale(1.02);
+}
+
+/* ================================ */
+/* 4. 消息区域优化 */
+/* ================================ */
+
+.messages-container {
+  padding: var(--space-6) var(--space-6) var(--space-4) !important;
+  max-width: 1024px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 欢迎界面优化 */
+.welcome-screen {
+  padding: var(--space-16) var(--space-6) !important;
+}
+
+.welcome-screen h2 {
+  font-size: var(--text-3xl) !important;
+  font-weight: var(--font-bold) !important;
+  line-height: var(--leading-tight) !important;
+  margin-bottom: var(--space-4) !important;
+}
+
+.welcome-screen p {
+  font-size: var(--text-lg) !important;
+  line-height: var(--leading-relaxed) !important;
+  color: rgb(var(--chat-text-secondary)) !important;
+  margin-bottom: var(--space-8) !important;
+}
+
+.welcome-screen button {
+  padding: var(--space-4) var(--space-8) !important;
+  font-size: var(--text-lg) !important;
+  font-weight: var(--font-semibold) !important;
+  border-radius: var(--radius-2xl) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.welcome-screen button:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 快速建议卡片 */
+.welcome-screen .suggestion-card {
+  padding: var(--space-6) !important;
+  border-radius: var(--radius-xl) !important;
+  background: rgb(var(--chat-surface)) !important;
+  border: 1px solid rgb(var(--chat-border) / 0.5) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+  cursor: pointer;
+}
+
+.welcome-screen .suggestion-card:hover {
+  background: rgb(var(--chat-surface-hover)) !important;
+  border-color: rgb(var(--chat-primary) / 0.3) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.welcome-screen .suggestion-card h4 {
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-semibold) !important;
+  margin-bottom: var(--space-2) !important;
+  color: rgb(var(--chat-text-primary)) !important;
+}
+
+.welcome-screen .suggestion-card p {
+  font-size: var(--text-sm) !important;
+  color: rgb(var(--chat-text-secondary)) !important;
+  line-height: var(--leading-relaxed) !important;
+  margin: 0 !important;
+}
+
+/* ================================ */
+/* 5. 消息气泡优化 */
+/* ================================ */
+
+.message-bubble {
+  margin-bottom: var(--space-4) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+/* 用户消息 */
+.message-bubble.user {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  max-width: 70% !important;
+  background: rgb(var(--chat-primary)) !important;
+  color: white !important;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-sm) var(--radius-xl) !important;
+  padding: var(--space-3) var(--space-4) !important;
+}
+
+/* AI消息 */
+.message-bubble.assistant {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  max-width: 85% !important;
+  background: rgb(var(--chat-surface)) !important;
+  color: rgb(var(--chat-text-primary)) !important;
+  border: 1px solid rgb(var(--chat-border) / 0.3) !important;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-sm) !important;
+  padding: var(--space-4) var(--space-5) !important;
+}
+
+.message-bubble:hover {
+  transform: translateY(-1px);
+}
+
+.message-bubble .message-content {
+  font-size: var(--text-base) !important;
+  line-height: var(--leading-relaxed) !important;
+}
+
+.message-bubble .message-time {
+  font-size: var(--text-xs) !important;
+  color: rgb(var(--chat-text-muted)) !important;
+  margin-top: var(--space-2) !important;
+  opacity: 0.7;
+}
+
+/* 消息间距优化 */
+.message-bubble + .message-bubble {
+  margin-top: var(--space-4) !important;
+}
+
+.message-bubble[data-same-sender="true"] + .message-bubble[data-same-sender="true"] {
+  margin-top: var(--space-1) !important;
+}
+
+/* ================================ */
+/* 6. 输入区域优化 */
+/* ================================ */
+
+.input-area {
+  background: rgb(var(--background) / 0.95) !important;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgb(var(--chat-border) / 0.2) !important;
+  padding: var(--space-4) var(--space-6) !important;
+}
+
+.input-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  background: rgb(var(--chat-surface)) !important;
+  border: 2px solid transparent !important;
+  border-radius: var(--radius-2xl) !important;
+  padding: var(--space-4) !important;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-container:focus-within {
+  border-color: rgb(var(--chat-primary) / 0.5) !important;
+  background: rgb(var(--background)) !important;
+  box-shadow: 0 0 0 4px rgb(var(--chat-primary) / 0.1), var(--shadow-md);
+  transform: scale(1.005);
+}
+
+.input-container textarea {
+  font-size: var(--text-base) !important;
+  line-height: var(--leading-relaxed) !important;
+  resize: none;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: var(--space-2) var(--space-3) !important;
+  min-height: 48px !important;
+  max-height: 200px !important;
+}
+
+.input-container textarea::placeholder {
+  color: rgb(var(--chat-text-muted)) !important;
+  opacity: 0.6;
+}
+
+/* 输入区域按钮 */
+.input-container button {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: var(--radius-lg) !important;
+  transition: all var(--duration-fast) var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-container button:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.input-container button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* 发送按钮特殊样式 */
+.send-button {
+  background: rgb(var(--chat-primary)) !important;
+  color: white !important;
+}
+
+.send-button:hover {
+  background: rgb(var(--chat-primary-hover)) !important;
+}
+
+.send-button:disabled {
+  background: rgb(var(--chat-text-muted)) !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* 输入提示栏 */
+.input-hints {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs) !important;
+  color: rgb(var(--chat-text-muted)) !important;
+}
+
+.input-hints kbd {
+  background: rgb(var(--chat-surface-hover)) !important;
+  border: 1px solid rgb(var(--chat-border) / 0.5) !important;
+  border-radius: var(--radius-sm);
+  padding: 2px var(--space-2);
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 10px;
+}
+
+/* ================================ */
+/* 7. 响应式优化 */
+/* ================================ */
+
+@media (max-width: 768px) {
+  .chat-header {
+    padding: var(--space-3) var(--space-4) !important;
+  }
+  
+  .messages-container {
+    padding: var(--space-4) var(--space-4) var(--space-3) !important;
+  }
+  
+  .input-area {
+    padding: var(--space-3) !important;
+  }
+  
+  .welcome-screen {
+    padding: var(--space-12) var(--space-4) !important;
+  }
+  
+  .welcome-screen h2 {
+    font-size: var(--text-2xl) !important;
+  }
+  
+  .welcome-screen p {
+    font-size: var(--text-base) !important;
+  }
+  
+  .message-bubble.user {
+    max-width: 85% !important;
+  }
+  
+  .message-bubble.assistant {
+    max-width: 95% !important;
+  }
+}
+
+/* ================================ */
+/* 8. 加载和状态优化 */
+/* ================================ */
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: rgb(var(--chat-surface)) !important;
+  border: 1px solid rgb(var(--chat-border) / 0.3) !important;
+  border-radius: var(--radius-xl);
+  margin: var(--space-4) 0;
+}
+
+.thinking-dots {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.thinking-dot {
+  width: 6px;
+  height: 6px;
+  background: rgb(var(--chat-primary));
+  border-radius: 50%;
+  animation: thinking-bounce 1.4s infinite ease-in-out;
+}
+
+.thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+.thinking-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes thinking-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ================================ */
+/* 9. 微交互增强 */
+/* ================================ */
+
+/* 按钮按压效果 */
+button:active {
+  transform: scale(0.98) !important;
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 聚焦环效果 */
+*:focus-visible {
+  outline: 2px solid rgb(var(--chat-primary)) !important;
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* 滚动条优化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--chat-text-muted) / 0.3);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--chat-text-muted) / 0.5);
+}
+
+/* ================================ */
+/* 10. 可访问性增强 */
+/* ================================ */
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --chat-border: 0 0 0; /* 纯黑边框 */
+  }
+  
+  .dark {
+    --chat-border: 255 255 255; /* 纯白边框 */
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 屏幕阅读器辅助 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================================ */
+/* 11. 性能优化 */
+/* ================================ */
+
+/* GPU 加速 */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* 布局稳定性 */
+.layout-stable {
+  contain: layout style paint;
+}
+
+/* 内容可见性优化 */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}

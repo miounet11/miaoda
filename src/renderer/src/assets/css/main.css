@@ -3,6 +3,12 @@
 @import '../../styles/macos-titlebar.css';
 @import '../../styles/micro-interactions.css';
 @import '../../styles/layout-optimizations.css';
+@import '../../styles/ui-optimizations.css';
+@import '../../styles/design-system.css';
+@import '../../styles/ui-critical-fixes.css';
+@import '../../styles/component-fixes.css';
+@import '../../styles/modern-color-system.css';
+@import '../../styles/minimal-animations.css';
 
 @tailwind base;
 @tailwind components;

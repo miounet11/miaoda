@@ -71,12 +71,12 @@ export class UnifiedSearchService extends BaseDatabaseService {
   constructor(db: Database.Database | string) {
     // If string path is provided, create database instance
     if (typeof db === 'string') {
-      const Database = require('better-sqlite3')
       const dbInstance = new Database(db)
       super(dbInstance)
     } else {
       super(db)
     }
+    // Initialize search index after parent constructor
     this.initializeSearchIndex()
   }
 

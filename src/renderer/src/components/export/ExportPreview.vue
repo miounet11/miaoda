@@ -160,6 +160,7 @@ import { marked } from 'marked'
 import hljs from 'highlight.js/lib/core'
 import json from 'highlight.js/lib/languages/json'
 import { exportService, type ExportOptions, type ExportResult } from '@renderer/src/services/export/ExportService'
+import { renderMarkdownSafely } from '@renderer/src/utils/SafeMarkdownParser'
 import type { ExportChatData } from '@renderer/src/services/export/ExportService'
 
 // Register highlight.js language
@@ -197,7 +198,7 @@ const renderedMarkdown = computed(() => {
   }
   
   try {
-    return marked.parse(previewContent.value)
+    return renderMarkdownSafely(previewContent.value)
   } catch (err) {
     console.error('Markdown parsing error:', err)
     return `<pre>${previewContent.value}</pre>`

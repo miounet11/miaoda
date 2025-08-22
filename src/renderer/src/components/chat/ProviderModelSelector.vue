@@ -2,6 +2,7 @@
   <div class="provider-model-selector relative">
     <!-- Current Provider/Model Button -->
     <button
+      ref="buttonRef"
       @click="toggleDropdown"
       :disabled="disabled"
       class="selector-button group flex items-center gap-2 px-3 py-2 bg-background hover:bg-muted/70 rounded-xl transition-all duration-200 border border-muted-foreground/20 hover:border-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] max-w-[200px]"
@@ -36,13 +37,20 @@
       </div>
     </button>
 
-    <!-- Dropdown Menu -->
-    <Transition name="dropdown">
-      <div
-        v-if="isOpen"
-        class="dropdown-menu absolute top-full right-0 mt-2 w-80 bg-background border border-border rounded-xl shadow-xl z-[9999] overflow-hidden"
-        @click.stop
-      >
+    <!-- Dropdown Menu - Using Portal to avoid z-index conflicts -->
+    <Teleport to="body">
+      <Transition name="dropdown">
+        <div
+          v-if="isOpen"
+          class="fixed inset-0 z-[10000]" 
+          @click="closeDropdown"
+        >
+          <div
+            ref="dropdownRef"
+            class="dropdown-menu absolute bg-background border border-border rounded-xl shadow-xl overflow-hidden w-80"
+            :style="dropdownStyle"
+            @click.stop
+          >
         <!-- Header -->
         <div class="p-3 border-b border-muted-foreground/10 bg-muted/10">
           <div class="flex items-center justify-between">
@@ -201,15 +209,10 @@
             </button>
           </div>
         </div>
-      </div>
-    </Transition>
-
-    <!-- Click Outside Handler -->
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-40"
-      @click="closeDropdown"
-    />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -261,6 +264,34 @@ const router = useRouter()
 // State
 const isOpen = ref(false)
 const isTestingConnection = ref(false)
+const dropdownRef = ref<HTMLElement>()
+const buttonRef = ref<HTMLElement>()
+
+// Dropdown positioning
+const dropdownStyle = computed(() => {
+  if (!isOpen.value || !buttonRef.value) return {}
+  
+  const rect = buttonRef.value.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+  const dropdownHeight = 400 // estimated dropdown height
+  
+  // Position dropdown below button by default, above if not enough space
+  const spaceBelow = viewportHeight - rect.bottom
+  const spaceAbove = rect.top
+  const shouldPositionAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow
+  
+  return {
+    position: 'fixed',
+    left: `${Math.max(8, rect.right - 320)}px`, // 320px = dropdown width
+    top: shouldPositionAbove 
+      ? `${rect.top - Math.min(dropdownHeight, spaceAbove - 8)}px`
+      : `${rect.bottom + 8}px`,
+    maxHeight: shouldPositionAbove 
+      ? `${spaceAbove - 16}px`
+      : `${spaceBelow - 16}px`,
+    zIndex: 10001
+  }
+})
 
 // Provider configurations with icons and descriptions
 const providerConfigs = {

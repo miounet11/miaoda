@@ -1,0 +1,427 @@
+/* Enhanced Animation Utilities for MiaoDa Chat */
+
+/* ===== SPRING ANIMATIONS ===== */
+@keyframes spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes spring-out {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1) translateY(-10px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+}
+
+/* ===== STAGGERED ANIMATIONS ===== */
+@keyframes stagger-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stagger-container > * {
+  animation: stagger-fade-in 0.4s cubic-bezier(0.23, 1, 0.320, 1) both;
+}
+
+.stagger-container > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-container > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-container > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-container > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-container > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-container > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ===== HOVER ANIMATIONS ===== */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  transform: translateY(0) scale(1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-lift:active {
+  transform: translateY(-1px) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+.hover-glow {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hover-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, transparent, rgba(var(--primary-rgb), 0.2), transparent);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.hover-glow:hover::before {
+  opacity: 1;
+}
+
+/* ===== BUTTON ANIMATIONS ===== */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-bounce {
+  transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn-bounce:hover {
+  transform: scale(1.05);
+}
+
+.btn-bounce:active {
+  transform: scale(0.95);
+}
+
+/* ===== LOADING ANIMATIONS ===== */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes pulse-smooth {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}
+
+.pulse-smooth {
+  animation: pulse-smooth 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ===== PROGRESS ANIMATIONS ===== */
+@keyframes progress-fill {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.progress-animated {
+  background: linear-gradient(90deg, 
+    rgba(var(--primary-rgb), 0.8) 0%, 
+    rgba(var(--primary-rgb), 1) 50%, 
+    rgba(var(--primary-rgb), 0.8) 100%);
+  background-size: 200% 100%;
+  animation: progress-fill 1s ease-out;
+}
+
+/* ===== MODAL ANIMATIONS ===== */
+@keyframes modal-backdrop-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-content-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-backdrop-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-content-out {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+}
+
+.modal-backdrop-enter {
+  animation: modal-backdrop-in 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.modal-content-enter {
+  animation: modal-content-in 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.modal-backdrop-exit {
+  animation: modal-backdrop-out 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.modal-content-exit {
+  animation: modal-content-out 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+/* ===== DRAG AND DROP ANIMATIONS ===== */
+@keyframes drag-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0.1);
+  }
+}
+
+.drag-active {
+  animation: drag-pulse 1.5s ease-in-out infinite;
+  border-color: rgba(var(--primary-rgb), 0.8) !important;
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+.drag-item {
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.drag-item.dragging {
+  transform: rotate(5deg) scale(1.05);
+  opacity: 0.8;
+  z-index: 1000;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== VOICE RECORDING ANIMATIONS ===== */
+@keyframes voice-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.voice-recording {
+  animation: voice-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes waveform-bar {
+  0%, 100% {
+    height: 20%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+.waveform-bar {
+  animation: waveform-bar 0.8s ease-in-out infinite alternate;
+}
+
+.waveform-bar:nth-child(1) { animation-delay: 0s; }
+.waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+.waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+.waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+.waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+
+/* ===== TOAST ANIMATIONS ===== */
+@keyframes toast-slide-in {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.toast-exit {
+  animation: toast-slide-out 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.animate-spring-in {
+  animation: spring-in 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.animate-spring-out {
+  animation: spring-out 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.transition-bounce {
+  transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ===== FOCUS ANIMATIONS ===== */
+.focus-ring {
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3);
+}
+
+/* ===== MICRO-INTERACTION HELPERS ===== */
+.micro-bounce {
+  animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+.micro-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ===== THEME VARIABLES ===== */
+:root {
+  --primary-rgb: 59, 130, 246;
+  --animation-timing: cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+[data-theme="dark"] {
+  --primary-rgb: 96, 165, 250;
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

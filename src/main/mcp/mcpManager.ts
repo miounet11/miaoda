@@ -26,12 +26,17 @@ export class MCPManager {
 
   async connectServer(server: MCPServer): Promise<void> {
     try {
+      // 验证 server 对象完整性
+      if (!server || !server.name || !server.command) {
+        throw new Error(`Invalid server configuration: ${JSON.stringify(server)}`)
+      }
+      
       console.log(`[MCP] Connecting to server: ${server.name}`)
-      console.log(`[MCP] Command: ${server.command} ${server.args.join(' ')}`)
+      console.log(`[MCP] Command: ${server.command} ${server.args?.join(' ') || 'no args'}`)
       
       const transport = new StdioClientTransport({
         command: server.command,
-        args: server.args,
+        args: server.args || [],
         env: server.env
       })
 
@@ -50,15 +55,23 @@ export class MCPManager {
       console.log(`[MCP] Successfully connected to ${server.name}`)
 
       // List available tools
-      const toolsResponse = await client.listTools()
-      console.log(`[MCP] Server ${server.name} provides ${toolsResponse.tools.length} tools`)
-      toolsResponse.tools.forEach(tool => {
-        this.tools.set(`${server.name}:${tool.name}`, tool)
-      })
+      try {
+        const toolsResponse = await client.listTools()
+        console.log(`[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`)
+        if (toolsResponse?.tools) {
+          toolsResponse.tools.forEach(tool => {
+            if (tool && tool.name) {
+              this.tools.set(`${server.name}:${tool.name}`, tool)
+            }
+          })
+        }
+      } catch (toolError) {
+        console.warn(`[MCP] Failed to list tools for ${server.name}:`, toolError)
+      }
 
       console.log(`Connected to MCP server: ${server.name}`)
     } catch (error) {
-      console.error(`Failed to connect to MCP server ${server.name}:`, error)
+      console.error(`Failed to connect to MCP server ${server?.name || 'unknown'}:`, error)
       throw new Error(`MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }

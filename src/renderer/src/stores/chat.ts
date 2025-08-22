@@ -408,7 +408,7 @@ export const useChatStore = defineStore('chat', () => {
         } catch (error: any) {
           // Handle LLM error
           assistantMessage.content = `Error: ${error.message || 'Failed to get response'}`
-          assistantMessage.error = true
+          assistantMessage.error = error.message || 'Failed to get response'
           assistantMessage.pending = false
           isGenerating.value = false
           streamingContent.value = ''
@@ -417,7 +417,7 @@ export const useChatStore = defineStore('chat', () => {
       } else {
         // Fallback if LLM API is not available
         assistantMessage.content = 'Error: LLM service not available'
-        assistantMessage.error = true
+        assistantMessage.error = 'LLM service not available'
         assistantMessage.pending = false
         isGenerating.value = false
         streamingContent.value = ''
@@ -445,7 +445,7 @@ export const useChatStore = defineStore('chat', () => {
         if (chat?.messages) {
           const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
           if (index >= 0) {
-            chat.messages[index].error = true
+            chat.messages[index].error = 'Failed to send message'
             chat.messages[index].pending = false
           }
         }
@@ -512,7 +512,7 @@ export const useChatStore = defineStore('chat', () => {
   // Set up IPC listeners for streaming responses
   const setupStreamingListeners = () => {
     // Listen for streaming chunks
-    window.api.on?.('llm:chunk', (data: { chatId: string; messageId: string; chunk: string }) => {
+    window.api.llm.onChunk?.((data: { chatId: string; messageId: string; chunk: string }) => {
       // Received chunk data
       
       // Find the streaming message and update it
@@ -527,7 +527,7 @@ export const useChatStore = defineStore('chat', () => {
     })
 
     // Listen for streaming completion
-    window.api.on?.('llm:stream-complete', async (data: { chatId: string; messageId: string; finalContent: string }) => {
+    window.api.llm.onStatus?.(async (data: { chatId: string; messageId: string; finalContent: string }) => {
       // Stream complete
       
       const chat = chats.value.find(c => c.id === data.chatId)

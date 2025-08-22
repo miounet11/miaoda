@@ -8,71 +8,64 @@
       :style="{ width: sidebarWidth + 'px', minWidth: '240px', maxWidth: '360px' }"
     >
       <!-- 侧边栏头部 -->
-      <div class="sidebar-header p-5 border-b border-border/50 flex-shrink-0">
-        <div class="flex items-center justify-between mb-4 whitespace-nowrap">
-          <h1 class="text-xl font-bold text-foreground/90">聊天</h1>
-          <button
-            @click="toggleSidebar"
-            class="p-1.5 hover:bg-secondary/80 rounded-lg transition-colors flex-shrink-0"
-            :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
-          >
-            <PanelLeftClose v-if="!sidebarCollapsed" :size="18" />
-            <PanelLeft v-else :size="18" />
-          </button>
+      <div class="sidebar-header">
+        <div class="flex items-center justify-between mb-3">
+          <h1 class="text-lg font-semibold text-foreground">聊天</h1>
+          <div class="flex items-center gap-2">
+            <!-- 新建聊天按钮 -->
+            <button
+              @click="createNewChat"
+              class="p-2 hover:bg-secondary/60 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
+              title="新建聊天 (⌘N)"
+            >
+              <Plus :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+            </button>
+            <!-- 收起侧边栏按钮 -->
+            <button
+              @click="toggleSidebar"
+              class="p-2 hover:bg-secondary/60 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
+              :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+            >
+              <PanelLeftClose v-if="!sidebarCollapsed" :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+              <PanelLeft v-else :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+            </button>
+          </div>
         </div>
-        
-        <!-- 新建聊天按钮 -->
-        <button 
-          @click="createNewChat"
-          class="w-full px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-        >
-          <Plus :size="20" />
-          <span v-if="!sidebarCollapsed" class="text-base">新建聊天</span>
-        </button>
       </div>
       
       <!-- 搜索栏 -->
-      <div v-if="!sidebarCollapsed" class="px-4 py-3 border-b border-border/30">
+      <div v-if="!sidebarCollapsed" class="search-container">
         <div class="relative">
-          <Search :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="搜索聊天记录..."
-            class="w-full pl-11 pr-4 py-3 bg-secondary/60 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all border border-transparent focus:border-primary/20"
           >
         </div>
       </div>
       
       <!-- 聊天列表 -->
-      <div class="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+      <div class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         <TransitionGroup name="chat-list">
           <div
             v-for="chat in filteredChats"
             :key="chat.id"
             :data-chat-id="chat.id"
             @click="selectChat(chat.id)"
-            class="chat-item group"
-            :class="[
-              'relative px-4 py-4 rounded-xl cursor-pointer transition-all duration-200',
-              currentChatId === chat.id 
-                ? 'bg-primary/15 border-2 border-primary/30 shadow-lg' 
-                : 'hover:bg-secondary/60 border-2 border-transparent hover:shadow-md'
-            ]"
+            class="chat-item"
+            :class="{ 'active': currentChatId === chat.id }"
           >
             <div class="flex items-start gap-3">
-              <div class="flex-shrink-0 mt-0.5">
+              <div class="flex-shrink-0 mt-1">
                 <MessageSquare 
                   :size="16" 
-                  :class="[
-                    'transition-colors',
-                    currentChatId === chat.id ? 'text-primary' : 'text-muted-foreground'
-                  ]"
+                  :class="currentChatId === chat.id ? 'text-primary' : 'text-muted-foreground'"
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-base truncate mb-1 leading-tight">{{ chat.title }}</h3>
-                <p class="text-sm text-muted-foreground">{{ formatTime(chat.updatedAt) }}</p>
+                <h3>{{ chat.title }}</h3>
+                <p>{{ formatTime(chat.updatedAt) }}</p>
               </div>
               
               <!-- 操作按钮 -->
@@ -128,8 +121,8 @@
 
     <!-- 主聊天区域 -->
     <main class="flex-1 flex flex-col min-w-0 min-h-0 relative">
-      <!-- Simplified Chat Header -->
-      <header class="chat-header h-14 px-4 sm:px-6 border-b border-border/30 flex items-center justify-between bg-gradient-to-r from-background/98 to-background/95 backdrop-blur-md">
+      <!-- Optimized Chat Header -->
+      <header class="chat-header flex items-center justify-between" :class="{ 'macos': isMacOS }">
         <!-- Left side: Mobile menu + Title -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <button
@@ -142,18 +135,20 @@
           </button>
           
           <div class="min-w-0 flex-1">
-            <h1 class="font-semibold text-base sm:text-lg text-foreground/90 truncate">
+            <h1 class="chat-title">
               {{ currentChat?.title || 'New Conversation' }}
             </h1>
-            <!-- Subtle status indicator -->
-            <div v-if="isLoading" class="flex items-center gap-1.5 mt-0.5">
-              <div class="w-1 h-1 bg-primary rounded-full animate-pulse" />
-              <span class="text-xs text-muted-foreground">AI is thinking...</span>
+            <!-- Enhanced status indicator -->
+            <div v-if="isLoading" class="status-info">
+              <div class="thinking-dots">
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+              </div>
+              <span>AI is thinking...</span>
             </div>
-            <div v-else-if="currentChat?.messages?.length" class="mt-0.5">
-              <span class="text-xs text-muted-foreground" style="opacity: 0.8;">
-                {{ currentChat.messages.length }} messages
-              </span>
+            <div v-else-if="currentChat?.messages?.length" class="status-info">
+              {{ currentChat.messages.length }} messages
             </div>
           </div>
         </div>
@@ -282,14 +277,14 @@
 
       <!-- 消息区域 -->
       <div 
-        class="flex-1 flex flex-col min-h-0"
+        class="flex-1 flex flex-col min-h-0 chat-content"
         @drop="handleDrop"
         @dragover.prevent
         @dragenter.prevent
       >
         <!-- 欢迎界面 -->
         <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
-          <div class="text-center py-24 px-6">
+          <div class="text-center">
             <!-- Debug info for welcome screen -->
             <div v-if="isDevelopment" class="mb-4 p-2 bg-muted/20 rounded text-xs">
               Current Chat: {{ currentChat?.id || 'None' }}<br>
@@ -302,28 +297,41 @@
             <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
               <Sparkles :size="36" class="text-primary" />
             </div>
-            <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2>
               欢迎使用 MiaoDa Chat
             </h2>
-            <p class="text-lg text-muted-foreground mb-12 max-w-lg mx-auto leading-relaxed">
+            <p>
               你的智能 AI 助手，随时准备帮你解答问题、编写代码、翻译文本等
             </p>
             
+            <!-- 开始新对话按钮 -->
+            <div class="mb-8">
+              <button
+                @click="createNewChat"
+              >
+                <Plus :size="20" />
+                <span>开始新对话</span>
+              </button>
+            </div>
+            
             <!-- 快速开始建议 -->
+            <div class="mb-4">
+              <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">或者选择一个话题开始</h3>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
               <button
                 v-for="(suggestion, index) in quickSuggestions"
                 :key="index"
                 @click="sendQuickMessage(suggestion.text)"
-                class="group text-left p-6 bg-secondary/30 hover:bg-secondary/50 rounded-2xl transition-all hover:scale-[1.03] hover:shadow-lg border border-transparent hover:border-primary/20"
+                class="suggestion-card"
               >
                 <div class="flex items-start gap-4">
                   <div class="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all group-hover:scale-110">
                     <component :is="suggestion.icon" :size="22" class="text-primary" />
                   </div>
                   <div>
-                    <h4 class="font-semibold text-base mb-2">{{ suggestion.title }}</h4>
-                    <p class="text-sm text-muted-foreground leading-relaxed">{{ suggestion.text }}</p>
+                    <h4>{{ suggestion.title }}</h4>
+                    <p>{{ suggestion.text }}</p>
                   </div>
                 </div>
               </button>
@@ -441,8 +449,8 @@
       </Transition>
 
       <!-- 输入区域 -->
-      <div class="input-area border-t border-border/50 bg-background/95 backdrop-blur">
-        <div class="max-w-4xl mx-auto" :class="isMobile ? 'p-3' : 'p-4'">
+      <div class="input-area">
+        <div class="max-w-4xl mx-auto">
           <!-- 配置提示 -->
           <div 
             v-if="!isConfigured" 
@@ -500,28 +508,15 @@
           
           <!-- 输入框容器 -->
           <div class="relative">
-            <div 
-              class="input-container flex items-end transition-all duration-300 ease-out"
-              :class="[
-                isMobile ? 'gap-3 p-4' : 'gap-4 p-4',
-                'bg-secondary/40 rounded-2xl border-2 shadow-sm backdrop-blur-sm',
-                isFocused ? 'border-primary/50 shadow-xl bg-background/80 scale-[1.01] animate-focus-breathe' : 'border-transparent hover:border-primary/20 hover:bg-secondary/50'
-              ]"
-            >
+            <div class="input-container">
               <!-- 附件按钮 -->
-              <div class="flex gap-2 pb-1">
+              <div class="flex gap-2">
                 <button
                   @click="selectFiles"
-                  class="action-button transition-all group rounded-xl"
-                  :class="isMobile ? 'p-3' : 'p-2.5'"
                   title="添加附件"
                   :disabled="isLoading"
                 >
-                  <Paperclip 
-                    :size="isMobile ? 24 : 22" 
-                    class="transition-all"
-                    :class="isLoading ? 'text-muted-foreground/50' : 'group-hover:text-primary group-hover:scale-110'"
-                  />
+                  <Paperclip :size="20" />
                 </button>
               </div>
               
@@ -536,103 +531,46 @@
                   @input="onInputChange"
                   :placeholder="getPlaceholder()"
                   :disabled="isLoading || !isConfigured"
-                  class="w-full bg-transparent resize-none outline-none placeholder:text-muted-foreground disabled:opacity-50 leading-relaxed transition-all duration-200"
-                  :class="[
-                    isMobile ? 'min-h-[52px] max-h-[200px] px-4 py-4 text-base' : 'min-h-[48px] max-h-[200px] px-3 py-3 text-base',
-                    isFocused ? 'placeholder:text-muted-foreground/80' : ''
-                  ]"
-                  :rows="1"
-                  :style="isMobile ? 'font-size: 16px;' : ''"
                   ref="messageInput"
                 />
-                
-                <!-- 实时打字效果 -->
-                <div 
-                  v-if="isTypingEffect && inputMessage.length > 0"
-                  class="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-primary/60"
-                >
-                  <div class="typing-indicator">
-                    <span class="typing-dot" style="animation-delay: 0s" />
-                    <span class="typing-dot" style="animation-delay: 0.2s" />
-                    <span class="typing-dot" style="animation-delay: 0.4s" />
-                  </div>
-                </div>
               </div>
               
               <!-- 语音和发送按钮 -->
-              <div class="flex gap-2 pb-1">
+              <div class="flex gap-2">
                 <!-- 语音输入按钮 -->
                 <button
                   v-if="isVoiceSupported"
                   @click="toggleVoiceRecording"
                   :disabled="!isConfigured"
-                  :title="isRecording ? '停止录音' : '语音输入 (Ctrl+Shift+M)'"
-                  class="voice-button relative rounded-xl transition-all duration-300 transform shadow-sm overflow-hidden"
-                  :class="[
-                    isMobile ? 'p-3.5' : 'p-3',
-                    isRecording 
-                      ? 'bg-destructive text-destructive-foreground shadow-lg scale-110' 
-                      : isConfigured
-                        ? 'bg-secondary/80 text-secondary-foreground hover:bg-secondary hover:scale-105 active:scale-95'
-                        : 'bg-secondary/50 text-muted-foreground cursor-not-allowed'
-                  ]"
+                  :title="isRecording ? '停止录音' : '语音输入'"
+                  :class="isRecording ? 'bg-destructive text-destructive-foreground' : ''"
                 >
-                  <!-- 录音波纹效果 -->
-                  <div 
-                    v-if="isRecording" 
-                    class="absolute inset-0 rounded-xl border-2 border-destructive/30 animate-recording-pulse"
-                  />
-                  <div 
-                    v-if="isRecording" 
-                    class="absolute inset-0 rounded-xl border-2 border-destructive/20 animate-recording-pulse" 
-                    style="animation-delay: 0.5s;"
-                  />
-                  
-                  <!-- 音频可视化条 -->
-                  <div v-if="isRecording" class="absolute bottom-1 left-1 right-1 flex items-end gap-0.5 h-1">
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0s; height: 20%" />
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.1s; height: 60%" />
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.2s; height: 40%" />
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.3s; height: 80%" />
-                    <div class="w-0.5 bg-destructive-foreground/60 animate-audio-bar" style="animation-delay: 0.4s; height: 30%" />
-                  </div>
-                  
-                  <Mic :size="isMobile ? 24 : 22" :class="{ 'animate-bounce': isRecording }" />
+                  <Mic :size="20" />
                 </button>
                 
                 <!-- 发送按钮 -->
                 <button
                   @click="sendMessage"
                   :disabled="!canSend"
-                  class="send-button rounded-xl transition-all transform shadow-sm"
-                  :class="[
-                    isMobile ? 'p-3.5' : 'p-3',
-                    canSend
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-110 shadow-lg active:scale-95' 
-                      : 'bg-secondary/50 text-muted-foreground cursor-not-allowed'
-                  ]"
+                  class="send-button"
                   :title="getSendButtonTooltip()"
                 >
-                  <Send 
-                    :size="isMobile ? 24 : 22" 
-                    class="transition-all" 
-                    :class="canSend ? 'translate-x-0' : '-translate-x-0.5'" 
-                  />
+                  <Send :size="20" />
                 </button>
               </div>
             </div>
             
             <!-- 智能提示栏 -->
-            <div class="flex items-center justify-between mt-2 px-2">
+            <div class="input-hints">
               <div class="flex items-center gap-4 text-xs text-muted-foreground">
                 <span class="flex items-center gap-1.5">
-                  <kbd class="px-2 py-1 bg-secondary/60 rounded-md text-xs font-mono font-medium">Enter</kbd> 发送
+                  <kbd>Enter</kbd> 发送
                 </span>
                 <span class="flex items-center gap-1.5">
-                  <kbd class="px-2 py-1 bg-secondary/60 rounded-md text-xs font-mono font-medium">Shift+Enter</kbd> 换行
+                  <kbd>Shift+Enter</kbd> 换行
                 </span>
                 <span class="flex items-center gap-1.5" v-if="!isMobile">
-                  <kbd class="px-2 py-1 bg-secondary/60 rounded-md text-xs font-mono font-medium">⌘K</kbd> 搜索
+                  <kbd>⌘K</kbd> 搜索
                 </span>
               </div>
               
@@ -657,14 +595,6 @@
                   >
                     {{ inputCharacterCount.toLocaleString() }}/4000
                   </span>
-                </Transition>
-                
-                <!-- 输入提示 -->
-                <Transition name="hint-fade">
-                  <div v-if="isFocused && inputMessage.length === 0" class="flex items-center gap-2 text-muted-foreground/50">
-                    <span>输入想法...</span>
-                    <div class="animate-pulse w-2 h-4 bg-primary/30 rounded-full" />
-                  </div>
                 </Transition>
               </div>
             </div>
@@ -699,6 +629,30 @@
       @complete="handleOnboardingComplete"
       @toggle-theme="toggleTheme"
     />
+    <!-- 删除聊天确认对话框 -->
+    <ConfirmDialog
+      :is-open="showDeleteConfirm"
+      title="删除聊天"
+      :message="`此聊天包含 ${deleteChatMessageCount} 条消息，删除后无法恢复。是否确定删除？`"
+      :loading="deleteChatLoading"
+      variant="destructive"
+      confirm-text="删除"
+      cancel-text="取消"
+      @confirm="confirmDeleteChat"
+      @cancel="cancelDeleteChat"
+    />
+    
+    <!-- 新建聊天确认对话框 -->
+    <ConfirmDialog
+      :is-open="showNewChatConfirm"
+      title="开始新对话"
+      message="您当前输入框中有未发送的内容，开始新对话将清除这些内容。确定继续吗？"
+      variant="warning"
+      confirm-text="继续"
+      cancel-text="取消"
+      @confirm="confirmCreateNewChat"
+      @cancel="cancelCreateNewChat"
+    />
     
     <!-- 性能测试面板（仅开发环境） -->
     <!-- Performance panel removed for production -->
@@ -719,7 +673,7 @@ import {
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useSettingsStore } from '@renderer/src/stores/settings'
-import { formatDistanceToNow } from '@renderer/src/utils/time'
+import { formatDistanceToNow, formatTimeWithFallback } from '@renderer/src/utils/time'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 import { debounce } from '@renderer/src/utils/performance'
 import UnifiedMessageContent from '@renderer/src/components/UnifiedMessageContent.vue'
@@ -728,6 +682,7 @@ import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSe
 import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList.vue'
 import ChatSummary from '@renderer/src/components/chat/ChatSummary.vue'
 import SkeletonLoader from '@renderer/src/components/ui/SkeletonLoader.vue'
+import ConfirmDialog from '@renderer/src/components/ui/ConfirmDialog.vue'
 import { logger } from '@renderer/src/utils/Logger'
 
 // 类型定义
@@ -854,6 +809,16 @@ const showScrollButton = ref(false)
 const replyingTo = ref<any>(null)
 const inputCharacterCount = ref(0)
 const hoveredMessageId = ref<string>()
+
+// Delete confirmation dialog state
+const showDeleteConfirm = ref(false)
+const chatToDelete = ref<string | null>(null)
+const deleteChatTitle = ref('')
+const deleteChatMessageCount = ref(0)
+const deleteChatLoading = ref(false)
+
+// New chat confirmation dialog state
+const showNewChatConfirm = ref(false)
 const selectedTextMessageId = ref<string>()
 const isTextSelected = ref(false)
 const showHeaderMenu = ref(false)
@@ -1028,10 +993,32 @@ watch(() => chatStore.currentChatId, () => {
 
 // 方法
 const createNewChat = () => {
+  // Check if user has unsaved input
+  if (inputMessage.value.trim() || attachments.value.length > 0) {
+    // Set up confirmation for unsaved input
+    showNewChatConfirm.value = true
+  } else {
+    // Directly create new chat if no unsaved input
+    chatStore.createChat()
+    if (isMobile.value) {
+      sidebarCollapsed.value = true
+    }
+  }
+}
+
+const confirmCreateNewChat = () => {
+  // Clear unsaved input and create new chat
+  inputMessage.value = ''
+  attachments.value = []
   chatStore.createChat()
   if (isMobile.value) {
     sidebarCollapsed.value = true
   }
+  showNewChatConfirm.value = false
+}
+
+const cancelCreateNewChat = () => {
+  showNewChatConfirm.value = false
 }
 
 const selectChat = (chatId: string) => {
@@ -1048,64 +1035,66 @@ const deleteChat = async (chatId: string) => {
     const chatTitle = chat?.title || '聊天'
     const messageCount = chat?.messages?.length || 0
 
-    // Show enhanced confirmation dialog with more details
-    const confirmed = confirm(
-      `确定要删除"${chatTitle}"吗？\n\n` +
-      `此聊天包含 ${messageCount} 条消息，删除后无法恢复。\n\n` +
-      `点击"确定"继续删除，点击"取消"保留聊天。`
-    )
-    if (!confirmed) return
-
-    // Show loading state
-    const deleteButton = document.querySelector(`[data-chat-id="${chatId}"] .delete-btn`) as HTMLElement
-    if (deleteButton) {
-      deleteButton.style.opacity = '0.5'
-      deleteButton.style.pointerEvents = 'none'
-    }
-
-    try {
-      // Call the store to delete the chat
-      await chatStore.deleteChat(chatId)
-      
-      // Provide user feedback
-      console.log(`Chat "${chatTitle}" (${messageCount} messages) deleted successfully`)
-      logger.info('Chat deleted successfully from UI', 'ChatViewImproved', { chatId, chatTitle, messageCount })
-      
-      // Show success feedback (temporary visual feedback)
-      setTimeout(() => {
-        console.log('删除成功:', chatTitle)
-      }, 100)
-      
-    } catch (error) {
-      // Restore button state on error
-      if (deleteButton) {
-        deleteButton.style.opacity = '1'
-        deleteButton.style.pointerEvents = 'auto'
-      }
-      throw error
-    }
-    // toastService.success(`已删除聊天：${chatTitle}`)
-    
+    // Set up confirmation dialog
+    chatToDelete.value = chatId
+    deleteChatTitle.value = chatTitle
+    deleteChatMessageCount.value = messageCount
+    showDeleteConfirm.value = true
   } catch (error) {
-    console.error('Failed to delete chat:', error)
-    
-    // Show error message to user
-    alert('删除聊天失败，请重试')
-    
-    // Optional: Show error toast
-    // toastService.error('删除聊天失败，请重试')
+    console.error('Error setting up chat deletion:', error)
   }
 }
 
-const formatTime = (date: Date | string | undefined) => {
+const confirmDeleteChat = async () => {
+  if (!chatToDelete.value) return
+  
+  const chatId = chatToDelete.value
+  const chatTitle = deleteChatTitle.value
+  const messageCount = deleteChatMessageCount.value
+  
+  try {
+    // Show loading state
+    deleteChatLoading.value = true
+    
+    // Call the store to delete the chat
+    await chatStore.deleteChat(chatId)
+    
+    // Provide user feedback
+    console.log(`Chat "${chatTitle}" (${messageCount} messages) deleted successfully`)
+    logger.info('Chat deleted successfully from UI', 'ChatViewImproved', { chatId, chatTitle, messageCount })
+    
+    // Close dialog
+    showDeleteConfirm.value = false
+    chatToDelete.value = null
+    deleteChatTitle.value = ''
+    deleteChatMessageCount.value = 0
+    
+  } catch (error) {
+    console.error('Failed to delete chat:', error)
+    logger.error('Failed to delete chat from UI', 'ChatViewImproved', error)
+    
+    // Show error message (you could implement a toast notification here)
+    alert('删除聊天失败，请重试')
+  } finally {
+    deleteChatLoading.value = false
+  }
+}
+
+const cancelDeleteChat = () => {
+  showDeleteConfirm.value = false
+  chatToDelete.value = null
+  deleteChatTitle.value = ''
+  deleteChatMessageCount.value = 0
+}
+
+const formatTime = (date: Date | string | number | undefined | null) => {
   if (!date) return '刚刚'
   
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date
-    if (isNaN(dateObj.getTime())) return '刚刚'
-    return formatDistanceToNow(dateObj)
+    // 使用更安全的时间格式化函数
+    return formatTimeWithFallback(date)
   } catch (error) {
-    logger.warn('Invalid date format', 'formatTime', date)
+    // 静默处理错误，避免控制台刷屏
     return '刚刚'
   }
 }
@@ -2371,11 +2360,38 @@ textarea {
   
   /* Safe area handling */
   .sidebar-header {
+    padding: 1rem;
     padding-top: max(1rem, env(safe-area-inset-top));
+    border-bottom: 1px solid rgba(var(--border), 0.5);
   }
   
   .sidebar-footer {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  .search-container {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .search-container input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid rgba(var(--border), 0.6);
+    border-radius: 0.5rem;
+    background: rgba(var(--background), 0.8);
+    color: var(--foreground);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+  
+  .search-container input:focus {
+    outline: none;
+    border-color: rgba(var(--primary), 0.8);
+    box-shadow: 0 0 0 2px rgba(var(--primary), 0.1);
+  }
+  
+  .search-container input::placeholder {
+    color: var(--muted-foreground);
   }
 }
 

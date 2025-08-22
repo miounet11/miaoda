@@ -386,7 +386,7 @@ export class ErrorRecoveryManager {
     })
     
     // 应用错误事件
-    app.on('render-process-gone', (event, webContents, details) => {
+    app.on('render-process-gone', (_event, _webContents, details) => {
       this.handleError(new Error(`Render process gone: ${details.reason}`), {
         module: 'Renderer',
         operation: 'process-gone',
@@ -395,7 +395,7 @@ export class ErrorRecoveryManager {
       })
     })
     
-    app.on('child-process-gone', (event, details) => {
+    app.on('child-process-gone', (_event, details) => {
       this.handleError(new Error(`Child process gone: ${details.type}`), {
         module: 'ChildProcess',
         operation: details.type,

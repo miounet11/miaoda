@@ -1,5 +1,12 @@
 <template>
   <div class="app-container h-screen flex flex-col bg-background">
+    <!-- macOS draggable title bar area -->
+    <div v-if="isMac" class="titlebar-drag-region fixed top-0 left-0 right-0 h-8 z-50 pointer-events-none">
+      <div class="w-full h-full" style="-webkit-app-region: drag;"></div>
+      <!-- Window controls area (no-drag) -->
+      <div class="window-controls-area absolute top-0 left-0 w-20 h-8 pointer-events-auto" style="-webkit-app-region: no-drag;"></div>
+    </div>
+    
     <!-- Error Fallback -->
     <ErrorFallback 
       v-if="hasCriticalError" 
@@ -486,14 +493,16 @@ if (import.meta.env.DEV) {
 </script>
 
 <style>
-.app-container {
-  -webkit-app-region: drag;
+/* Draggable title bar area for macOS */
+.titlebar-drag-region {
+  pointer-events: none;
 }
 
-.app-container * {
-  -webkit-app-region: no-drag;
+.titlebar-drag-region .window-controls-area {
+  pointer-events: auto;
 }
 
+/* Title bar for Windows/Linux */
 .title-bar {
   -webkit-app-region: drag;
 }

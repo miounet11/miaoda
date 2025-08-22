@@ -320,7 +320,7 @@ export class AnalyticsService {
       JOIN chats c ON m.chat_id = c.id
       WHERE m.role = 'assistant' ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
-      GROUP BY model
+      GROUP BY 1
       ORDER BY count DESC
     `).all() as Array<{ model: string; count: number }>
 
@@ -376,9 +376,9 @@ export class AnalyticsService {
     
     const summary = this.db.prepare(`
       SELECT 
-        (SELECT COUNT(*) FROM chats WHERE 1=1 ${timeConstraint}) as total_chats,
+        (SELECT COUNT(*) FROM chats c WHERE 1=1 ${timeConstraint}) as total_chats,
         (SELECT COUNT(*) FROM messages m JOIN chats c ON m.chat_id = c.id 
-         WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}) as total_messages,
+         WHERE 1=1 ${timeConstraint.replace('c.created_at', 'm.created_at')}) as total_messages,
         (SELECT COUNT(*) FROM messages m JOIN chats c ON m.chat_id = c.id 
          WHERE DATE(m.created_at) = DATE('now')) as active_today
     `).get() as { total_chats: number; total_messages: number; active_today: number }

@@ -40,6 +40,36 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
       }
     },
     {
+      accelerator: 'CommandOrControl+Shift+?',
+      action: () => {
+        mainWindow.webContents.send('shortcut:show-help')
+      }
+    },
+    {
+      accelerator: 'CommandOrControl+Tab',
+      action: () => {
+        mainWindow.webContents.send('shortcut:next-tab')
+      }
+    },
+    {
+      accelerator: 'Alt+1',
+      action: () => {
+        mainWindow.webContents.send('shortcut:switch-tab', 0)
+      }
+    },
+    {
+      accelerator: 'Alt+2',
+      action: () => {
+        mainWindow.webContents.send('shortcut:switch-tab', 1)
+      }
+    },
+    {
+      accelerator: 'Alt+3',
+      action: () => {
+        mainWindow.webContents.send('shortcut:switch-tab', 2)
+      }
+    },
+    {
       accelerator: 'CommandOrControl+Shift+I',
       action: () => {
         mainWindow.webContents.toggleDevTools()
@@ -54,21 +84,38 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
   ]
 
   // Register shortcuts when window is focused
-  mainWindow.on('focus', () => {
+  const registerAllShortcuts = () => {
     shortcuts.forEach(({ accelerator, action }) => {
-      globalShortcut.register(accelerator, action)
+      try {
+        const success = globalShortcut.register(accelerator, action)
+        if (!success) {
+          console.warn(`Failed to register shortcut: ${accelerator}`)
+        } else {
+          console.log(`Successfully registered shortcut: ${accelerator}`)
+        }
+      } catch (error) {
+        console.error(`Error registering shortcut ${accelerator}:`, error)
+      }
     })
-  })
+  }
 
-  // Unregister when window loses focus
-  mainWindow.on('blur', () => {
+  const unregisterAllShortcuts = () => {
     globalShortcut.unregisterAll()
-  })
+  }
+
+  // Register shortcuts when window is focused
+  mainWindow.on('focus', registerAllShortcuts)
+
+  // Unregister when window loses focus (only on Windows/Linux)
+  if (process.platform !== 'darwin') {
+    mainWindow.on('blur', unregisterAllShortcuts)
+  }
 
   // Cleanup on window close
-  mainWindow.on('closed', () => {
-    globalShortcut.unregisterAll()
-  })
+  mainWindow.on('closed', unregisterAllShortcuts)
+
+  // Register shortcuts immediately for better UX
+  registerAllShortcuts()
 }
 
 // Export handler for registration
@@ -81,6 +128,11 @@ export function registerShortcutHandlers() {
       { key: 'Cmd/Ctrl+Shift+K', description: 'Clear Chat' },
       { key: 'Cmd/Ctrl+[', description: 'Previous Chat' },
       { key: 'Cmd/Ctrl+]', description: 'Next Chat' },
+      { key: 'Cmd/Ctrl+Shift+?', description: 'Show Help' },
+      { key: 'Cmd/Ctrl+Tab', description: 'Next Tab' },
+      { key: 'Alt+1', description: 'Switch to Tab 1' },
+      { key: 'Alt+2', description: 'Switch to Tab 2' },
+      { key: 'Alt+3', description: 'Switch to Tab 3' },
       { key: 'Cmd/Ctrl+Shift+I', description: 'Toggle Developer Tools' },
       { key: 'F12', description: 'Toggle Developer Tools' },
       { key: 'Enter', description: 'Send Message' },

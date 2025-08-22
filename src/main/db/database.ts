@@ -1,18 +1,5 @@
-// Temporary fix: Mock better-sqlite3 until build issues are resolved
-let Database: any
-try {
-  Database = require('better-sqlite3')
-} catch (error) {
-  console.warn('better-sqlite3 not available, using mock database')
-  Database = class MockDatabase {
-    constructor() {}
-    prepare() { return { run: () => ({}), get: () => null, all: () => [] } }
-    exec() {}
-    close() {}
-    pragma() { return [] }
-  }
-}
-
+// Import better-sqlite3 using ES6 import syntax
+import Database from 'better-sqlite3'
 import { app } from 'electron'
 import { join } from 'path'
 import { mkdirSync, existsSync } from 'fs'
@@ -37,7 +24,7 @@ import type { AnalyticsData, AnalyticsFilter } from '../../types/analytics'
  * Refactored to reduce complexity and improve maintainability
  */
 export class LocalDatabase {
-  private db!: any // Database instance
+  private db!: Database.Database // Database instance
   private chatService!: ChatService
   private messageService!: MessageService
   private searchService!: UnifiedSearchService
@@ -61,7 +48,7 @@ export class LocalDatabase {
     }
   }
 
-  private openDatabase(dbPath: string): any {
+  private openDatabase(dbPath: string): Database.Database {
     try {
       const dbFile = join(dbPath, 'chats.db')
       return new Database(dbFile)

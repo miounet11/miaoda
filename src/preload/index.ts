@@ -3,6 +3,19 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Custom APIs for renderer
 const api = {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  auth: {
+    login: (credentials: any) => ipcRenderer.invoke('auth:login', credentials),
+    register: (userData: any) => ipcRenderer.invoke('auth:register', userData),
+    logout: (params: any) => ipcRenderer.invoke('auth:logout', params),
+    refreshToken: (data: { refreshToken: string }) => ipcRenderer.invoke('auth:refresh-token', data),
+    validateSession: (data: { sessionId: string }) => ipcRenderer.invoke('auth:validate-session', data),
+    requestPasswordReset: (request: any) => ipcRenderer.invoke('auth:request-password-reset', request),
+    confirmPasswordReset: (request: any) => ipcRenderer.invoke('auth:confirm-password-reset', request),
+    getSessions: (data: { sessionId: string }) => ipcRenderer.invoke('auth:get-sessions', data),
+    revokeSession: (data: { sessionId: string; targetSessionId: string }) => ipcRenderer.invoke('auth:revoke-session', data),
+    updateProfile: (data: any) => ipcRenderer.invoke('auth:update-profile', data),
+    changePassword: (data: any) => ipcRenderer.invoke('auth:change-password', data)
+  },
   mcp: {
     connect: (server: any) => ipcRenderer.invoke('mcp:connect', server),
     disconnect: (name: string) => ipcRenderer.invoke('mcp:disconnect', name),
@@ -161,12 +174,14 @@ console.log('[Preload] Context isolated:', process.contextIsolated)
 
 if (process.contextIsolated) {
   try {
+    contextBridge.exposeInMainWorld('electronAPI', api)
     contextBridge.exposeInMainWorld('api', api)
     console.log('[Preload] API exposed to main world successfully')
   } catch (error) {
     console.error('[Preload] Failed to expose API:', error)
   }
 } else {
+  window.electronAPI = api
   window.api = api
   console.log('[Preload] API attached to window directly')
 }

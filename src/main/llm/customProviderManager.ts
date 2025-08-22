@@ -6,7 +6,7 @@ import { logger } from '../utils/Logger'
  * Manager for custom LLM providers with secure storage and health monitoring
  */
 export class CustomProviderManager {
-  private store: Store
+  private store: Store<{ providers: Record<string, any>; healthStatus: Record<string, any> }>
   private providers: Map<string, CustomProviderConfig> = new Map()
   private healthStatus: Map<string, ProviderHealthStatus> = new Map()
   private healthCheckInterval: NodeJS.Timeout | null = null

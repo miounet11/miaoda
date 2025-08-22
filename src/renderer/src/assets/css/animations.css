@@ -17,15 +17,13 @@
   --ease-gentle: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 消息进入动画 */
+/* ========== 消息进入动画 - 仅透明度变化 ========== */
 @keyframes messageSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -84,23 +82,23 @@
   }
 }
 
-/* 悬浮效果 */
+/* ========== 移除会影响文字大小的动画 ========== */
+/* 悬浮效果 - 移除scale变换 */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 按钮点击效果 */
+/* 按钮点击效果 - 仅透明度变化 */
 .click-scale {
-  transition: transform 0.1s ease;
+  transition: opacity 0.1s ease;
 }
 
 .click-scale:active {
-  transform: scale(0.95);
+  opacity: 0.8;
 }
 
 /* 骨架屏效果 */
@@ -167,21 +165,16 @@
   }
 }
 
-/* 弹性进入 */
+/* 弹性进入 - 仅透明度变化 */
 @keyframes bounce-in {
   0% {
     opacity: 0;
-    transform: scale(0.3);
   }
   50% {
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
+    opacity: 0.8;
   }
   100% {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -295,37 +288,36 @@
   transition-duration: 0.1s;
 }
 
-/* 磁性悬停效果 */
+/* 磁性悬停效果 - 移除scale变换 */
 .magnetic-hover {
-  transition: all 0.3s var(--ease-spring);
+  transition: box-shadow 0.3s var(--ease-spring);
 }
 
 .magnetic-hover:hover {
-  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* 弹性点击效果 */
+/* 弹性点击效果 - 仅透明度变化 */
 .elastic-click {
-  transition: transform 0.2s var(--ease-bounce);
+  transition: opacity 0.2s var(--ease-bounce);
 }
 
 .elastic-click:active {
-  transform: scale(0.95);
+  opacity: 0.7;
   transition-duration: 0.1s;
 }
 
-/* 浮动呼吸效果 */
+/* 浮动呼吸效果 - 仅透明度微调 */
 .float-breathe {
   animation: floatBreathe 4s ease-in-out infinite;
 }
 
 @keyframes floatBreathe {
   0%, 100% {
-    transform: translateY(0px) scale(1);
+    opacity: 1;
   }
   50% {
-    transform: translateY(-5px) scale(1.01);
+    opacity: 0.9;
   }
 }
 
@@ -354,26 +346,26 @@
 
 /* ========== 状态指示动画 ========== */
 
-/* 成功检查动画 */
+/* 成功检查动画 - 仅透明度变化 */
 .success-check {
   animation: successPop 0.6s var(--ease-bounce);
 }
 
 @keyframes successPop {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
 }
 
-/* 错误摇晃增强版 */
+/* 错误摇晃增强版 - 移除旋转 */
 .error-shake-enhanced {
   animation: errorShakeEnhanced 0.6s var(--ease-gentle);
 }
 
 @keyframes errorShakeEnhanced {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); }
-  20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); }
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
 }
 
 /* 警告脉冲 */
@@ -427,7 +419,7 @@
 
 /* ========== 加载和等待状态 ========== */
 
-/* 脉冲加载点 */
+/* 脉冲加载点 - 移除大小变化 */
 .pulse-dots {
   display: flex;
   gap: 4px;
@@ -447,11 +439,9 @@
 
 @keyframes pulseDots {
   0%, 60%, 100% {
-    transform: scale(1);
     opacity: 0.4;
   }
   30% {
-    transform: scale(1.4);
     opacity: 1;
   }
 }
@@ -529,6 +519,52 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* ========== 文本稳定性保证 ========== */
+
+/* 强制文本大小稳定 - 防止任何scale变换影响文字 */
+.message-content,
+.chat-message,
+.markdown-content,
+.message-text {
+  /* 确保文本不受transform影响 */
+  transform: none !important;
+  /* 防止字体大小变化 */
+  font-size: inherit !important;
+  /* 防止缩放 */
+  scale: 1 !important;
+}
+
+/* 禁用所有可能影响文字大小的动画 */
+.message-content *,
+.chat-message *,
+.markdown-content *,
+.message-text * {
+  transform: none !important;
+  scale: 1 !important;
+}
+
+/* 确保动画只影响容器，不影响文本内容 */
+.animate-message-enter {
+  animation: messageEnterStable 0.3s ease-out;
+}
+
+@keyframes messageEnterStable {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 确保消息容器的动画不传播到文本 */
+.message-container {
+  /* 创建新的层叠上下文，隔离动画效果 */
+  isolation: isolate;
 }
 
 /* ========== 可访问性和性能优化 ========== */

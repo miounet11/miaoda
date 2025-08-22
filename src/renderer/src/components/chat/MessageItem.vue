@@ -151,6 +151,15 @@
           <div class="metadata-content-modern">
             <span class="timestamp-modern">{{ formatTime(message.timestamp) }}</span>
             
+            <!-- Token count display for assistant messages -->
+            <span
+              v-if="message.role === 'assistant' && message.content && !isLoading"
+              class="token-count text-xs text-muted-foreground/70"
+              :title="`Estimated ${estimatedTokens} tokens`"
+            >
+              ~{{ estimatedTokens }} tokens
+            </span>
+            
             <span
               v-if="message.role === 'assistant' && isLoading"
               class="loading-indicator flex items-center gap-1"
@@ -197,16 +206,10 @@ import { Bot, User, Sparkles, Copy, Edit2, RefreshCw, Trash2, Volume2, Loader2, 
 import TypingIndicator from '../loading/TypingIndicator.vue'
 import EnhancedTypingIndicator from '../loading/EnhancedTypingIndicator.vue'
 import UnifiedMessageContent from '../UnifiedMessageContent.vue'
-import VoiceSynthesis from '@renderer/src/components/voice/VoiceSynthesis.vue'
-// Simplified imports for now - will implement full UI components later
-// import ActionButton from '../ui/ActionButton.vue'
-// import TimeDisplay from '../ui/TimeDisplay.vue'
-// import LoadingIndicator from '../loading/LoadingIndicator.vue'
-// import AttachmentIndicator from '../ui/AttachmentIndicator.vue'
-// import AttachmentGrid from '../ui/AttachmentGrid.vue'
-// import MessageStatusIndicator from '../ui/MessageStatusIndicator.vue'
-import { formatDistanceToNow, formatTimeWithFallback } from '@renderer/src/utils/time'
+import VoiceSynthesis from '../voice/VoiceSynthesis.vue'
+import type { Message, Attachment } from '@renderer/src/types'
 import { voiceService } from '@renderer/src/services/voice/VoiceService'
+import { formatTimeWithFallback } from '@renderer/src/utils/time'
 
 interface Message {
   id: string
@@ -303,6 +306,32 @@ const avatarStyle = computed(() => ({
 
 const avatarIcon = computed(() => {
   return props.message.role === 'user' ? User : (props.message.role === 'assistant' ? Sparkles : Bot)
+})
+
+// Token estimation computed property
+const estimatedTokens = computed(() => {
+  if (!props.message.content) return 0
+  
+  const content = props.message.content
+  
+  // Simple token estimation algorithm
+  // English: ~4 characters per token
+  // Chinese: ~1.5 characters per token
+  // Code and special chars: ~3 characters per token
+  
+  const englishChars = (content.match(/[a-zA-Z0-9\s]/g) || []).length
+  const chineseChars = (content.match(/[\u4e00-\u9fff]/g) || []).length
+  const codeChars = (content.match(/[`{}[\]().,;:!?'"<>=+\-*/\\]/g) || []).length
+  const otherChars = content.length - englishChars - chineseChars - codeChars
+  
+  const tokenEstimate = Math.ceil(
+    englishChars / 4 + 
+    chineseChars / 1.5 + 
+    codeChars / 3 + 
+    otherChars / 3
+  )
+  
+  return Math.max(1, tokenEstimate) // At least 1 token
 })
 
 const bubbleClasses = computed(() => ({
@@ -582,12 +611,26 @@ onUnmounted(() => {
 /* Enhanced Message Item Styles */
 .message-item-enhanced {
   @apply transition-all duration-300 ease-out;
-  /* Proper spacing and layout */
+  /* Improved spacing and layout for better dialog margins */
   width: 100%;
   max-width: 100%;
-  margin-bottom: 1.5rem;
-  padding: 0 1rem;
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem);
   position: relative;
+  /* Better container bounds */
+  contain: layout style;
+}
+
+/* User message alignment with proper margins */
+.message-item-enhanced.message-user {
+  padding-left: clamp(2rem, 8vw, 4rem);
+  padding-right: clamp(0.75rem, 2vw, 1rem);
+}
+
+/* Assistant message alignment with proper margins */
+.message-item-enhanced.message-assistant {
+  padding-right: clamp(2rem, 8vw, 4rem);
+  padding-left: clamp(0.75rem, 2vw, 1rem);
 }
 
 .message-item-enhanced.message-appear {
@@ -918,32 +961,84 @@ onUnmounted(() => {
   color: #ef4444;
 }
 
-/* Message Metadata */
-.message-metadata {
-  margin-top: 0.5rem;
+/* Enhanced Message Metadata Modern Design */
+.message-metadata-modern {
+  margin-top: clamp(0.5rem, 1vw, 0.75rem);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(4px);
 }
 
-.message-item:hover .message-metadata,
-.message-item.message-focused .message-metadata {
+.message-item:hover .message-metadata-modern,
+.message-item.message-focused .message-metadata-modern,
+.message-item.message-highlighted .message-metadata-modern {
   opacity: 1;
+  transform: translateY(0);
 }
 
-.metadata-content {
+.metadata-content-modern {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.75rem;
-  color: #6b7280;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+  font-size: clamp(0.6875rem, 1.2vw, 0.75rem);
+  color: var(--muted-foreground, #6b7280);
+  flex-wrap: wrap;
 }
 
-.message-user .metadata-content {
+.message-user .metadata-content-modern {
   justify-content: flex-end;
+  text-align: right;
 }
 
-.message-assistant .metadata-content {
+.message-assistant .metadata-content-modern {
   justify-content: flex-start;
+  text-align: left;
+}
+
+.timestamp-modern {
+  color: var(--muted-foreground, #9ca3af);
+  font-weight: 500;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.timestamp-modern:hover {
+  color: var(--foreground, #374151);
+}
+
+/* Enhanced Token Count Display */
+.token-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  background: var(--muted, rgba(0, 0, 0, 0.05));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.token-count:hover {
+  background: var(--muted, rgba(0, 0, 0, 0.08));
+  border-color: var(--border, rgba(0, 0, 0, 0.15));
+  transform: scale(1.05);
+}
+
+/* Dark mode token count */
+@media (prefers-color-scheme: dark) {
+  .token-count {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+  }
+  
+  .token-count:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
 }
 
 .timestamp {

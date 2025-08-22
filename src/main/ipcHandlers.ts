@@ -8,7 +8,9 @@ import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
-import { InputValidator, rateLimit, auditLog } from './security/InputValidator'
+import { InputValidator, auditLog } from './security/InputValidator'
+import { UserService } from './db/UserService'
+import { registerAuthHandlers } from './security/authHandlers'
 
 // Simple window manager for multi-window support
 class WindowManager {
@@ -122,6 +124,11 @@ export function registerIPCHandlers(
   pluginManager: PluginManager
 ) {
   logger.info('Registering IPC handlers', 'IPC', { dbInitialized: !!db })
+  
+  // TODO: Re-enable authentication system after fixing initialization order
+  // Initialize authentication system
+  // const userService = new UserService((db as any).db) // Access the underlying SQLite database
+  // registerAuthHandlers(userService)
   
   // App version handler
   ipcMain.handle('get-app-version', () => app.getVersion())
