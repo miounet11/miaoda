@@ -11,6 +11,7 @@ import './assets/css/main.css'
 import './styles/mobile-improvements.css'
 import './styles/micro-interactions.css'
 import './styles/layout-optimizations.css'
+import './styles/sidebar-enhancements.css' // Enhanced sidebar visibility and interactions
 import './assets/css/stable-animations.css' // Override problematic scale animations
 
 // Initialize error boundary service early to catch all errors

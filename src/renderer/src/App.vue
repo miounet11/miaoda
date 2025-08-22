@@ -2,9 +2,9 @@
   <div class="app-container h-screen flex flex-col bg-background">
     <!-- macOS draggable title bar area -->
     <div v-if="isMac" class="titlebar-drag-region fixed top-0 left-0 right-0 h-8 z-50 pointer-events-none">
-      <div class="w-full h-full" style="-webkit-app-region: drag;"></div>
+      <div class="w-full h-full" style="-webkit-app-region: drag;" />
       <!-- Window controls area (no-drag) -->
-      <div class="window-controls-area absolute top-0 left-0 w-20 h-8 pointer-events-auto" style="-webkit-app-region: no-drag;"></div>
+      <div class="window-controls-area absolute top-0 left-0 w-20 h-8 pointer-events-auto" style="-webkit-app-region: no-drag;" />
     </div>
     
     <!-- Error Fallback -->

@@ -9,20 +9,20 @@
     
     <!-- Settings Sidebar -->
     <aside 
-      class="settings-sidebar w-64 bg-secondary/30 backdrop-blur-sm border-r flex flex-col transition-transform duration-300 ease-in-out z-50"
+      class="settings-sidebar w-64 bg-gradient-to-b from-background to-background/95 backdrop-blur-md border-r border-border/60 flex flex-col transition-all duration-300 ease-in-out z-50 shadow-sm"
       :class="{
         'fixed top-0 left-0 h-full md:relative md:translate-x-0': isMobile,
         '-translate-x-full': isMobile && !sidebarOpen,
         'translate-x-0': !isMobile || sidebarOpen
       }"
     >
-      <div class="p-4 border-b">
+      <div class="p-4 border-b border-border/40 bg-surface-elevated/95 backdrop-blur-sm">
         <div class="flex items-center gap-3">
           <!-- Mobile menu button -->
           <button
             v-if="isMobile"
             @click="sidebarOpen = false"
-            class="p-2 hover:bg-accent/50 rounded-lg transition-colors md:hidden"
+            class="p-2 hover:bg-surface-hover/80 rounded-lg transition-all duration-200 transform hover:scale-105"
             title="Close menu"
           >
             <X :size="18" />
@@ -30,12 +30,12 @@
           
           <button
             @click="$router.push('/')"
-            class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
+            class="p-2 hover:bg-surface-hover/80 rounded-lg transition-all duration-200 transform hover:scale-105"
             title="Back to chat"
           >
             <ArrowLeft :size="18" />
           </button>
-          <h2 class="text-lg font-semibold">Settings</h2>
+          <h2 class="text-lg font-semibold text-text-primary">Settings</h2>
         </div>
       </div>
       
@@ -45,10 +45,10 @@
           :key="tab.id"
           @click="activeTab = tab.id"
           :class="[
-            'w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3',
+            'w-full text-left px-3 py-2.5 rounded-lg transition-all duration-300 flex items-center gap-3 transform',
             activeTab === tab.id 
-              ? 'bg-primary/10 border border-primary/20 text-primary' 
-              : 'hover:bg-accent/50 border border-transparent'
+              ? 'bg-primary/12 border border-primary/25 text-primary shadow-md ring-1 ring-primary/20 translate-x-1' 
+              : 'hover:bg-surface-hover/80 border border-transparent hover:border-border/40 hover:shadow-sm hover:translate-x-2'
           ]"
         >
           <component :is="tab.icon" :size="18" />
@@ -61,17 +61,17 @@
     <!-- Settings Content -->
     <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
       <!-- Mobile header -->
-      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b md:hidden flex-shrink-0">
+      <header v-if="isMobile" class="flex items-center justify-between p-4 border-b border-border/40 bg-surface-elevated/95 backdrop-blur-sm md:hidden flex-shrink-0">
         <button
           @click="sidebarOpen = !sidebarOpen"
-          class="p-2 hover:bg-muted rounded-lg transition-colors"
+          class="p-2 hover:bg-surface-hover/80 rounded-lg transition-all duration-200 transform hover:scale-105"
         >
           <Menu :size="20" />
         </button>
-        <h1 class="font-semibold">{{ getActiveTabLabel() }}</h1>
+        <h1 class="font-semibold text-text-primary">{{ getActiveTabLabel() }}</h1>
         <button
           @click="$router.push('/')"
-          class="p-2 hover:bg-muted rounded-lg transition-colors"
+          class="p-2 hover:bg-surface-hover/80 rounded-lg transition-all duration-200 transform hover:scale-105"
         >
           <ArrowLeft :size="20" />
         </button>
@@ -91,8 +91,8 @@
             <!-- Unified Provider Configuration -->
             <UnifiedProviderConfig
               v-model:provider="llmConfig.provider"
-              v-model:apiKey="llmConfig.apiKey"
-              v-model:baseUrl="llmConfig.baseURL"
+              v-model:api-key="llmConfig.apiKey"
+              v-model:base-url="llmConfig.baseURL"
               v-model:model="llmConfig.model"
               :custom-providers="customProviders"
               @provider-selected="handleProviderSelected"
@@ -108,16 +108,16 @@
             
               <!-- Enable Tools -->
               <div class="space-y-2">
-                <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
+                <label class="flex items-center justify-between p-4 bg-surface-elevated/80 border border-border/40 rounded-xl cursor-pointer hover:bg-surface-hover/80 hover:border-border/60 hover:shadow-sm transition-all duration-200 transform hover:scale-[1.01]">
                   <div>
-                    <span class="text-sm font-medium block">Enable MCP Tools</span>
-                    <span class="text-xs text-muted-foreground">Allow AI to use filesystem, code execution, and other tools</span>
+                    <span class="text-sm font-semibold block text-text-primary">Enable MCP Tools</span>
+                    <span class="text-xs text-text-secondary mt-1">Allow AI to use filesystem, code execution, and other tools</span>
                   </div>
                   <input
                     v-model="toolsEnabled"
                     @change="toggleTools"
                     type="checkbox"
-                    class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
+                    class="w-5 h-5 text-primary bg-surface-elevated border-border/60 rounded focus:ring-2 focus:ring-primary/20 focus:border-primary/60 transition-all duration-200"
                   >
                 </label>
               </div>
@@ -127,14 +127,14 @@
                 <button
                   @click="saveLLMConfig"
                   :disabled="!isConfigValid"
-                  class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-4 py-2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all duration-200 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   Save Configuration
                 </button>
                 <button
                   @click="testConnection"
                   :disabled="!isConfigValid || isTestingConnection"
-                  class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  class="px-4 py-2 bg-surface-elevated text-text-primary border border-border/60 rounded-lg hover:bg-surface-hover hover:border-border hover:shadow-sm transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
                 >
                   <Loader2 v-if="isTestingConnection" :size="16" class="animate-spin" />
                   <Zap v-else :size="16" />
@@ -198,15 +198,20 @@
 
             <div class="space-y-4">
               <label class="block">
-                <span class="text-sm font-medium mb-2 block">Theme</span>
-                <select 
-                  v-model="theme"
-                  class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="system">System</option>
-                </select>
+                <span class="text-sm font-semibold mb-3 block text-text-primary">Theme</span>
+                <div class="relative">
+                  <select 
+                    v-model="theme"
+                    class="w-full px-4 py-3 bg-surface-elevated border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 hover:border-border hover:bg-surface-hover transition-all duration-200 text-text-primary appearance-none pr-10"
+                  >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="system">System</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <ChevronDown :size="16" class="text-text-tertiary" />
+                  </div>
+                </div>
               </label>
             </div>
           </div>
@@ -224,10 +229,10 @@
               <div
                 v-for="shortcut in shortcuts"
                 :key="shortcut.key"
-                class="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                class="flex items-center justify-between p-4 bg-surface-elevated/80 border border-border/40 rounded-xl hover:bg-surface-hover/80 hover:border-border/60 hover:shadow-sm transition-all duration-200 transform hover:scale-[1.005]"
               >
-                <span class="text-sm">{{ shortcut.description }}</span>
-                <kbd class="px-2 py-1 text-xs bg-background border rounded">
+                <span class="text-sm font-medium text-text-primary">{{ shortcut.description }}</span>
+                <kbd class="px-3 py-1.5 text-xs font-mono bg-surface-elevated border border-border/60 rounded-lg shadow-sm text-text-secondary">
                   {{ shortcut.key }}
                 </kbd>
               </div>
@@ -245,12 +250,14 @@
 
             <div class="space-y-6">
               <!-- Current Language Display -->
-              <div class="bg-muted/30 p-6 rounded-lg">
+              <div class="bg-surface-elevated/80 border border-border/40 p-6 rounded-xl hover:bg-surface-hover/50 hover:border-border/60 hover:shadow-sm transition-all duration-200">
                 <div class="flex items-center gap-4 mb-4">
-                  <Globe :size="24" class="text-primary" />
+                  <div class="p-2 bg-primary/10 rounded-lg">
+                    <Globe :size="24" class="text-primary" />
+                  </div>
                   <div>
-                    <h4 class="font-semibold">Interface Language</h4>
-                    <p class="text-sm text-muted-foreground">Select your preferred language for the user interface</p>
+                    <h4 class="font-semibold text-text-primary">Interface Language</h4>
+                    <p class="text-sm text-text-secondary">Select your preferred language for the user interface</p>
                   </div>
                 </div>
                 
@@ -300,7 +307,7 @@
                 </div>
                 <button 
                   @click="resetLanguage"
-                  class="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg transition-colors"
+                  class="px-4 py-2 bg-surface-elevated text-text-primary border border-border/60 hover:bg-surface-hover hover:border-border hover:shadow-sm rounded-lg transition-all duration-200 transform hover:scale-105"
                 >
                   Reset to Default
                 </button>
@@ -320,7 +327,7 @@
             <div v-if="plugins.length === 0" class="text-center py-12 bg-muted/30 rounded-lg">
               <Puzzle :size="48" class="mx-auto mb-4 text-muted-foreground" />
               <p class="text-muted-foreground">No plugins installed</p>
-              <button class="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+              <button class="mt-4 px-4 py-2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all duration-200 transform hover:scale-105 hover:shadow-lg">
                 Browse Plugins
               </button>
             </div>
@@ -388,13 +395,12 @@
         </div>
       </div>
     </main>
-    
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap, Globe } from 'lucide-vue-next'
+import { Bot, Palette, ArrowLeft, Keyboard, Puzzle, ChevronRight, ChevronDown, Check, AlertCircle, Eye, EyeOff, Menu, X, Server, Loader2, Zap, Globe } from 'lucide-vue-next'
 import ProviderList from '@renderer/src/components/settings/ProviderList.vue'
 import ProviderSelector from '@renderer/src/components/settings/ProviderSelector.vue'
 import UnifiedProviderConfig from '@renderer/src/components/settings/UnifiedProviderConfig.vue'
@@ -868,96 +874,3 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-/* Fade transition */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--muted-foreground) / 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--muted-foreground) / 0.5);
-}
-
-/* Form focus states */
-input:focus, select:focus, textarea:focus {
-  outline: none;
-}
-
-/* Smooth transitions */
-button, input, select {
-  transition: all 0.2s ease;
-}
-
-/* Mobile responsive improvements */
-@media (max-width: 768px) {
-  .settings-sidebar {
-    -webkit-app-region: no-drag;
-  }
-  
-  .max-w-2xl {
-    max-width: none;
-  }
-  
-  /* Better spacing on mobile */
-  .space-y-6 > * + * {
-    margin-top: 1.5rem;
-  }
-  
-  .space-y-4 > * + * {
-    margin-top: 1rem;
-  }
-  
-  /* Provider cards stack better on mobile */
-  .grid.grid-cols-1 {
-    gap: 0.75rem;
-  }
-  
-  /* Form improvements */
-  input[type="password"],
-  input[type="text"],
-  input[type="url"],
-  select {
-    font-size: 16px; /* Prevents zoom on iOS */
-    padding: 0.75rem;
-  }
-  
-  /* Button improvements */
-  button {
-    min-height: 44px; /* Better touch target */
-  }
-}
-
-/* Settings sidebar responsiveness */
-.settings-sidebar {
-  -webkit-app-region: no-drag;
-}
-
-/* Improved focus states for mobile */
-@media (hover: none) {
-  button:hover {
-    transform: none;
-  }
-  
-  button:active {
-    transform: scale(0.98);
-  }
-}
-</style>

@@ -141,9 +141,9 @@
             <!-- Enhanced status indicator -->
             <div v-if="isLoading" class="status-info">
               <div class="thinking-dots">
-                <div class="thinking-dot"></div>
-                <div class="thinking-dot"></div>
-                <div class="thinking-dot"></div>
+                <div class="thinking-dot" />
+                <div class="thinking-dot" />
+                <div class="thinking-dot" />
               </div>
               <span>AI is thinking...</span>
             </div>
@@ -285,15 +285,6 @@
         <!-- 欢迎界面 -->
         <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
           <div class="text-center">
-            <!-- Debug info for welcome screen -->
-            <div v-if="isDevelopment" class="mb-4 p-2 bg-muted/20 rounded text-xs">
-              Current Chat: {{ currentChat?.id || 'None' }}<br>
-              Messages Length: {{ currentChat?.messages?.length || 0 }}<br>
-              Initialized: {{ isInitialized ? 'Yes' : 'No' }}<br>
-              Loading: {{ isLoading ? 'Yes' : 'No' }}<br>
-              Total Chats: {{ chats.length }}
-            </div>
-            
             <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
               <Sparkles :size="36" class="text-primary" />
             </div>
@@ -346,14 +337,6 @@
           class="flex-1 min-h-0 relative"
           @scroll="handleMessageScroll"
         >
-          <!-- Debug info (remove in production) -->
-          <div v-if="isDevelopment" class="fixed top-4 right-4 bg-background/80 p-2 rounded text-xs z-50">
-            Chat: {{ currentChat?.id?.slice(-8) }}<br>
-            Messages: {{ currentChat?.messages?.length || 0 }}<br>
-            Initialized: {{ isInitialized ? 'Yes' : 'No' }}<br>
-            Loading: {{ isLoading ? 'Yes' : 'No' }}
-          </div>
-          
           <VirtualMessageList
             ref="virtualMessageList"
             :messages="currentChat.messages"
@@ -653,30 +636,23 @@
       @confirm="confirmCreateNewChat"
       @cancel="cancelCreateNewChat"
     />
-    
-    <!-- 性能测试面板（仅开发环境） -->
-    <!-- Performance panel removed for production -->
-    <div v-if="isDevelopment" class="dev-info text-xs opacity-50 p-2">
-      Development mode active
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted, watch, defineComponent, h } from 'vue'
 import { 
-  Plus, Send, Settings, Paperclip, X, FileText, Bot, User, Mic,
+  Plus, Send, Settings, Paperclip, X, FileText, Mic,
   MessageSquare, Loader2, AlertCircle, Search, Trash2, Menu,
-  Sun, Moon, MoreVertical, Copy, RefreshCw, PanelLeft, PanelLeftClose,
+  Sun, Moon, MoreVertical, RefreshCw, PanelLeft, PanelLeftClose,
   Sparkles, Code2, Languages, HelpCircle, Check, CheckCircle, XCircle,
-  Clock, ArrowDown, BarChart3, Download, Share
+  ArrowDown, BarChart3, Download, Share
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useSettingsStore } from '@renderer/src/stores/settings'
-import { formatDistanceToNow, formatTimeWithFallback } from '@renderer/src/utils/time'
+import { formatTimeWithFallback } from '@renderer/src/utils/time'
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 import { debounce } from '@renderer/src/utils/performance'
-import UnifiedMessageContent from '@renderer/src/components/UnifiedMessageContent.vue'
 import GlobalSearch from '@renderer/src/components/search/GlobalSearch.vue'
 import ProviderModelSelector from '@renderer/src/components/chat/ProviderModelSelector.vue'
 import VirtualMessageList from '@renderer/src/components/chat/VirtualMessageList.vue'
@@ -781,7 +757,6 @@ const useSimpleRender = ref(false)
 
 // 获取初始化状态
 const isInitialized = computed(() => chatStore.isInitialized)
-const isDevelopment = import.meta.env.DEV
 
 // Initialize global shortcuts
 const { shortcuts } = useGlobalShortcuts()
