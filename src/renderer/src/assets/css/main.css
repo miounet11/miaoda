@@ -9,6 +9,11 @@
 @import '../../styles/component-fixes.css';
 @import '../../styles/modern-color-system.css';
 @import '../../styles/minimal-animations.css';
+@import '../../styles/sidebar-enhancements.css';
+@import '../../styles/input-critical-fixes.css';
+@import '../../styles/spacing-layout-fixes.css';
+@import '../../styles/button-interactive-fixes.css';
+@import '../../styles/performance-accessibility-fixes.css';
 
 @tailwind base;
 @tailwind components;
