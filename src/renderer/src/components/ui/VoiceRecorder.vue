@@ -15,9 +15,9 @@
           
           <!-- Breathing rings when recording -->
           <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
-            <div class="breathing-ring ring-1"></div>
-            <div class="breathing-ring ring-2"></div>
-            <div class="breathing-ring ring-3"></div>
+            <div class="breathing-ring ring-1" />
+            <div class="breathing-ring ring-2" />
+            <div class="breathing-ring ring-3" />
           </div>
         </div>
       </button>
@@ -48,7 +48,7 @@
         <div class="recorder-title">
           <div class="title-icon-container">
             <Mic :size="16" class="text-primary animate-mic-glow" />
-            <div class="icon-glow"></div>
+            <div class="icon-glow" />
           </div>
           <span class="text-sm font-medium animate-text-appear">语音录制</span>
         </div>
@@ -72,7 +72,7 @@
         <div v-if="!isRecording && audioData.length === 0" class="waveform-placeholder animate-fade-in">
           <div class="placeholder-content">
             <div class="placeholder-waves">
-              <div class="wave-line" v-for="i in 12" :key="i" :style="{ animationDelay: `${i * 100}ms` }"></div>
+              <div class="wave-line" v-for="i in 12" :key="i" :style="{ animationDelay: `${i * 100}ms` }" />
             </div>
             <span class="text-xs text-muted-foreground mt-2">开始录制以查看波形</span>
           </div>
@@ -80,7 +80,7 @@
         
         <!-- Recording overlay effect -->
         <div v-if="isRecording" class="waveform-overlay">
-          <div class="recording-shimmer"></div>
+          <div class="recording-shimmer" />
         </div>
       </div>
 
@@ -107,8 +107,8 @@
               
               <!-- Enhanced breathing effect -->
               <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
-                <div class="breathing-ring primary-ring-1"></div>
-                <div class="breathing-ring primary-ring-2"></div>
+                <div class="breathing-ring primary-ring-1" />
+                <div class="breathing-ring primary-ring-2" />
               </div>
             </div>
           </button>
@@ -191,7 +191,7 @@
             :style="{ animationDelay: `${i * 50}ms` }"
           />
         </div>
-        <div class="volume-indicator-glow" :style="{ opacity: currentVolume / 100 }"></div>
+        <div class="volume-indicator-glow" :style="{ opacity: currentVolume / 100 }" />
       </div>
     </div>
 
@@ -205,12 +205,12 @@
     <div v-if="needsPermission" class="permission-request animate-permission-slide">
       <div class="permission-icon-container">
         <Mic :size="16" class="text-muted-foreground animate-mic-request" />
-        <div class="permission-pulse"></div>
+        <div class="permission-pulse" />
       </div>
       <span class="text-xs text-muted-foreground">需要麦克风权限</span>
       <button @click="requestPermission" class="permission-button hover-lift">
         <span class="button-text">允许</span>
-        <div class="button-shimmer"></div>
+        <div class="button-shimmer" />
       </button>
     </div>
   </div>

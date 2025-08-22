@@ -26,7 +26,7 @@
     
     <!-- Visual indicator -->
     <div class="indicator">
-      <div class="indicator-pulse"></div>
+      <div class="indicator-pulse" />
     </div>
   </div>
 </template>

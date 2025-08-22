@@ -60,8 +60,10 @@
       
       <!-- Input Container -->
       <div class="input-container relative">
-        <div class="input-wrapper flex items-end gap-2 sm:gap-3 p-3 bg-muted/40 rounded-2xl border border-transparent focus-within:border-primary/30 focus-within:bg-background/60 focus-within:shadow-sm transition-all duration-200"
-             :class="inputWrapperClasses">
+        <div
+          class="input-wrapper flex items-end gap-2 sm:gap-3 p-3 bg-muted/40 rounded-2xl border border-transparent focus-within:border-primary/30 focus-within:bg-background/60 focus-within:shadow-sm transition-all duration-200"
+          :class="inputWrapperClasses"
+        >
           <!-- Action Buttons -->
           <div class="input-actions flex gap-1 pb-0.5">
             <button
@@ -144,9 +146,11 @@
         </div>
         
         <!-- Character Count -->
-        <div v-if="showCharCount && inputText.length > 0" 
-             class="char-count absolute -bottom-6 right-0 text-xs transition-all duration-300"
-             :class="[charCountClasses, charCountAnimationClass]">
+        <div
+          v-if="showCharCount && inputText.length > 0" 
+          class="char-count absolute -bottom-6 right-0 text-xs transition-all duration-300"
+          :class="[charCountClasses, charCountAnimationClass]"
+        >
           {{ inputText.length }}{{ maxLength ? `/${maxLength}` : '' }}
         </div>
       </div>

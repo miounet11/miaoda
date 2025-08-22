@@ -22,7 +22,7 @@
             required
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter your full name"
-          />
+          >
         </div>
 
         <!-- Email field -->
@@ -36,7 +36,7 @@
             required
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter your email"
-          />
+          >
         </div>
 
         <!-- Password field -->
@@ -51,7 +51,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               :placeholder="isRegistering ? 'Create a strong password' : 'Enter your password'"
-            />
+            >
             <button
               type="button"
               @click="showPassword = !showPassword"
@@ -85,7 +85,7 @@
               v-model="form.rememberMe"
               type="checkbox"
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
+            >
             <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
           </label>
           
@@ -106,7 +106,7 @@
               type="checkbox"
               required
               class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
+            >
             <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">
               I agree to the 
               <a href="#" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
@@ -133,7 +133,7 @@
           class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors"
         >
           <div v-if="isLoading" class="flex items-center justify-center">
-            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
             {{ isRegistering ? 'Creating Account...' : 'Signing In...' }}
           </div>
           <span v-else>

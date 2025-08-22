@@ -39,7 +39,6 @@
           <!-- Content -->
           <div class="modal-content p-4 overflow-y-auto">
             <div class="shortcuts-grid grid gap-6 md:grid-cols-2">
-              
               <!-- Chat Management -->
               <div class="shortcut-section">
                 <h3 class="section-title flex items-center gap-2 mb-3">

@@ -5,7 +5,7 @@
       <!-- Avatar with pulse effect -->
       <div class="skeleton-avatar-container">
         <div class="skeleton-avatar">
-          <div class="avatar-pulse"></div>
+          <div class="avatar-pulse" />
         </div>
       </div>
       
@@ -23,22 +23,22 @@
           
           <!-- Typing dots simulation -->
           <div v-if="showTyping" class="skeleton-typing">
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
+            <span class="typing-dot" />
+            <span class="typing-dot" />
+            <span class="typing-dot" />
           </div>
         </div>
         
         <!-- Metadata skeleton -->
         <div class="skeleton-metadata">
-          <div class="skeleton-line skeleton-timestamp"></div>
+          <div class="skeleton-line skeleton-timestamp" />
         </div>
       </div>
     </div>
     
     <!-- Floating particles for enhanced effect -->
     <div class="skeleton-particles">
-      <div class="particle" v-for="n in 3" :key="n"></div>
+      <div class="particle" v-for="n in 3" :key="n" />
     </div>
   </div>
 </template>

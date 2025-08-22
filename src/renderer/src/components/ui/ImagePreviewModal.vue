@@ -161,7 +161,7 @@
               @load="onImageLoad"
               @error="onImageError"
               @dragstart.prevent
-            />
+            >
             
             <!-- Enhanced Image Info Overlay -->
             <div
@@ -182,15 +182,15 @@
           <div class="flex items-center justify-between mt-4 text-sm text-white/70 animate-footer-slide">
             <div class="flex items-center gap-4">
               <span class="flex items-center gap-1 animate-hint-float">
-                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot"></span>
+                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" />
                 按住拖拽移动
               </span>
               <span class="flex items-center gap-1 animate-hint-float" style="animation-delay: 0.1s">
-                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.1s"></span>
+                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.1s" />
                 滚轮缩放
               </span>
               <span class="flex items-center gap-1 animate-hint-float" style="animation-delay: 0.2s">
-                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.2s"></span>
+                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.2s" />
                 双击适应屏幕
               </span>
             </div>
@@ -241,14 +241,14 @@
             <span class="font-mono text-primary animate-current-glow">{{ currentIndex + 1 }}</span>
             <span class="opacity-60">/</span>
             <span class="font-mono opacity-80">{{ totalImages }}</span>
-            <div class="w-px h-4 bg-white/30 mx-2"></div>
+            <div class="w-px h-4 bg-white/30 mx-2" />
             <div class="flex gap-1">
               <div 
                 v-for="i in Math.min(totalImages, 5)"
                 :key="i"
                 class="w-1.5 h-1.5 rounded-full transition-all duration-300"
                 :class="i - 1 === currentIndex ? 'bg-primary scale-125' : 'bg-white/40 scale-100'"
-              ></div>
+              />
               <span v-if="totalImages > 5" class="text-xs opacity-60 ml-1">...</span>
             </div>
           </div>

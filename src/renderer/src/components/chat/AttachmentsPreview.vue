@@ -24,9 +24,9 @@
       
       <!-- Floating particles during drag -->
       <div v-if="isDragging" class="absolute inset-0 pointer-events-none">
-        <div class="particle particle-1"></div>
-        <div class="particle particle-2"></div>
-        <div class="particle particle-3"></div>
+        <div class="particle particle-1" />
+        <div class="particle particle-2" />
+        <div class="particle particle-3" />
       </div>
     </div>
 
@@ -175,8 +175,10 @@
           <!-- Enhanced Video Attachment -->
           <div v-else-if="attachment.type === 'video'" class="video-attachment relative">
             <!-- Video thumbnail/preview -->
-            <div class="video-preview h-24 w-32 bg-black rounded-lg overflow-hidden relative cursor-pointer"
-                 @click="openFilePreview(attachment)">
+            <div
+              class="video-preview h-24 w-32 bg-black rounded-lg overflow-hidden relative cursor-pointer"
+              @click="openFilePreview(attachment)"
+            >
               <video 
                 v-if="attachment.data"
                 :src="attachment.data" 

@@ -3,7 +3,7 @@
     <!-- Enhanced typing animation container -->
     <div class="typing-animation-container relative">
       <!-- Outer pulse ring -->
-      <div class="pulse-ring"></div>
+      <div class="pulse-ring" />
       
       <!-- Main dots -->
       <div class="flex items-center gap-1.5">
@@ -13,9 +13,9 @@
       </div>
       
       <!-- Floating particles -->
-      <div class="particle particle-1"></div>
-      <div class="particle particle-2"></div>
-      <div class="particle particle-3"></div>
+      <div class="particle particle-1" />
+      <div class="particle particle-2" />
+      <div class="particle particle-3" />
     </div>
     
     <!-- Message with typewriter effect -->

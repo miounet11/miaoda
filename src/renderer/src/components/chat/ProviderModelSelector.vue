@@ -51,164 +51,164 @@
             :style="dropdownStyle"
             @click.stop
           >
-        <!-- Header -->
-        <div class="p-3 border-b border-muted-foreground/10 bg-muted/10">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">LLM Provider & Model</h3>
-            <button
-              @click="closeDropdown"
-              class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <X :size="14" class="text-muted-foreground" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Provider Selection -->
-        <div class="p-3">
-          <!-- Built-in Providers -->
-          <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Built-in Providers</div>
-          <div class="space-y-1 mb-3">
-            <div
-              v-for="provider in availableProviders.filter(p => !p.isCustom)"
-              :key="provider.id"
-              @click="selectProvider(provider)"
-              class="provider-option flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-muted/30 group"
-              :class="{
-                'bg-primary/15 border border-primary/30': provider.id === currentProviderId,
-                'opacity-60': !provider.isHealthy && provider.id !== currentProviderId
-              }"
-            >
-              <!-- Provider Icon -->
-              <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
-              
-              <!-- Provider Info -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium truncate">{{ provider.displayName }}</span>
-                  <Check 
-                    v-if="provider.id === currentProviderId" 
-                    :size="12" 
-                    class="text-primary flex-shrink-0" 
-                  />
-                </div>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <span class="text-xs text-muted-foreground">{{ provider.description }}</span>
-                  <div 
-                    v-if="provider.isCustom"
-                    class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 text-xs rounded-md border border-blue-500/20"
-                  >
-                    Custom
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Status Indicator -->
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <div 
-                  class="w-2 h-2 rounded-full"
-                  :class="getProviderStatusClass(provider)"
-                />
+            <!-- Header -->
+            <div class="p-3 border-b border-muted-foreground/10 bg-muted/10">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">LLM Provider & Model</h3>
+                <button
+                  @click="closeDropdown"
+                  class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X :size="14" class="text-muted-foreground" />
+                </button>
               </div>
             </div>
-          </div>
-          
-          <!-- Custom Providers -->
-          <div v-if="availableProviders.some(p => p.isCustom)">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1 mt-3">Custom Providers</div>
-            <div class="space-y-1">
-              <div
-                v-for="provider in availableProviders.filter(p => p.isCustom)"
-                :key="provider.id"
-                @click="selectProvider(provider)"
-                class="provider-option flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                :class="{
-                  'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600': provider.id === currentProviderId,
-                  'border border-transparent': provider.id !== currentProviderId,
-                  'opacity-60': !provider.isHealthy && provider.id !== currentProviderId
-                }"
-              >
-                <!-- Provider Icon -->
-                <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
-                
-                <!-- Provider Info -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ provider.displayName }}</span>
-                    <Check 
-                      v-if="provider.id === currentProviderId" 
-                      :size="12" 
-                      class="text-primary flex-shrink-0" 
+
+            <!-- Provider Selection -->
+            <div class="p-3">
+              <!-- Built-in Providers -->
+              <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Built-in Providers</div>
+              <div class="space-y-1 mb-3">
+                <div
+                  v-for="provider in availableProviders.filter(p => !p.isCustom)"
+                  :key="provider.id"
+                  @click="selectProvider(provider)"
+                  class="provider-option flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-muted/30 group"
+                  :class="{
+                    'bg-primary/15 border border-primary/30': provider.id === currentProviderId,
+                    'opacity-60': !provider.isHealthy && provider.id !== currentProviderId
+                  }"
+                >
+                  <!-- Provider Icon -->
+                  <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
+              
+                  <!-- Provider Info -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-medium truncate">{{ provider.displayName }}</span>
+                      <Check 
+                        v-if="provider.id === currentProviderId" 
+                        :size="12" 
+                        class="text-primary flex-shrink-0" 
+                      />
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="text-xs text-muted-foreground">{{ provider.description }}</span>
+                      <div 
+                        v-if="provider.isCustom"
+                        class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 text-xs rounded-md border border-blue-500/20"
+                      >
+                        Custom
+                      </div>
+                    </div>
+                  </div>
+              
+                  <!-- Status Indicator -->
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <div 
+                      class="w-2 h-2 rounded-full"
+                      :class="getProviderStatusClass(provider)"
                     />
                   </div>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ provider.description }}</span>
-                    <div 
-                      class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-md border border-blue-500/20"
-                    >
-                      Custom
+                </div>
+              </div>
+          
+              <!-- Custom Providers -->
+              <div v-if="availableProviders.some(p => p.isCustom)">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1 mt-3">Custom Providers</div>
+                <div class="space-y-1">
+                  <div
+                    v-for="provider in availableProviders.filter(p => p.isCustom)"
+                    :key="provider.id"
+                    @click="selectProvider(provider)"
+                    class="provider-option flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    :class="{
+                      'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600': provider.id === currentProviderId,
+                      'border border-transparent': provider.id !== currentProviderId,
+                      'opacity-60': !provider.isHealthy && provider.id !== currentProviderId
+                    }"
+                  >
+                    <!-- Provider Icon -->
+                    <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
+                
+                    <!-- Provider Info -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ provider.displayName }}</span>
+                        <Check 
+                          v-if="provider.id === currentProviderId" 
+                          :size="12" 
+                          class="text-primary flex-shrink-0" 
+                        />
+                      </div>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ provider.description }}</span>
+                        <div 
+                          class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-md border border-blue-500/20"
+                        >
+                          Custom
+                        </div>
+                      </div>
+                    </div>
+                
+                    <!-- Status Indicator -->
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                      <div 
+                        class="w-2 h-2 rounded-full"
+                        :class="getProviderStatusClass(provider)"
+                      />
                     </div>
                   </div>
                 </div>
-                
-                <!-- Status Indicator -->
-                <div class="flex items-center gap-1 flex-shrink-0">
-                  <div 
-                    class="w-2 h-2 rounded-full"
-                    :class="getProviderStatusClass(provider)"
+              </div>
+            </div>
+
+            <!-- Model Selection (if provider has multiple models) -->
+            <div v-if="availableModels.length > 1" class="border-t border-muted-foreground/10 p-3">
+              <div class="text-xs font-medium text-muted-foreground mb-2 px-1">Available Models</div>
+              <div class="space-y-1 max-h-32 overflow-y-auto">
+                <div
+                  v-for="model in availableModels"
+                  :key="model.id"
+                  @click="selectModel(model)"
+                  class="model-option flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all hover:bg-muted/30"
+                  :class="{
+                    'bg-primary/15 border border-primary/30': model.id === currentModelId
+                  }"
+                >
+                  <span class="text-sm font-medium flex-1">{{ model.name }}</span>
+                  <Check 
+                    v-if="model.id === currentModelId" 
+                    :size="12" 
+                    class="text-primary" 
                   />
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Model Selection (if provider has multiple models) -->
-        <div v-if="availableModels.length > 1" class="border-t border-muted-foreground/10 p-3">
-          <div class="text-xs font-medium text-muted-foreground mb-2 px-1">Available Models</div>
-          <div class="space-y-1 max-h-32 overflow-y-auto">
-            <div
-              v-for="model in availableModels"
-              :key="model.id"
-              @click="selectModel(model)"
-              class="model-option flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all hover:bg-muted/30"
-              :class="{
-                'bg-primary/15 border border-primary/30': model.id === currentModelId
-              }"
-            >
-              <span class="text-sm font-medium flex-1">{{ model.name }}</span>
-              <Check 
-                v-if="model.id === currentModelId" 
-                :size="12" 
-                class="text-primary" 
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="border-t border-muted-foreground/10 p-2 bg-muted/5">
-          <div class="flex items-center gap-1">
-            <button
-              @click="openSettings"
-              class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors"
-            >
-              <Settings :size="14" />
-              <span>Settings</span>
-            </button>
+            <!-- Quick Actions -->
+            <div class="border-t border-muted-foreground/10 p-2 bg-muted/5">
+              <div class="flex items-center gap-1">
+                <button
+                  @click="openSettings"
+                  class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors"
+                >
+                  <Settings :size="14" />
+                  <span>Settings</span>
+                </button>
             
-            <button
-              v-if="isConfigured"
-              @click="testConnection"
-              :disabled="isTestingConnection"
-              class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Zap v-if="!isTestingConnection" :size="14" />
-              <Loader2 v-else :size="14" class="animate-spin" />
-              <span>{{ isTestingConnection ? 'Testing...' : 'Test' }}</span>
-            </button>
-          </div>
-        </div>
+                <button
+                  v-if="isConfigured"
+                  @click="testConnection"
+                  :disabled="isTestingConnection"
+                  class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Zap v-if="!isTestingConnection" :size="14" />
+                  <Loader2 v-else :size="14" class="animate-spin" />
+                  <span>{{ isTestingConnection ? 'Testing...' : 'Test' }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </Transition>

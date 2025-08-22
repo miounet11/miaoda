@@ -14,7 +14,7 @@
     <div class="p-6">
       <!-- Loading state -->
       <div v-if="isLoading" class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         <span class="ml-3 text-gray-600 dark:text-gray-400">Loading sessions...</span>
       </div>
 
@@ -79,7 +79,7 @@
                 <div
                   :class="getSecurityStatusColor(session)"
                   class="h-2 w-2 rounded-full mr-2"
-                ></div>
+                />
                 <span class="text-xs text-gray-500">
                   {{ getSecurityStatus(session) }}
                 </span>
@@ -94,7 +94,7 @@
               class="text-red-600 hover:text-red-700 disabled:text-gray-400 text-sm font-medium transition-colors"
             >
               <div v-if="revokingSessionId === session.id" class="flex items-center">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1" />
                 Revoking...
               </div>
               <span v-else>Revoke</span>
@@ -117,7 +117,7 @@
             class="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             <div v-if="isRevokingAll" class="flex items-center">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               Revoking All...
             </div>
             <span v-else>Revoke All Others</span>
@@ -149,8 +149,8 @@
       v-if="showRevokeConfirm"
       :title="revokeConfirmTitle"
       :message="revokeConfirmMessage"
-      confirmText="Revoke"
-      confirmClass="bg-red-600 hover:bg-red-700"
+      confirm-text="Revoke"
+      confirm-class="bg-red-600 hover:bg-red-700"
       @confirm="confirmRevoke"
       @cancel="cancelRevoke"
     />

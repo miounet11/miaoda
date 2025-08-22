@@ -23,7 +23,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Enter your current password"
-            />
+            >
             <button
               type="button"
               @click="showCurrentPassword = !showCurrentPassword"
@@ -47,7 +47,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Enter your new password"
-            />
+            >
             <button
               type="button"
               @click="showNewPassword = !showNewPassword"
@@ -86,7 +86,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Confirm your new password"
-            />
+            >
             <button
               type="button"
               @click="showConfirmPassword = !showConfirmPassword"
@@ -145,7 +145,7 @@
             class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
             <div v-if="isLoading" class="flex items-center justify-center">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
               Changing...
             </div>
             <span v-else>Change Password</span>

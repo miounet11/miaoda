@@ -20,7 +20,7 @@
             :src="user.avatar"
             :alt="user.name"
             class="h-20 w-20 rounded-full object-cover"
-          />
+          >
           <div
             v-else
             class="h-20 w-20 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center"
@@ -70,7 +70,7 @@
             v-model="profileForm.name"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          />
+          >
         </div>
 
         <!-- Email -->
@@ -84,7 +84,7 @@
               type="email"
               disabled
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-            />
+            >
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
               <CheckBadgeIcon v-if="user?.email_verified" class="h-5 w-5 text-green-500" />
               <ExclamationTriangleIcon v-else class="h-5 w-5 text-yellow-500" />
@@ -202,7 +202,7 @@
             class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             <div v-if="isLoading" class="flex items-center">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               Saving...
             </div>
             <span v-else>Save Changes</span>

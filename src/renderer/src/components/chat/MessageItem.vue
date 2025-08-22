@@ -28,9 +28,9 @@
           <!-- Loading State -->
           <div v-if="isLoading && !message.content" class="loading-content">
             <div class="typing-dots">
-              <div class="typing-dot"></div>
-              <div class="typing-dot"></div>
-              <div class="typing-dot"></div>
+              <div class="typing-dot" />
+              <div class="typing-dot" />
+              <div class="typing-dot" />
             </div>
             <span class="ai-thinking">AI is thinking...</span>
           </div>

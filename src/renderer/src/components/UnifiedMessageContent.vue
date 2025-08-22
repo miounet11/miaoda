@@ -91,7 +91,7 @@
       />
       
       <!-- Enhanced standard content rendering -->
-      <div v-else :class="proseClasses" v-html="renderedContent" class="animate-text-appear"></div>
+      <div v-else :class="proseClasses" v-html="renderedContent" class="animate-text-appear" />
     </div>
 
     <!-- Enhanced Actions with Hover Effects -->
