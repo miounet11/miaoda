@@ -1,0 +1,379 @@
+/**
+ * 统一间距和布局系统 - Unified Spacing & Layout System
+ * 
+ * 基于代理分析的问题修复：
+ * 1. 多套间距系统冲突
+ * 2. 顶部标题栏间距过大
+ * 3. 对话区域边距设置不当
+ * 4. 布局不一致
+ */
+
+/* ============== 全局间距令牌重定义 ============== */
+
+:root {
+  /* === 基础间距系统 (4px 基准) === */
+  --space-0: 0;
+  --space-1: 4px;   /* 微间距 */
+  --space-2: 8px;   /* 小间距 */
+  --space-3: 12px;  /* 中小间距 */
+  --space-4: 16px;  /* 标准间距 */
+  --space-5: 20px;  /* 中间距 */
+  --space-6: 24px;  /* 大间距 */
+  --space-7: 28px;  /* 很大间距 */
+  --space-8: 32px;  /* 超大间距 */
+  --space-10: 40px; /* 特大间距 */
+  --space-12: 48px; /* 极大间距 */
+  --space-16: 64px; /* 超极大间距 */
+  
+  /* === 组件间距令牌 === */
+  --component-padding-xs: var(--space-2);   /* 8px */
+  --component-padding-sm: var(--space-3);   /* 12px */
+  --component-padding-md: var(--space-4);   /* 16px */
+  --component-padding-lg: var(--space-6);   /* 24px */
+  --component-padding-xl: var(--space-8);   /* 32px */
+  
+  /* === 容器间距令牌 === */
+  --container-padding-mobile: var(--space-4);  /* 16px */
+  --container-padding-desktop: var(--space-6); /* 24px */
+  --container-gap: var(--space-4);             /* 16px */
+  
+  /* === 布局高度令牌 === */
+  --header-height-compact: 56px;
+  --header-height-normal: 64px;
+  --header-height-large: 72px;
+  --input-area-height: 80px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-width-expanded: 280px;
+}
+
+/* ============== 布局容器标准化 ============== */
+
+/* === 主聊天视图布局优化 === */
+.chat-view {
+  display: flex !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* === 顶部标题栏间距优化 === */
+.chat-header {
+  height: var(--header-height-compact) !important;
+  padding: var(--space-3) var(--component-padding-md) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-3) !important;
+  flex-shrink: 0 !important;
+  
+  /* 优化背景和边框 */
+  background: hsl(var(--surface-elevated) / 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid hsl(var(--divider)) !important;
+}
+
+.chat-header .chat-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: hsl(var(--text-primary)) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.chat-header .status-info {
+  font-size: 13px !important;
+  color: hsl(var(--text-secondary)) !important;
+  margin-top: var(--space-1) !important;
+}
+
+/* === 对话区域边距修正 === */
+.messages-container,
+.message-list {
+  padding: var(--component-padding-md) !important;
+  gap: var(--space-4) !important;
+}
+
+/* 单个消息的间距优化 */
+.message-bubble {
+  margin: var(--space-3) 0 !important;
+  padding: var(--component-padding-sm) var(--component-padding-md) !important;
+  max-width: min(70%, 600px) !important;
+}
+
+/* 消息之间的间距 */
+.message-bubble + .message-bubble {
+  margin-top: var(--space-4) !important;
+}
+
+/* === 侧边栏间距统一 === */
+.sidebar {
+  width: var(--sidebar-width-expanded) !important;
+  padding: 0 !important;
+}
+
+.sidebar-header {
+  padding: var(--component-padding-lg) var(--component-padding-md) !important;
+  border-bottom: 1px solid hsl(var(--divider)) !important;
+}
+
+.sidebar-header h1 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
+}
+
+/* 侧边栏按钮间距 */
+.sidebar-header .flex {
+  gap: var(--space-2) !important;
+}
+
+.sidebar-header button {
+  padding: var(--space-2) !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+/* === 输入区域布局优化 === */
+.input-area {
+  padding: var(--component-padding-lg) var(--component-padding-md) !important;
+  min-height: var(--input-area-height) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* === 聊天项目间距优化 === */
+.chat-item {
+  margin: var(--space-1) var(--space-2) !important;
+  padding: var(--component-padding-sm) var(--component-padding-md) !important;
+  border-radius: 12px !important;
+  
+  /* 改进的内部间距 */
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: var(--space-3) !important;
+}
+
+.chat-item h3 {
+  margin: 0 0 var(--space-1) 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+.chat-item p {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  opacity: 0.8 !important;
+}
+
+/* ============== 响应式间距系统 ============== */
+
+/* === 桌面端优化 === */
+@media (min-width: 1024px) {
+  .chat-header {
+    height: var(--header-height-normal) !important;
+    padding: var(--space-4) var(--component-padding-lg) !important;
+  }
+  
+  .messages-container {
+    padding: var(--component-padding-lg) var(--component-padding-xl) !important;
+  }
+  
+  .input-area {
+    padding: var(--component-padding-lg) var(--component-padding-xl) !important;
+  }
+}
+
+/* === 平板端适配 === */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .sidebar {
+    width: 240px !important;
+  }
+  
+  .messages-container {
+    padding: var(--component-padding-md) var(--component-padding-lg) !important;
+  }
+}
+
+/* === 移动端优化 === */
+@media (max-width: 767px) {
+  :root {
+    --header-height-compact: 52px;
+    --input-area-height: 72px;
+    --component-padding-md: var(--space-3); /* 移动端减小内边距 */
+  }
+  
+  .chat-header {
+    padding: var(--space-2) var(--component-padding-md) !important;
+  }
+  
+  .messages-container {
+    padding: var(--component-padding-sm) var(--component-padding-md) !important;
+  }
+  
+  .input-area {
+    padding: var(--component-padding-md) !important;
+  }
+  
+  .message-bubble {
+    max-width: 85% !important;
+    margin: var(--space-2) 0 !important;
+    padding: var(--space-2) var(--component-padding-sm) !important;
+  }
+  
+  .sidebar-header {
+    padding: var(--component-padding-md) !important;
+  }
+  
+  .chat-item {
+    margin: var(--space-1) !important;
+    padding: var(--space-2) var(--component-padding-sm) !important;
+  }
+}
+
+/* ============== 布局工具类 ============== */
+
+/* === 间距工具类 === */
+.spacing-xs { gap: var(--space-1) !important; }
+.spacing-sm { gap: var(--space-2) !important; }
+.spacing-md { gap: var(--space-3) !important; }
+.spacing-lg { gap: var(--space-4) !important; }
+.spacing-xl { gap: var(--space-6) !important; }
+
+/* === 内边距工具类 === */
+.padding-component-sm { padding: var(--component-padding-sm) !important; }
+.padding-component-md { padding: var(--component-padding-md) !important; }
+.padding-component-lg { padding: var(--component-padding-lg) !important; }
+
+/* === 外边距工具类 === */
+.margin-component-sm { margin: var(--component-padding-sm) !important; }
+.margin-component-md { margin: var(--component-padding-md) !important; }
+.margin-component-lg { margin: var(--component-padding-lg) !important; }
+
+/* ============== 布局网格系统 ============== */
+
+.layout-grid {
+  display: grid !important;
+  gap: var(--space-4) !important;
+  padding: var(--component-padding-md) !important;
+}
+
+.layout-grid-2 {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.layout-grid-3 {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 767px) {
+  .layout-grid-2,
+  .layout-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============== 特殊组件间距修正 ============== */
+
+/* === 欢迎界面布局 === */
+.welcome-container {
+  padding: var(--component-padding-xl) var(--component-padding-lg) !important;
+  text-align: center !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+}
+
+.welcome-container h1 {
+  margin: 0 0 var(--space-4) 0 !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+.welcome-container p {
+  margin: 0 0 var(--space-6) 0 !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  opacity: 0.8 !important;
+}
+
+/* === 快速建议按钮布局 === */
+.suggestion-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: var(--space-4) !important;
+  margin-top: var(--space-6) !important;
+}
+
+.suggestion-card {
+  padding: var(--component-padding-lg) !important;
+  border-radius: 12px !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--card)) !important;
+  transition: all 0.2s ease !important;
+  text-align: left !important;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: hsl(var(--primary-300)) !important;
+  box-shadow: 0 8px 25px -5px rgba(var(--primary-500), 0.15) !important;
+}
+
+/* ============== 附件预览布局 ============== */
+.attachments-container {
+  padding: var(--component-padding-md) !important;
+  border-top: 1px solid hsl(var(--divider)) !important;
+  background: hsl(var(--surface-elevated) / 0.5) !important;
+}
+
+.attachments-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: var(--space-3) !important;
+}
+
+/* ============== 滚动条优化 ============== */
+.messages-container::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.messages-container::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.messages-container::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border)) !important;
+  border-radius: 3px !important;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover,
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--text-tertiary)) !important;
+}
+
+/* ============== 调试辅助 ============== */
+.development .layout-debug * {
+  outline: 1px dashed rgba(255, 0, 0, 0.3) !important;
+  background: rgba(255, 0, 0, 0.02) !important;
+}
+
+.development .spacing-debug {
+  position: relative;
+}
+
+.development .spacing-debug::after {
+  content: attr(data-spacing) !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  font-size: 10px !important;
+  background: orange !important;
+  color: white !important;
+  padding: 2px 4px !important;
+  border-radius: 2px !important;
+  z-index: 9999 !important;
+}

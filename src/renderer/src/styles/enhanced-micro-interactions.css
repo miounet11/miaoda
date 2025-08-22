@@ -1,0 +1,565 @@
+/**
+ * Enhanced Micro-interactions for MiaoDa Chat
+ * 基于用户体验分析的微交互优化方案
+ * 
+ * 设计原则:
+ * - 功能性优先：每个动画都有明确目的
+ * - 性能友好：使用GPU加速，避免重排
+ * - 可访问性：支持减少动画偏好
+ * - 品牌一致：与设计系统保持一致
+ */
+
+/* ============== 核心动画令牌 ============== */
+:root {
+  /* 动画时长 */
+  --micro-duration-instant: 100ms;    /* 即时反馈 */
+  --micro-duration-quick: 200ms;      /* 快速过渡 */
+  --micro-duration-normal: 300ms;     /* 标准过渡 */
+  --micro-duration-slow: 500ms;       /* 展示动画 */
+  
+  /* 缓动函数 */
+  --micro-ease-entrance: cubic-bezier(0.34, 1.56, 0.64, 1);  /* 弹性入场 */
+  --micro-ease-exit: cubic-bezier(0.4, 0, 1, 1);             /* 快速出场 */
+  --micro-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);       /* 标准缓动 */
+  --micro-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* 弹跳效果 */
+  
+  /* 状态颜色 */
+  --micro-success: hsl(142 71% 45%);
+  --micro-warning: hsl(38 92% 50%);
+  --micro-error: hsl(0 72% 51%);
+  --micro-info: hsl(221 83% 53%);
+}
+
+/* ============== 输入框微交互 ============== */
+
+/* 基础输入容器 */
+.input-wrapper-enhanced {
+  position: relative;
+  transition: all var(--micro-duration-normal) var(--micro-ease-standard);
+  overflow: hidden;
+}
+
+/* 聚焦渐进式动画 */
+.input-wrapper-enhanced::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, 
+    hsl(var(--primary)), 
+    hsl(var(--primary) / 0.6),
+    hsl(var(--primary))
+  );
+  background-size: 200% 200%;
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity var(--micro-duration-normal) var(--micro-ease-standard);
+}
+
+.input-wrapper-enhanced:focus-within::before {
+  opacity: 1;
+  animation: focusGradientFlow var(--micro-duration-slow) var(--micro-ease-standard) infinite;
+}
+
+@keyframes focusGradientFlow {
+  0%, 100% { 
+    background-position: 0% 50%; 
+    transform: scale(1);
+  }
+  50% { 
+    background-position: 100% 50%; 
+    transform: scale(1.005);
+  }
+}
+
+/* 输入状态指示 */
+.input-wrapper-enhanced.typing {
+  background: linear-gradient(90deg, 
+    transparent, 
+    hsl(var(--primary) / 0.03), 
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: typingIndicator 2s var(--micro-ease-standard) infinite;
+}
+
+@keyframes typingIndicator {
+  0% { background-position: -100% center; }
+  100% { background-position: 100% center; }
+}
+
+/* 增强的placeholder动画 */
+.enhanced-textarea {
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+}
+
+.enhanced-textarea::placeholder {
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+  transform-origin: left center;
+}
+
+.enhanced-textarea:focus::placeholder {
+  transform: translateY(-2px) scale(0.9);
+  opacity: 0.6;
+  color: hsl(var(--primary) / 0.7);
+}
+
+/* 字符计数微交互 */
+.char-count-enhanced {
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+  font-variant-numeric: tabular-nums;
+}
+
+.char-count-enhanced.pulse {
+  animation: charCountPulse var(--micro-duration-normal) var(--micro-ease-bounce);
+}
+
+.char-count-enhanced.warning {
+  color: var(--micro-warning);
+  animation: warningPulse 1s var(--micro-ease-standard) infinite;
+}
+
+.char-count-enhanced.error {
+  color: var(--micro-error);
+  animation: errorShake var(--micro-duration-normal) var(--micro-ease-standard);
+}
+
+@keyframes charCountPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes warningPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* ============== 按钮微交互系统 ============== */
+
+/* 基础交互按钮 */
+.btn-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+  transform: translateZ(0); /* GPU加速 */
+  backface-visibility: hidden;
+}
+
+/* 悬停效果 */
+.btn-enhanced:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.02) translateZ(0);
+  box-shadow: 
+    0 4px 12px hsl(var(--primary) / 0.25),
+    0 0 0 1px hsl(var(--primary) / 0.1);
+}
+
+/* 点击波纹效果 */
+.btn-enhanced::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, 
+    hsl(var(--primary-foreground) / 0.3) 0%, 
+    transparent 70%
+  );
+  transform: scale(0);
+  opacity: 0;
+  transition: all 400ms var(--micro-ease-standard);
+  pointer-events: none;
+}
+
+.btn-enhanced:active:not(:disabled)::after {
+  transform: scale(1);
+  opacity: 1;
+  transition-duration: var(--micro-duration-instant);
+}
+
+/* 发送按钮特殊状态 */
+.send-btn-enhanced {
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+  will-change: auto; /* 仅在需要时启用 */
+}
+
+.send-btn-enhanced:hover:not(:disabled) {
+  will-change: transform;
+}
+
+.send-btn-enhanced:not(:hover) {
+  will-change: auto;
+}
+
+/* 发送成功状态 */
+.send-btn-enhanced.success-state {
+  background: var(--micro-success);
+  animation: sendSuccessPulse 600ms var(--micro-ease-bounce);
+}
+
+@keyframes sendSuccessPulse {
+  0% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 hsl(142 71% 45% / 0.4);
+  }
+  30% { 
+    transform: scale(1.05); 
+    box-shadow: 0 0 0 8px hsl(142 71% 45% / 0.3);
+  }
+  70% { 
+    transform: scale(1.1); 
+    box-shadow: 0 0 0 12px hsl(142 71% 45% / 0.1);
+  }
+  100% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 hsl(142 71% 45% / 0);
+  }
+}
+
+/* 加载状态 */
+.btn-enhanced[aria-busy="true"] {
+  pointer-events: none;
+  cursor: default;
+  position: relative;
+}
+
+.btn-enhanced[aria-busy="true"]::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid hsl(var(--primary-foreground) / 0.3);
+  border-top: 2px solid hsl(var(--primary-foreground));
+  border-radius: 50%;
+  animation: loadingSpin 1s linear infinite;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+}
+
+.btn-enhanced[aria-busy="true"] .lucide,
+.btn-enhanced[aria-busy="true"] svg {
+  opacity: 0;
+  transition: opacity var(--micro-duration-quick) var(--micro-ease-standard);
+}
+
+@keyframes loadingSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 错误状态按钮 */
+.btn-enhanced.error-state {
+  background: var(--micro-error);
+  animation: errorPulse var(--micro-duration-normal) var(--micro-ease-standard);
+}
+
+@keyframes errorPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 hsl(0 72% 51% / 0.4);
+  }
+  50% { 
+    transform: scale(0.98); 
+    box-shadow: 0 0 0 4px hsl(0 72% 51% / 0.2);
+  }
+}
+
+/* ============== 模态框和过渡动画 ============== */
+
+/* 模态框背景 */
+.modal-backdrop-enhanced {
+  background: hsl(0 0% 0% / 0.5);
+  backdrop-filter: blur(4px);
+  animation: backdropFadeIn var(--micro-duration-normal) var(--micro-ease-standard);
+}
+
+@keyframes backdropFadeIn {
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* 模态框内容 */
+.modal-content-enhanced {
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  animation: modalSlideIn var(--micro-duration-normal) var(--micro-ease-entrance) forwards;
+}
+
+@keyframes modalSlideIn {
+  to { 
+    transform: scale(1) translateY(0); 
+    opacity: 1; 
+  }
+}
+
+/* 模态框退出动画 */
+.modal-content-enhanced.exiting {
+  animation: modalSlideOut var(--micro-duration-quick) var(--micro-ease-exit) forwards;
+}
+
+@keyframes modalSlideOut {
+  to { 
+    transform: scale(0.9) translateY(-20px); 
+    opacity: 0; 
+  }
+}
+
+/* ============== 列表项微交互 ============== */
+
+/* 聊天列表项 */
+.chat-item-enhanced {
+  transition: all var(--micro-duration-quick) var(--micro-ease-standard);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.chat-item-enhanced::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: hsl(var(--primary));
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform var(--micro-duration-quick) var(--micro-ease-standard);
+}
+
+.chat-item-enhanced:hover::before {
+  transform: scaleY(1);
+  animation: indicatorGlow 1s var(--micro-ease-standard) infinite;
+}
+
+.chat-item-enhanced:hover {
+  background: hsl(var(--accent) / 0.5);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px hsl(0 0% 0% / 0.1);
+}
+
+@keyframes indicatorGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 消息入场动画 */
+.message-item-enhanced {
+  animation: messageSlideIn var(--micro-duration-normal) var(--micro-ease-entrance);
+  transform-origin: left center;
+}
+
+@keyframes messageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============== 错误状态处理 ============== */
+
+/* 输入错误提示 */
+.input-error-enhanced {
+  position: relative;
+  animation: inputErrorShake 400ms var(--micro-ease-standard);
+  border-color: var(--micro-error);
+}
+
+.input-error-enhanced::after {
+  content: attr(data-error-message);
+  position: absolute;
+  bottom: -24px;
+  left: 0;
+  right: 0;
+  font-size: var(--font-size-xs);
+  color: var(--micro-error);
+  opacity: 0;
+  transform: translateY(-4px);
+  animation: errorMessageSlideIn var(--micro-duration-normal) var(--micro-ease-standard) forwards;
+  pointer-events: none;
+}
+
+@keyframes inputErrorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes errorMessageSlideIn {
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* 成功状态提示 */
+.success-feedback {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--micro-success);
+  color: white;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  box-shadow: 0 4px 12px hsl(142 71% 45% / 0.3);
+  z-index: 1000;
+  animation: successToastSlide var(--micro-duration-normal) var(--micro-ease-entrance);
+}
+
+@keyframes successToastSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+/* ============== 性能优化类 ============== */
+
+/* GPU加速基类 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* 仅在需要时启用will-change */
+.performance-optimized:hover,
+.performance-optimized:focus,
+.performance-optimized:active {
+  will-change: transform, opacity;
+}
+
+.performance-optimized:not(:hover):not(:focus):not(:active) {
+  will-change: auto;
+}
+
+/* 内容可见性优化 */
+.content-visibility-optimized {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
+/* ============== 可访问性支持 ============== */
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .btn-enhanced,
+  .input-wrapper-enhanced,
+  .modal-content-enhanced,
+  .chat-item-enhanced,
+  .message-item-enhanced {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* 保留必要的即时反馈 */
+  .btn-enhanced:hover:not(:disabled) {
+    transform: none;
+    background: hsl(var(--primary) / 0.9);
+  }
+  
+  .input-wrapper-enhanced:focus-within {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+  
+  /* 静态错误提示 */
+  .input-error-enhanced::after {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .input-wrapper-enhanced:focus-within {
+    border: 2px solid hsl(var(--primary));
+    box-shadow: none;
+  }
+  
+  .btn-enhanced:hover:not(:disabled) {
+    border: 2px solid hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+  }
+  
+  .chat-item-enhanced:hover {
+    border: 1px solid hsl(var(--primary));
+    background: hsl(var(--background));
+  }
+}
+
+/* 深色模式优化 */
+@media (prefers-color-scheme: dark) {
+  .modal-backdrop-enhanced {
+    background: hsl(0 0% 0% / 0.7);
+  }
+  
+  .success-feedback {
+    box-shadow: 0 4px 12px hsl(142 71% 45% / 0.4);
+  }
+  
+  .btn-enhanced:hover:not(:disabled) {
+    box-shadow: 
+      0 4px 12px hsl(var(--primary) / 0.3),
+      0 0 0 1px hsl(var(--primary) / 0.2);
+  }
+}
+
+/* ============== 工具类 ============== */
+
+/* 快速应用微交互 */
+.micro-smooth { transition: all var(--micro-duration-quick) var(--micro-ease-standard); }
+.micro-bounce { animation-timing-function: var(--micro-ease-bounce); }
+.micro-entrance { animation-timing-function: var(--micro-ease-entrance); }
+.micro-exit { animation-timing-function: var(--micro-ease-exit); }
+
+/* 状态颜色快速类 */
+.micro-success-color { color: var(--micro-success); }
+.micro-warning-color { color: var(--micro-warning); }
+.micro-error-color { color: var(--micro-error); }
+.micro-info-color { color: var(--micro-info); }
+
+/* 浮动效果 */
+.micro-float {
+  animation: gentleFloat 4s var(--micro-ease-standard) infinite;
+}
+
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0px) translateZ(0); }
+  50% { transform: translateY(-2px) translateZ(0); }
+}
+
+/* 脉冲效果 */
+.micro-pulse {
+  animation: gentlePulse 2s var(--micro-ease-standard) infinite;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; transform: scale(1) translateZ(0); }
+  50% { opacity: 0.8; transform: scale(1.02) translateZ(0); }
+}

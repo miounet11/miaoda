@@ -1,0 +1,463 @@
+/**
+ * 侧边栏UI辨识度增强样式 - Sidebar UI Enhancement System
+ * 
+ * 设计目标：
+ * 1. 提升聊天项目的视觉对比度和辨识度
+ * 2. 增强交互反馈和状态指示
+ * 3. 改善用户体验的清晰度和可用性
+ * 4. 与现代化设计系统保持一致
+ */
+
+/* ============== 聊天项目基础增强 ============== */
+
+.chat-item {
+  /* 基础样式增强 */
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  margin: 6px 8px !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  cursor: pointer !important;
+  
+  /* 增强阴影效果 */
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.chat-item:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-300)) !important;
+  transform: translateX(4px) translateY(-1px) !important;
+  box-shadow: 
+    0 8px 25px -5px rgba(var(--primary-500), 0.15),
+    0 10px 10px -5px rgba(var(--primary-500), 0.04) !important;
+}
+
+.chat-item.active {
+  background: var(--gradient-subtle) !important;
+  border-color: hsl(var(--primary-500)) !important;
+  color: hsl(var(--primary-700)) !important;
+  transform: translateX(6px) !important;
+  
+  /* 左边框强调 */
+  border-left: 3px solid hsl(var(--primary-500)) !important;
+  
+  /* 增强阴影 */
+  box-shadow: 
+    0 4px 20px -2px rgba(var(--primary-500), 0.25),
+    0 8px 16px -4px rgba(var(--primary-500), 0.1) !important;
+}
+
+/* ============== 文本对比度增强 ============== */
+
+.chat-item h3 {
+  color: hsl(var(--text-primary)) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin-bottom: 4px !important;
+  
+  /* 文本清晰度增强 */
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.chat-item p {
+  color: hsl(var(--text-secondary)) !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  opacity: 0.85 !important;
+  
+  /* 预览文本增强 */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.chat-item.active h3 {
+  color: hsl(var(--primary-700)) !important;
+  font-weight: 700 !important;
+}
+
+.chat-item.active p {
+  color: hsl(var(--primary-600)) !important;
+  opacity: 1 !important;
+}
+
+/* ============== 状态指示器增强 ============== */
+
+.chat-item .status-indicator {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+  top: 12px !important;
+  left: 12px !important;
+  background: hsl(var(--success-500)) !important;
+  
+  /* 发光效果 */
+  box-shadow: 
+    0 0 6px rgba(var(--success-500), 0.6),
+    0 0 12px rgba(var(--success-500), 0.3) !important;
+}
+
+.chat-item.active .status-indicator {
+  width: 10px !important;
+  height: 10px !important;
+  background: hsl(var(--primary-500)) !important;
+  box-shadow: 
+    0 0 8px rgba(var(--primary-500), 0.8),
+    0 0 16px rgba(var(--primary-500), 0.4) !important;
+}
+
+/* ============== 消息数量徽章增强 ============== */
+
+.chat-item .message-count-badge {
+  background: hsl(var(--primary-500)) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  border: 1px solid hsl(var(--primary-600)) !important;
+  
+  /* 阴影增强 */
+  box-shadow: 
+    0 2px 4px rgba(var(--primary-500), 0.3),
+    0 1px 2px rgba(var(--primary-500), 0.1) !important;
+}
+
+.chat-item.active .message-count-badge {
+  background: white !important;
+  color: hsl(var(--primary-700)) !important;
+  border-color: hsl(var(--primary-200)) !important;
+}
+
+/* ============== 图标增强 ============== */
+
+.chat-item .lucide {
+  transition: all 0.2s ease !important;
+}
+
+.chat-item:hover .lucide {
+  color: hsl(var(--primary-600)) !important;
+  transform: scale(1.05) !important;
+}
+
+.chat-item.active .lucide {
+  color: hsl(var(--primary-600)) !important;
+  transform: scale(1.1) !important;
+}
+
+/* ============== 操作按钮增强 ============== */
+
+.chat-item .delete-btn {
+  opacity: 0 !important;
+  transform: scale(0.8) !important;
+  transition: all 0.2s ease !important;
+  background: hsl(var(--surface-elevated)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 6px !important;
+  padding: 6px !important;
+}
+
+.chat-item:hover .delete-btn {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.chat-item .delete-btn:hover {
+  background: hsl(var(--destructive-50)) !important;
+  border-color: hsl(var(--destructive-300)) !important;
+  color: hsl(var(--destructive-600)) !important;
+  transform: scale(1.05) !important;
+}
+
+/* ============== 侧边栏头部增强 ============== */
+
+.sidebar-header {
+  background: hsl(var(--surface-elevated)) !important;
+  border-bottom: 1px solid hsl(var(--divider)) !important;
+  padding: 20px !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.sidebar-header h1 {
+  color: hsl(var(--text-primary)) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* ============== 侧边栏按钮增强 ============== */
+
+.sidebar-header button {
+  background: transparent !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 10px !important;
+  padding: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-header button:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-300)) !important;
+  transform: scale(1.05) rotate(90deg) !important;
+}
+
+.sidebar-header button:active {
+  transform: scale(0.95) !important;
+  background: hsl(var(--surface-pressed)) !important;
+}
+
+.sidebar-header button .lucide {
+  color: hsl(var(--icon-primary)) !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-header button:hover .lucide {
+  color: hsl(var(--primary-600)) !important;
+}
+
+/* ============== 搜索框增强 ============== */
+
+.search-container {
+  padding: 0 12px 16px !important;
+}
+
+.search-container input {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px 12px 44px !important;
+  font-size: 14px !important;
+  color: hsl(var(--text-primary)) !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  
+  /* 阴影增强 */
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.search-container input:focus {
+  outline: none !important;
+  border-color: hsl(var(--primary-500)) !important;
+  background: hsl(var(--surface-elevated)) !important;
+  box-shadow: 
+    0 0 0 3px hsl(var(--primary-500) / 0.1),
+    0 4px 12px rgba(var(--primary-500), 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.search-container input::placeholder {
+  color: hsl(var(--text-tertiary)) !important;
+  font-size: 13px !important;
+}
+
+/* ============== 底部导航增强 ============== */
+
+.sidebar-footer button {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  margin: 2px 0 !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-weight: 500 !important;
+}
+
+.sidebar-footer button:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--border)) !important;
+  transform: translateX(4px) !important;
+}
+
+.sidebar-footer button.active,
+.sidebar-footer button[class*="bg-primary"] {
+  background: var(--gradient-subtle) !important;
+  border-color: hsl(var(--primary-400)) !important;
+  color: hsl(var(--primary-700)) !important;
+  transform: translateX(6px) !important;
+}
+
+.sidebar-footer button .lucide {
+  color: hsl(var(--icon-secondary)) !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-footer button:hover .lucide {
+  color: hsl(var(--primary-600)) !important;
+  transform: scale(1.1) !important;
+}
+
+/* ============== 深色模式优化 ============== */
+
+.dark .chat-item {
+  background: hsl(var(--surface-elevated)) !important;
+  border-color: hsl(var(--divider)) !important;
+}
+
+.dark .chat-item:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-400)) !important;
+}
+
+.dark .chat-item.active {
+  background: var(--gradient-subtle) !important;
+  border-color: hsl(var(--primary-400)) !important;
+  border-left-color: hsl(var(--primary-400)) !important;
+}
+
+.dark .sidebar-header {
+  background: hsl(var(--background)) !important;
+  border-bottom-color: hsl(var(--divider)) !important;
+}
+
+/* ============== 响应式适配 ============== */
+
+@media (max-width: 768px) {
+  .chat-item {
+    margin: 4px 6px !important;
+    padding: 12px 14px !important;
+  }
+  
+  .chat-item h3 {
+    font-size: 13px !important;
+  }
+  
+  .chat-item p {
+    font-size: 12px !important;
+  }
+  
+  .sidebar-header {
+    padding: 16px !important;
+  }
+  
+  .sidebar-header h1 {
+    font-size: 16px !important;
+  }
+}
+
+/* ============== 高对比度模式适配 ============== */
+
+@media (prefers-contrast: high) {
+  .chat-item {
+    border-width: 2px !important;
+  }
+  
+  .chat-item.active {
+    border-left-width: 4px !important;
+    box-shadow: none !important;
+  }
+  
+  .chat-item h3 {
+    font-weight: 700 !important;
+  }
+  
+  .search-container input {
+    border-width: 2px !important;
+  }
+}
+
+/* ============== 性能优化 ============== */
+
+/* GPU加速优化 */
+.chat-item,
+.sidebar-header button,
+.sidebar-footer button {
+  will-change: transform, background-color, border-color !important;
+  transform: translateZ(0) !important;
+}
+
+/* 减少不必要的重绘 */
+.chat-item .lucide,
+.sidebar-header .lucide,
+.sidebar-footer .lucide {
+  will-change: transform, color !important;
+}
+
+/* ============== 无障碍增强 ============== */
+
+.chat-item:focus {
+  outline: 2px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+}
+
+.sidebar-header button:focus,
+.sidebar-footer button:focus {
+  outline: 2px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+}
+
+/* 键盘导航增强 */
+.chat-item[data-keyboard-focused="true"] {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-400)) !important;
+}
+
+/* ============== 动画性能优化 ============== */
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-item,
+  .sidebar-header button,
+  .sidebar-footer button,
+  .search-container input {
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  .chat-item:hover,
+  .chat-item.active {
+    transform: none !important;
+  }
+}
+
+/* ============== 调试辅助 ============== */
+
+.development .chat-item {
+  position: relative;
+}
+
+.development .chat-item::after {
+  content: '📋';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 10px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ============== 加载状态优化 ============== */
+
+.chat-item.loading {
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+}
+
+.chat-item.loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-500), 0.1), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

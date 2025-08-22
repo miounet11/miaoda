@@ -1,0 +1,470 @@
+/**
+ * 性能和可访问性优化 - Performance & Accessibility Optimizations
+ * 
+ * 基于技术负责人审查的关键优化：
+ * 1. 性能优化 - 减少重绘和重排
+ * 2. 可访问性合规 - WCAG 2.1 AA标准
+ * 3. 色彩对比度优化
+ * 4. 键盘导航支持
+ * 5. 屏幕阅读器优化
+ */
+
+/* ============== 性能优化基础 ============== */
+
+/* === GPU加速优化 === */
+.gpu-accelerated {
+  will-change: transform, opacity !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+}
+
+/* 为关键动画元素启用GPU加速 */
+.message-bubble,
+.chat-item,
+.input-container,
+button,
+.sidebar {
+  @extend .gpu-accelerated;
+}
+
+/* === 关键渲染路径优化 === */
+.critical-content {
+  /* 优先加载关键内容 */
+  contain: layout style paint !important;
+  content-visibility: auto !important;
+  contain-intrinsic-size: auto 100px !important;
+}
+
+/* 应用到主要容器 */
+.messages-container,
+.chat-list,
+.input-area {
+  @extend .critical-content;
+}
+
+/* === 滚动性能优化 === */
+.smooth-scroll {
+  scroll-behavior: smooth !important;
+  overflow-anchor: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+.messages-container {
+  @extend .smooth-scroll;
+}
+
+/* === 图像和媒体优化 === */
+img, video {
+  /* 现代图像优化 */
+  content-visibility: auto !important;
+  contain-intrinsic-size: 300px 200px !important;
+  
+  /* 加载优化 */
+  loading: lazy !important;
+  decoding: async !important;
+}
+
+/* ============== 可访问性基础合规 ============== */
+
+/* === WCAG 2.1 AA 色彩对比度优化 === */
+:root {
+  /* 增强的对比度色彩 */
+  --text-primary-high-contrast: 15 23 42;      /* 深度确保4.5:1对比度 */
+  --text-secondary-high-contrast: 51 65 85;    /* 中等文本的高对比度 */
+  --text-tertiary-high-contrast: 71 85 105;    /* 辅助文本的可读对比度 */
+  
+  /* 按钮对比度优化 */
+  --button-primary-contrast: 14 165 233;       /* 确保与白字的对比度 */
+  --button-secondary-contrast: 51 65 85;       /* 次要按钮的高对比度 */
+  
+  /* 边框对比度 */
+  --border-high-contrast: 203 213 225;         /* 更明显的边框 */
+  --divider-high-contrast: 226 232 240;        /* 分割线可见性 */
+}
+
+/* 应用高对比度色彩 */
+.text-primary {
+  color: hsl(var(--text-primary-high-contrast)) !important;
+}
+
+.text-secondary {
+  color: hsl(var(--text-secondary-high-contrast)) !important;
+}
+
+.text-tertiary {
+  color: hsl(var(--text-tertiary-high-contrast)) !important;
+}
+
+/* === 焦点可见性增强 === */
+:focus-visible {
+  outline: 3px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px !important;
+}
+
+/* 特殊元素的焦点样式 */
+button:focus-visible {
+  outline: 3px solid hsl(var(--primary-500)) !important;
+  outline-offset: 3px !important;
+  box-shadow: 
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 5px hsl(var(--primary-500) / 0.3) !important;
+}
+
+input:focus-visible, 
+textarea:focus-visible, 
+select:focus-visible {
+  outline: 3px solid hsl(var(--primary-500)) !important;
+  outline-offset: 1px !important;
+}
+
+/* === 跳转导航支持 === */
+.skip-link {
+  position: absolute !important;
+  top: -40px !important;
+  left: 16px !important;
+  z-index: 9999 !important;
+  
+  background: hsl(var(--primary-500)) !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  
+  transform: translateY(-100%) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.skip-link:focus {
+  transform: translateY(0) !important;
+  top: 16px !important;
+}
+
+/* ============== 键盘导航优化 ============== */
+
+/* === Tab顺序优化 === */
+[tabindex="0"], 
+[tabindex="-1"] {
+  outline: none !important;
+}
+
+/* 键盘导航指示器 */
+.keyboard-navigation-active *:focus-visible {
+  outline: 3px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+}
+
+/* === 键盘快捷键提示 === */
+.keyboard-shortcut {
+  position: relative !important;
+}
+
+.keyboard-shortcut::after {
+  content: attr(data-shortcut) !important;
+  position: absolute !important;
+  top: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  
+  background: hsl(var(--neutral-900)) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.keyboard-shortcut:hover::after,
+.keyboard-shortcut:focus-visible::after {
+  opacity: 1 !important;
+}
+
+/* ============== 屏幕阅读器优化 ============== */
+
+/* === 屏幕阅读器专用文本 === */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* === ARIA标签增强 === */
+[aria-label], 
+[aria-labelledby], 
+[aria-describedby] {
+  /* 确保ARIA标签的可访问性 */
+  position: relative !important;
+}
+
+/* 状态指示器的屏幕阅读器支持 */
+[aria-live="polite"]::before {
+  content: attr(aria-label) ": " !important;
+  @extend .sr-only;
+}
+
+/* === 对话框可访问性 === */
+[role="dialog"] {
+  /* 模态框焦点管理 */
+  isolation: isolate !important;
+}
+
+[role="dialog"]:focus {
+  outline: none !important;
+}
+
+/* ============== 运动偏好支持 ============== */
+
+/* === 减少动画偏好 === */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* 保留关键的状态指示动画 */
+  .loading-spinner,
+  .thinking-dots,
+  .typing-indicator {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/* === 透明度偏好支持 === */
+@media (prefers-reduced-transparency: reduce) {
+  * {
+    backdrop-filter: none !important;
+    background: opaque !important;
+  }
+  
+  .input-area,
+  .chat-header,
+  .sidebar {
+    backdrop-filter: none !important;
+    background: hsl(var(--surface-elevated)) !important;
+  }
+}
+
+/* ============== 高对比度模式 ============== */
+
+@media (prefers-contrast: high) {
+  :root {
+    /* 极高对比度色彩 */
+    --text-primary: 0 0 0;           /* 纯黑 */
+    --text-secondary: 31 41 55;      /* 深灰 */
+    --background: 255 255 255;       /* 纯白 */
+    --border: 107 114 128;           /* 中等灰 */
+    --primary-500: 29 78 216;        /* 高对比度蓝 */
+  }
+  
+  /* 强制边框可见 */
+  button, 
+  input, 
+  textarea, 
+  .message-bubble,
+  .chat-item {
+    border: 2px solid hsl(var(--border)) !important;
+  }
+  
+  /* 移除透明度 */
+  * {
+    background: opaque !important;
+    backdrop-filter: none !important;
+  }
+  
+  /* 高对比度文本 */
+  .text-primary,
+  .text-secondary,
+  .text-tertiary {
+    font-weight: 600 !important;
+    text-shadow: none !important;
+  }
+}
+
+/* ============== 强制颜色模式 ============== */
+
+@media (forced-colors: active) {
+  /* 系统强制颜色模式支持 */
+  button {
+    border: 2px solid ButtonText !important;
+    background: ButtonFace !important;
+    color: ButtonText !important;
+  }
+  
+  button:hover {
+    background: Highlight !important;
+    color: HighlightText !important;
+  }
+  
+  input, textarea {
+    border: 2px solid ButtonText !important;
+    background: Field !important;
+    color: FieldText !important;
+  }
+  
+  .message-bubble {
+    border: 2px solid CanvasText !important;
+    background: Canvas !important;
+    color: CanvasText !important;
+  }
+}
+
+/* ============== 文本缩放支持 ============== */
+
+/* 支持最高200%的文本缩放 */
+@media (min-resolution: 1.5dppx) {
+  /* 高DPI设备的文本优化 */
+  body {
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+}
+
+/* === 大字体支持 === */
+@media (prefers-color-scheme: no-preference) {
+  /* 检测系统字体大小设置 */
+  body {
+    font-size: max(16px, 1rem) !important;
+    line-height: max(1.5, 1.5rem) !important;
+  }
+  
+  button {
+    font-size: max(14px, 0.875rem) !important;
+  }
+  
+  .chat-item h3 {
+    font-size: max(14px, 0.875rem) !important;
+  }
+}
+
+/* ============== 颜色盲支持 ============== */
+
+/* 使用形状和图标而非仅依赖颜色 */
+.status-success::before {
+  content: "✓ " !important;
+}
+
+.status-error::before {
+  content: "✗ " !important;
+}
+
+.status-warning::before {
+  content: "⚠ " !important;
+}
+
+/* 链接的非颜色标识 */
+a:not(.btn) {
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+a:focus, a:hover {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+}
+
+/* ============== 触摸设备优化 ============== */
+
+@media (pointer: coarse) {
+  /* 触摸设备的按钮尺寸调整 */
+  button, 
+  [role="button"], 
+  input, 
+  textarea {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+  
+  /* 触摸目标间距 */
+  .button-group button {
+    margin: 4px !important;
+  }
+  
+  /* 触摸反馈 */
+  button:active {
+    background: hsl(var(--surface-pressed)) !important;
+    transform: scale(0.97) !important;
+  }
+}
+
+/* ============== 打印样式优化 ============== */
+
+@media print {
+  * {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: black !important;
+    text-shadow: none !important;
+  }
+  
+  .sidebar,
+  .input-area,
+  button {
+    display: none !important;
+  }
+  
+  .messages-container {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .message-bubble {
+    break-inside: avoid !important;
+    border: 1px solid black !important;
+    margin: 8px 0 !important;
+  }
+}
+
+/* ============== 调试和开发辅助 ============== */
+
+.development .accessibility-debug * {
+  outline: 1px dashed blue !important;
+}
+
+.development .accessibility-debug [tabindex]:not([tabindex="-1"]) {
+  outline: 2px solid green !important;
+}
+
+.development .accessibility-debug [aria-label]::after,
+.development .accessibility-debug [aria-labelledby]::after {
+  content: "🏷️" !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  font-size: 12px !important;
+  z-index: 9999 !important;
+}
+
+/* ============== 性能监控 ============== */
+
+/* 标记性能关键元素 */
+.perf-critical {
+  contain: layout style paint !important;
+}
+
+/* 延迟加载支持 */
+.lazy-load {
+  content-visibility: auto !important;
+  contain-intrinsic-size: auto 200px !important;
+}
+
+/* 虚拟滚动优化 */
+.virtual-scroll-item {
+  contain: strict !important;
+  height: var(--item-height) !important;
+}

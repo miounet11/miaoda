@@ -1,0 +1,323 @@
+/**
+ * 输入框和交互元素关键修复 - Critical Input & Interaction Fixes
+ * 
+ * 基于UX审查和技术负责人分析的关键问题修复：
+ * 1. 输入框尺寸不符合可访问性标准 (40px < 48px)
+ * 2. 触摸目标过小，影响移动端体验
+ * 3. 交互反馈不足
+ * 4. 间距系统不统一
+ */
+
+/* ============== 输入框关键修复 ============== */
+
+.input-container {
+  /* 关键修复：确保足够的高度 */
+  min-height: 56px !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  
+  /* 改进的布局 */
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  
+  /* 增强的视觉反馈 */
+  background: hsl(var(--card)) !important;
+  border: 2px solid hsl(var(--border)) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  
+  /* 改进的阴影 */
+  box-shadow: 
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.input-container:focus-within {
+  border-color: hsl(var(--primary-500)) !important;
+  background: hsl(var(--surface-elevated)) !important;
+  transform: translateY(-2px) !important;
+  
+  /* 增强的焦点阴影 */
+  box-shadow: 
+    0 0 0 3px hsl(var(--primary-500) / 0.12),
+    0 8px 16px -4px rgba(var(--primary-500), 0.15),
+    0 4px 8px -2px rgba(0, 0, 0, 0.08) !important;
+}
+
+.input-container textarea {
+  /* 关键修复：确保足够的最小高度 */
+  min-height: 24px !important;
+  padding: 8px 0 !important;
+  
+  /* 改进的字体设置 */
+  font-size: 16px !important; /* 防止iOS缩放 */
+  line-height: 1.5 !important;
+  color: hsl(var(--text-primary)) !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+  
+  /* 文本渲染优化 */
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.input-container textarea::placeholder {
+  color: hsl(var(--text-tertiary)) !important;
+  font-size: 16px !important;
+  opacity: 0.7 !important;
+}
+
+/* ============== 按钮关键修复 ============== */
+
+.input-container button {
+  /* 关键修复：确保48px最小触摸目标 */
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 12px !important;
+  border-radius: 10px !important;
+  
+  /* 改进的视觉和交互 */
+  background: hsl(var(--surface-elevated)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--text-secondary)) !important;
+  
+  /* 流畅的过渡效果 */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transform: translateZ(0) !important;
+}
+
+.input-container button:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-300)) !important;
+  color: hsl(var(--primary-600)) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+  
+  box-shadow: 
+    0 4px 8px -2px rgba(var(--primary-500), 0.15),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.input-container button:active {
+  transform: translateY(0) scale(0.98) !important;
+  background: hsl(var(--surface-pressed)) !important;
+}
+
+.input-container button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  background: hsl(var(--surface-elevated) / 0.5) !important;
+}
+
+/* === 发送按钮特殊样式 === */
+.send-button {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 8px -2px rgba(var(--primary-500), 0.4),
+    0 2px 4px -1px rgba(var(--primary-500), 0.1) !important;
+}
+
+.send-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary-600)) 0%, 
+    hsl(var(--primary-700)) 100%) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 
+    0 8px 16px -4px rgba(var(--primary-500), 0.5),
+    0 4px 8px -2px rgba(var(--primary-500), 0.2) !important;
+}
+
+.send-button:disabled {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--text-disabled)) !important;
+  box-shadow: none !important;
+}
+
+/* ============== 输入区域容器优化 ============== */
+
+.input-area {
+  background: hsl(var(--surface-elevated) / 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border-top: 1px solid hsl(var(--divider)) !important;
+  
+  /* 关键修复：确保足够的容器内边距 */
+  padding: 20px !important;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .input-area {
+    padding: 16px !important;
+  }
+  
+  .input-container {
+    min-height: 52px !important;
+  }
+  
+  .input-container button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* ============== 附件预览区域优化 ============== */
+
+.attachment-item {
+  /* 改进的附件项目样式 */
+  background: hsl(var(--surface-elevated)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.attachment-item:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-300)) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ============== 可访问性增强 ============== */
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .input-container {
+    border-width: 3px !important;
+  }
+  
+  .input-container:focus-within {
+    border-width: 3px !important;
+    box-shadow: 0 0 0 4px hsl(var(--primary-500) / 0.3) !important;
+  }
+  
+  .input-container button {
+    border-width: 2px !important;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .input-container,
+  .input-container button,
+  .attachment-item {
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  .input-container:focus-within,
+  .input-container button:hover {
+    transform: none !important;
+  }
+}
+
+/* 强制对比度模式 */
+@media (prefers-contrast: more) {
+  .input-container textarea {
+    font-weight: 500 !important;
+  }
+  
+  .input-container textarea::placeholder {
+    opacity: 1 !important;
+    font-weight: 500 !important;
+  }
+}
+
+/* ============== 键盘导航增强 ============== */
+
+.input-container button:focus-visible {
+  outline: 2px solid hsl(var(--primary-500)) !important;
+  outline-offset: 2px !important;
+  border-color: hsl(var(--primary-500)) !important;
+}
+
+.input-container textarea:focus-visible {
+  outline: none !important; /* 父容器已处理焦点样式 */
+}
+
+/* ============== 加载状态优化 ============== */
+
+.input-container.loading {
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+}
+
+.input-container.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, 
+    transparent, 
+    hsl(var(--primary-500) / 0.1), 
+    transparent);
+  animation: shimmer 1.5s infinite;
+  border-radius: inherit;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============== 深色模式优化 ============== */
+
+.dark .input-container {
+  background: hsl(var(--surface-elevated)) !important;
+  border-color: hsl(var(--divider)) !important;
+}
+
+.dark .input-container:focus-within {
+  background: hsl(var(--card)) !important;
+  border-color: hsl(var(--primary-400)) !important;
+  box-shadow: 
+    0 0 0 3px hsl(var(--primary-400) / 0.12),
+    0 8px 16px -4px rgba(var(--primary-400), 0.15),
+    0 4px 8px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .input-container button {
+  background: hsl(var(--surface-pressed)) !important;
+  border-color: hsl(var(--divider)) !important;
+  color: hsl(var(--text-secondary)) !important;
+}
+
+.dark .input-container button:hover {
+  background: hsl(var(--surface-hover)) !important;
+  border-color: hsl(var(--primary-400)) !important;
+  color: hsl(var(--primary-400)) !important;
+}
+
+/* ============== 性能优化 ============== */
+
+.input-container,
+.input-container button,
+.input-container textarea {
+  will-change: transform, box-shadow, border-color !important;
+  backface-visibility: hidden !important;
+}
+
+/* ============== 调试辅助（开发环境） ============== */
+
+.development .input-container {
+  position: relative;
+}
+
+.development .input-container::before {
+  content: '📝';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 10px;
+  opacity: 0.5;
+  pointer-events: none;
+  background: orange;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
