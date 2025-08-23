@@ -29,7 +29,7 @@ export class DatabaseInitializer {
   private createTables(): void {
     // Create existing tables
     this.createChatTables()
-    
+
     // Create authentication tables
     this.createAuthTables()
   }
@@ -231,10 +231,12 @@ export class DatabaseInitializer {
   }
 
   private migrateChatTable(): void {
-    const tables = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='chats'").all()
+    const tables = this.db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='chats'")
+      .all()
     if (tables.length === 0) return
 
-    const columns = this.db.prepare("PRAGMA table_info(chats)").all() as Array<{name: string}>
+    const columns = this.db.prepare('PRAGMA table_info(chats)').all() as Array<{ name: string }>
     const columnNames = new Set(columns.map(col => col.name))
 
     const requiredColumns = [
@@ -244,8 +246,14 @@ export class DatabaseInitializer {
       { name: 'settings', sql: 'ALTER TABLE chats ADD COLUMN settings TEXT DEFAULT NULL' },
       { name: 'summary', sql: 'ALTER TABLE chats ADD COLUMN summary TEXT DEFAULT NULL' },
       { name: 'summary_tags', sql: 'ALTER TABLE chats ADD COLUMN summary_tags TEXT DEFAULT NULL' },
-      { name: 'summary_updated_at', sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL' },
-      { name: 'summary_tokens', sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL' },
+      {
+        name: 'summary_updated_at',
+        sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL'
+      },
+      {
+        name: 'summary_tokens',
+        sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL'
+      },
       { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' }
     ]
 
@@ -257,10 +265,14 @@ export class DatabaseInitializer {
   }
 
   private migrateMessageTable(): void {
-    const messagesTables = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'").all()
+    const messagesTables = this.db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'")
+      .all()
     if (messagesTables.length === 0) return
 
-    const messageColumns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+    const messageColumns = this.db.prepare('PRAGMA table_info(messages)').all() as Array<{
+      name: string
+    }>
     const columnNames = new Set(messageColumns.map(col => col.name))
 
     // Handle timestamp to created_at migration
@@ -270,7 +282,9 @@ export class DatabaseInitializer {
       // Copy timestamp data to created_at
       this.db.exec('UPDATE messages SET created_at = timestamp')
       // Update column names after adding created_at
-      const updatedColumns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      const updatedColumns = this.db.prepare('PRAGMA table_info(messages)').all() as Array<{
+        name: string
+      }>
       columnNames.clear()
       updatedColumns.forEach(col => columnNames.add(col.name))
     }
@@ -280,12 +294,18 @@ export class DatabaseInitializer {
       { name: 'metadata', sql: 'ALTER TABLE messages ADD COLUMN metadata TEXT DEFAULT NULL' },
       { name: 'parent_id', sql: 'ALTER TABLE messages ADD COLUMN parent_id TEXT DEFAULT NULL' },
       { name: 'error', sql: 'ALTER TABLE messages ADD COLUMN error TEXT DEFAULT NULL' },
-      { name: 'error_details', sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL' }
+      {
+        name: 'error_details',
+        sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL'
+      }
     ]
 
     // Only add created_at if it doesn't exist and timestamp doesn't exist either
     if (!columnNames.has('created_at') && !columnNames.has('timestamp')) {
-      requiredColumns.push({ name: 'created_at', sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT' })
+      requiredColumns.push({
+        name: 'created_at',
+        sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT'
+      })
     }
 
     for (const column of requiredColumns) {
@@ -301,11 +321,15 @@ export class DatabaseInitializer {
   private migrateSearchIndex(): void {
     try {
       // Check if there are old search_index related triggers
-      const oldTriggers = this.db.prepare(`
+      const oldTriggers = this.db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='trigger' 
         AND name IN ('search_index_delete', 'search_index_insert', 'search_index_update')
-      `).all() as Array<{name: string}>
+      `
+        )
+        .all() as Array<{ name: string }>
 
       // Remove old problematic triggers
       for (const trigger of oldTriggers) {
@@ -313,24 +337,31 @@ export class DatabaseInitializer {
       }
 
       // Check if search_index exists and what type it is
-      const searchIndexInfo = this.db.prepare(`
+      const searchIndexInfo = this.db
+        .prepare(
+          `
         SELECT name, sql FROM sqlite_master 
         WHERE type='table' AND name='search_index'
-      `).get() as {name: string, sql: string} | undefined
+      `
+        )
+        .get() as { name: string; sql: string } | undefined
 
       // If search_index exists and is a virtual table or has wrong structure, drop it
-      if (searchIndexInfo && (
-        searchIndexInfo.sql.includes('VIRTUAL TABLE') || 
-        searchIndexInfo.sql.includes('fts5') ||
-        searchIndexInfo.sql.includes('fts4')
-      )) {
+      if (
+        searchIndexInfo &&
+        (searchIndexInfo.sql.includes('VIRTUAL TABLE') ||
+          searchIndexInfo.sql.includes('fts5') ||
+          searchIndexInfo.sql.includes('fts4'))
+      ) {
         this.db.exec('DROP TABLE IF EXISTS search_index')
       }
 
       // Recreate search_index as regular table if it doesn't exist with correct structure
-      const currentSearchIndex = this.db.prepare("PRAGMA table_info(search_index)").all() as Array<{name: string}>
+      const currentSearchIndex = this.db.prepare('PRAGMA table_info(search_index)').all() as Array<{
+        name: string
+      }>
       const hasMessageId = currentSearchIndex.some(col => col.name === 'message_id')
-      
+
       if (!hasMessageId) {
         // Drop and recreate with correct structure
         this.db.exec('DROP TABLE IF EXISTS search_index')
@@ -357,11 +388,15 @@ export class DatabaseInitializer {
    */
   private migrateAuthTables(): void {
     // Add user_id column to chats if it doesn't exist
-    const chatTables = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='chats'").all()
+    const chatTables = this.db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='chats'")
+      .all()
     if (chatTables.length > 0) {
-      const chatColumns = this.db.prepare("PRAGMA table_info(chats)").all() as Array<{name: string}>
+      const chatColumns = this.db.prepare('PRAGMA table_info(chats)').all() as Array<{
+        name: string
+      }>
       const chatColumnNames = new Set(chatColumns.map(col => col.name))
-      
+
       if (!chatColumnNames.has('user_id')) {
         this.db.exec('ALTER TABLE chats ADD COLUMN user_id TEXT DEFAULT NULL')
       }
@@ -369,21 +404,34 @@ export class DatabaseInitializer {
 
     // Migrate existing auth tables if they need updates
     const authTables = ['users', 'user_sessions', 'auth_methods']
-    
+
     for (const tableName of authTables) {
-      const tables = this.db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}'`).all()
+      const tables = this.db
+        .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}'`)
+        .all()
       if (tables.length === 0) continue
 
-      const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{name: string}>
+      const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{
+        name: string
+      }>
       const columnNames = new Set(columns.map(col => col.name))
 
       // Add missing columns based on table
       switch (tableName) {
         case 'users':
           const userColumns = [
-            { name: 'failed_login_attempts', sql: `ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0` },
-            { name: 'locked_until', sql: `ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL` },
-            { name: 'password_changed_at', sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}` }
+            {
+              name: 'failed_login_attempts',
+              sql: `ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0`
+            },
+            {
+              name: 'locked_until',
+              sql: `ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL`
+            },
+            {
+              name: 'password_changed_at',
+              sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}`
+            }
           ]
           for (const column of userColumns) {
             if (!columnNames.has(column.name)) {
@@ -394,8 +442,14 @@ export class DatabaseInitializer {
 
         case 'auth_methods':
           const authMethodColumns = [
-            { name: 'setup_completed', sql: `ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0` },
-            { name: 'backup_codes_generated', sql: `ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0` }
+            {
+              name: 'setup_completed',
+              sql: `ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0`
+            },
+            {
+              name: 'backup_codes_generated',
+              sql: `ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0`
+            }
           ]
           for (const column of authMethodColumns) {
             if (!columnNames.has(column.name)) {

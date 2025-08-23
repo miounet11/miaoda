@@ -8,8 +8,16 @@ import { z } from 'zod'
 // Common validation schemas
 // Allow most Unicode characters including Chinese, emojis, etc.
 const SafeString = z.string().min(1).max(10000)
-const SafeID = z.string().min(1).max(100).regex(/^[a-zA-Z0-9\-_]+$/)
-const SafeFileName = z.string().min(1).max(255).regex(/^[^<>:"|?*\\/]+$/)
+const SafeID = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-zA-Z0-9\-_]+$/)
+const SafeFileName = z
+  .string()
+  .min(1)
+  .max(255)
+  .regex(/^[^<>:"|?*\\/]+$/)
 const SafeUrl = z.string().url().max(2048)
 const SafeNumber = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER)
 
@@ -33,12 +41,16 @@ export const MessageSchema = z.object({
   role: z.enum(['user', 'assistant', 'system']),
   content: SafeString,
   created_at: z.number().int().positive(),
-  attachments: z.array(z.object({
-    name: SafeFileName,
-    type: z.string().max(50),
-    url: SafeString.max(1000),
-    size: SafeNumber.optional()
-  })).optional()
+  attachments: z
+    .array(
+      z.object({
+        name: SafeFileName,
+        type: z.string().max(50),
+        url: SafeString.max(1000),
+        size: SafeNumber.optional()
+      })
+    )
+    .optional()
 })
 
 export const CreateMessageSchema = MessageSchema
@@ -68,16 +80,19 @@ export const MCPToolCallSchema = z.object({
 export const LLMPromptSchema = SafeString.max(50000)
 
 // File validation schemas
-export const FilePathSchema = z.string().max(1000).refine(
-  (path) => {
-    // Prevent path traversal attacks
-    const normalizedPath = path.replace(/\\/g, '/')
-    return !normalizedPath.includes('../') && !normalizedPath.includes('..')
-  },
-  {
-    message: "Path contains invalid characters or path traversal attempts"
-  }
-)
+export const FilePathSchema = z
+  .string()
+  .max(1000)
+  .refine(
+    path => {
+      // Prevent path traversal attacks
+      const normalizedPath = path.replace(/\\/g, '/')
+      return !normalizedPath.includes('../') && !normalizedPath.includes('..')
+    },
+    {
+      message: 'Path contains invalid characters or path traversal attempts'
+    }
+  )
 
 /**
  * Input validation decorator for IPC handlers
@@ -90,17 +105,17 @@ export function validateInput<T extends z.ZodSchema>(schema: T) {
       try {
         // Skip the first argument (event) and validate the rest
         const [event, ...inputArgs] = args
-        
+
         // For single parameter validation
         if (inputArgs.length === 1) {
           const validatedInput = schema.parse(inputArgs[0])
           return originalMethod.call(this, event, validatedInput)
         }
-        
+
         // For multiple parameters, create an object and validate
         const inputObject = inputArgs.length > 1 ? inputArgs : inputArgs[0]
         const validatedInput = schema.parse(inputObject)
-        
+
         if (Array.isArray(validatedInput)) {
           return originalMethod.call(this, event, ...validatedInput)
         } else if (typeof validatedInput === 'object' && validatedInput !== null) {
@@ -138,17 +153,17 @@ export function sanitizeString(input: string): string {
  */
 export function validateFilePath(filePath: string): string {
   const sanitized = sanitizeString(filePath)
-  
+
   // Check for path traversal
   if (sanitized.includes('../') || sanitized.includes('..\\')) {
     throw new Error('Path traversal detected')
   }
-  
+
   // Check for null bytes
   if (sanitized.includes('\0')) {
     throw new Error('Null byte detected in path')
   }
-  
+
   return sanitized
 }
 
@@ -165,9 +180,9 @@ export function rateLimit(maxRequests: number, windowMs: number) {
       const [event] = args
       const clientId = `${event.sender.id}-${propertyKey}`
       const now = Date.now()
-      
+
       let rateLimitInfo = rateLimitMap.get(clientId)
-      
+
       if (!rateLimitInfo || now > rateLimitInfo.resetTime) {
         rateLimitInfo = {
           count: 1,
@@ -176,13 +191,13 @@ export function rateLimit(maxRequests: number, windowMs: number) {
       } else {
         rateLimitInfo.count++
       }
-      
+
       rateLimitMap.set(clientId, rateLimitInfo)
-      
+
       if (rateLimitInfo.count > maxRequests) {
         throw new Error(`Rate limit exceeded. Maximum ${maxRequests} requests per ${windowMs}ms`)
       }
-      
+
       return originalMethod.call(this, ...args)
     }
 
@@ -201,7 +216,7 @@ export function auditLog(operation: string, sensitive = false) {
       const [event, ...inputArgs] = args
       const timestamp = new Date().toISOString()
       const processId = event.sender.id
-      
+
       const logData = {
         timestamp,
         operation,
@@ -211,17 +226,20 @@ export function auditLog(operation: string, sensitive = false) {
         // Don't log sensitive data in production
         ...(sensitive ? {} : { input: inputArgs })
       }
-      
+
       console.log(`[AUDIT] ${operation}:`, logData)
-      
+
       try {
         const result = originalMethod.call(this, ...args)
         console.log(`[AUDIT] ${operation} completed successfully`)
         return result
-    } catch (error: unknown) {
-      console.error(`[AUDIT] ${operation} failed:`, error instanceof Error ? error.message : String(error))
-      throw error
-    }
+      } catch (error: unknown) {
+        console.error(
+          `[AUDIT] ${operation} failed:`,
+          error instanceof Error ? error.message : String(error)
+        )
+        throw error
+      }
     }
 
     return descriptor
@@ -243,7 +261,7 @@ export function validateContent(content: string): boolean {
     /<object\b[^>]*>/gi,
     /<embed\b[^>]*>/gi
   ]
-  
+
   return !dangerousPatterns.some(pattern => pattern.test(content))
 }
 
@@ -254,27 +272,27 @@ export class InputValidator {
   static validateChatInput(input: unknown): ReturnType<typeof CreateChatSchema.parse> {
     return CreateChatSchema.parse(input)
   }
-  
+
   static validateMessageInput(input: unknown): ReturnType<typeof MessageSchema.parse> {
     return MessageSchema.parse(input)
   }
-  
+
   static validateSearchInput(input: unknown): ReturnType<typeof SearchQuerySchema.parse> {
     return SearchQuerySchema.parse(input)
   }
-  
+
   static validatePluginId(input: unknown): string {
     return PluginIdSchema.parse(input)
   }
-  
+
   static validateServerName(input: unknown): string {
     return ServerNameSchema.parse(input)
   }
-  
+
   static validateMCPToolCall(input: unknown): ReturnType<typeof MCPToolCallSchema.parse> {
     return MCPToolCallSchema.parse(input)
   }
-  
+
   static validateLLMPrompt(input: unknown): string {
     const prompt = LLMPromptSchema.parse(input)
     if (!validateContent(prompt)) {
@@ -282,7 +300,7 @@ export class InputValidator {
     }
     return sanitizeString(prompt)
   }
-  
+
   static validateFilePath(input: unknown): string {
     const path = FilePathSchema.parse(input)
     return validateFilePath(path)

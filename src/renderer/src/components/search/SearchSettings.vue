@@ -8,7 +8,7 @@
           <X :size="20" />
         </button>
       </div>
-      
+
       <!-- Content -->
       <div class="modal-content">
         <!-- General Settings -->
@@ -17,7 +17,7 @@
             <Search :size="18" />
             <h3>{{ $t('search.generalSettings') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Default Max Results -->
             <div class="setting-item">
@@ -33,9 +33,9 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              >
+              />
             </div>
-            
+
             <!-- Search Delay -->
             <div class="setting-item">
               <label class="setting-label">
@@ -50,9 +50,9 @@
                 step="50"
                 class="setting-slider"
                 @change="saveSettings"
-              >
+              />
             </div>
-            
+
             <!-- Auto Highlight -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.autoHighlight') }}</label>
@@ -62,11 +62,11 @@
                   v-model="settings.autoHighlight"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Save Recent Searches -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.saveRecentSearches') }}</label>
@@ -76,20 +76,20 @@
                   v-model="settings.saveRecentSearches"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Search Options -->
         <div class="settings-section">
           <div class="section-header">
             <SlidersHorizontal :size="18" />
             <h3>{{ $t('search.defaultSearchOptions') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Case Sensitive -->
             <div class="setting-item">
@@ -100,11 +100,11 @@
                   v-model="settings.defaultOptions.caseSensitive"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Whole Words -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.wholeWords') }}</label>
@@ -114,11 +114,11 @@
                   v-model="settings.defaultOptions.wholeWords"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Fuzzy Match -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.fuzzyMatch') }}</label>
@@ -128,16 +128,18 @@
                   v-model="settings.defaultOptions.fuzzyMatch"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Fuzzy Threshold -->
             <div class="setting-item">
               <label class="setting-label">
                 {{ $t('search.fuzzyThreshold') }}
-                <span class="setting-value">{{ Math.round(settings.defaultOptions.fuzzyThreshold * 100) }}%</span>
+                <span class="setting-value"
+                  >{{ Math.round(settings.defaultOptions.fuzzyThreshold * 100) }}%</span
+                >
               </label>
               <input
                 type="range"
@@ -147,9 +149,9 @@
                 step="0.05"
                 class="setting-slider"
                 @change="saveSettings"
-              >
+              />
             </div>
-            
+
             <!-- Highlight Matches -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.highlightMatches') }}</label>
@@ -159,16 +161,16 @@
                   v-model="settings.defaultOptions.highlightMatches"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Default Sort -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.defaultSort') }}</label>
-              <select 
-                v-model="settings.defaultOptions.sortBy" 
+              <select
+                v-model="settings.defaultOptions.sortBy"
                 class="setting-select"
                 @change="saveSettings"
               >
@@ -179,14 +181,14 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Performance Settings -->
         <div class="settings-section">
           <div class="section-header">
             <Zap :size="18" />
             <h3>{{ $t('search.performanceSettings') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Cache Size -->
             <div class="setting-item">
@@ -202,9 +204,9 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              >
+              />
             </div>
-            
+
             <!-- Index Batch Size -->
             <div class="setting-item">
               <label class="setting-label">
@@ -219,9 +221,9 @@
                 step="10"
                 class="setting-slider"
                 @change="saveSettings"
-              >
+              />
             </div>
-            
+
             <!-- Auto Index -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.autoIndexMessages') }}</label>
@@ -231,11 +233,11 @@
                   v-model="settings.performance.autoIndex"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Background Indexing -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('search.backgroundIndexing') }}</label>
@@ -245,20 +247,20 @@
                   v-model="settings.performance.backgroundIndexing"
                   @change="saveSettings"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Data Management -->
         <div class="settings-section">
           <div class="section-header">
             <Database :size="18" />
             <h3>{{ $t('search.dataManagement') }}</h3>
           </div>
-          
+
           <div class="data-actions">
             <!-- Index Statistics -->
             <div class="stats-card">
@@ -268,72 +270,70 @@
                   <RotateCcw :size="14" :class="{ 'animate-spin': isRefreshing }" />
                 </button>
               </div>
-              
+
               <div class="stats-grid">
                 <div class="stat-item">
                   <span class="stat-label">{{ $t('search.indexedMessages') }}:</span>
                   <span class="stat-value">{{ searchStats.indexedMessages }}</span>
                 </div>
-                
+
                 <div class="stat-item">
                   <span class="stat-label">{{ $t('search.lastUpdated') }}:</span>
                   <span class="stat-value">{{ formatTime(searchStats.lastUpdated) }}</span>
                 </div>
-                
+
                 <div class="stat-item">
                   <span class="stat-label">{{ $t('search.indexSize') }}:</span>
                   <span class="stat-value">{{ formatBytes(indexSize) }}</span>
                 </div>
               </div>
             </div>
-            
+
             <!-- Management Actions -->
             <div class="action-buttons">
               <button @click="rebuildIndex" class="action-btn rebuild-btn" :disabled="isRebuilding">
                 <RefreshCw :size="14" :class="{ 'animate-spin': isRebuilding }" />
                 {{ $t('search.rebuildIndex') }}
               </button>
-              
+
               <button @click="clearCache" class="action-btn clear-btn">
                 <Trash2 :size="14" />
                 {{ $t('search.clearCache') }}
               </button>
-              
+
               <button @click="exportIndex" class="action-btn export-btn">
                 <Download :size="14" />
                 {{ $t('search.exportIndex') }}
               </button>
-              
+
               <button @click="importIndex" class="action-btn import-btn">
                 <Upload :size="14" />
                 {{ $t('search.importIndex') }}
               </button>
             </div>
-            
+
             <input
               ref="importFileRef"
               type="file"
               accept=".json"
               @change="handleImportFile"
               style="display: none"
-            >
+            />
           </div>
         </div>
       </div>
-      
+
       <!-- Footer -->
       <div class="modal-footer">
         <div class="footer-info">
-          <span class="version-info">
-            {{ $t('search.searchVersion') }}: v{{ searchVersion }}
-          </span>
+          <span class="version-info"> {{ $t('search.searchVersion') }}: v{{ searchVersion }} </span>
         </div>
-        
+
         <div class="footer-actions">
           <button @click="resetToDefaults" class="reset-btn">
             {{ $t('search.resetToDefaults') }}
           </button>
-          
+
           <button @click="$emit('close')" class="close-footer-btn">
             {{ $t('common.close') }}
           </button>
@@ -346,11 +346,23 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import {
-  X, Search, SlidersHorizontal, Zap, Database, RotateCcw, RefreshCw,
-  Trash2, Download, Upload
+  X,
+  Search,
+  SlidersHorizontal,
+  Zap,
+  Database,
+  RotateCcw,
+  RefreshCw,
+  Trash2,
+  Download,
+  Upload
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { searchService, type SearchOptions, type SearchStats } from '@renderer/src/services/search/SearchService'
+import {
+  searchService,
+  type SearchOptions,
+  type SearchStats
+} from '@renderer/src/services/search/SearchService'
 
 // Emits
 const emit = defineEmits<{
@@ -464,7 +476,7 @@ const refreshStats = async () => {
 
 const rebuildIndex = async () => {
   if (!confirm(t('search.confirmRebuildIndex'))) return
-  
+
   isRebuilding.value = true
   try {
     searchService.clearIndex()
@@ -490,15 +502,15 @@ const exportIndex = () => {
     stats: searchStats.value,
     settings: settings.value
   }
-  
+
   const dataStr = JSON.stringify(exportData, null, 2)
   const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `search-index-export-${new Date().toISOString().split('T')[0]}.json`
   link.click()
-  
+
   URL.revokeObjectURL(link.href)
 }
 
@@ -509,13 +521,13 @@ const importIndex = () => {
 const handleImportFile = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  
+
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       const result = e.target?.result as string
       const importData = JSON.parse(result)
-      
+
       if (importData.settings) {
         settings.value = {
           ...defaultSettings,
@@ -523,14 +535,14 @@ const handleImportFile = (event: Event) => {
         }
         saveSettings()
       }
-      
+
       alert(t('search.importSuccess'))
     } catch (error) {
       console.error('Failed to import search settings:', error)
       alert(t('search.importError'))
     }
   }
-  
+
   reader.readAsText(file)
 }
 
@@ -544,7 +556,7 @@ const resetToDefaults = () => {
 const formatTime = (date: Date): string => {
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -558,11 +570,11 @@ const formatTime = (date: Date): string => {
 
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 B'
-  
+
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`
 }
 
@@ -744,8 +756,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -753,11 +769,11 @@ onMounted(() => {
   .search-settings-modal {
     @apply max-w-full mx-2;
   }
-  
+
   .settings-grid {
     @apply grid-cols-1;
   }
-  
+
   .action-buttons {
     @apply grid-cols-1;
   }
@@ -768,7 +784,7 @@ onMounted(() => {
   .search-settings-modal {
     @apply border-2;
   }
-  
+
   .setting-slider:focus {
     @apply ring-2 ring-primary;
   }

@@ -4,50 +4,38 @@
     <div v-if="showHeader" class="window-header" @dblclick="toggleMaximize">
       <!-- Window Controls (macOS style) -->
       <div class="window-controls">
-        <button 
-          @click="minimizeWindow" 
+        <button
+          @click="minimizeWindow"
           class="control-btn minimize-btn"
           :title="t('window.minimize')"
         >
           <Minus :size="12" />
         </button>
-        <button 
-          @click="toggleMaximize" 
+        <button
+          @click="toggleMaximize"
           class="control-btn maximize-btn"
           :title="isMaximized ? t('window.restore') : t('window.maximize')"
         >
           <Square :size="12" v-if="!isMaximized" />
           <Copy :size="12" v-else />
         </button>
-        <button 
-          @click="closeWindow" 
-          class="control-btn close-btn"
-          :title="t('window.close')"
-        >
+        <button @click="closeWindow" class="control-btn close-btn" :title="t('window.close')">
           <X :size="12" />
         </button>
       </div>
-      
+
       <!-- Window Title -->
       <div class="window-title">
         <h1>{{ windowState?.title || 'MiaoDa Chat' }}</h1>
         <span v-if="activeTab?.modified" class="modified-indicator">•</span>
       </div>
-      
+
       <!-- Window Actions -->
       <div class="window-actions">
-        <button
-          @click="openSettings"
-          class="settings-btn"
-          :title="t('common.settings')"
-        >
+        <button @click="openSettings" class="settings-btn" :title="t('common.settings')">
           <Settings :size="16" />
         </button>
-        <button
-          @click="showWindowMenu"
-          class="window-menu-btn"
-          :title="t('window.menu')"
-        >
+        <button @click="showWindowMenu" class="window-menu-btn" :title="t('window.menu')">
           <MoreHorizontal :size="16" />
         </button>
       </div>
@@ -84,7 +72,7 @@
         @tab-modified-change="handleTabModifiedChange"
         @tab-close="handleTabClose"
       />
-      
+
       <!-- Empty State -->
       <div v-else class="empty-state">
         <div class="empty-content">
@@ -105,13 +93,17 @@
         <span class="status-item">
           {{ t('window.tabs', { count: windowState?.tabs.length || 0 }) }}
         </span>
-        <span v-if="connectionStatus" class="status-item connection-status" :class="connectionStatus">
+        <span
+          v-if="connectionStatus"
+          class="status-item connection-status"
+          :class="connectionStatus"
+        >
           <Wifi :size="14" v-if="connectionStatus === 'connected'" />
           <WifiOff :size="14" v-else />
           {{ t(`connection.${connectionStatus}`) }}
         </span>
       </div>
-      
+
       <div class="status-right">
         <span v-if="activeTab?.type === 'chat'" class="status-item">
           {{ t('chat.model') }}: {{ currentModel }}
@@ -148,12 +140,24 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { 
-  Minus, Square, Copy, X, MoreHorizontal, Plus, FileText, 
-  Wifi, WifiOff, Settings 
+import {
+  Minus,
+  Square,
+  Copy,
+  X,
+  MoreHorizontal,
+  Plus,
+  FileText,
+  Wifi,
+  WifiOff,
+  Settings
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { windowManager, type WindowState, type WindowTab } from '@renderer/src/services/window/WindowManager'
+import {
+  windowManager,
+  type WindowState,
+  type WindowTab
+} from '@renderer/src/services/window/WindowManager'
 import { mcpService } from '@renderer/src/services/mcp/MCPService'
 import TabBar from './TabBar.vue'
 import TabContent from './TabContent.vue'
@@ -292,7 +296,7 @@ const handleTabClose = async (tabId: string) => {
 
 const handleTabAdd = async () => {
   if (!windowState.value) return
-  
+
   await windowManager.createTab(windowState.value.id, {
     title: 'New Chat',
     type: 'chat'
@@ -390,7 +394,7 @@ const createNewWindow = async () => {
       height: windowState.value?.bounds.height || 800
     }
   })
-  
+
   emit('window-focus', newWindowId)
 }
 
@@ -408,7 +412,7 @@ const showLayoutMenu = () => {
 
 const openSettings = async () => {
   if (!windowState.value) return
-  
+
   await windowManager.createTab(windowState.value.id, {
     title: 'Settings',
     type: 'settings'
@@ -418,7 +422,7 @@ const openSettings = async () => {
 // Window Resizing
 const startResize = (direction: string) => {
   if (isMaximized.value) return
-  
+
   resizing.value = direction
   document.addEventListener('mousemove', handleResize)
   document.addEventListener('mouseup', stopResize)
@@ -427,10 +431,10 @@ const startResize = (direction: string) => {
 
 const handleResize = (event: MouseEvent) => {
   if (!resizing.value || !windowState.value) return
-  
+
   const bounds = { ...windowState.value.bounds }
   const { movementX, movementY } = event
-  
+
   switch (resizing.value) {
     case 'n':
       bounds.y += movementY
@@ -467,11 +471,11 @@ const handleResize = (event: MouseEvent) => {
       bounds.height += movementY
       break
   }
-  
+
   // Enforce minimum size
   bounds.width = Math.max(bounds.width, 400)
   bounds.height = Math.max(bounds.height, 300)
-  
+
   windowManager.setWindowBounds(windowState.value.id, bounds)
 }
 
@@ -509,19 +513,19 @@ const setupEventListeners = () => {
       loadWindowState()
     }
   })
-  
+
   windowManager.on('tab-created', (windowId, tab) => {
     if (windowState.value?.id === windowId) {
       loadWindowState()
     }
   })
-  
+
   windowManager.on('tab-closed', (windowId, tabId) => {
     if (windowState.value?.id === windowId) {
       loadWindowState()
     }
   })
-  
+
   windowManager.on('tab-switched', (windowId, tabId) => {
     if (windowState.value?.id === windowId) {
       loadWindowState()
@@ -534,19 +538,22 @@ const setupEventListeners = () => {
 onMounted(async () => {
   await loadWindowState()
   setupEventListeners()
-  
+
   // Update time every second
   const timeInterval = setInterval(updateTime, 1000)
-  
+
   onUnmounted(() => {
     clearInterval(timeInterval)
   })
 })
 
 // Watch for window ID changes
-watch(() => props.windowId, async () => {
-  await loadWindowState()
-})
+watch(
+  () => props.windowId,
+  async () => {
+    await loadWindowState()
+  }
+)
 
 // Expose methods
 defineExpose({
@@ -691,7 +698,8 @@ defineExpose({
   height: 24px;
 }
 
-.status-left, .status-right {
+.status-left,
+.status-right {
   @apply flex items-center gap-3;
 }
 
@@ -720,7 +728,8 @@ defineExpose({
   z-index: 10;
 }
 
-.resize-n, .resize-s {
+.resize-n,
+.resize-s {
   left: 8px;
   right: 8px;
   height: 4px;
@@ -736,7 +745,8 @@ defineExpose({
   cursor: ns-resize;
 }
 
-.resize-e, .resize-w {
+.resize-e,
+.resize-w {
   top: 8px;
   bottom: 8px;
   width: 4px;
@@ -752,7 +762,10 @@ defineExpose({
   cursor: ew-resize;
 }
 
-.resize-nw, .resize-ne, .resize-sw, .resize-se {
+.resize-nw,
+.resize-ne,
+.resize-sw,
+.resize-se {
   width: 8px;
   height: 8px;
 }
@@ -795,7 +808,7 @@ defineExpose({
   .window-focused {
     @apply ring-4 ring-primary;
   }
-  
+
   .control-btn svg {
     @apply opacity-100;
   }
@@ -806,7 +819,7 @@ defineExpose({
   .window {
     transition: none;
   }
-  
+
   .control-btn {
     transition: none;
   }
@@ -817,7 +830,7 @@ defineExpose({
   .window-header {
     @apply bg-background/90;
   }
-  
+
   .control-btn svg {
     color: rgba(255, 255, 255, 0.8);
   }

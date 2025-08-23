@@ -12,7 +12,7 @@
         <div class="button-content relative">
           <Mic v-if="!isRecording" :size="16" class="transition-all duration-200" />
           <Square v-else :size="16" class="animate-recording-pulse" />
-          
+
           <!-- Breathing rings when recording -->
           <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
             <div class="breathing-ring ring-1" />
@@ -21,16 +21,18 @@
           </div>
         </div>
       </button>
-      
+
       <!-- Enhanced Recording indicator -->
       <div v-if="isRecording" class="recording-indicator animate-slide-in-right">
         <div class="recording-dot-container">
           <div class="recording-dot animate-recording-dot" />
           <div class="recording-dot-shadow" />
         </div>
-        <span class="recording-time text-xs font-mono animate-time-tick">{{ formatTime(recordingTime) }}</span>
+        <span class="recording-time text-xs font-mono animate-time-tick">{{
+          formatTime(recordingTime)
+        }}</span>
       </div>
-      
+
       <!-- Enhanced Expand button with subtle animation -->
       <button
         v-if="isRecording"
@@ -52,11 +54,7 @@
           </div>
           <span class="text-sm font-medium animate-text-appear">语音录制</span>
         </div>
-        <button
-          @click="isExpanded = false"
-          class="collapse-button hover-lift"
-          title="收起"
-        >
+        <button @click="isExpanded = false" class="collapse-button hover-lift" title="收起">
           <Minimize2 :size="14" class="transition-transform duration-200 hover:scale-110" />
         </button>
       </div>
@@ -69,15 +67,23 @@
           :width="canvasWidth"
           :height="canvasHeight"
         />
-        <div v-if="!isRecording && audioData.length === 0" class="waveform-placeholder animate-fade-in">
+        <div
+          v-if="!isRecording && audioData.length === 0"
+          class="waveform-placeholder animate-fade-in"
+        >
           <div class="placeholder-content">
             <div class="placeholder-waves">
-              <div class="wave-line" v-for="i in 12" :key="i" :style="{ animationDelay: `${i * 100}ms` }" />
+              <div
+                class="wave-line"
+                v-for="i in 12"
+                :key="i"
+                :style="{ animationDelay: `${i * 100}ms` }"
+              />
             </div>
             <span class="text-xs text-muted-foreground mt-2">开始录制以查看波形</span>
           </div>
         </div>
-        
+
         <!-- Recording overlay effect -->
         <div v-if="isRecording" class="waveform-overlay">
           <div class="recording-shimmer" />
@@ -99,12 +105,12 @@
             @click="toggleRecording"
             :disabled="!isSupported"
             class="primary-control-button"
-            :class="{ 'recording': isRecording }"
+            :class="{ recording: isRecording }"
           >
             <div class="button-inner">
               <Mic v-if="!isRecording" :size="18" class="transition-all duration-300" />
               <Square v-else :size="18" class="animate-stop-pulse" />
-              
+
               <!-- Enhanced breathing effect -->
               <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
                 <div class="breathing-ring primary-ring-1" />
@@ -130,7 +136,10 @@
             @click="clearRecording"
             class="control-button danger hover-scale"
           >
-            <Trash2 :size="16" class="transition-all duration-200 group-hover:animate-trash-wiggle" />
+            <Trash2
+              :size="16"
+              class="transition-all duration-200 group-hover:animate-trash-wiggle"
+            />
           </button>
         </div>
 
@@ -155,19 +164,16 @@
           @ended="onPlaybackEnd"
           @loadedmetadata="onAudioLoaded"
         />
-        
+
         <div class="playback-controls">
           <button @click="togglePlayback" class="play-button">
             <Play v-if="!isPlaying" :size="16" />
             <Pause v-else :size="16" />
           </button>
-          
+
           <div class="playback-progress">
             <div class="progress-track" @click="seekTo">
-              <div 
-                class="progress-fill" 
-                :style="{ width: `${playbackProgress}%` }"
-              />
+              <div class="progress-fill" :style="{ width: `${playbackProgress}%` }" />
             </div>
             <span class="playback-time text-xs">
               {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
@@ -185,8 +191,8 @@
             :key="i"
             class="volume-bar"
             :class="{
-              'active': currentVolume > (i * 10),
-              'peak': currentVolume > 80 && i > 8
+              active: currentVolume > i * 10,
+              peak: currentVolume > 80 && i > 8
             }"
             :style="{ animationDelay: `${i * 50}ms` }"
           />
@@ -219,15 +225,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import {
-  Mic, Square, Play, Pause, Send, Trash2,
-  Maximize2, Minimize2, AlertCircle
+  Mic,
+  Square,
+  Play,
+  Pause,
+  Send,
+  Trash2,
+  Maximize2,
+  Minimize2,
+  AlertCircle
 } from 'lucide-vue-next'
 
 interface Props {
   maxDuration?: number // Maximum recording duration in seconds
-  sampleRate?: number  // Audio sample rate
-  compact?: boolean    // Start in compact mode
-  autoSend?: boolean   // Auto send on stop
+  sampleRate?: number // Audio sample rate
+  compact?: boolean // Start in compact mode
+  autoSend?: boolean // Auto send on stop
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -279,15 +292,15 @@ let animationFrame: number | null = null
 
 // Computed properties
 const recorderClasses = computed(() => ({
-  'compact': !isExpanded.value,
-  'expanded': isExpanded.value,
-  'recording': isRecording.value,
-  'error': !!error.value
+  compact: !isExpanded.value,
+  expanded: isExpanded.value,
+  recording: isRecording.value,
+  error: !!error.value
 }))
 
 const recordButtonClasses = computed(() => ({
-  'recording': isRecording.value,
-  'disabled': !isSupported.value
+  recording: isRecording.value,
+  disabled: !isSupported.value
 }))
 
 const buttonTitle = computed(() => {
@@ -316,7 +329,7 @@ onUnmounted(() => {
 })
 
 // Watch for recording time limit
-watch(recordingTime, (time) => {
+watch(recordingTime, time => {
   if (props.maxDuration && time >= props.maxDuration) {
     stopRecording()
   }
@@ -329,7 +342,7 @@ const checkBrowserSupport = () => {
     navigator.mediaDevices.getUserMedia &&
     window.MediaRecorder
   )
-  
+
   if (!isSupported.value) {
     error.value = '浏览器不支持录音功能'
   }
@@ -361,7 +374,7 @@ const toggleRecording = async () => {
 const startRecording = async () => {
   try {
     error.value = null
-    
+
     // Request microphone access
     stream = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -377,7 +390,7 @@ const startRecording = async () => {
     analyser = audioContext.createAnalyser()
     const source = audioContext.createMediaStreamSource(stream)
     source.connect(analyser)
-    
+
     analyser.fftSize = 256
     analyser.smoothingTimeConstant = 0.8
 
@@ -387,8 +400,8 @@ const startRecording = async () => {
     })
 
     const chunks: Blob[] = []
-    
-    mediaRecorder.ondataavailable = (event) => {
+
+    mediaRecorder.ondataavailable = event => {
       if (event.data.size > 0) {
         chunks.push(event.data)
       }
@@ -397,7 +410,7 @@ const startRecording = async () => {
     mediaRecorder.onstop = () => {
       audioBlob.value = new Blob(chunks, { type: 'audio/webm;codecs=opus' })
       audioUrl.value = URL.createObjectURL(audioBlob.value)
-      
+
       if (props.autoSend) {
         sendRecording()
       }
@@ -416,9 +429,8 @@ const startRecording = async () => {
 
     // Start visualization
     startVisualization()
-    
-    emit('recording-start')
 
+    emit('recording-start')
   } catch (err) {
     console.error('Recording failed:', err)
     error.value = '录音启动失败'
@@ -430,17 +442,17 @@ const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.stop()
   }
-  
+
   cleanup()
   isRecording.value = false
   isPaused.value = false
-  
+
   emit('recording-stop')
 }
 
 const togglePause = () => {
   if (!mediaRecorder) return
-  
+
   if (mediaRecorder.state === 'recording') {
     mediaRecorder.pause()
     isPaused.value = true
@@ -488,7 +500,7 @@ const setupCanvas = () => {
 
 const startVisualization = () => {
   if (!analyser || !waveformCanvas.value) return
-  
+
   const canvas = waveformCanvas.value
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -500,35 +512,35 @@ const startVisualization = () => {
     if (!isRecording.value) return
 
     animationFrame = requestAnimationFrame(draw)
-    
+
     analyser!.getByteFrequencyData(dataArray)
-    
+
     // Calculate current volume
     const sum = dataArray.reduce((a, b) => a + b, 0)
     currentVolume.value = (sum / bufferLength / 255) * 100
-    
+
     // Draw waveform
     ctx.fillStyle = '#f3f4f6'
     ctx.fillRect(0, 0, canvasWidth, canvasHeight)
-    
-    const barWidth = canvasWidth / bufferLength * 2.5
+
+    const barWidth = (canvasWidth / bufferLength) * 2.5
     let barHeight
     let x = 0
-    
+
     for (let i = 0; i < bufferLength; i++) {
       barHeight = (dataArray[i] / 255) * canvasHeight * 0.8
-      
+
       const hue = (i / bufferLength) * 360
       ctx.fillStyle = `hsl(${hue}, 50%, 60%)`
-      
+
       ctx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight)
       x += barWidth + 1
     }
-    
+
     // Store data for replay
     audioData.value.push(...Array.from(dataArray))
   }
-  
+
   draw()
 }
 
@@ -545,7 +557,7 @@ const clearCanvas = () => {
 // Audio playback
 const togglePlayback = () => {
   if (!audioPlayer.value) return
-  
+
   if (isPlaying.value) {
     audioPlayer.value.pause()
     isPlaying.value = false
@@ -557,7 +569,7 @@ const togglePlayback = () => {
 
 const seekTo = (event: MouseEvent) => {
   if (!audioPlayer.value) return
-  
+
   const rect = (event.target as HTMLElement).getBoundingClientRect()
   const percent = (event.clientX - rect.left) / rect.width
   audioPlayer.value.currentTime = percent * duration.value
@@ -592,22 +604,22 @@ const cleanup = () => {
     clearInterval(recordingInterval)
     recordingInterval = null
   }
-  
+
   if (animationFrame) {
     cancelAnimationFrame(animationFrame)
     animationFrame = null
   }
-  
+
   if (stream) {
     stream.getTracks().forEach(track => track.stop())
     stream = null
   }
-  
+
   if (audioContext) {
     audioContext.close()
     audioContext = null
   }
-  
+
   analyser = null
   mediaRecorder = null
 }
@@ -637,8 +649,17 @@ const cleanup = () => {
 }
 
 @keyframes recordingGlow {
-  0%, 100% { background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent); }
-  50% { background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.2), rgba(var(--primary-rgb), 0.05)); }
+  0%,
+  100% {
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent);
+  }
+  50% {
+    background: linear-gradient(
+      135deg,
+      rgba(var(--primary-rgb), 0.2),
+      rgba(var(--primary-rgb), 0.05)
+    );
+  }
 }
 
 .voice-recorder.compact {
@@ -656,8 +677,13 @@ const cleanup = () => {
 }
 
 @keyframes errorPulse {
-  0%, 100% { border-color: rgba(239, 68, 68, 0.5); }
-  50% { border-color: rgba(239, 68, 68, 0.8); }
+  0%,
+  100% {
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.8);
+  }
 }
 
 /* Enhanced Compact Mode with Breathing Animation */
@@ -690,7 +716,8 @@ const cleanup = () => {
 }
 
 @keyframes recordingBreath {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
@@ -749,8 +776,15 @@ const cleanup = () => {
 }
 
 @keyframes recordingPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 /* Enhanced Recording Indicator with Sophisticated Animation */
@@ -774,7 +808,8 @@ const cleanup = () => {
 }
 
 @keyframes recordingDotGlow {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.3;
   }
@@ -789,8 +824,15 @@ const cleanup = () => {
 }
 
 @keyframes recordingDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
 }
 
 .recording-time {
@@ -802,8 +844,14 @@ const cleanup = () => {
 }
 
 @keyframes timeTick {
-  0%, 98%, 100% { opacity: 1; }
-  99% { opacity: 0.7; }
+  0%,
+  98%,
+  100% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.7;
+  }
 }
 
 .expand-button {
@@ -861,8 +909,15 @@ const cleanup = () => {
 }
 
 @keyframes iconGlow {
-  0%, 100% { opacity: 0; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 .animate-mic-glow {
@@ -870,8 +925,14 @@ const cleanup = () => {
 }
 
 @keyframes micGlow {
-  0%, 100% { color: rgb(var(--primary-rgb)); }
-  50% { color: rgba(var(--primary-rgb), 0.7); text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4); }
+  0%,
+  100% {
+    color: rgb(var(--primary-rgb));
+  }
+  50% {
+    color: rgba(var(--primary-rgb), 0.7);
+    text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4);
+  }
 }
 
 .collapse-button {
@@ -905,27 +966,62 @@ const cleanup = () => {
 
 .wave-line {
   width: 3px;
-  background: linear-gradient(to top, rgba(var(--muted-foreground), 0.3), rgba(var(--muted-foreground), 0.1));
+  background: linear-gradient(
+    to top,
+    rgba(var(--muted-foreground), 0.3),
+    rgba(var(--muted-foreground), 0.1)
+  );
   border-radius: 2px;
   animation: placeholderWave 2s ease-in-out infinite;
 }
 
-.wave-line:nth-child(1) { height: 8px; }
-.wave-line:nth-child(2) { height: 16px; }
-.wave-line:nth-child(3) { height: 12px; }
-.wave-line:nth-child(4) { height: 20px; }
-.wave-line:nth-child(5) { height: 24px; }
-.wave-line:nth-child(6) { height: 18px; }
-.wave-line:nth-child(7) { height: 14px; }
-.wave-line:nth-child(8) { height: 22px; }
-.wave-line:nth-child(9) { height: 16px; }
-.wave-line:nth-child(10) { height: 10px; }
-.wave-line:nth-child(11) { height: 18px; }
-.wave-line:nth-child(12) { height: 12px; }
+.wave-line:nth-child(1) {
+  height: 8px;
+}
+.wave-line:nth-child(2) {
+  height: 16px;
+}
+.wave-line:nth-child(3) {
+  height: 12px;
+}
+.wave-line:nth-child(4) {
+  height: 20px;
+}
+.wave-line:nth-child(5) {
+  height: 24px;
+}
+.wave-line:nth-child(6) {
+  height: 18px;
+}
+.wave-line:nth-child(7) {
+  height: 14px;
+}
+.wave-line:nth-child(8) {
+  height: 22px;
+}
+.wave-line:nth-child(9) {
+  height: 16px;
+}
+.wave-line:nth-child(10) {
+  height: 10px;
+}
+.wave-line:nth-child(11) {
+  height: 18px;
+}
+.wave-line:nth-child(12) {
+  height: 12px;
+}
 
 @keyframes placeholderWave {
-  0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
-  50% { opacity: 0.8; transform: scaleY(1); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.5);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleY(1);
+  }
 }
 
 .waveform-overlay {
@@ -934,18 +1030,17 @@ const cleanup = () => {
 
 .recording-shimmer {
   @apply absolute inset-0 opacity-20;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(var(--primary-rgb), 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb), 0.3), transparent);
   animation: recordingShimmer 2s linear infinite;
 }
 
 @keyframes recordingShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Enhanced Controls with Advanced Interactions */
@@ -962,12 +1057,13 @@ const cleanup = () => {
 }
 
 @keyframes timeGlow {
-  0%, 100% { 
-    color: inherit; 
+  0%,
+  100% {
+    color: inherit;
     text-shadow: none;
   }
-  50% { 
-    color: rgb(var(--primary-rgb)); 
+  50% {
+    color: rgb(var(--primary-rgb));
     text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.3);
   }
 }
@@ -988,7 +1084,8 @@ const cleanup = () => {
 }
 
 @keyframes primaryRecordingBreath {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
@@ -1031,8 +1128,13 @@ const cleanup = () => {
 }
 
 @keyframes stopPulse {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.1) rotate(45deg); }
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(45deg);
+  }
 }
 
 .control-button {
@@ -1075,8 +1177,13 @@ const cleanup = () => {
 }
 
 @keyframes playPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 .animate-trash-wiggle {
@@ -1084,9 +1191,16 @@ const cleanup = () => {
 }
 
 @keyframes trashWiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
 }
 
 /* Enhanced Action Buttons with Smooth Animations */
@@ -1125,9 +1239,15 @@ const cleanup = () => {
 }
 
 @keyframes sendFly {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(5px, -5px) rotate(15deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(5px, -5px) rotate(15deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
 }
 
 /* Audio Playback */
@@ -1199,17 +1319,24 @@ const cleanup = () => {
 }
 
 @keyframes volumeActive {
-  0% { transform: scaleY(0.5); }
-  50% { transform: scaleY(1.2); }
-  100% { transform: scaleY(1); }
+  0% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1.2);
+  }
+  100% {
+    transform: scaleY(1);
+  }
 }
 
 @keyframes volumePeak {
-  0%, 100% { 
+  0%,
+  100% {
     transform: scaleY(1);
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
-  50% { 
+  50% {
     transform: scaleY(1.1);
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
   }
@@ -1236,9 +1363,16 @@ const cleanup = () => {
 }
 
 @keyframes errorBounce {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
 }
 
 .animate-error-icon {
@@ -1246,8 +1380,13 @@ const cleanup = () => {
 }
 
 @keyframes errorIcon {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(10deg) scale(1.1); }
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.1);
+  }
 }
 
 .permission-request {
@@ -1301,8 +1440,13 @@ const cleanup = () => {
 }
 
 @keyframes micRequest {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .permission-button {
@@ -1394,8 +1538,12 @@ const cleanup = () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-text-appear {
@@ -1418,8 +1566,12 @@ const cleanup = () => {
 }
 
 @keyframes fadeInDelayed {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Responsive */
@@ -1427,7 +1579,7 @@ const cleanup = () => {
   .voice-recorder.expanded {
     @apply min-w-full;
   }
-  
+
   .waveform-container {
     @apply h-16;
   }

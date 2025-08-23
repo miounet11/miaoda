@@ -102,20 +102,20 @@ export class PerformanceMonitor extends EventEmitter {
   private alerts: PerformanceAlert[] = []
   private metricsTimer: NodeJS.Timeout | null = null
   private cleanupTimer: NodeJS.Timeout | null = null
-  
+
   // Component references for metrics collection
   private dbOptimizer?: DatabasePerformanceOptimizer
   private cacheSystem?: MultiLevelCache
   private streamingOptimizer?: LLMStreamingOptimizer
-  
+
   // Performance tracking state
   private queryTimes: number[] = []
   private renderTimes: number[] = []
   private networkRequests: Array<{ timestamp: number; duration: number; success: boolean }> = []
-  
+
   constructor(config: Partial<PerformanceConfig> = {}) {
     super()
-    
+
     this.config = {
       enabled: true,
       metricsInterval: 5000, // 5 seconds
@@ -133,7 +133,7 @@ export class PerformanceMonitor extends EventEmitter {
       enableNetworkTracking: true,
       ...config
     }
-    
+
     this.currentMetrics = this.initializeMetrics()
     this.initialize()
   }
@@ -143,18 +143,18 @@ export class PerformanceMonitor extends EventEmitter {
       logger.info('Performance monitoring disabled', 'PerformanceMonitor')
       return
     }
-    
+
     logger.info('Initializing performance monitor', 'PerformanceMonitor', this.config)
-    
+
     // Start metrics collection
     this.startMetricsCollection()
-    
+
     // Start cleanup timer
     this.startCleanupTimer()
-    
+
     // Setup process monitoring
     this.setupProcessMonitoring()
-    
+
     // Setup window monitoring
     this.setupWindowMonitoring()
   }
@@ -170,10 +170,10 @@ export class PerformanceMonitor extends EventEmitter {
     this.dbOptimizer = components.dbOptimizer
     this.cacheSystem = components.cacheSystem
     this.streamingOptimizer = components.streamingOptimizer
-    
+
     // Setup component event listeners
     this.setupComponentListeners()
-    
+
     logger.info('Performance components registered', 'PerformanceMonitor', {
       database: !!this.dbOptimizer,
       cache: !!this.cacheSystem,
@@ -186,12 +186,12 @@ export class PerformanceMonitor extends EventEmitter {
    */
   recordQuery(duration: number, success: boolean = true): void {
     this.queryTimes.push(duration)
-    
+
     // Keep only recent query times
     if (this.queryTimes.length > 1000) {
       this.queryTimes = this.queryTimes.slice(-500)
     }
-    
+
     // Check for slow queries
     if (duration > this.config.alertThresholds.queryTime) {
       this.createAlert({
@@ -208,12 +208,12 @@ export class PerformanceMonitor extends EventEmitter {
    */
   recordRenderTime(duration: number): void {
     this.renderTimes.push(duration)
-    
+
     // Keep only recent render times
     if (this.renderTimes.length > 1000) {
       this.renderTimes = this.renderTimes.slice(-500)
     }
-    
+
     // Check for slow renders
     if (duration > this.config.alertThresholds.renderTime) {
       this.createAlert({
@@ -234,9 +234,9 @@ export class PerformanceMonitor extends EventEmitter {
       duration,
       success
     }
-    
+
     this.networkRequests.push(request)
-    
+
     // Keep only recent requests
     if (this.networkRequests.length > 1000) {
       this.networkRequests = this.networkRequests.slice(-500)
@@ -255,15 +255,15 @@ export class PerformanceMonitor extends EventEmitter {
    */
   getHistoricalMetrics(startTime?: number, endTime?: number): PerformanceMetrics[] {
     let filtered = [...this.metrics]
-    
+
     if (startTime) {
       filtered = filtered.filter(m => m.timestamp >= startTime)
     }
-    
+
     if (endTime) {
       filtered = filtered.filter(m => m.timestamp <= endTime)
     }
-    
+
     return filtered
   }
 
@@ -278,7 +278,7 @@ export class PerformanceMonitor extends EventEmitter {
   } {
     const startTime = Date.now() - periodMs
     const periodMetrics = this.getHistoricalMetrics(startTime)
-    
+
     if (periodMetrics.length === 0) {
       return {
         averages: {},
@@ -287,19 +287,19 @@ export class PerformanceMonitor extends EventEmitter {
         issues: []
       }
     }
-    
+
     // Calculate averages
     const averages = this.calculateAverages(periodMetrics)
-    
+
     // Find peaks
     const peaks = this.findPeaks(periodMetrics)
-    
+
     // Analyze trends
     const trends = this.analyzeTrends(periodMetrics)
-    
+
     // Get issues in period
     const issues = this.alerts.filter(alert => alert.timestamp >= startTime)
-    
+
     return { averages, peaks, trends, issues }
   }
 
@@ -335,34 +335,34 @@ export class PerformanceMonitor extends EventEmitter {
     const recommendations: string[] = []
     const criticalIssues = this.alerts.filter(a => a.level === 'critical' && !a.resolved)
     const optimizationOpportunities: string[] = []
-    
+
     // Analyze current metrics for recommendations
     const current = this.currentMetrics
-    
+
     // Memory recommendations
     if (current.system.memory.percentage > 80) {
       recommendations.push('Consider increasing system memory or optimizing memory usage')
       optimizationOpportunities.push('Enable aggressive garbage collection')
     }
-    
+
     // Database recommendations
     if (current.database.averageQueryTime > 500) {
       recommendations.push('Optimize database queries and consider adding indexes')
       optimizationOpportunities.push('Enable query result caching')
     }
-    
+
     // Cache recommendations
     if (current.cache.totalHitRate < 70) {
       recommendations.push('Improve caching strategy and increase cache sizes')
       optimizationOpportunities.push('Implement predictive caching')
     }
-    
+
     // UI recommendations
     if (current.ui.renderTime > 16) {
       recommendations.push('Optimize UI rendering and reduce DOM complexity')
       optimizationOpportunities.push('Implement virtual scrolling for large lists')
     }
-    
+
     return {
       summary,
       recommendations,
@@ -394,7 +394,7 @@ export class PerformanceMonitor extends EventEmitter {
     this.metricsTimer = setInterval(() => {
       this.collectMetrics()
     }, this.config.metricsInterval)
-    
+
     // Collect initial metrics immediately
     this.collectMetrics()
   }
@@ -402,25 +402,25 @@ export class PerformanceMonitor extends EventEmitter {
   private async collectMetrics(): Promise<void> {
     try {
       const timestamp = Date.now()
-      
+
       // Collect system metrics
       const systemMetrics = await this.collectSystemMetrics()
-      
+
       // Collect database metrics
       const databaseMetrics = this.collectDatabaseMetrics()
-      
+
       // Collect cache metrics
       const cacheMetrics = this.collectCacheMetrics()
-      
+
       // Collect streaming metrics
       const streamingMetrics = this.collectStreamingMetrics()
-      
+
       // Collect UI metrics
       const uiMetrics = await this.collectUIMetrics()
-      
+
       // Collect network metrics
       const networkMetrics = this.collectNetworkMetrics()
-      
+
       this.currentMetrics = {
         timestamp,
         system: systemMetrics,
@@ -430,16 +430,15 @@ export class PerformanceMonitor extends EventEmitter {
         ui: uiMetrics,
         network: networkMetrics
       }
-      
+
       // Store metrics
       this.metrics.push({ ...this.currentMetrics })
-      
+
       // Check for performance issues
       this.checkPerformanceThresholds()
-      
+
       // Emit metrics for external monitoring
       this.emit('metrics-collected', this.currentMetrics)
-      
     } catch (error) {
       logger.error('Failed to collect performance metrics', 'PerformanceMonitor', { error })
     }
@@ -448,10 +447,10 @@ export class PerformanceMonitor extends EventEmitter {
   private async collectSystemMetrics(): Promise<PerformanceMetrics['system']> {
     const memoryUsage = process.memoryUsage()
     const cpuUsage = process.cpuUsage()
-    
+
     return {
       cpu: {
-        usage: ((cpuUsage.user + cpuUsage.system) / 1000000), // Convert to ms
+        usage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to ms
         loadAverage: [], // Not available on all platforms
         processCount: 1 // Simplified
       },
@@ -479,10 +478,12 @@ export class PerformanceMonitor extends EventEmitter {
         connectionCount: 1
       }
     }
-    
+
     const dbMetrics = this.dbOptimizer.getPerformanceMetrics()
-    const slowQueries = this.queryTimes.filter(t => t > this.config.alertThresholds.queryTime).length
-    
+    const slowQueries = this.queryTimes.filter(
+      t => t > this.config.alertThresholds.queryTime
+    ).length
+
     return {
       queryCount: dbMetrics.queryCount,
       averageQueryTime: dbMetrics.averageQueryTime,
@@ -502,9 +503,9 @@ export class PerformanceMonitor extends EventEmitter {
         memoryUsage: 0
       }
     }
-    
+
     const cacheStats = this.cacheSystem.getStats()
-    
+
     return {
       l1: {
         hitRate: cacheStats.memory?.hitRatio || 0,
@@ -516,11 +517,13 @@ export class PerformanceMonitor extends EventEmitter {
         size: cacheStats.persistent?.size || 0,
         itemCount: cacheStats.persistent?.itemCount || 0
       },
-      l3: cacheStats.network ? {
-        hitRate: cacheStats.network.hitRatio,
-        size: cacheStats.network.size,
-        itemCount: cacheStats.network.itemCount
-      } : undefined,
+      l3: cacheStats.network
+        ? {
+            hitRate: cacheStats.network.hitRatio,
+            size: cacheStats.network.size,
+            itemCount: cacheStats.network.itemCount
+          }
+        : undefined,
       totalHitRate: this.calculateTotalCacheHitRate(cacheStats),
       memoryUsage: (cacheStats.memory?.memoryUsage || 0) + (cacheStats.persistent?.memoryUsage || 0)
     }
@@ -536,9 +539,9 @@ export class PerformanceMonitor extends EventEmitter {
         memoryPressure: false
       }
     }
-    
+
     const streamingMetrics = this.streamingOptimizer.getMetrics()
-    
+
     return {
       activeStreams: 0, // Would need to track active streams
       totalChunks: streamingMetrics.totalChunks,
@@ -551,7 +554,7 @@ export class PerformanceMonitor extends EventEmitter {
   private async collectUIMetrics(): Promise<PerformanceMetrics['ui']> {
     const windows = BrowserWindow.getAllWindows()
     let totalMemoryUsage = 0
-    
+
     // Collect metrics from all windows
     for (const window of windows) {
       try {
@@ -566,11 +569,12 @@ export class PerformanceMonitor extends EventEmitter {
         // Ignore errors for individual windows
       }
     }
-    
-    const averageRenderTime = this.renderTimes.length > 0
-      ? this.renderTimes.reduce((sum, time) => sum + time, 0) / this.renderTimes.length
-      : 0
-    
+
+    const averageRenderTime =
+      this.renderTimes.length > 0
+        ? this.renderTimes.reduce((sum, time) => sum + time, 0) / this.renderTimes.length
+        : 0
+
     return {
       windowCount: windows.length,
       renderTime: averageRenderTime,
@@ -585,16 +589,18 @@ export class PerformanceMonitor extends EventEmitter {
     const recentRequests = this.networkRequests.filter(
       r => Date.now() - r.timestamp < 60000 // Last minute
     )
-    
+
     const successfulRequests = recentRequests.filter(r => r.success)
-    const errorRate = recentRequests.length > 0
-      ? ((recentRequests.length - successfulRequests.length) / recentRequests.length) * 100
-      : 0
-    
-    const averageResponseTime = successfulRequests.length > 0
-      ? successfulRequests.reduce((sum, r) => sum + r.duration, 0) / successfulRequests.length
-      : 0
-    
+    const errorRate =
+      recentRequests.length > 0
+        ? ((recentRequests.length - successfulRequests.length) / recentRequests.length) * 100
+        : 0
+
+    const averageResponseTime =
+      successfulRequests.length > 0
+        ? successfulRequests.reduce((sum, r) => sum + r.duration, 0) / successfulRequests.length
+        : 0
+
     return {
       requestCount: recentRequests.length,
       responseTime: averageResponseTime,
@@ -606,7 +612,7 @@ export class PerformanceMonitor extends EventEmitter {
 
   private checkPerformanceThresholds(): void {
     const metrics = this.currentMetrics
-    
+
     // CPU threshold
     if (metrics.system.cpu.usage > this.config.alertThresholds.cpu) {
       this.createAlert({
@@ -616,7 +622,7 @@ export class PerformanceMonitor extends EventEmitter {
         metrics: { cpu: metrics.system.cpu }
       })
     }
-    
+
     // Memory threshold
     if (metrics.system.memory.percentage > this.config.alertThresholds.memory) {
       this.createAlert({
@@ -626,7 +632,7 @@ export class PerformanceMonitor extends EventEmitter {
         metrics: { memory: metrics.system.memory }
       })
     }
-    
+
     // Cache hit rate threshold
     if (metrics.cache.totalHitRate < this.config.alertThresholds.cacheHitRate) {
       this.createAlert({
@@ -636,7 +642,7 @@ export class PerformanceMonitor extends EventEmitter {
         metrics: { cache: metrics.cache }
       })
     }
-    
+
     // Network error rate threshold
     if (metrics.network.errorRate > this.config.alertThresholds.errorRate) {
       this.createAlert({
@@ -654,10 +660,10 @@ export class PerformanceMonitor extends EventEmitter {
       timestamp: Date.now(),
       ...alertData
     }
-    
+
     this.alerts.push(alert)
     this.emit('performance-alert', alert)
-    
+
     // Log critical alerts immediately
     if (alert.level === 'critical') {
       logger.error('Critical performance alert', 'PerformanceMonitor', alert)
@@ -667,10 +673,10 @@ export class PerformanceMonitor extends EventEmitter {
   private setupComponentListeners(): void {
     // Listen to cache events
     if (this.cacheSystem) {
-      this.cacheSystem.on('cache-access', (data) => {
+      this.cacheSystem.on('cache-access', data => {
         // Track cache access patterns
       })
-      
+
       this.cacheSystem.on('memory-pressure', () => {
         this.createAlert({
           level: 'warning',
@@ -680,7 +686,7 @@ export class PerformanceMonitor extends EventEmitter {
         })
       })
     }
-    
+
     // Listen to streaming events
     if (this.streamingOptimizer) {
       this.streamingOptimizer.on('memory-pressure', () => {
@@ -691,8 +697,8 @@ export class PerformanceMonitor extends EventEmitter {
           metrics: {}
         })
       })
-      
-      this.streamingOptimizer.on('backpressure', (streamId) => {
+
+      this.streamingOptimizer.on('backpressure', streamId => {
         this.createAlert({
           level: 'info',
           category: 'streaming',
@@ -705,7 +711,7 @@ export class PerformanceMonitor extends EventEmitter {
 
   private setupProcessMonitoring(): void {
     // Monitor uncaught exceptions
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       this.createAlert({
         level: 'critical',
         category: 'system',
@@ -713,9 +719,9 @@ export class PerformanceMonitor extends EventEmitter {
         metrics: { error: error.stack }
       })
     })
-    
+
     // Monitor unhandled rejections
-    process.on('unhandledRejection', (reason) => {
+    process.on('unhandledRejection', reason => {
       this.createAlert({
         level: 'error',
         category: 'system',
@@ -736,7 +742,7 @@ export class PerformanceMonitor extends EventEmitter {
           metrics: { windowId: window.id }
         })
       })
-      
+
       // Monitor unresponsive windows
       window.webContents.on('unresponsive', () => {
         this.createAlert({
@@ -751,29 +757,32 @@ export class PerformanceMonitor extends EventEmitter {
 
   private startCleanupTimer(): void {
     // Clean up old data every hour
-    this.cleanupTimer = setInterval(() => {
-      this.cleanupOldData()
-    }, 60 * 60 * 1000)
+    this.cleanupTimer = setInterval(
+      () => {
+        this.cleanupOldData()
+      },
+      60 * 60 * 1000
+    )
   }
 
   private cleanupOldData(): void {
     const cutoffTime = Date.now() - this.config.retentionPeriod
-    
+
     // Clean up old metrics
     this.metrics = this.metrics.filter(m => m.timestamp > cutoffTime)
-    
+
     // Clean up resolved alerts older than 24 hours
-    this.alerts = this.alerts.filter(a => 
-      !a.resolved || (a.resolvedAt && a.resolvedAt > cutoffTime)
+    this.alerts = this.alerts.filter(
+      a => !a.resolved || (a.resolvedAt && a.resolvedAt > cutoffTime)
     )
-    
+
     // Clean up query times
     this.queryTimes = this.queryTimes.slice(-500)
     this.renderTimes = this.renderTimes.slice(-500)
     this.networkRequests = this.networkRequests.filter(
       r => Date.now() - r.timestamp < 60 * 60 * 1000 // Keep 1 hour
     )
-    
+
     logger.debug('Performance data cleanup completed', 'PerformanceMonitor', {
       metricsCount: this.metrics.length,
       alertsCount: this.alerts.length
@@ -782,18 +791,24 @@ export class PerformanceMonitor extends EventEmitter {
 
   private calculateAverages(metrics: PerformanceMetrics[]): Partial<PerformanceMetrics> {
     if (metrics.length === 0) return {}
-    
+
     const avgCpuUsage = metrics.reduce((sum, m) => sum + m.system.cpu.usage, 0) / metrics.length
-    const avgMemoryUsage = metrics.reduce((sum, m) => sum + m.system.memory.percentage, 0) / metrics.length
-    const avgQueryTime = metrics.reduce((sum, m) => sum + m.database.averageQueryTime, 0) / metrics.length
-    
+    const avgMemoryUsage =
+      metrics.reduce((sum, m) => sum + m.system.memory.percentage, 0) / metrics.length
+    const avgQueryTime =
+      metrics.reduce((sum, m) => sum + m.database.averageQueryTime, 0) / metrics.length
+
     return {
       system: {
         cpu: { usage: avgCpuUsage, loadAverage: [], processCount: 0 },
-        memory: { 
-          total: 0, used: 0, free: 0, 
-          percentage: avgMemoryUsage, 
-          heapUsed: 0, heapTotal: 0, external: 0 
+        memory: {
+          total: 0,
+          used: 0,
+          free: 0,
+          percentage: avgMemoryUsage,
+          heapUsed: 0,
+          heapTotal: 0,
+          external: 0
         },
         uptime: 0
       },
@@ -810,18 +825,22 @@ export class PerformanceMonitor extends EventEmitter {
 
   private findPeaks(metrics: PerformanceMetrics[]): Partial<PerformanceMetrics> {
     if (metrics.length === 0) return {}
-    
+
     const maxCpuUsage = Math.max(...metrics.map(m => m.system.cpu.usage))
     const maxMemoryUsage = Math.max(...metrics.map(m => m.system.memory.percentage))
     const maxQueryTime = Math.max(...metrics.map(m => m.database.averageQueryTime))
-    
+
     return {
       system: {
         cpu: { usage: maxCpuUsage, loadAverage: [], processCount: 0 },
-        memory: { 
-          total: 0, used: 0, free: 0, 
-          percentage: maxMemoryUsage, 
-          heapUsed: 0, heapTotal: 0, external: 0 
+        memory: {
+          total: 0,
+          used: 0,
+          free: 0,
+          percentage: maxMemoryUsage,
+          heapUsed: 0,
+          heapTotal: 0,
+          external: 0
         },
         uptime: 0
       },
@@ -836,37 +855,39 @@ export class PerformanceMonitor extends EventEmitter {
     } as any
   }
 
-  private analyzeTrends(metrics: PerformanceMetrics[]): Record<string, 'improving' | 'degrading' | 'stable'> {
+  private analyzeTrends(
+    metrics: PerformanceMetrics[]
+  ): Record<string, 'improving' | 'degrading' | 'stable'> {
     if (metrics.length < 2) return {}
-    
+
     const trends: Record<string, 'improving' | 'degrading' | 'stable'> = {}
-    
+
     // Analyze CPU trend
     const cpuTrend = this.calculateTrend(metrics.map(m => m.system.cpu.usage))
     trends.cpu = cpuTrend
-    
+
     // Analyze memory trend
     const memoryTrend = this.calculateTrend(metrics.map(m => m.system.memory.percentage))
     trends.memory = memoryTrend
-    
+
     // Analyze query time trend
     const queryTimeTrend = this.calculateTrend(metrics.map(m => m.database.averageQueryTime))
     trends.queryTime = queryTimeTrend
-    
+
     return trends
   }
 
   private calculateTrend(values: number[]): 'improving' | 'degrading' | 'stable' {
     if (values.length < 2) return 'stable'
-    
+
     const firstHalf = values.slice(0, Math.floor(values.length / 2))
     const secondHalf = values.slice(Math.floor(values.length / 2))
-    
+
     const firstAvg = firstHalf.reduce((sum, v) => sum + v, 0) / firstHalf.length
     const secondAvg = secondHalf.reduce((sum, v) => sum + v, 0) / secondHalf.length
-    
+
     const percentChange = ((secondAvg - firstAvg) / firstAvg) * 100
-    
+
     if (percentChange > 10) return 'degrading'
     if (percentChange < -10) return 'improving'
     return 'stable'
@@ -875,7 +896,7 @@ export class PerformanceMonitor extends EventEmitter {
   private calculateTotalCacheHitRate(cacheStats: any): number {
     const levels = ['memory', 'persistent', 'network'].filter(level => cacheStats[level])
     if (levels.length === 0) return 0
-    
+
     const totalHitRatio = levels.reduce((sum, level) => sum + (cacheStats[level]?.hitRatio || 0), 0)
     return totalHitRatio / levels.length
   }
@@ -885,7 +906,15 @@ export class PerformanceMonitor extends EventEmitter {
       timestamp: Date.now(),
       system: {
         cpu: { usage: 0, loadAverage: [], processCount: 0 },
-        memory: { total: 0, used: 0, free: 0, percentage: 0, heapUsed: 0, heapTotal: 0, external: 0 },
+        memory: {
+          total: 0,
+          used: 0,
+          free: 0,
+          percentage: 0,
+          heapUsed: 0,
+          heapTotal: 0,
+          external: 0
+        },
         uptime: 0
       },
       database: {
@@ -935,14 +964,14 @@ export class PerformanceMonitor extends EventEmitter {
       clearInterval(this.metricsTimer)
       this.metricsTimer = null
     }
-    
+
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = null
     }
-    
+
     this.removeAllListeners()
-    
+
     logger.info('Performance monitor destroyed', 'PerformanceMonitor')
   }
 }

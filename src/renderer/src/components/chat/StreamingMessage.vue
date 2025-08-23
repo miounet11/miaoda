@@ -7,14 +7,14 @@
           <component :is="avatarIcon" :size="16" />
         </div>
       </div>
-      
+
       <div class="message-meta">
         <span class="message-role">{{ roleDisplayName }}</span>
         <span v-if="showTimestamp" class="message-time">
           {{ formatTime(message.timestamp) }}
         </span>
       </div>
-      
+
       <div class="message-actions">
         <button
           v-if="canAbort"
@@ -26,34 +26,30 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Message Content -->
     <div class="message-content-wrapper">
       <div class="message-content" ref="contentRef">
         <!-- Streaming Text -->
-        <div class="streaming-text" :class="{ 'typing': isStreaming }">
-          <span 
-            v-for="(char, index) in displayChars" 
+        <div class="streaming-text" :class="{ typing: isStreaming }">
+          <span
+            v-for="(char, index) in displayChars"
             :key="index"
             class="char"
             :style="{ animationDelay: `${index * typingSpeed}ms` }"
           >
             {{ char }}
           </span>
-          
+
           <!-- Cursor -->
-          <span 
-            v-if="isStreaming" 
-            class="cursor"
-            :class="{ 'blinking': showCursor }"
-          >|</span>
+          <span v-if="isStreaming" class="cursor" :class="{ blinking: showCursor }">|</span>
         </div>
-        
+
         <!-- Code blocks and formatting -->
         <div v-if="!isStreaming && formattedContent" class="formatted-content">
           <div v-html="formattedContent" class="content-html" />
         </div>
-        
+
         <!-- Streaming indicators -->
         <div v-if="isStreaming" class="streaming-indicators">
           <div class="typing-indicator">
@@ -64,13 +60,13 @@
             </div>
             <span class="typing-text">{{ typingText }}</span>
           </div>
-          
+
           <!-- Token counter -->
           <div v-if="showTokens" class="token-counter">
             <Zap :size="12" />
             <span>{{ tokenCount }} tokens</span>
           </div>
-          
+
           <!-- Speed indicator -->
           <div v-if="showSpeed" class="speed-indicator">
             <TrendingUp :size="12" />
@@ -78,7 +74,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Message Footer -->
       <div v-if="!isStreaming" class="message-footer">
         <div class="message-stats">
@@ -86,43 +82,31 @@
             <Hash :size="12" />
             {{ message.metadata.tokens }} tokens
           </span>
-          
+
           <span v-if="streamDuration" class="stat">
             <Clock :size="12" />
             {{ streamDuration }}ms
           </span>
-          
+
           <span v-if="message.metadata?.model" class="stat">
             <Cpu :size="12" />
             {{ message.metadata.model }}
           </span>
         </div>
-        
+
         <div class="message-actions-footer">
-          <button
-            @click="$emit('copy')"
-            class="action-btn"
-            :title="$t('message.copy')"
-          >
+          <button @click="$emit('copy')" class="action-btn" :title="$t('message.copy')">
             <Copy :size="14" />
           </button>
-          
-          <button
-            @click="$emit('retry')"
-            class="action-btn"
-            :title="$t('message.retry')"
-          >
+
+          <button @click="$emit('retry')" class="action-btn" :title="$t('message.retry')">
             <RotateCcw :size="14" />
           </button>
-          
-          <button
-            @click="$emit('edit')"
-            class="action-btn"
-            :title="$t('message.edit')"
-          >
+
+          <button @click="$emit('edit')" class="action-btn" :title="$t('message.edit')">
             <Edit :size="14" />
           </button>
-          
+
           <button
             @click="$emit('delete')"
             class="action-btn delete-btn"
@@ -133,7 +117,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Error State -->
     <div v-if="message.error" class="message-error">
       <AlertCircle :size="16" />
@@ -143,26 +127,22 @@
         Retry
       </button>
     </div>
-    
+
     <!-- Regeneration Controls -->
     <div v-if="showRegenerateControls" class="regenerate-controls">
-      <button
-        @click="$emit('regenerate')"
-        class="regenerate-btn"
-        :disabled="isStreaming"
-      >
+      <button @click="$emit('regenerate')" class="regenerate-btn" :disabled="isStreaming">
         <RefreshCw :size="14" />
         Regenerate Response
       </button>
-      
+
       <div class="regenerate-options">
         <label class="option">
-          <input type="checkbox" v-model="regenerateWithDifferentTemp">
+          <input type="checkbox" v-model="regenerateWithDifferentTemp" />
           <span>Different temperature</span>
         </label>
-        
+
         <label class="option">
-          <input type="checkbox" v-model="regenerateWithDifferentModel">
+          <input type="checkbox" v-model="regenerateWithDifferentModel" />
           <span>Different model</span>
         </label>
       </div>
@@ -172,11 +152,26 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { 
-  User, Bot, Square, Copy, Edit, Trash2, RotateCcw, RefreshCw,
-  AlertCircle, Clock, Hash, Cpu, Zap, TrendingUp
+import {
+  User,
+  Bot,
+  Square,
+  Copy,
+  Edit,
+  Trash2,
+  RotateCcw,
+  RefreshCw,
+  AlertCircle,
+  Clock,
+  Hash,
+  Cpu,
+  Zap,
+  TrendingUp
 } from 'lucide-vue-next'
-import { streamingService, type StreamChunk } from '@renderer/src/services/streaming/StreamingService'
+import {
+  streamingService,
+  type StreamChunk
+} from '@renderer/src/services/streaming/StreamingService'
 import { useI18n } from 'vue-i18n'
 import type { Message } from '@renderer/src/types'
 
@@ -287,32 +282,34 @@ const typingText = computed(() => {
     t('message.generating'),
     t('message.processing')
   ]
-  
+
   const phraseIndex = Math.floor(Date.now() / 2000) % phrases.length
   return phrases[phraseIndex]
 })
 
 const formattedContent = computed(() => {
   if (props.isStreaming || !props.message.content) return null
-  
+
   // Format markdown, code blocks, etc.
   return formatMessageContent(props.message.content)
 })
 
 const errorMessage = computed(() => {
   if (!props.message.error) return ''
-  
+
   if (typeof props.message.error === 'string') {
     return props.message.error
   }
-  
+
   return t('message.errorGeneric')
 })
 
 const showRegenerateControls = computed(() => {
-  return !props.isStreaming && 
-         props.message.role === 'assistant' && 
-         (props.message.error || props.message.content)
+  return (
+    !props.isStreaming &&
+    props.message.role === 'assistant' &&
+    (props.message.error || props.message.content)
+  )
 })
 
 // Methods
@@ -320,45 +317,45 @@ const startTypingAnimation = (content: string) => {
   displayText.value = ''
   displayChars.value = []
   currentIndex = 0
-  
+
   if (!content) return
-  
+
   const chars = content.split('')
   tokenCount.value = Math.ceil(content.length / 4) // Rough token estimate
   streamStartTime.value = Date.now()
-  
+
   const typeChar = () => {
     if (currentIndex >= chars.length) {
       stopTypingAnimation()
       return
     }
-    
+
     const char = chars[currentIndex]
     displayChars.value.push(char)
     displayText.value += char
     currentIndex++
-    
+
     // Update tokens per second
     if (streamStartTime.value) {
       const elapsed = (Date.now() - streamStartTime.value) / 1000
-      tokensPerSecond.value = Math.round((currentIndex / 4) / elapsed)
+      tokensPerSecond.value = Math.round(currentIndex / 4 / elapsed)
     }
-    
+
     // Auto-scroll if enabled
     if (props.autoScroll) {
       nextTick(() => {
         scrollToBottom()
       })
     }
-    
+
     // Play typing sound
     if (props.enableSound) {
       playTypingSound()
     }
-    
+
     typingTimer = setTimeout(typeChar, props.typingSpeed)
   }
-  
+
   typeChar()
 }
 
@@ -367,19 +364,19 @@ const stopTypingAnimation = () => {
     clearTimeout(typingTimer)
     typingTimer = null
   }
-  
+
   if (streamStartTime.value) {
     streamDuration.value = Date.now() - streamStartTime.value
   }
-  
+
   emit('streamComplete', displayText.value)
 }
 
 const scrollToBottom = () => {
   if (contentRef.value) {
-    contentRef.value.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'end' 
+    contentRef.value.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end'
     })
   }
 }
@@ -389,14 +386,14 @@ const playTypingSound = () => {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)()
   const oscillator = audioContext.createOscillator()
   const gainNode = audioContext.createGain()
-  
+
   oscillator.connect(gainNode)
   gainNode.connect(audioContext.destination)
-  
+
   oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
   gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
-  
+
   oscillator.start(audioContext.currentTime)
   oscillator.stop(audioContext.currentTime + 0.1)
 }
@@ -404,24 +401,24 @@ const playTypingSound = () => {
 const formatMessageContent = (content: string): string => {
   // Basic markdown formatting
   let formatted = content
-  
+
   // Code blocks
   formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     return `<pre class="code-block" data-lang="${lang || ''}"><code>${escapeHtml(code.trim())}</code></pre>`
   })
-  
+
   // Inline code
   formatted = formatted.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
-  
+
   // Bold
   formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-  
+
   // Italic
   formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>')
-  
+
   // Line breaks
   formatted = formatted.replace(/\n/g, '<br>')
-  
+
   return formatted
 }
 
@@ -433,10 +430,10 @@ const escapeHtml = (text: string): string => {
 
 const formatTime = (timestamp?: Date): string => {
   if (!timestamp) return ''
-  
+
   const now = new Date()
   const diff = now.getTime() - timestamp.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -464,25 +461,31 @@ const stopCursorBlinking = () => {
 }
 
 // Watch for streaming changes
-watch(() => props.isStreaming, (isStreaming) => {
-  if (isStreaming) {
-    startCursorBlinking()
-    startTypingAnimation(props.message.content || '')
-  } else {
-    stopCursorBlinking()
-    stopTypingAnimation()
-  }
-})
-
-watch(() => props.message.content, (newContent) => {
-  if (props.isStreaming && newContent) {
-    // Update content during streaming
-    const contentToAdd = newContent.slice(displayText.value.length)
-    if (contentToAdd) {
-      startTypingAnimation(newContent)
+watch(
+  () => props.isStreaming,
+  isStreaming => {
+    if (isStreaming) {
+      startCursorBlinking()
+      startTypingAnimation(props.message.content || '')
+    } else {
+      stopCursorBlinking()
+      stopTypingAnimation()
     }
   }
-})
+)
+
+watch(
+  () => props.message.content,
+  newContent => {
+    if (props.isStreaming && newContent) {
+      // Update content during streaming
+      const contentToAdd = newContent.slice(displayText.value.length)
+      if (contentToAdd) {
+        startTypingAnimation(newContent)
+      }
+    }
+  }
+)
 
 // Lifecycle
 onMounted(() => {
@@ -592,8 +595,12 @@ onUnmounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cursor {
@@ -606,8 +613,14 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .formatted-content {
@@ -643,12 +656,24 @@ onUnmounted(() => {
   animation: typing 1.4s infinite ease-in-out;
 }
 
-.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 @keyframes typing {
-  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
+  0%,
+  80%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .token-counter,
@@ -696,7 +721,7 @@ onUnmounted(() => {
   @apply flex items-center gap-2 text-sm cursor-pointer;
 }
 
-.option input[type="checkbox"] {
+.option input[type='checkbox'] {
   @apply w-4 h-4;
 }
 
@@ -714,12 +739,12 @@ onUnmounted(() => {
   .char {
     animation: none;
   }
-  
+
   .cursor {
     animation: none;
     opacity: 1;
   }
-  
+
   .typing-dots span {
     animation: none;
   }
@@ -730,7 +755,7 @@ onUnmounted(() => {
   .message-content {
     @apply border-2 border-border;
   }
-  
+
   .action-btn:focus {
     @apply ring-2 ring-primary;
   }

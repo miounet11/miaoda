@@ -3,14 +3,11 @@
     <Transition name="modal">
       <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto">
         <!-- Backdrop -->
-        <div 
-          class="fixed inset-0 bg-black/50 backdrop-blur-sm"
-          @click="handleCancel"
-        />
-        
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="handleCancel" />
+
         <!-- Dialog -->
         <div class="flex min-h-full items-center justify-center p-4">
-          <div 
+          <div
             class="relative bg-background rounded-lg shadow-xl w-full max-w-md transform transition-all"
             @click.stop
           >
@@ -29,7 +26,7 @@
                 <X :size="18" />
               </button>
             </div>
-            
+
             <!-- Body -->
             <div class="p-6 space-y-4">
               <!-- Provider Name -->
@@ -45,9 +42,9 @@
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                   autofocus
                   @keyup.enter="handleSave"
-                >
+                />
               </div>
-              
+
               <!-- Description -->
               <div>
                 <label class="block text-sm font-medium mb-2">
@@ -61,12 +58,10 @@
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 />
               </div>
-              
+
               <!-- Icon Selection -->
               <div>
-                <label class="block text-sm font-medium mb-2">
-                  Icon
-                </label>
+                <label class="block text-sm font-medium mb-2"> Icon </label>
                 <div class="grid grid-cols-8 gap-2">
                   <button
                     v-for="icon in availableIcons"
@@ -83,7 +78,7 @@
                   </button>
                 </div>
               </div>
-              
+
               <!-- Configuration Summary -->
               <div class="bg-muted/30 rounded-lg p-3 space-y-1 text-sm">
                 <div class="font-medium text-muted-foreground mb-2">Configuration Summary:</div>
@@ -100,7 +95,7 @@
                   <span class="font-mono">{{ config.model }}</span>
                 </div>
               </div>
-              
+
               <!-- Save Options -->
               <div class="space-y-2">
                 <label class="flex items-center gap-2 cursor-pointer">
@@ -108,12 +103,12 @@
                     v-model="formData.setAsActive"
                     type="checkbox"
                     class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                  >
+                  />
                   <span class="text-sm">Set as active configuration after saving</span>
                 </label>
               </div>
             </div>
-            
+
             <!-- Footer -->
             <div class="flex gap-3 p-6 border-t">
               <button
@@ -156,17 +151,33 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
-  save: [data: {
-    name: string
-    description: string
-    icon: string
-    setAsActive: boolean
-  }]
+  save: [
+    data: {
+      name: string
+      description: string
+      icon: string
+      setAsActive: boolean
+    }
+  ]
 }>()
 
 const availableIcons = [
-  '🤖', '🧠', '⚡', '🚀', '💡', '🔧', '⚙️', '🎯',
-  '🌟', '✨', '🔮', '🎨', '🔬', '🔭', '🎪', '🎭'
+  '🤖',
+  '🧠',
+  '⚡',
+  '🚀',
+  '💡',
+  '🔧',
+  '⚙️',
+  '🎯',
+  '🌟',
+  '✨',
+  '🔮',
+  '🎨',
+  '🔬',
+  '🔭',
+  '🎪',
+  '🎭'
 ]
 
 const formData = reactive({
@@ -182,14 +193,14 @@ const handleCancel = () => {
 
 const handleSave = () => {
   if (!formData.name) return
-  
+
   emit('save', {
     name: formData.name,
     description: formData.description,
     icon: formData.icon,
     setAsActive: formData.setAsActive
   })
-  
+
   // Reset form
   formData.name = ''
   formData.description = ''
@@ -198,23 +209,28 @@ const handleSave = () => {
 }
 
 // Reset form when dialog opens
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    formData.name = ''
-    formData.description = ''
-    formData.icon = '🔧'
-    formData.setAsActive = true
+watch(
+  () => props.isOpen,
+  isOpen => {
+    if (isOpen) {
+      formData.name = ''
+      formData.description = ''
+      formData.icon = '🔧'
+      formData.setAsActive = true
+    }
   }
-})
+)
 </script>
 
 <style scoped>
 /* Modal transition */
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 

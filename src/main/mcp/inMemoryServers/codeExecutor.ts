@@ -1,6 +1,6 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { 
+import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   Tool
@@ -15,12 +15,12 @@ import { spawn } from 'child_process'
 const server = new Server(
   {
     name: 'code-executor',
-    version: '1.0.0',
+    version: '1.0.0'
   },
   {
     capabilities: {
-      tools: {},
-    },
+      tools: {}
+    }
   }
 )
 
@@ -34,11 +34,11 @@ const tools: Tool[] = [
       properties: {
         code: {
           type: 'string',
-          description: 'The JavaScript code to execute',
-        },
+          description: 'The JavaScript code to execute'
+        }
       },
-      required: ['code'],
-    },
+      required: ['code']
+    }
   },
   {
     name: 'execute_python',
@@ -48,11 +48,11 @@ const tools: Tool[] = [
       properties: {
         code: {
           type: 'string',
-          description: 'The Python code to execute',
-        },
+          description: 'The Python code to execute'
+        }
       },
-      required: ['code'],
-    },
+      required: ['code']
+    }
   },
   {
     name: 'execute_shell',
@@ -62,16 +62,16 @@ const tools: Tool[] = [
       properties: {
         command: {
           type: 'string',
-          description: 'The shell command to execute',
+          description: 'The shell command to execute'
         },
         cwd: {
           type: 'string',
-          description: 'Working directory for the command',
-        },
+          description: 'Working directory for the command'
+        }
       },
-      required: ['command'],
-    },
-  },
+      required: ['command']
+    }
+  }
 ]
 
 // Handle list tools request
@@ -98,7 +98,7 @@ async function executeCode(
     return arg.replace(/[;&|`$()<>]/g, '')
   })
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const child = spawn(executor, sanitizedArgs, {
       cwd: cwd || process.cwd(),
       timeout: 30000, // 30 second timeout
@@ -114,19 +114,19 @@ async function executeCode(
     let output = ''
     let error = ''
 
-    child.stdout.on('data', (data) => {
+    child.stdout.on('data', data => {
       output += data.toString()
     })
 
-    child.stderr.on('data', (data) => {
+    child.stderr.on('data', data => {
       error += data.toString()
     })
 
-    child.on('error', (err) => {
+    child.on('error', err => {
       resolve({ output: '', error: err.message })
     })
 
-    child.on('close', (code) => {
+    child.on('close', code => {
       if (code !== 0) {
         resolve({ output, error: error || `Process exited with code ${code}` })
       } else {
@@ -142,7 +142,7 @@ async function executeCode(
 }
 
 // Handle tool calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async request => {
   const { name, arguments: args } = request.params
 
   try {
@@ -154,11 +154,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: result.error 
+              text: result.error
                 ? `Error: ${result.error}\n\nOutput:\n${result.output}`
-                : result.output,
-            },
-          ],
+                : result.output
+            }
+          ]
         }
       }
 
@@ -169,11 +169,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: result.error 
+              text: result.error
                 ? `Error: ${result.error}\n\nOutput:\n${result.output}`
-                : result.output,
-            },
-          ],
+                : result.output
+            }
+          ]
         }
       }
 
@@ -183,10 +183,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: 'Shell execution is disabled for security reasons. Use JavaScript or Python execution instead.',
-            },
+              text: 'Shell execution is disabled for security reasons. Use JavaScript or Python execution instead.'
+            }
           ],
-          isError: true,
+          isError: true
         }
       }
 
@@ -198,10 +198,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       content: [
         {
           type: 'text',
-          text: `Error executing ${name}: ${error.message}`,
-        },
+          text: `Error executing ${name}: ${error.message}`
+        }
       ],
-      isError: true,
+      isError: true
     }
   }
 })
@@ -218,7 +218,7 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error('Server error:', error)
   process.exit(1)
 })

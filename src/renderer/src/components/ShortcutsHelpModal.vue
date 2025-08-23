@@ -1,21 +1,28 @@
 <template>
-  <div 
+  <div
     v-if="showShortcutsHelp"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     @click.self="closeShortcutsHelp"
   >
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+    >
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-          Keyboard Shortcuts
-        </h2>
+      <div
+        class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700"
+      >
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Keyboard Shortcuts</h2>
         <button
           @click="closeShortcutsHelp"
           class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -90,7 +97,9 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-b-lg">
+      <div
+        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-b-lg"
+      >
         <p class="text-sm text-gray-600 dark:text-gray-400">
           Press <kbd class="shortcut-key">Escape</kbd> or click outside to close this dialog.
         </p>
@@ -108,7 +117,7 @@ const uiStore = useUIStore()
 const showShortcutsHelp = computed(() => uiStore.showShortcutHelp)
 
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-const cmdKey = computed(() => isMac ? '⌘' : 'Ctrl')
+const cmdKey = computed(() => (isMac ? '⌘' : 'Ctrl'))
 
 const closeShortcutsHelp = () => {
   uiStore.closeShortcutHelp()

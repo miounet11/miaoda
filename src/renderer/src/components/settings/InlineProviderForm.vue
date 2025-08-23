@@ -14,21 +14,18 @@
             placeholder="My Custom Provider"
             :class="[
               'w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all',
-              isDisplayNameTaken 
-                ? 'border-red-500/50 bg-red-500/5 focus:border-red-500 focus:ring-red-500/20' 
+              isDisplayNameTaken
+                ? 'border-red-500/50 bg-red-500/5 focus:border-red-500 focus:ring-red-500/20'
                 : 'border-muted-foreground/20 focus:border-primary'
             ]"
             required
-          >
-          <p 
-            v-if="isDisplayNameTaken" 
-            class="text-xs text-red-600 mt-1"
-          >
+          />
+          <p v-if="isDisplayNameTaken" class="text-xs text-red-600 mt-1">
             This provider name is already in use. Please choose a unique name.
           </p>
         </div>
       </div>
-      
+
       <div>
         <label for="providerType" class="block text-sm font-medium mb-2">Provider Type</label>
         <select
@@ -57,7 +54,7 @@
             placeholder="🔧"
             maxlength="2"
             class="w-16 px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
-          >
+          />
           <div class="flex gap-1">
             <button
               v-for="emoji in quickEmojis"
@@ -72,7 +69,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="md:col-span-2">
         <label for="description" class="block text-sm font-medium mb-2">Description</label>
         <input
@@ -81,14 +78,14 @@
           type="text"
           placeholder="Brief description of this provider"
           class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-        >
+        />
       </div>
     </div>
 
     <!-- API Configuration -->
     <div class="space-y-4 pt-4 border-t border-muted">
       <h5 class="text-sm font-medium text-muted-foreground">API Configuration</h5>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label for="baseUrl" class="block text-sm font-medium mb-2">
@@ -101,9 +98,9 @@
             placeholder="https://api.example.com/v1"
             class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             required
-          >
+          />
         </div>
-        
+
         <div>
           <label for="apiKey" class="block text-sm font-medium mb-2">
             API Key
@@ -117,7 +114,7 @@
               placeholder="Enter your API key"
               class="w-full px-3 py-2 pr-10 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               :required="form.requiresAuth"
-            >
+            />
             <button
               type="button"
               @click="showApiKey = !showApiKey"
@@ -137,16 +134,16 @@
             v-model="form.requiresAuth"
             type="checkbox"
             class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-          >
+          />
           <span class="text-sm">Requires Authentication</span>
         </label>
-        
+
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             v-model="form.supportsStreaming"
             type="checkbox"
             class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-          >
+          />
           <span class="text-sm">Supports Streaming</span>
         </label>
       </div>
@@ -165,11 +162,11 @@
           Add Model
         </button>
       </div>
-      
+
       <div v-if="form.models.length === 0" class="text-center py-4 text-sm text-muted-foreground">
         No models configured. Add at least one model.
       </div>
-      
+
       <div v-else class="space-y-2">
         <div
           v-for="(model, index) in form.models"
@@ -182,13 +179,13 @@
             placeholder="Model ID (e.g., gpt-4)"
             class="flex-1 px-2 py-1 bg-background border border-muted-foreground/20 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
             required
-          >
+          />
           <input
             v-model="model.displayName"
             type="text"
             placeholder="Display Name"
             class="flex-1 px-2 py-1 bg-background border border-muted-foreground/20 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-          >
+          />
           <button
             type="button"
             @click="removeModel(index)"
@@ -212,7 +209,7 @@
         <Loader2 v-else :size="14" class="animate-spin" />
         <span>{{ isTestingConnection ? 'Testing...' : 'Test Connection' }}</span>
       </button>
-      
+
       <!-- Test Result -->
       <div
         v-if="testResult"
@@ -247,7 +244,7 @@
         <Loader2 v-if="isSaving" :size="16" class="animate-spin" />
         <span>{{ isEditing ? 'Update' : 'Add' }} Provider</span>
       </button>
-      
+
       <button
         type="button"
         @click="$emit('cancel')"
@@ -261,16 +258,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
-  Plus, 
-  Eye, 
-  EyeOff, 
-  Trash2, 
-  Zap, 
-  Loader2, 
-  Check, 
-  AlertCircle 
-} from 'lucide-vue-next'
+import { Plus, Eye, EyeOff, Trash2, Zap, Loader2, Check, AlertCircle } from 'lucide-vue-next'
 import type { LLMProvider } from '../../types/api'
 
 interface Props {
@@ -311,10 +299,11 @@ const quickEmojis = ['🤖', '🧠', '⚡', '🔧', '🌟', '🚀']
 // Computed
 const isEditing = computed(() => !!props.provider)
 
-const isDisplayNameTaken = computed(() => 
+const isDisplayNameTaken = computed(() =>
   props.customProviders?.some(
-    p => p.displayName.toLowerCase() === form.value.displayName.toLowerCase() &&
-         p.id !== props.provider?.id
+    p =>
+      p.displayName.toLowerCase() === form.value.displayName.toLowerCase() &&
+      p.id !== props.provider?.id
   )
 )
 
@@ -330,10 +319,7 @@ const isFormValid = computed(() => {
 })
 
 const canTestConnection = computed(() => {
-  return !!(
-    form.value.baseUrl &&
-    (!form.value.requiresAuth || form.value.apiKey)
-  )
+  return !!(form.value.baseUrl && (!form.value.requiresAuth || form.value.apiKey))
 })
 
 // Provider type defaults
@@ -356,7 +342,7 @@ const providerDefaults = {
       { id: 'claude-3-haiku', displayName: 'Claude 3 Haiku' }
     ]
   },
-  'ollama': {
+  ollama: {
     icon: '🦙',
     supportsStreaming: true,
     requiresAuth: false,
@@ -365,7 +351,7 @@ const providerDefaults = {
       { id: 'mistral', displayName: 'Mistral' }
     ]
   },
-  'custom': {
+  custom: {
     icon: '⚡',
     supportsStreaming: false,
     requiresAuth: true,
@@ -399,20 +385,20 @@ const removeModel = (index: number) => {
 
 const testConnection = async () => {
   if (isTestingConnection.value || !canTestConnection.value) return
-  
+
   isTestingConnection.value = true
   testResult.value = null
-  
+
   try {
     // Simulate connection test
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     // For now, randomly succeed or fail for demo
     const success = Math.random() > 0.3
-    
+
     testResult.value = {
       success,
-      message: success 
+      message: success
         ? 'Successfully connected to the API endpoint'
         : 'Failed to connect. Please check your URL and API key.'
     }
@@ -431,16 +417,17 @@ const handleSubmit = async () => {
   if (!isFormValid.value) {
     testResult.value = {
       success: false,
-      message: 'Please check your form. Make sure all required fields are filled and the provider name is unique.'
+      message:
+        'Please check your form. Make sure all required fields are filled and the provider name is unique.'
     }
     return
   }
 
   if (isSaving.value) return
-  
+
   isSaving.value = true
   testResult.value = null
-  
+
   try {
     // Generate unique provider ID
     const generateUniqueId = (baseName: string, existingIds: string[] = []): string => {
@@ -449,24 +436,21 @@ const handleSubmit = async () => {
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
-      
+
       let uniqueId = sanitizedName
       let counter = 1
       while (existingIds.includes(uniqueId)) {
         uniqueId = `${sanitizedName}-${counter}`
         counter++
       }
-      
+
       return uniqueId
     }
 
-    const providerId = isEditing.value 
+    const providerId = isEditing.value
       ? props.provider!.id
-      : generateUniqueId(
-          form.value.displayName, 
-          props.customProviders?.map(p => p.id) || []
-        )
-    
+      : generateUniqueId(form.value.displayName, props.customProviders?.map(p => p.id) || [])
+
     const provider: LLMProvider = {
       id: providerId,
       name: providerId,
@@ -521,7 +505,7 @@ const handleSubmit = async () => {
       status: 'disconnected',
       enabled: true
     }
-    
+
     // Simulate some additional validation
     if (!provider.models.length) {
       throw new Error('At least one model must be configured')
@@ -571,7 +555,7 @@ const initializeForm = () => {
     }
     updateProviderDefaults()
   }
-  
+
   // Clear test result
   testResult.value = null
 }
@@ -587,12 +571,14 @@ onMounted(() => {
 
 <style scoped>
 /* Form styling */
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
 }
 
 /* Custom checkbox styling */
-input[type="checkbox"]:checked {
+input[type='checkbox']:checked {
   background-color: hsl(var(--primary));
   border-color: hsl(var(--primary));
 }
@@ -602,15 +588,17 @@ input[type="checkbox"]:checked {
   .grid.grid-cols-1.md\\:grid-cols-2 {
     grid-template-columns: 1fr;
   }
-  
+
   .grid.grid-cols-1.md\\:grid-cols-3 {
     grid-template-columns: 1fr;
   }
-  
-  input, select, button {
+
+  input,
+  select,
+  button {
     font-size: 16px; /* Prevents zoom on iOS */
   }
-  
+
   button {
     min-height: 44px; /* Better touch targets */
   }

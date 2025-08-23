@@ -54,11 +54,12 @@ button,
 }
 
 /* === 图像和媒体优化 === */
-img, video {
+img,
+video {
   /* 现代图像优化 */
   content-visibility: auto !important;
   contain-intrinsic-size: 300px 200px !important;
-  
+
   /* 加载优化 */
   loading: lazy !important;
   decoding: async !important;
@@ -69,17 +70,17 @@ img, video {
 /* === WCAG 2.1 AA 色彩对比度优化 === */
 :root {
   /* 增强的对比度色彩 */
-  --text-primary-high-contrast: 15 23 42;      /* 深度确保4.5:1对比度 */
-  --text-secondary-high-contrast: 51 65 85;    /* 中等文本的高对比度 */
-  --text-tertiary-high-contrast: 71 85 105;    /* 辅助文本的可读对比度 */
-  
+  --text-primary-high-contrast: 15 23 42; /* 深度确保4.5:1对比度 */
+  --text-secondary-high-contrast: 51 65 85; /* 中等文本的高对比度 */
+  --text-tertiary-high-contrast: 71 85 105; /* 辅助文本的可读对比度 */
+
   /* 按钮对比度优化 */
-  --button-primary-contrast: 14 165 233;       /* 确保与白字的对比度 */
-  --button-secondary-contrast: 51 65 85;       /* 次要按钮的高对比度 */
-  
+  --button-primary-contrast: 14 165 233; /* 确保与白字的对比度 */
+  --button-secondary-contrast: 51 65 85; /* 次要按钮的高对比度 */
+
   /* 边框对比度 */
-  --border-high-contrast: 203 213 225;         /* 更明显的边框 */
-  --divider-high-contrast: 226 232 240;        /* 分割线可见性 */
+  --border-high-contrast: 203 213 225; /* 更明显的边框 */
+  --divider-high-contrast: 226 232 240; /* 分割线可见性 */
 }
 
 /* 应用高对比度色彩 */
@@ -106,13 +107,13 @@ img, video {
 button:focus-visible {
   outline: 3px solid hsl(var(--primary-500)) !important;
   outline-offset: 3px !important;
-  box-shadow: 
+  box-shadow:
     0 0 0 2px hsl(var(--background)),
     0 0 0 5px hsl(var(--primary-500) / 0.3) !important;
 }
 
-input:focus-visible, 
-textarea:focus-visible, 
+input:focus-visible,
+textarea:focus-visible,
 select:focus-visible {
   outline: 3px solid hsl(var(--primary-500)) !important;
   outline-offset: 1px !important;
@@ -124,14 +125,14 @@ select:focus-visible {
   top: -40px !important;
   left: 16px !important;
   z-index: 9999 !important;
-  
+
   background: hsl(var(--primary-500)) !important;
   color: white !important;
   padding: 8px 16px !important;
   border-radius: 4px !important;
   text-decoration: none !important;
   font-weight: 600 !important;
-  
+
   transform: translateY(-100%) !important;
   transition: transform 0.2s ease !important;
 }
@@ -144,8 +145,8 @@ select:focus-visible {
 /* ============== 键盘导航优化 ============== */
 
 /* === Tab顺序优化 === */
-[tabindex="0"], 
-[tabindex="-1"] {
+[tabindex='0'],
+[tabindex='-1'] {
   outline: none !important;
 }
 
@@ -166,7 +167,7 @@ select:focus-visible {
   top: -30px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  
+
   background: hsl(var(--neutral-900)) !important;
   color: white !important;
   padding: 4px 8px !important;
@@ -174,7 +175,7 @@ select:focus-visible {
   font-size: 11px !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
-  
+
   opacity: 0 !important;
   pointer-events: none !important;
   transition: opacity 0.2s ease !important;
@@ -201,26 +202,26 @@ select:focus-visible {
 }
 
 /* === ARIA标签增强 === */
-[aria-label], 
-[aria-labelledby], 
+[aria-label],
+[aria-labelledby],
 [aria-describedby] {
   /* 确保ARIA标签的可访问性 */
   position: relative !important;
 }
 
 /* 状态指示器的屏幕阅读器支持 */
-[aria-live="polite"]::before {
-  content: attr(aria-label) ": " !important;
+[aria-live='polite']::before {
+  content: attr(aria-label) ': ' !important;
   @extend .sr-only;
 }
 
 /* === 对话框可访问性 === */
-[role="dialog"] {
+[role='dialog'] {
   /* 模态框焦点管理 */
   isolation: isolate !important;
 }
 
-[role="dialog"]:focus {
+[role='dialog']:focus {
   outline: none !important;
 }
 
@@ -234,7 +235,7 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   /* 保留关键的状态指示动画 */
   .loading-spinner,
   .thinking-dots,
@@ -250,7 +251,7 @@ select:focus-visible {
     backdrop-filter: none !important;
     background: opaque !important;
   }
-  
+
   .input-area,
   .chat-header,
   .sidebar {
@@ -264,28 +265,28 @@ select:focus-visible {
 @media (prefers-contrast: high) {
   :root {
     /* 极高对比度色彩 */
-    --text-primary: 0 0 0;           /* 纯黑 */
-    --text-secondary: 31 41 55;      /* 深灰 */
-    --background: 255 255 255;       /* 纯白 */
-    --border: 107 114 128;           /* 中等灰 */
-    --primary-500: 29 78 216;        /* 高对比度蓝 */
+    --text-primary: 0 0 0; /* 纯黑 */
+    --text-secondary: 31 41 55; /* 深灰 */
+    --background: 255 255 255; /* 纯白 */
+    --border: 107 114 128; /* 中等灰 */
+    --primary-500: 29 78 216; /* 高对比度蓝 */
   }
-  
+
   /* 强制边框可见 */
-  button, 
-  input, 
-  textarea, 
+  button,
+  input,
+  textarea,
   .message-bubble,
   .chat-item {
     border: 2px solid hsl(var(--border)) !important;
   }
-  
+
   /* 移除透明度 */
   * {
     background: opaque !important;
     backdrop-filter: none !important;
   }
-  
+
   /* 高对比度文本 */
   .text-primary,
   .text-secondary,
@@ -304,18 +305,19 @@ select:focus-visible {
     background: ButtonFace !important;
     color: ButtonText !important;
   }
-  
+
   button:hover {
     background: Highlight !important;
     color: HighlightText !important;
   }
-  
-  input, textarea {
+
+  input,
+  textarea {
     border: 2px solid ButtonText !important;
     background: Field !important;
     color: FieldText !important;
   }
-  
+
   .message-bubble {
     border: 2px solid CanvasText !important;
     background: Canvas !important;
@@ -342,11 +344,11 @@ select:focus-visible {
     font-size: max(16px, 1rem) !important;
     line-height: max(1.5, 1.5rem) !important;
   }
-  
+
   button {
     font-size: max(14px, 0.875rem) !important;
   }
-  
+
   .chat-item h3 {
     font-size: max(14px, 0.875rem) !important;
   }
@@ -356,15 +358,15 @@ select:focus-visible {
 
 /* 使用形状和图标而非仅依赖颜色 */
 .status-success::before {
-  content: "✓ " !important;
+  content: '✓ ' !important;
 }
 
 .status-error::before {
-  content: "✗ " !important;
+  content: '✗ ' !important;
 }
 
 .status-warning::before {
-  content: "⚠ " !important;
+  content: '⚠ ' !important;
 }
 
 /* 链接的非颜色标识 */
@@ -373,7 +375,8 @@ a:not(.btn) {
   text-underline-offset: 2px !important;
 }
 
-a:focus, a:hover {
+a:focus,
+a:hover {
   text-decoration: underline !important;
   text-decoration-thickness: 2px !important;
 }
@@ -382,19 +385,19 @@ a:focus, a:hover {
 
 @media (pointer: coarse) {
   /* 触摸设备的按钮尺寸调整 */
-  button, 
-  [role="button"], 
-  input, 
+  button,
+  [role='button'],
+  input,
   textarea {
     min-height: 48px !important;
     min-width: 48px !important;
   }
-  
+
   /* 触摸目标间距 */
   .button-group button {
     margin: 4px !important;
   }
-  
+
   /* 触摸反馈 */
   button:active {
     background: hsl(var(--surface-pressed)) !important;
@@ -411,18 +414,18 @@ a:focus, a:hover {
     color: black !important;
     text-shadow: none !important;
   }
-  
+
   .sidebar,
   .input-area,
   button {
     display: none !important;
   }
-  
+
   .messages-container {
     width: 100% !important;
     max-width: none !important;
   }
-  
+
   .message-bubble {
     break-inside: avoid !important;
     border: 1px solid black !important;
@@ -436,13 +439,13 @@ a:focus, a:hover {
   outline: 1px dashed blue !important;
 }
 
-.development .accessibility-debug [tabindex]:not([tabindex="-1"]) {
+.development .accessibility-debug [tabindex]:not([tabindex='-1']) {
   outline: 2px solid green !important;
 }
 
 .development .accessibility-debug [aria-label]::after,
 .development .accessibility-debug [aria-labelledby]::after {
-  content: "🏷️" !important;
+  content: '🏷️' !important;
   position: absolute !important;
   right: 0 !important;
   top: 0 !important;

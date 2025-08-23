@@ -1,13 +1,12 @@
 import { createApp } from 'vue'
-import { createI18n } from 'vue-i18n'
 import App from './App.vue'
 import router from './router'
 import { pinia } from './stores'
-import en from './locales/en'
-import zh from './locales/zh-CN'
-import ja from './locales/ja'
-import hi from './locales/hi'
+import { setupI18n } from './services/i18n'
 import './assets/css/main.css'
+import './styles/micro-interaction-system.css' // 新的统一微交互系统
+import './styles/button-system-enhanced.css' // 按钮系统增强
+import './styles/input-system-enhanced.css' // 输入框系统增强
 import './styles/mobile-improvements.css'
 import './styles/micro-interactions.css'
 import './styles/layout-optimizations.css'
@@ -20,17 +19,8 @@ import { logger } from './utils/Logger'
 
 const app = createApp(App)
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh',
-  fallbackLocale: 'en',
-  messages: {
-    en,
-    zh,
-    ja,
-    hi
-  }
-})
+// Setup i18n with our comprehensive service
+setupI18n(app)
 
 // Global error handler for Vue
 app.config.errorHandler = (error, instance, info) => {
@@ -39,10 +29,12 @@ app.config.errorHandler = (error, instance, info) => {
 
 // Global warning handler for Vue
 app.config.warnHandler = (msg, instance, trace) => {
-  if (msg.includes('value.replace is not a function') || 
-      msg.includes('Invalid date') ||
-      msg.includes('MCP server') ||
-      msg.includes('server.id')) {
+  if (
+    msg.includes('value.replace is not a function') ||
+    msg.includes('Invalid date') ||
+    msg.includes('MCP server') ||
+    msg.includes('server.id')
+  ) {
     // Suppress known recurring warnings that we're already handling
     return
   }
@@ -51,9 +43,9 @@ app.config.warnHandler = (msg, instance, trace) => {
 
 app.use(pinia)
 app.use(router)
-app.use(i18n)
+// i18n is already setup above
 
-logger.info('Application initializing', 'Main', { 
+logger.info('Application initializing', 'Main', {
   errorBoundaryActive: true,
   version: import.meta.env.VITE_APP_VERSION || 'development'
 })

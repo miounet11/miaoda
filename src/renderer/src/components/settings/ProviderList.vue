@@ -20,10 +20,7 @@
     <!-- Providers Grid -->
     <div v-if="providers.length > 0" class="space-y-4">
       <!-- Drag and Drop Container -->
-      <div
-        ref="sortableContainer"
-        class="space-y-3"
-      >
+      <div ref="sortableContainer" class="space-y-3">
         <div
           v-for="(provider, index) in sortedProviders"
           :key="provider.id"
@@ -60,12 +57,12 @@
                     <p class="text-sm text-muted-foreground">{{ provider.name }}</p>
                   </div>
                 </div>
-                
+
                 <div class="space-y-2">
                   <p v-if="provider.description" class="text-sm text-muted-foreground">
                     {{ provider.description }}
                   </p>
-                  
+
                   <!-- Provider Details -->
                   <div class="flex flex-wrap gap-4 text-xs text-muted-foreground">
                     <span v-if="provider.configuration.baseUrl" class="flex items-center gap-1">
@@ -102,9 +99,13 @@
                     :checked="provider.enabled"
                     @change="toggleProvider(provider.id, $event.target.checked)"
                     class="sr-only peer"
-                  >
-                  <div class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors" />
-                  <div class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5" />
+                  />
+                  <div
+                    class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary/80 transition-colors"
+                  />
+                  <div
+                    class="absolute left-0.5 top-0.5 bg-background w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5"
+                  />
                 </label>
 
                 <!-- Test Connection -->
@@ -142,7 +143,10 @@
       </div>
 
       <!-- Bulk Actions -->
-      <div v-if="selectedProviders.length > 0" class="flex items-center gap-3 p-3 bg-accent/30 rounded-lg border">
+      <div
+        v-if="selectedProviders.length > 0"
+        class="flex items-center gap-3 p-3 bg-accent/30 rounded-lg border"
+      >
         <span class="text-sm font-medium">{{ selectedProviders.length }} providers selected</span>
         <div class="flex gap-2">
           <button
@@ -174,7 +178,10 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
+    <div
+      v-else
+      class="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20"
+    >
       <Bot :size="48" class="mx-auto mb-4 text-muted-foreground" />
       <h3 class="text-lg font-semibold mb-2">No custom providers</h3>
       <p class="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -225,15 +232,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
-import { 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Bot, 
-  Globe, 
-  Key, 
-  Zap, 
-  Loader2, 
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Bot,
+  Globe,
+  Key,
+  Zap,
+  Loader2,
   GripVertical,
   X
 } from 'lucide-vue-next'
@@ -400,11 +407,11 @@ const initSortable = () => {
     chosenClass: 'ring-2 ring-primary/30',
     dragClass: 'rotate-2 scale-105',
     animation: 200,
-    onEnd: (evt) => {
+    onEnd: evt => {
       const providerIds = Array.from(sortableContainer.value?.children || [])
         .map(el => el.getAttribute('data-provider-id'))
         .filter(Boolean) as string[]
-      
+
       if (evt.oldIndex !== evt.newIndex) {
         emit('providers-reordered', providerIds)
       }
@@ -428,14 +435,17 @@ onMounted(async () => {
 })
 
 // Watch for draggable changes
-watch(() => isDraggable.value, async (newVal) => {
-  if (newVal) {
-    await nextTick()
-    initSortable()
-  } else {
-    destroySortable()
+watch(
+  () => isDraggable.value,
+  async newVal => {
+    if (newVal) {
+      await nextTick()
+      initSortable()
+    } else {
+      destroySortable()
+    }
   }
-})
+)
 
 // Cleanup
 onUnmounted(() => {
@@ -481,18 +491,33 @@ onUnmounted(() => {
 
 /* Status-based animations */
 @keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
 }
 
 @keyframes pulse-yellow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(234, 179, 8, 0);
+  }
 }
 
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
 }
 
 .provider-item.border-green-500\/30 {
@@ -514,13 +539,13 @@ onUnmounted(() => {
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .provider-item .ml-4 {
     margin-left: 0;
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .drag-handle {
     position: relative;
     left: auto;
@@ -529,7 +554,7 @@ onUnmounted(() => {
     opacity: 1;
     margin-bottom: 0.5rem;
   }
-  
+
   .pl-8 {
     padding-left: 1rem;
   }

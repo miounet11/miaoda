@@ -99,6 +99,7 @@ if (result.success) {
 The following IPC handlers are available for frontend communication:
 
 ### Custom Provider Management
+
 - `llm:addCustomProvider` - Add new custom provider
 - `llm:updateCustomProvider` - Update existing provider
 - `llm:removeCustomProvider` - Remove provider
@@ -106,16 +107,19 @@ The following IPC handlers are available for frontend communication:
 - `llm:getCustomProvider` - Get specific provider
 
 ### Health Monitoring
+
 - `llm:checkCustomProviderHealth` - Check single provider health
 - `llm:checkAllCustomProvidersHealth` - Check all providers health
 - `llm:getAllProviderHealthStatuses` - Get cached health statuses
 - `llm:getCustomProviderHealth` - Get cached health for specific provider
 
 ### Import/Export
+
 - `llm:exportCustomProviders` - Export providers (without API keys)
 - `llm:importCustomProviders` - Import providers configuration
 
 ### Provider Discovery
+
 - `llm:getAllProviders` - Get all available providers (built-in + custom)
 
 ## Error Handling

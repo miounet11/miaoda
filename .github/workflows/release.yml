@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -31,7 +31,7 @@ jobs:
   build-and-upload:
     needs: create-release
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -48,50 +48,50 @@ jobs:
             platform: mac
             artifact_name: miaoda-chat-macos
             asset_name: miaoda-chat-macos.dmg
-            
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 9
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'pnpm'
-        
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Build application
-      run: pnpm run build:${{ matrix.platform }}
-      
-    - name: Find built artifacts (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        echo "ARTIFACT_PATH=$(find dist -name '*.AppImage' | head -1)" >> $GITHUB_ENV
-        
-    - name: Find built artifacts (Windows)
-      if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        echo "ARTIFACT_PATH=$(find dist -name '*.exe' | head -1)" >> $GITHUB_ENV
-        
-    - name: Find built artifacts (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        echo "ARTIFACT_PATH=$(find dist -name '*.dmg' | head -1)" >> $GITHUB_ENV
-        
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ${{ env.ARTIFACT_PATH }}
-        asset_name: ${{ matrix.asset_name }}
-        asset_content_type: application/octet-stream
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build:${{ matrix.platform }}
+
+      - name: Find built artifacts (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          echo "ARTIFACT_PATH=$(find dist -name '*.AppImage' | head -1)" >> $GITHUB_ENV
+
+      - name: Find built artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          echo "ARTIFACT_PATH=$(find dist -name '*.exe' | head -1)" >> $GITHUB_ENV
+
+      - name: Find built artifacts (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "ARTIFACT_PATH=$(find dist -name '*.dmg' | head -1)" >> $GITHUB_ENV
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.ARTIFACT_PATH }}
+          asset_name: ${{ matrix.asset_name }}
+          asset_content_type: application/octet-stream

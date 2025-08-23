@@ -7,9 +7,7 @@
           <BarChart3 :size="24" />
           Search Analytics
         </h2>
-        <p class="dashboard-subtitle">
-          Monitor search performance and user behavior
-        </p>
+        <p class="dashboard-subtitle">Monitor search performance and user behavior</p>
       </div>
 
       <div class="header-actions">
@@ -24,7 +22,11 @@
         </div>
 
         <button @click="refreshData" class="refresh-button" :disabled="isLoading">
-          <component :is="isLoading ? Loader2 : RefreshCw" :size="16" :class="{ 'animate-spin': isLoading }" />
+          <component
+            :is="isLoading ? Loader2 : RefreshCw"
+            :size="16"
+            :class="{ 'animate-spin': isLoading }"
+          />
           Refresh
         </button>
 
@@ -64,7 +66,10 @@
           </div>
           <div class="metric-value">{{ analytics.avgSearchTime }}ms</div>
           <div class="metric-change" :class="getChangeClass(-analytics.searchTimeChange)">
-            <component :is="analytics.searchTimeChange <= 0 ? TrendingUp : TrendingDown" :size="16" />
+            <component
+              :is="analytics.searchTimeChange <= 0 ? TrendingUp : TrendingDown"
+              :size="16"
+            />
             {{ Math.abs(analytics.searchTimeChange) }}% vs last period
           </div>
         </div>
@@ -130,17 +135,17 @@
                 :key="tab.id"
                 @click="selectedPerformanceTab = tab.id"
                 class="tab-button"
-                :class="{ 'active': selectedPerformanceTab === tab.id }"
+                :class="{ active: selectedPerformanceTab === tab.id }"
               >
                 {{ tab.label }}
               </button>
             </div>
           </div>
           <div class="chart-content">
-            <PerformanceChart 
-              :data="getPerformanceData()" 
+            <PerformanceChart
+              :data="getPerformanceData()"
               :metric="selectedPerformanceTab"
-              :height="300" 
+              :height="300"
             />
           </div>
         </div>
@@ -178,24 +183,22 @@
           <div class="pattern-card">
             <h4 class="pattern-title">Search Types</h4>
             <div class="search-types">
-              <div
-                v-for="type in analytics.searchTypes"
-                :key="type.name"
-                class="type-item"
-              >
+              <div v-for="type in analytics.searchTypes" :key="type.name" class="type-item">
                 <div class="type-info">
                   <component :is="getSearchTypeIcon(type.name)" :size="16" />
                   <span class="type-name">{{ formatSearchType(type.name) }}</span>
                 </div>
                 <div class="type-stats">
                   <div class="type-bar">
-                    <div 
-                      class="type-fill" 
+                    <div
+                      class="type-fill"
                       :style="{ width: `${(type.count / analytics.totalSearches) * 100}%` }"
                       :class="`fill-${type.name}`"
                     />
                   </div>
-                  <span class="type-percentage">{{ Math.round((type.count / analytics.totalSearches) * 100) }}%</span>
+                  <span class="type-percentage"
+                    >{{ Math.round((type.count / analytics.totalSearches) * 100) }}%</span
+                  >
                 </div>
               </div>
             </div>
@@ -212,7 +215,9 @@
               >
                 <div class="bottleneck-info">
                   <div class="bottleneck-phase">{{ formatPhase(bottleneck.phase) }}</div>
-                  <div class="bottleneck-impact">{{ (bottleneck.impact * 100).toFixed(1) }}% of search time</div>
+                  <div class="bottleneck-impact">
+                    {{ (bottleneck.impact * 100).toFixed(1) }}% of search time
+                  </div>
                 </div>
                 <div class="bottleneck-time">{{ bottleneck.avgTime.toFixed(0) }}ms</div>
               </div>
@@ -232,7 +237,7 @@
                   {{ analytics.resultRelevance }}%
                 </div>
               </div>
-              
+
               <div class="quality-item">
                 <div class="quality-label">
                   <Users :size="16" />
@@ -242,7 +247,7 @@
                   {{ analytics.userSatisfaction }}%
                 </div>
               </div>
-              
+
               <div class="quality-item">
                 <div class="quality-label">
                   <Zap :size="16" />
@@ -276,7 +281,7 @@
             <div class="rec-icon">
               <component :is="getRecommendationIcon(rec.type)" :size="20" />
             </div>
-            
+
             <div class="rec-content">
               <div class="rec-header">
                 <h4 class="rec-title">{{ rec.title }}</h4>
@@ -284,18 +289,14 @@
                   {{ rec.severity.toUpperCase() }}
                 </span>
               </div>
-              
+
               <p class="rec-description">{{ rec.description }}</p>
-              
-              <div class="rec-impact">
-                <strong>Expected Impact:</strong> {{ rec.impact }}
-              </div>
+
+              <div class="rec-impact"><strong>Expected Impact:</strong> {{ rec.impact }}</div>
             </div>
 
             <div class="rec-actions">
-              <button @click="applyRecommendation(rec)" class="rec-apply-btn">
-                Apply
-              </button>
+              <button @click="applyRecommendation(rec)" class="rec-apply-btn">Apply</button>
             </div>
           </div>
         </div>
@@ -307,9 +308,23 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import {
-  BarChart3, Search, Clock, Target, Brain, TrendingUp, TrendingDown,
-  RefreshCw, Download, Loader2, Lightbulb, Users, Zap, Database,
-  FileText, Image, Volume2
+  BarChart3,
+  Search,
+  Clock,
+  Target,
+  Brain,
+  TrendingUp,
+  TrendingDown,
+  RefreshCw,
+  Download,
+  Loader2,
+  Lightbulb,
+  Users,
+  Zap,
+  Database,
+  FileText,
+  Image,
+  Volume2
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import SearchVolumeChart from './charts/SearchVolumeChart.vue'
@@ -344,14 +359,16 @@ const analytics = reactive({
   bottlenecks: []
 })
 
-const recommendations = ref<Array<{
-  id: string
-  type: 'indexing' | 'caching' | 'query' | 'hardware'
-  severity: 'low' | 'medium' | 'high'
-  title: string
-  description: string
-  impact: string
-}>>([])
+const recommendations = ref<
+  Array<{
+    id: string
+    type: 'indexing' | 'caching' | 'query' | 'hardware'
+    severity: 'low' | 'medium' | 'high'
+    title: string
+    description: string
+    impact: string
+  }>
+>([])
 
 // Computed
 const performanceTabs = computed(() => [
@@ -364,7 +381,7 @@ const performanceTabs = computed(() => [
 // Methods
 const refreshData = async () => {
   isLoading.value = true
-  
+
   try {
     // Fetch analytics data from backend
     const [searchStats, performanceAnalysis, searchRecommendations] = await Promise.all([
@@ -372,10 +389,9 @@ const refreshData = async () => {
       fetchPerformanceAnalysis(),
       fetchRecommendations()
     ])
-    
+
     updateAnalyticsData(searchStats, performanceAnalysis)
     recommendations.value = searchRecommendations
-    
   } catch (error) {
     console.error('Failed to load analytics data:', error)
   } finally {
@@ -452,11 +468,11 @@ const updateAnalyticsData = (stats: any, performance: any) => {
 const generateMockVolumeData = () => {
   const data = []
   const now = new Date()
-  
+
   for (let i = 29; i >= 0; i--) {
     const date = new Date(now)
     date.setDate(date.getDate() - i)
-    
+
     data.push({
       date: date.toISOString().split('T')[0],
       total: Math.floor(Math.random() * 100) + 20,
@@ -464,7 +480,7 @@ const generateMockVolumeData = () => {
       cached: Math.floor(Math.random() * 60) + 10
     })
   }
-  
+
   return data
 }
 
@@ -480,17 +496,17 @@ const generateMockPerformanceData = () => {
 const generateTimeSeriesData = (min: number, max: number) => {
   const data = []
   const now = new Date()
-  
+
   for (let i = 23; i >= 0; i--) {
     const date = new Date(now)
     date.setHours(date.getHours() - i)
-    
+
     data.push({
       timestamp: date.toISOString(),
       value: Math.floor(Math.random() * (max - min)) + min
     })
   }
-  
+
   return data
 }
 
@@ -513,9 +529,12 @@ const getChangeClass = (change: number): string => {
 
 const getSearchTypeIcon = (type: string) => {
   switch (type) {
-    case 'semantic': return Brain
-    case 'hybrid': return Zap
-    default: return Search
+    case 'semantic':
+      return Brain
+    case 'hybrid':
+      return Zap
+    default:
+      return Search
   }
 }
 
@@ -536,11 +555,16 @@ const getQualityClass = (score: number): string => {
 
 const getRecommendationIcon = (type: string) => {
   switch (type) {
-    case 'indexing': return Database
-    case 'caching': return Zap
-    case 'query': return Search
-    case 'hardware': return TrendingUp
-    default: return Lightbulb
+    case 'indexing':
+      return Database
+    case 'caching':
+      return Zap
+    case 'query':
+      return Search
+    case 'hardware':
+      return TrendingUp
+    default:
+      return Lightbulb
   }
 }
 
@@ -557,10 +581,10 @@ const applyRecommendation = (rec: any) => {
 // Lifecycle
 onMounted(() => {
   refreshData()
-  
+
   // Set up auto-refresh
   const interval = setInterval(refreshData, 5 * 60 * 1000) // 5 minutes
-  
+
   onUnmounted(() => {
     clearInterval(interval)
   })

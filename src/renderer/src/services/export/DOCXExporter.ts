@@ -17,13 +17,18 @@ import {
   Header,
   Footer
 } from 'docx'
-import type { ExportChatData, ExportOptions, ExportResult, DOCXExportOptions } from './ExportService'
+import type {
+  ExportChatData,
+  ExportOptions,
+  ExportResult,
+  DOCXExportOptions
+} from './ExportService'
 
 export class DOCXExporter {
   private static instance: DOCXExporter
-  
+
   private constructor() {}
-  
+
   static getInstance(): DOCXExporter {
     if (!DOCXExporter.instance) {
       DOCXExporter.instance = new DOCXExporter()
@@ -41,7 +46,7 @@ export class DOCXExporter {
 
     // Create document sections
     const sections = this.createDocumentSections(chats, options, docxOptions)
-    
+
     // Create document
     const doc = new Document({
       creator: options.author || 'MiaoDa Chat',
@@ -55,7 +60,7 @@ export class DOCXExporter {
     try {
       // Generate document buffer
       const buffer = await Packer.toBuffer(doc)
-      
+
       // Convert to base64 for consistent handling
       const base64String = this.arrayBufferToBase64(buffer)
       const dataUri = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64String}`
@@ -83,7 +88,7 @@ export class DOCXExporter {
     docxOptions: DOCXExportOptions
   ): any[] {
     const sections: any[] = []
-    
+
     // Create title page section
     const titleSection = {
       properties: {
@@ -145,7 +150,7 @@ export class DOCXExporter {
       },
       children: this.createTitlePageContent(chats, options, docxOptions)
     }
-    
+
     sections.push(titleSection)
 
     // Add table of contents if requested
@@ -170,13 +175,13 @@ export class DOCXExporter {
     // Process each chat
     for (const [index, chat] of chats.entries()) {
       const chatSection = this.createChatSection(chat, index, options, docxOptions)
-      
+
       if (docxOptions.pageBreakBetweenChats && index > 0) {
         chatSection.properties = {
           type: SectionType.NEXT_PAGE
         }
       }
-      
+
       sections.push(chatSection)
     }
 
@@ -248,7 +253,9 @@ export class DOCXExporter {
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph({ text: 'Total Conversations:', alignment: AlignmentType.RIGHT })],
+              children: [
+                new Paragraph({ text: 'Total Conversations:', alignment: AlignmentType.RIGHT })
+              ]
             }),
             new TableCell({
               children: [new Paragraph(chats.length.toString())]
@@ -258,7 +265,7 @@ export class DOCXExporter {
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph({ text: 'Total Messages:', alignment: AlignmentType.RIGHT })],
+              children: [new Paragraph({ text: 'Total Messages:', alignment: AlignmentType.RIGHT })]
             }),
             new TableCell({
               children: [new Paragraph(messageCount.toString())]
@@ -273,7 +280,7 @@ export class DOCXExporter {
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph({ text: 'Author:', alignment: AlignmentType.RIGHT })],
+              children: [new Paragraph({ text: 'Author:', alignment: AlignmentType.RIGHT })]
             }),
             new TableCell({
               children: [new Paragraph(options.author)]
@@ -319,7 +326,7 @@ export class DOCXExporter {
     // Chat metadata
     if (options.includeTimestamps || options.includeMetadata) {
       const metadataChildren: TextRun[] = []
-      
+
       if (options.includeTimestamps) {
         metadataChildren.push(
           new TextRun({
@@ -336,7 +343,7 @@ export class DOCXExporter {
           })
         )
       }
-      
+
       metadataChildren.push(
         new TextRun({
           text: `Messages: ${chat.messages.length}`,
@@ -379,13 +386,13 @@ export class DOCXExporter {
     docxOptions: DOCXExportOptions
   ): any[] {
     const paragraphs: any[] = []
-    
+
     // Message header
-    const roleColor = message.role === 'user' ? '2563eb' : 
-                     message.role === 'assistant' ? '7c3aed' : 'f59e0b'
-    const roleIcon = message.role === 'user' ? '[User]' : 
-                    message.role === 'assistant' ? '[Assistant]' : '[System]'
-    
+    const roleColor =
+      message.role === 'user' ? '2563eb' : message.role === 'assistant' ? '7c3aed' : 'f59e0b'
+    const roleIcon =
+      message.role === 'user' ? '[User]' : message.role === 'assistant' ? '[Assistant]' : '[System]'
+
     const headerChildren: TextRun[] = [
       new TextRun({
         text: roleIcon,
@@ -416,18 +423,19 @@ export class DOCXExporter {
     // Message content
     const content = message.content || ''
     const contentParagraphs = content.split(/\n\s*\n/).filter(p => p.trim())
-    
+
     for (const [pIndex, paragraph] of contentParagraphs.entries()) {
       const lines = paragraph.split('\n')
-      
+
       for (const [lIndex, line] of lines.entries()) {
         const trimmedLine = line.trim()
         if (!trimmedLine) continue
 
         // Check if line contains code (simplified detection)
-        const isCode = trimmedLine.startsWith('```') || 
-                       trimmedLine.includes('`') ||
-                       /^[\s]*[{}\[\]();]/.test(trimmedLine)
+        const isCode =
+          trimmedLine.startsWith('```') ||
+          trimmedLine.includes('`') ||
+          /^[\s]*[{}\[\]();]/.test(trimmedLine)
 
         paragraphs.push(
           new Paragraph({
@@ -439,9 +447,9 @@ export class DOCXExporter {
                 color: isCode ? '333333' : '000000'
               })
             ],
-            spacing: { 
+            spacing: {
               before: lIndex === 0 && pIndex === 0 ? 0 : 120,
-              after: 60 
+              after: 60
             },
             indent: isCode ? { left: 360 } : undefined
           })
@@ -567,22 +575,22 @@ export class DOCXExporter {
     const bstr = atob(arr[1])
     const n = bstr.length
     const u8arr = new Uint8Array(n)
-    
+
     for (let i = 0; i < n; i++) {
       u8arr[i] = bstr.charCodeAt(i)
     }
-    
+
     const blob = new Blob([u8arr], { type: mime })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = result.filename
     a.style.display = 'none'
-    
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    
+
     URL.revokeObjectURL(url)
   }
 }

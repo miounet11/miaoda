@@ -57,7 +57,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
 
   constructor(config: Partial<MultiLevelCacheConfig> = {}) {
     super()
-    
+
     this.config = {
       l1: {
         maxSize: 50 * 1024 * 1024, // 50MB
@@ -80,27 +80,27 @@ export class MultiLevelCache<T = any> extends EventEmitter {
       autoOptimization: true,
       ...config
     }
-    
+
     this.initialize()
   }
 
   private initialize(): void {
     logger.info('Initializing multi-level cache', 'MultiLevelCache', this.config)
-    
+
     // Initialize cache levels
     this.l1Cache = new MemoryCache<T>(this.config.l1)
     this.l2Cache = new PersistentCache<T>(this.config.l2)
-    
+
     if (this.config.l3) {
       this.l3Cache = new NetworkCache<T>(this.config.l3)
     }
-    
+
     // Initialize stats
     this.initializeStats()
-    
+
     // Setup cross-level event handling
     this.setupCacheInteraction()
-    
+
     // Start metrics collection if enabled
     if (this.config.enableMetrics) {
       this.startMetricsCollection()
@@ -114,7 +114,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
     const startTime = performance.now()
     let result: T | undefined
     let sourceLevel: CacheLevel | null = null
-    
+
     try {
       // Try L1 (memory) first
       result = await this.l1Cache.get(key)
@@ -125,41 +125,40 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         return result
       }
       this.recordMiss('memory')
-      
+
       // Try L2 (persistent)
       result = await this.l2Cache.get(key)
       if (result !== undefined) {
         sourceLevel = 'persistent'
         this.recordHit('persistent')
-        
+
         // Promote to L1
         await this.promoteToL1(key, result)
-        
+
         this.recordLatency('persistent', performance.now() - startTime)
         return result
       }
       this.recordMiss('persistent')
-      
+
       // Try L3 (network) if available
       if (this.l3Cache) {
         result = await this.l3Cache.get(key)
         if (result !== undefined) {
           sourceLevel = 'network'
           this.recordHit('network')
-          
+
           // Promote to L1 and L2
           await this.promoteToL2(key, result)
           await this.promoteToL1(key, result)
-          
+
           this.recordLatency('network', performance.now() - startTime)
           return result
         }
         this.recordMiss('network')
       }
-      
+
       // Cache miss
       return undefined
-      
     } finally {
       const totalTime = performance.now() - startTime
       this.emit('cache-access', {
@@ -174,24 +173,28 @@ export class MultiLevelCache<T = any> extends EventEmitter {
   /**
    * Set value across appropriate cache levels
    */
-  async set(key: string, value: T, options: {
-    ttl?: number
-    skipL1?: boolean
-    skipL2?: boolean
-    skipL3?: boolean
-    priority?: 'low' | 'normal' | 'high'
-  } = {}): Promise<void> {
+  async set(
+    key: string,
+    value: T,
+    options: {
+      ttl?: number
+      skipL1?: boolean
+      skipL2?: boolean
+      skipL3?: boolean
+      priority?: 'low' | 'normal' | 'high'
+    } = {}
+  ): Promise<void> {
     const startTime = performance.now()
-    
+
     try {
       const serializedSize = this.estimateSize(value)
       const priority = options.priority || 'normal'
-      
+
       // Determine which levels to write to based on size and priority
       const levels = this.determineWriteLevels(serializedSize, priority, options)
-      
+
       const promises: Promise<void>[] = []
-      
+
       // Write to L1 (memory) - always fast
       if (levels.includes('memory') && !options.skipL1) {
         promises.push(
@@ -200,7 +203,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
           })
         )
       }
-      
+
       // Write to L2 (persistent) - can be async
       if (levels.includes('persistent') && !options.skipL2) {
         promises.push(
@@ -209,7 +212,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
           })
         )
       }
-      
+
       // Write to L3 (network) - lowest priority
       if (levels.includes('network') && !options.skipL3 && this.l3Cache) {
         promises.push(
@@ -218,16 +221,15 @@ export class MultiLevelCache<T = any> extends EventEmitter {
           })
         )
       }
-      
+
       // Wait for critical writes (L1 and L2)
       const criticalPromises = promises.slice(0, 2)
       await Promise.all(criticalPromises)
-      
+
       // L3 can complete in background
       if (promises.length > 2) {
         promises[2].catch(() => {}) // Ignore L3 errors
       }
-      
     } catch (error) {
       logger.error('Multi-level cache set failed', 'MultiLevelCache', { key, error })
       throw error
@@ -241,15 +243,12 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    * Delete from all cache levels
    */
   async delete(key: string): Promise<boolean> {
-    const promises = [
-      this.l1Cache.delete(key),
-      this.l2Cache.delete(key)
-    ]
-    
+    const promises = [this.l1Cache.delete(key), this.l2Cache.delete(key)]
+
     if (this.l3Cache) {
       promises.push(this.l3Cache.delete(key))
     }
-    
+
     const results = await Promise.all(promises)
     return results.some(result => result)
   }
@@ -259,8 +258,8 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    */
   async has(key: string): Promise<boolean> {
     return (
-      await this.l1Cache.has(key) ||
-      await this.l2Cache.has(key) ||
+      (await this.l1Cache.has(key)) ||
+      (await this.l2Cache.has(key)) ||
       (this.l3Cache ? await this.l3Cache.has(key) : false)
     )
   }
@@ -269,15 +268,12 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    * Clear all cache levels
    */
   async clear(): Promise<void> {
-    const promises = [
-      this.l1Cache.clear(),
-      this.l2Cache.clear()
-    ]
-    
+    const promises = [this.l1Cache.clear(), this.l2Cache.clear()]
+
     if (this.l3Cache) {
       promises.push(this.l3Cache.clear())
     }
-    
+
     await Promise.all(promises)
     this.resetStats()
   }
@@ -287,22 +283,20 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    */
   async warmup(items: Array<{ key: string; value: T }>): Promise<void> {
     logger.info('Starting cache warmup', 'MultiLevelCache', { itemCount: items.length })
-    
+
     const batchSize = 50
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize)
-      const promises = batch.map(item => 
-        this.set(item.key, item.value, { priority: 'high' })
-      )
-      
+      const promises = batch.map(item => this.set(item.key, item.value, { priority: 'high' }))
+
       await Promise.all(promises)
-      
+
       // Brief pause between batches to avoid overwhelming the system
       if (i + batchSize < items.length) {
         await new Promise(resolve => setTimeout(resolve, 10))
       }
     }
-    
+
     logger.info('Cache warmup completed', 'MultiLevelCache')
   }
 
@@ -331,24 +325,24 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    */
   async optimize(): Promise<void> {
     if (!this.config.autoOptimization) return
-    
+
     logger.info('Starting cache optimization', 'MultiLevelCache')
-    
+
     const stats = this.getStats()
-    
+
     // Optimize L1 cache
     if (stats.memory.hitRatio < 0.5) {
       await this.optimizeL1Cache()
     }
-    
+
     // Optimize L2 cache
     if (stats.persistent.hitRatio < 0.3) {
       await this.optimizeL2Cache()
     }
-    
+
     // Rebalance data between levels
     await this.rebalanceCacheLevels()
-    
+
     logger.info('Cache optimization completed', 'MultiLevelCache')
   }
 
@@ -357,24 +351,24 @@ export class MultiLevelCache<T = any> extends EventEmitter {
    */
   async export(): Promise<{ level: CacheLevel; data: any }[]> {
     const exports: { level: CacheLevel; data: any }[] = []
-    
+
     exports.push({
       level: 'memory' as CacheLevel,
       data: await this.l1Cache.export()
     })
-    
+
     exports.push({
       level: 'persistent' as CacheLevel,
       data: await this.l2Cache.export()
     })
-    
+
     if (this.l3Cache) {
       exports.push({
         level: 'network' as CacheLevel,
         data: await this.l3Cache.export()
       })
     }
-    
+
     return exports
   }
 
@@ -401,28 +395,25 @@ export class MultiLevelCache<T = any> extends EventEmitter {
 
   // Private helper methods
 
-  private determineWriteLevels(
-    size: number, 
-    priority: string, 
-    _options: any
-  ): CacheLevel[] {
+  private determineWriteLevels(size: number, priority: string, _options: any): CacheLevel[] {
     const levels: CacheLevel[] = []
-    
+
     // Always write to L1 for fast access
-    if (size < this.config.l1.maxSize * 0.1) { // Small items go to L1
+    if (size < this.config.l1.maxSize * 0.1) {
+      // Small items go to L1
       levels.push('memory')
     }
-    
+
     // Write to L2 for persistence
     if (priority !== 'low' && size < this.config.l2.maxSize * 0.05) {
       levels.push('persistent')
     }
-    
+
     // Write to L3 for high priority or large items
     if (this.l3Cache && (priority === 'high' || size > 1024 * 1024)) {
       levels.push('network')
     }
-    
+
     return levels
   }
 
@@ -495,7 +486,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
     this.l1Cache.on('eviction', (key: string) => {
       this.emit('l1-eviction', key)
     })
-    
+
     this.l2Cache.on('eviction', (key: string) => {
       this.emit('l2-eviction', key)
     })
@@ -505,7 +496,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
     this.metricsTimer = setInterval(() => {
       const stats = this.getStats()
       this.emit('metrics', stats)
-      
+
       // Auto-optimize if needed
       if (this.config.autoOptimization) {
         this.checkOptimizationTriggers(stats)
@@ -515,8 +506,9 @@ export class MultiLevelCache<T = any> extends EventEmitter {
 
   private checkOptimizationTriggers(stats: Record<CacheLevel, CacheStats>): void {
     // Trigger optimization if hit ratios are low
-    const avgHitRatio = Object.values(stats).reduce((sum, stat) => sum + stat.hitRatio, 0) / Object.keys(stats).length
-    
+    const avgHitRatio =
+      Object.values(stats).reduce((sum, stat) => sum + stat.hitRatio, 0) / Object.keys(stats).length
+
     if (avgHitRatio < 0.4) {
       this.optimize().catch(error => {
         logger.warn('Auto-optimization failed', 'MultiLevelCache', { error })
@@ -528,7 +520,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
     // Increase L1 cache size if memory allows
     const currentSize = this.config.l1.maxSize
     const newSize = Math.min(currentSize * 1.2, 100 * 1024 * 1024) // Cap at 100MB
-    
+
     if (newSize > currentSize) {
       this.config.l1.maxSize = newSize
       await this.l1Cache.resize(newSize)
@@ -548,7 +540,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
   private async rebalanceCacheLevels(): Promise<void> {
     // Move frequently accessed items from L2 to L1
     const hotItems = await this.l2Cache.getHotItems(100)
-    
+
     for (const item of hotItems) {
       if (item.accessCount > 5) {
         await this.promoteToL1(item.key, item.value)
@@ -568,13 +560,13 @@ export class MultiLevelCache<T = any> extends EventEmitter {
       clearInterval(this.metricsTimer)
       this.metricsTimer = null
     }
-    
+
     this.l1Cache.destroy()
     this.l2Cache.destroy()
     this.l3Cache?.destroy()
-    
+
     this.removeAllListeners()
-    
+
     logger.info('Multi-level cache destroyed', 'MultiLevelCache')
   }
 }
@@ -585,29 +577,29 @@ export class MultiLevelCache<T = any> extends EventEmitter {
 class MemoryCache<T> extends EventEmitter {
   private cache = new Map<string, CacheEntry<T>>()
   private accessOrder: string[] = []
-  
+
   constructor(private config: CacheConfig) {
     super()
   }
-  
+
   async get(key: string): Promise<T | undefined> {
     const entry = this.cache.get(key)
     if (!entry) return undefined
-    
+
     // Check TTL
     if (this.isExpired(entry)) {
       this.cache.delete(key)
       return undefined
     }
-    
+
     // Update access info
     entry.lastAccessed = Date.now()
     entry.accessCount++
     this.updateAccessOrder(key)
-    
+
     return entry.value
   }
-  
+
   async set(key: string, value: T, options: { ttl?: number } = {}): Promise<void> {
     const entry: CacheEntry<T> = {
       key,
@@ -618,35 +610,35 @@ class MemoryCache<T> extends EventEmitter {
       size: this.estimateSize(value),
       ttl: options.ttl || this.config.ttl
     }
-    
+
     // Evict if necessary
     while (this.shouldEvict(entry.size)) {
       this.evictOne()
     }
-    
+
     this.cache.set(key, entry)
     this.updateAccessOrder(key)
   }
-  
+
   async delete(key: string): Promise<boolean> {
     const deleted = this.cache.delete(key)
     this.removeFromAccessOrder(key)
     return deleted
   }
-  
+
   async has(key: string): Promise<boolean> {
     return this.cache.has(key)
   }
-  
+
   async clear(): Promise<void> {
     this.cache.clear()
     this.accessOrder = []
   }
-  
+
   getStats(): CacheStats {
     const entries = Array.from(this.cache.values())
     const totalSize = entries.reduce((sum, entry) => sum + entry.size, 0)
-    
+
     return {
       hits: 0, // Tracked externally
       misses: 0, // Tracked externally
@@ -657,61 +649,60 @@ class MemoryCache<T> extends EventEmitter {
       memoryUsage: totalSize
     }
   }
-  
+
   async export(): Promise<any> {
     return Array.from(this.cache.entries())
   }
-  
+
   async import(data: any): Promise<void> {
     for (const [key, entry] of data) {
       this.cache.set(key, entry)
     }
   }
-  
+
   async resize(newMaxSize: number): Promise<void> {
     this.config.maxSize = newMaxSize
-    
+
     // Evict items if over new limit
     while (this.getCurrentSize() > newMaxSize) {
       this.evictOne()
     }
   }
-  
+
   async changeStrategy(strategy: CacheStrategy): Promise<void> {
     this.config.strategy = strategy
   }
-  
+
   async getHotItems(limit: number): Promise<CacheEntry<T>[]> {
     return Array.from(this.cache.values())
       .sort((a, b) => b.accessCount - a.accessCount)
       .slice(0, limit)
   }
-  
+
   destroy(): void {
     this.clear()
     this.removeAllListeners()
   }
-  
+
   private isExpired(entry: CacheEntry<T>): boolean {
     if (!entry.ttl) return false
     return Date.now() - entry.timestamp > entry.ttl
   }
-  
+
   private shouldEvict(newItemSize: number): boolean {
     const currentSize = this.getCurrentSize()
     return (
-      currentSize + newItemSize > this.config.maxSize ||
-      this.cache.size >= this.config.maxItems
+      currentSize + newItemSize > this.config.maxSize || this.cache.size >= this.config.maxItems
     )
   }
-  
+
   private getCurrentSize(): number {
     return Array.from(this.cache.values()).reduce((sum, entry) => sum + entry.size, 0)
   }
-  
+
   private evictOne(): void {
     let keyToEvict: string | undefined
-    
+
     switch (this.config.strategy) {
       case 'lru':
         keyToEvict = this.accessOrder[0]
@@ -726,61 +717,61 @@ class MemoryCache<T> extends EventEmitter {
         keyToEvict = this.findAdaptiveKey()
         break
     }
-    
+
     if (keyToEvict) {
       this.cache.delete(keyToEvict)
       this.removeFromAccessOrder(keyToEvict)
       this.emit('eviction', keyToEvict)
     }
   }
-  
+
   private findLFUKey(): string | undefined {
     let minAccess = Infinity
     let keyToEvict: string | undefined
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (entry.accessCount < minAccess) {
         minAccess = entry.accessCount
         keyToEvict = key
       }
     }
-    
+
     return keyToEvict
   }
-  
+
   private findAdaptiveKey(): string | undefined {
     // Hybrid approach: consider both recency and frequency
     let bestScore = Infinity
     let keyToEvict: string | undefined
-    
+
     const now = Date.now()
-    
+
     for (const [key, entry] of this.cache.entries()) {
       const recencyScore = (now - entry.lastAccessed) / 1000 // seconds
       const frequencyScore = 1 / (entry.accessCount + 1)
       const combinedScore = recencyScore * 0.7 + frequencyScore * 0.3
-      
+
       if (combinedScore < bestScore) {
         bestScore = combinedScore
         keyToEvict = key
       }
     }
-    
+
     return keyToEvict
   }
-  
+
   private updateAccessOrder(key: string): void {
     this.removeFromAccessOrder(key)
     this.accessOrder.push(key)
   }
-  
+
   private removeFromAccessOrder(key: string): void {
     const index = this.accessOrder.indexOf(key)
     if (index > -1) {
       this.accessOrder.splice(index, 1)
     }
   }
-  
+
   private estimateSize(value: T): number {
     try {
       return JSON.stringify(value).length * 2
@@ -796,26 +787,26 @@ class MemoryCache<T> extends EventEmitter {
  */
 class PersistentCache<T> extends EventEmitter {
   private cache = new Map<string, CacheEntry<T>>()
-  
+
   constructor(private config: CacheConfig) {
     super()
   }
-  
+
   async get(key: string): Promise<T | undefined> {
     const entry = this.cache.get(key)
     if (!entry) return undefined
-    
+
     if (this.isExpired(entry)) {
       this.cache.delete(key)
       return undefined
     }
-    
+
     entry.lastAccessed = Date.now()
     entry.accessCount++
-    
+
     return entry.value
   }
-  
+
   async set(key: string, value: T, options: { ttl?: number } = {}): Promise<void> {
     const entry: CacheEntry<T> = {
       key,
@@ -826,26 +817,26 @@ class PersistentCache<T> extends EventEmitter {
       size: this.estimateSize(value),
       ttl: options.ttl || this.config.ttl
     }
-    
+
     this.cache.set(key, entry)
   }
-  
+
   async delete(key: string): Promise<boolean> {
     return this.cache.delete(key)
   }
-  
+
   async has(key: string): Promise<boolean> {
     return this.cache.has(key)
   }
-  
+
   async clear(): Promise<void> {
     this.cache.clear()
   }
-  
+
   getStats(): CacheStats {
     const entries = Array.from(this.cache.values())
     const totalSize = entries.reduce((sum, entry) => sum + entry.size, 0)
-    
+
     return {
       hits: 0,
       misses: 0,
@@ -856,41 +847,41 @@ class PersistentCache<T> extends EventEmitter {
       memoryUsage: totalSize
     }
   }
-  
+
   async export(): Promise<any> {
     return Array.from(this.cache.entries())
   }
-  
+
   async import(data: any): Promise<void> {
     for (const [key, entry] of data) {
       this.cache.set(key, entry)
     }
   }
-  
+
   async resize(newMaxSize: number): Promise<void> {
     this.config.maxSize = newMaxSize
   }
-  
+
   async changeStrategy(strategy: CacheStrategy): Promise<void> {
     this.config.strategy = strategy
   }
-  
+
   async getHotItems(limit: number): Promise<CacheEntry<T>[]> {
     return Array.from(this.cache.values())
       .sort((a, b) => b.accessCount - a.accessCount)
       .slice(0, limit)
   }
-  
+
   destroy(): void {
     this.clear()
     this.removeAllListeners()
   }
-  
+
   private isExpired(entry: CacheEntry<T>): boolean {
     if (!entry.ttl) return false
     return Date.now() - entry.timestamp > entry.ttl
   }
-  
+
   private estimateSize(value: T): number {
     try {
       return JSON.stringify(value).length * 2
@@ -908,12 +899,12 @@ class NetworkCache<T> extends PersistentCache<T> {
   constructor(config: CacheConfig) {
     super(config)
   }
-  
+
   async get(key: string): Promise<T | undefined> {
     // Would fetch from network cache service
     return super.get(key)
   }
-  
+
   async set(key: string, value: T, options: { ttl?: number } = {}): Promise<void> {
     // Would store to network cache service
     return super.set(key, value, options)

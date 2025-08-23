@@ -13,14 +13,49 @@ export interface FileInfo {
 }
 
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
-const TEXT_EXTENSIONS = ['.txt', '.md', '.json', '.js', '.ts', '.py', '.java', '.cpp', '.c', '.h', '.css', '.html', '.xml', '.yaml', '.yml']
+const TEXT_EXTENSIONS = [
+  '.txt',
+  '.md',
+  '.json',
+  '.js',
+  '.ts',
+  '.py',
+  '.java',
+  '.cpp',
+  '.c',
+  '.h',
+  '.css',
+  '.html',
+  '.xml',
+  '.yaml',
+  '.yml'
+]
 
 export async function handleFileSelect(): Promise<FileInfo[]> {
   const result = await dialog.showOpenDialog({
     properties: ['openFile', 'multiSelections'],
     filters: [
       { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'] },
-      { name: 'Text Files', extensions: ['txt', 'md', 'json', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'h', 'css', 'html', 'xml', 'yaml', 'yml'] },
+      {
+        name: 'Text Files',
+        extensions: [
+          'txt',
+          'md',
+          'json',
+          'js',
+          'ts',
+          'py',
+          'java',
+          'cpp',
+          'c',
+          'h',
+          'css',
+          'html',
+          'xml',
+          'yaml',
+          'yml'
+        ]
+      },
       { name: 'All Files', extensions: ['*'] }
     ]
   })

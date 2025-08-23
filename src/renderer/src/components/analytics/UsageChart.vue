@@ -18,7 +18,7 @@
         </button>
       </div>
     </div>
-    
+
     <BaseChart
       :option="chartOption"
       :loading="loading"
@@ -97,9 +97,9 @@ const chartOption = computed((): EChartsOption => {
           type: 'category',
           data: props.data.messagesByDay.map(item => {
             const date = new Date(item.date)
-            return date.toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric' 
+            return date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric'
             })
           }),
           axisLabel: {
@@ -112,32 +112,34 @@ const chartOption = computed((): EChartsOption => {
           nameLocation: 'middle',
           nameGap: 50
         },
-        series: [{
-          name: 'Messages',
-          type: 'line',
-          smooth: true,
-          data: props.data.messagesByDay.map(item => item.count),
-          itemStyle: {
-            color: '#3B82F6'
-          },
-          lineStyle: {
-            color: '#3B82F6',
-            width: 3
-          },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
-                { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
-              ]
+        series: [
+          {
+            name: 'Messages',
+            type: 'line',
+            smooth: true,
+            data: props.data.messagesByDay.map(item => item.count),
+            itemStyle: {
+              color: '#3B82F6'
+            },
+            lineStyle: {
+              color: '#3B82F6',
+              width: 3
+            },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                  { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+                ]
+              }
             }
           }
-        }]
+        ]
       }
 
     case 'daily-chats':
@@ -159,9 +161,9 @@ const chartOption = computed((): EChartsOption => {
           type: 'category',
           data: props.data.chatsByDay.map(item => {
             const date = new Date(item.date)
-            return date.toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric' 
+            return date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric'
             })
           }),
           axisLabel: {
@@ -174,15 +176,17 @@ const chartOption = computed((): EChartsOption => {
           nameLocation: 'middle',
           nameGap: 50
         },
-        series: [{
-          name: 'Chats',
-          type: 'bar',
-          data: props.data.chatsByDay.map(item => item.count),
-          itemStyle: {
-            color: '#10B981',
-            borderRadius: [4, 4, 0, 0]
+        series: [
+          {
+            name: 'Chats',
+            type: 'bar',
+            data: props.data.chatsByDay.map(item => item.count),
+            itemStyle: {
+              color: '#10B981',
+              borderRadius: [4, 4, 0, 0]
+            }
           }
-        }]
+        ]
       }
 
     case 'active-hours':
@@ -221,26 +225,28 @@ const chartOption = computed((): EChartsOption => {
           nameLocation: 'middle',
           nameGap: 20
         },
-        series: [{
-          name: 'Activity',
-          type: 'line',
-          coordinateSystem: 'polar',
-          data: Array.from({ length: 24 }, (_, hour) => {
-            const hourData = props.data.activeHours.find(h => h.hour === hour)
-            return hourData ? hourData.count : 0
-          }),
-          smooth: true,
-          itemStyle: {
-            color: '#8B5CF6'
-          },
-          lineStyle: {
-            color: '#8B5CF6',
-            width: 3
-          },
-          areaStyle: {
-            color: 'rgba(139, 92, 246, 0.2)'
+        series: [
+          {
+            name: 'Activity',
+            type: 'line',
+            coordinateSystem: 'polar',
+            data: Array.from({ length: 24 }, (_, hour) => {
+              const hourData = props.data.activeHours.find(h => h.hour === hour)
+              return hourData ? hourData.count : 0
+            }),
+            smooth: true,
+            itemStyle: {
+              color: '#8B5CF6'
+            },
+            lineStyle: {
+              color: '#8B5CF6',
+              width: 3
+            },
+            areaStyle: {
+              color: 'rgba(139, 92, 246, 0.2)'
+            }
           }
-        }]
+        ]
       }
 
     default:

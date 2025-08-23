@@ -78,16 +78,16 @@ class CalculatorPlugin {
     switch (toolName) {
       case 'calculate':
         return this.calculate(args.expression)
-      
+
       case 'factorial':
         return this.factorial(args.n)
-      
+
       case 'fibonacci':
         return this.fibonacci(args.n)
-      
+
       case 'prime_check':
         return this.isPrime(args.number)
-      
+
       default:
         throw new Error(`Unknown tool: ${toolName}`)
     }
@@ -99,7 +99,7 @@ class CalculatorPlugin {
       // Only allow basic math operations and functions
       const sanitized = expression.replace(/[^0-9+\-*/().\s]/g, '')
       const result = Function('"use strict"; return (' + sanitized + ')')()
-      
+
       return {
         expression,
         result,
@@ -117,16 +117,16 @@ class CalculatorPlugin {
     if (n < 0) {
       return { error: 'Factorial is not defined for negative numbers' }
     }
-    
+
     if (n > 170) {
       return { error: 'Number too large, result would be Infinity' }
     }
-    
+
     let result = 1
     for (let i = 2; i <= n; i++) {
       result *= i
     }
-    
+
     return {
       input: n,
       factorial: result,
@@ -138,16 +138,16 @@ class CalculatorPlugin {
     if (n < 1) {
       return { error: 'Please provide a positive number' }
     }
-    
+
     if (n > 100) {
       return { error: 'Number too large, please use n <= 100' }
     }
-    
+
     const sequence = [0, 1]
     for (let i = 2; i < n; i++) {
       sequence.push(sequence[i - 1] + sequence[i - 2])
     }
-    
+
     return {
       count: n,
       sequence: sequence.slice(0, n),
@@ -163,7 +163,7 @@ class CalculatorPlugin {
         reason: 'Numbers less than 2 are not prime'
       }
     }
-    
+
     if (number === 2) {
       return {
         number,
@@ -171,7 +171,7 @@ class CalculatorPlugin {
         reason: '2 is the only even prime number'
       }
     }
-    
+
     if (number % 2 === 0) {
       return {
         number,
@@ -179,7 +179,7 @@ class CalculatorPlugin {
         reason: 'Even numbers (except 2) are not prime'
       }
     }
-    
+
     const sqrt = Math.sqrt(number)
     for (let i = 3; i <= sqrt; i += 2) {
       if (number % i === 0) {
@@ -191,7 +191,7 @@ class CalculatorPlugin {
         }
       }
     }
-    
+
     return {
       number,
       isPrime: true,

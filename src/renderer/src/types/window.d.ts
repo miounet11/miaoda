@@ -25,8 +25,13 @@ declare global {
         getToolsEnabled: () => Promise<boolean>
         getAllProviders: () => Promise<any[]>
         // Custom provider methods
-        addCustomProvider: (config: any) => Promise<{ success: boolean; id?: string; error?: string }>
-        updateCustomProvider: (id: string, updates: any) => Promise<{ success: boolean; error?: string }>
+        addCustomProvider: (
+          config: any
+        ) => Promise<{ success: boolean; id?: string; error?: string }>
+        updateCustomProvider: (
+          id: string,
+          updates: any
+        ) => Promise<{ success: boolean; error?: string }>
         removeCustomProvider: (id: string) => Promise<{ success: boolean; error?: string }>
         getAllCustomProviders: () => Promise<any[]>
         getCustomProvider: (id: string) => Promise<any>
@@ -35,7 +40,9 @@ declare global {
         getAllProviderHealthStatuses: () => Promise<any[]>
         getCustomProviderHealth: (id: string) => Promise<any>
         exportCustomProviders: () => Promise<any[]>
-        importCustomProviders: (providers: any[]) => Promise<{ success: number; failed: number; errors: string[] }>
+        importCustomProviders: (
+          providers: any[]
+        ) => Promise<{ success: number; failed: number; errors: string[] }>
       }
       mcp: {
         connect: (server: any) => Promise<void>

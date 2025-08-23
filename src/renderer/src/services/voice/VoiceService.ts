@@ -69,7 +69,7 @@ export class VoiceService extends EventEmitter<{
   private isRecognitionActive = false
   private isSynthesisActive = false
   private currentUtterance: SpeechSynthesisUtterance | null = null
-  
+
   private config: VoiceConfig = {
     recognition: {
       language: 'zh-CN',
@@ -123,7 +123,7 @@ export class VoiceService extends EventEmitter<{
 
     // Load saved configuration
     await this.loadConfig()
-    
+
     // Check permissions
     await this.checkPermissions()
   }
@@ -156,26 +156,28 @@ export class VoiceService extends EventEmitter<{
       this.emit('recognition-end')
     }
 
-    recognition.onresult = (event) => {
+    recognition.onresult = event => {
       const results = Array.from(event.results)
       const lastResult = results[results.length - 1]
-      
+
       if (lastResult) {
         const result: VoiceRecognitionResult = {
           transcript: lastResult[0].transcript,
           confidence: lastResult[0].confidence,
           isFinal: lastResult.isFinal,
-          alternatives: Array.from(lastResult).slice(1).map(alt => ({
-            transcript: alt.transcript,
-            confidence: alt.confidence
-          }))
+          alternatives: Array.from(lastResult)
+            .slice(1)
+            .map(alt => ({
+              transcript: alt.transcript,
+              confidence: alt.confidence
+            }))
         }
 
         this.emit('recognition-result', result)
       }
     }
 
-    recognition.onerror = (event) => {
+    recognition.onerror = event => {
       const error = new Error(`Speech recognition error: ${event.error}`)
       this.emit('recognition-error', error)
     }
@@ -199,7 +201,7 @@ export class VoiceService extends EventEmitter<{
     if (!this.synthesis) return
 
     const voices = this.synthesis.getVoices()
-    const preferredVoice = voices.find(voice => 
+    const preferredVoice = voices.find(voice =>
       voice.lang.startsWith(this.config.synthesis.language)
     )
 
@@ -231,8 +233,10 @@ export class VoiceService extends EventEmitter<{
     if (options) {
       if (options.language) this.recognition.lang = options.language
       if (options.continuous !== undefined) this.recognition.continuous = options.continuous
-      if (options.interimResults !== undefined) this.recognition.interimResults = options.interimResults
-      if (options.maxAlternatives !== undefined) this.recognition.maxAlternatives = options.maxAlternatives
+      if (options.interimResults !== undefined)
+        this.recognition.interimResults = options.interimResults
+      if (options.maxAlternatives !== undefined)
+        this.recognition.maxAlternatives = options.maxAlternatives
     }
 
     try {
@@ -269,10 +273,10 @@ export class VoiceService extends EventEmitter<{
     }
 
     const utterance = new SpeechSynthesisUtterance(text)
-    
+
     // Apply configuration
     const config = { ...this.config.synthesis, ...options }
-    
+
     utterance.rate = config.rate
     utterance.pitch = config.pitch
     utterance.volume = config.volume
@@ -300,7 +304,7 @@ export class VoiceService extends EventEmitter<{
       this.emit('synthesis-end', text)
     }
 
-    utterance.onerror = (event) => {
+    utterance.onerror = event => {
       this.isSynthesisActive = false
       this.currentUtterance = null
       this.emit('synthesis-error', new Error(`Synthesis error: ${event.error}`))
@@ -356,14 +360,16 @@ export class VoiceService extends EventEmitter<{
   // Configuration management
   updateConfig(updates: Partial<VoiceConfig>): void {
     this.config = { ...this.config, ...updates }
-    
+
     // Apply recognition config changes
     if (this.recognition && updates.recognition) {
       const recConfig = updates.recognition
       if (recConfig.language) this.recognition.lang = recConfig.language
       if (recConfig.continuous !== undefined) this.recognition.continuous = recConfig.continuous
-      if (recConfig.interimResults !== undefined) this.recognition.interimResults = recConfig.interimResults
-      if (recConfig.maxAlternatives !== undefined) this.recognition.maxAlternatives = recConfig.maxAlternatives
+      if (recConfig.interimResults !== undefined)
+        this.recognition.interimResults = recConfig.interimResults
+      if (recConfig.maxAlternatives !== undefined)
+        this.recognition.maxAlternatives = recConfig.maxAlternatives
     }
 
     this.saveConfig()
@@ -389,18 +395,18 @@ export class VoiceService extends EventEmitter<{
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       stream.getTracks().forEach(track => track.stop())
-      
+
       this.config.permissions.microphone = true
       this.saveConfig()
       this.emit('permissions-changed', { microphone: true })
-      
+
       return true
     } catch (error) {
       console.error('Microphone permission denied:', error)
       this.config.permissions.microphone = false
       this.saveConfig()
       this.emit('permissions-changed', { microphone: false })
-      
+
       return false
     }
   }
@@ -409,7 +415,7 @@ export class VoiceService extends EventEmitter<{
     try {
       const result = await navigator.permissions.query({ name: 'microphone' as PermissionName })
       this.config.permissions.microphone = result.state === 'granted'
-      
+
       result.onchange = () => {
         this.config.permissions.microphone = result.state === 'granted'
         this.emit('permissions-changed', { microphone: this.config.permissions.microphone })
@@ -449,8 +455,11 @@ export class VoiceService extends EventEmitter<{
     return {
       speechRecognition: this.isRecognitionSupported(),
       speechSynthesis: this.isSynthesisSupported(),
-      mediaDevices: ('navigator' in window && 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices),
-      permissions: ('navigator' in window && 'permissions' in navigator)
+      mediaDevices:
+        'navigator' in window &&
+        'mediaDevices' in navigator &&
+        'getUserMedia' in navigator.mediaDevices,
+      permissions: 'navigator' in window && 'permissions' in navigator
     }
   }
 
@@ -463,18 +472,18 @@ export class VoiceService extends EventEmitter<{
     errorMessage?: string
   } {
     const capabilities = this.getCapabilities()
-    
+
     return {
       isSupported: capabilities.speechRecognition,
       hasPermission: this.config.permissions.microphone,
       isRecording: this.isRecognitionActive,
       isSpeaking: this.isSynthesisActive,
       currentLanguage: this.config.recognition.language,
-      errorMessage: !capabilities.speechRecognition 
+      errorMessage: !capabilities.speechRecognition
         ? 'Speech recognition not supported in this browser'
         : !capabilities.mediaDevices
-        ? 'Microphone access not available'
-        : undefined
+          ? 'Microphone access not available'
+          : undefined
     }
   }
 
@@ -503,11 +512,11 @@ export class VoiceService extends EventEmitter<{
   destroy(): void {
     this.stopRecognition()
     this.stopSynthesis()
-    
+
     this.recognition = null
     this.synthesis = null
     this.currentUtterance = null
-    
+
     this.clear()
   }
 }

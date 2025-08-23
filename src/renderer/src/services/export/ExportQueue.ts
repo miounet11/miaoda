@@ -80,7 +80,7 @@ export class ExportQueue {
 
     this.tasks.set(taskId, task)
     this.notifyStatusCallbacks(task)
-    
+
     // Start processing if not already running
     if (!this.isProcessing.value) {
       this.startProcessing()
@@ -102,7 +102,7 @@ export class ExportQueue {
     task.completedAt = new Date()
     this.runningTasks.delete(taskId)
     this.notifyStatusCallbacks(task)
-    
+
     return true
   }
 
@@ -147,7 +147,7 @@ export class ExportQueue {
 
     this.tasks.delete(taskId)
     this.progressCallbacks.delete(taskId)
-    
+
     return true
   }
 
@@ -156,7 +156,7 @@ export class ExportQueue {
    */
   clearCompleted(): number {
     let removedCount = 0
-    
+
     for (const [taskId, task] of this.tasks.entries()) {
       if (task.status === 'completed' || task.status === 'cancelled') {
         this.tasks.delete(taskId)
@@ -183,7 +183,7 @@ export class ExportQueue {
     this.tasks.clear()
     this.progressCallbacks.clear()
     this.runningTasks.clear()
-    
+
     return removedCount
   }
 
@@ -202,11 +202,11 @@ export class ExportQueue {
       // Sort by priority, then by creation time
       const priorityOrder = { high: 3, normal: 2, low: 1 }
       const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority]
-      
+
       if (priorityDiff !== 0) {
         return priorityDiff
       }
-      
+
       return a.createdAt.getTime() - b.createdAt.getTime()
     })
   }
@@ -313,13 +313,13 @@ export class ExportQueue {
       // Set up progress callback
       const progressCallback = (progress: ExportProgress) => {
         task.progress = Math.round(progress.progress)
-        
+
         // Notify specific task callback
         const taskProgressCallback = this.progressCallbacks.get(task.id)
         if (taskProgressCallback) {
           taskProgressCallback(task.id, progress)
         }
-        
+
         this.notifyStatusCallbacks(task)
       }
 
@@ -331,7 +331,7 @@ export class ExportQueue {
       const result = await this.taskCallback({
         ...task,
         options: {
-          ...task.options,
+          ...task.options
           // Add progress callback to options if supported
         }
       })
@@ -342,7 +342,6 @@ export class ExportQueue {
       task.result = result
       task.completedAt = new Date()
       this.notifyStatusCallbacks(task)
-
     } catch (error: any) {
       // Task failed
       task.status = 'failed'
@@ -378,11 +377,11 @@ export class ExportQueue {
         // Sort by priority, then by creation time
         const priorityOrder = { high: 3, normal: 2, low: 1 }
         const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority]
-        
+
         if (priorityDiff !== 0) {
           return priorityDiff
         }
-        
+
         return a.createdAt.getTime() - b.createdAt.getTime()
       })
 
@@ -422,18 +421,18 @@ export class ExportQueue {
   getEstimatedCompletionTime(): number {
     const pendingTasks = Array.from(this.tasks.values()).filter(task => task.status === 'pending')
     const runningTasks = Array.from(this.tasks.values()).filter(task => task.status === 'running')
-    
+
     if (pendingTasks.length === 0) {
       return 0
     }
 
     // Estimate based on completed tasks average time
-    const completedTasks = Array.from(this.tasks.values()).filter(task => 
-      task.status === 'completed' && task.startedAt && task.completedAt
+    const completedTasks = Array.from(this.tasks.values()).filter(
+      task => task.status === 'completed' && task.startedAt && task.completedAt
     )
 
     let averageTime = 30000 // Default 30 seconds
-    
+
     if (completedTasks.length > 0) {
       const totalTime = completedTasks.reduce((sum, task) => {
         return sum + (task.completedAt!.getTime() - task.startedAt!.getTime())
@@ -444,7 +443,7 @@ export class ExportQueue {
     // Consider concurrency
     const remainingSlots = Math.max(0, this.maxConcurrency - runningTasks.length)
     const parallelBatches = Math.ceil((pendingTasks.length - remainingSlots) / this.maxConcurrency)
-    
+
     return Math.max(0, parallelBatches * averageTime)
   }
 }

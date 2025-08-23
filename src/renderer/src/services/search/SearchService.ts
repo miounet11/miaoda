@@ -87,7 +87,7 @@ export class SearchService extends EventEmitter<{
   private searchHistory = new Map<string, SearchResult[]>()
   private maxRecentSearches = 50
   private maxCacheSize = 100
-  
+
   // Performance optimization
   private worker: Worker | null = null
   private pendingIndexQueue: Message[] = []
@@ -112,13 +112,13 @@ export class SearchService extends EventEmitter<{
   private async initialize() {
     // Initialize web worker for heavy computations
     this.initializeWorker()
-    
+
     // Load saved index from storage
     await this.loadIndex()
-    
+
     // Load recent searches
     await this.loadRecentSearches()
-    
+
     // Start batch processing
     this.startBatchProcessor()
   }
@@ -177,13 +177,13 @@ export class SearchService extends EventEmitter<{
         return indexed
       }
     `
-    
+
     const blob = new Blob([workerCode], { type: 'application/javascript' })
     const workerUrl = URL.createObjectURL(blob)
-    
+
     try {
       this.worker = new Worker(workerUrl)
-      this.worker.onerror = (error) => {
+      this.worker.onerror = error => {
         console.error('Search worker error:', error)
         this.worker = null
       }
@@ -203,21 +203,21 @@ export class SearchService extends EventEmitter<{
 
   private async processBatchIndex() {
     if (this.pendingIndexQueue.length === 0) return
-    
+
     this.isIndexing = true
     const batch = this.pendingIndexQueue.splice(0, this.indexBatchSize)
-    
+
     try {
       for (const message of batch) {
         const index = this.createMessageIndex(message)
         this.searchIndex.set(message.id, index)
         this.updateReverseIndex(message.id, index.tokens)
       }
-      
+
       this.searchStats.indexedMessages = this.searchIndex.size
       this.searchStats.lastUpdated = new Date()
       this.emit('index-updated', this.searchStats)
-      
+
       // Save index periodically
       if (this.searchIndex.size % 500 === 0) {
         await this.saveIndex()
@@ -231,7 +231,7 @@ export class SearchService extends EventEmitter<{
   async indexMessage(message: Message): Promise<void> {
     // Add to batch queue for performance
     this.pendingIndexQueue.push(message)
-    
+
     // For immediate indexing of single messages
     if (this.pendingIndexQueue.length === 1 && !this.isIndexing) {
       await this.processBatchIndex()
@@ -240,17 +240,17 @@ export class SearchService extends EventEmitter<{
 
   async indexMessages(messages: Message[]): Promise<void> {
     const startTime = Date.now()
-    
+
     try {
       for (const message of messages) {
         await this.indexMessage(message)
       }
-      
+
       // Save index periodically
       if (messages.length > 10) {
         await this.saveIndex()
       }
-      
+
       console.log(`Indexed ${messages.length} messages in ${Date.now() - startTime}ms`)
     } catch (error) {
       console.error('Failed to index messages:', error)
@@ -261,7 +261,7 @@ export class SearchService extends EventEmitter<{
     const content = message.content || ''
     const normalizedContent = this.normalizeText(content)
     const tokens = this.tokenize(normalizedContent)
-    
+
     return {
       messageId: message.id,
       chatId: message.chatId || '',
@@ -284,7 +284,7 @@ export class SearchService extends EventEmitter<{
         this.reverseIndex.delete(token)
       }
     }
-    
+
     // Add new tokens
     for (const token of tokens) {
       if (!this.reverseIndex.has(token)) {
@@ -305,7 +305,7 @@ export class SearchService extends EventEmitter<{
   private tokenize(text: string): string[] {
     // Split on whitespace and punctuation
     const tokens = text.split(/[\s\p{P}]+/u).filter(token => token.length > 0)
-    
+
     // Add n-grams for better fuzzy matching
     const ngrams: string[] = []
     for (const token of tokens) {
@@ -315,14 +315,14 @@ export class SearchService extends EventEmitter<{
         }
       }
     }
-    
+
     return [...tokens, ...ngrams]
   }
 
   // Search functionality
   async search(query: SearchQuery): Promise<SearchResult[]> {
     const startTime = Date.now()
-    
+
     try {
       // Check cache first
       const cacheKey = this.getCacheKey(query)
@@ -389,10 +389,10 @@ export class SearchService extends EventEmitter<{
 
     for (const [messageId, index] of this.searchIndex) {
       const score = this.calculateRelevanceScore(index, searchTerms, query.options)
-      
+
       if (score > 0) {
         const matches = this.findMatches(index, searchTerms, query.options)
-        
+
         results.push({
           message: this.getMessageFromIndex(index),
           score,
@@ -443,15 +443,13 @@ export class SearchService extends EventEmitter<{
   }
 
   private calculateRelevanceScore(
-    index: SearchIndex, 
-    searchTerms: string[], 
+    index: SearchIndex,
+    searchTerms: string[],
     options: SearchOptions = {}
   ): number {
     let score = 0
     const content = options.caseSensitive ? index.content : index.normalizedContent
-    const tokens = options.caseSensitive ? 
-      this.tokenize(index.content) : 
-      index.tokens
+    const tokens = options.caseSensitive ? this.tokenize(index.content) : index.tokens
 
     for (const term of searchTerms) {
       if (options.useRegex) {
@@ -468,8 +466,10 @@ export class SearchService extends EventEmitter<{
           }
         }
       } else if (options.wholeWords) {
-        const regex = new RegExp(`\\b${this.escapeRegex(term)}\\b`, 
-          options.caseSensitive ? 'g' : 'gi')
+        const regex = new RegExp(
+          `\\b${this.escapeRegex(term)}\\b`,
+          options.caseSensitive ? 'g' : 'gi'
+        )
         const matches = content.match(regex)
         if (matches) {
           score += matches.length * 1.5 // Whole word matches get bonus
@@ -489,8 +489,8 @@ export class SearchService extends EventEmitter<{
   }
 
   private findMatches(
-    index: SearchIndex, 
-    searchTerms: string[], 
+    index: SearchIndex,
+    searchTerms: string[],
     options: SearchOptions = {}
   ): SearchMatch[] {
     const matches: SearchMatch[] = []
@@ -514,9 +514,9 @@ export class SearchService extends EventEmitter<{
           // Invalid regex, skip
         }
       } else {
-        const regex = options.wholeWords ? 
-          new RegExp(`\\b${this.escapeRegex(term)}\\b`, options.caseSensitive ? 'g' : 'gi') :
-          new RegExp(this.escapeRegex(term), options.caseSensitive ? 'g' : 'gi')
+        const regex = options.wholeWords
+          ? new RegExp(`\\b${this.escapeRegex(term)}\\b`, options.caseSensitive ? 'g' : 'gi')
+          : new RegExp(this.escapeRegex(term), options.caseSensitive ? 'g' : 'gi')
 
         let match
         while ((match = regex.exec(content)) !== null) {
@@ -588,9 +588,7 @@ export class SearchService extends EventEmitter<{
   }
 
   private highlightText(text: string, start: number, end: number): string {
-    return text.slice(0, start) + 
-           '<mark>' + text.slice(start, end) + '</mark>' + 
-           text.slice(end)
+    return text.slice(0, start) + '<mark>' + text.slice(start, end) + '</mark>' + text.slice(end)
   }
 
   private escapeRegex(text: string): string {
@@ -598,10 +596,9 @@ export class SearchService extends EventEmitter<{
   }
 
   private applyFilters(results: SearchResult[], filters: SearchFilters): SearchResult[] {
-    return results.filter(result => this.matchesFilters(
-      this.searchIndex.get(result.message.id)!, 
-      filters
-    ))
+    return results.filter(result =>
+      this.matchesFilters(this.searchIndex.get(result.message.id)!, filters)
+    )
   }
 
   private matchesFilters(index: SearchIndex, filters: SearchFilters): boolean {
@@ -733,11 +730,11 @@ export class SearchService extends EventEmitter<{
       const saved = localStorage.getItem('miaoda-search-index')
       if (saved) {
         const data = JSON.parse(saved)
-        
+
         // Reconstruct Map from saved data
         for (const [id, index] of Object.entries(data.index || {})) {
           this.searchIndex.set(id, {
-            ...index as SearchIndex,
+            ...(index as SearchIndex),
             timestamp: new Date((index as any).timestamp)
           })
         }
@@ -850,7 +847,7 @@ export class SearchService extends EventEmitter<{
 
   // Worker search for performance
   private async workerSearch(query: SearchQuery, startTime: number): Promise<SearchResult[]> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (!this.worker) {
         resolve(this.textSearch(query))
         return
@@ -859,32 +856,34 @@ export class SearchService extends EventEmitter<{
       const handler = (e: MessageEvent) => {
         if (e.data.type === 'searchResults') {
           this.worker!.removeEventListener('message', handler)
-          
+
           // Convert worker results to SearchResult format
           const results = e.data.data.map((r: any) => ({
             message: this.getMessageFromIndex(r.item),
             score: r.score,
             matches: []
           }))
-          
+
           // Apply filters and complete processing
           const filtered = this.applyFilters(results, query.filters)
           const sorted = this.sortResults(filtered, query.options)
-          const limited = query.options.maxResults ? sorted.slice(0, query.options.maxResults) : sorted
-          
+          const limited = query.options.maxResults
+            ? sorted.slice(0, query.options.maxResults)
+            : sorted
+
           // Update stats and cache
           this.searchStats.searchTime = Date.now() - startTime
           this.searchStats.resultCount = limited.length
           this.cacheResults(this.getCacheKey(query), limited)
           this.addToRecentSearches(query)
-          
+
           this.emit('search-completed', limited, query, this.searchStats)
           resolve(limited)
         }
       }
 
       this.worker.addEventListener('message', handler)
-      
+
       // Send search request to worker
       const indexData = Object.fromEntries(
         Array.from(this.searchIndex.entries()).map(([id, index]) => [
@@ -897,7 +896,7 @@ export class SearchService extends EventEmitter<{
           }
         ])
       )
-      
+
       this.worker.postMessage({
         type: 'search',
         data: {
@@ -914,23 +913,23 @@ export class SearchService extends EventEmitter<{
     try {
       // Use backend for complex searches or when index is not complete
       const backendResults = await backendSearchService.searchMessages(query)
-      
+
       // Update local index with results
       for (const result of backendResults) {
         if (!this.searchIndex.has(result.message.id)) {
           await this.indexMessage(result.message)
         }
       }
-      
+
       // Cache results
       const cacheKey = this.getCacheKey(query)
       this.cacheResults(cacheKey, backendResults)
-      
+
       // Add to recent searches
       this.addToRecentSearches(query)
-      
+
       this.emit('search-completed', backendResults, query, this.searchStats)
-      
+
       return backendResults
     } catch (error) {
       this.emit('search-error', error as Error, query)
@@ -941,43 +940,43 @@ export class SearchService extends EventEmitter<{
   // Hybrid search - uses both local and backend
   async hybridSearch(query: SearchQuery): Promise<SearchResult[]> {
     const startTime = Date.now()
-    
+
     try {
       // Run both searches in parallel
       const [localResults, backendResults] = await Promise.all([
         this.search(query).catch(() => []),
         this.searchWithBackend(query).catch(() => [])
       ])
-      
+
       // Merge and deduplicate results
       const resultMap = new Map<string, SearchResult>()
-      
+
       // Add backend results first (more authoritative)
       for (const result of backendResults) {
         resultMap.set(result.message.id, result)
       }
-      
+
       // Add local results if not already present
       for (const result of localResults) {
         if (!resultMap.has(result.message.id)) {
           resultMap.set(result.message.id, result)
         }
       }
-      
+
       // Convert back to array and sort
       let results = Array.from(resultMap.values())
       results = this.sortResults(results, query.options)
-      
+
       // Limit results
       if (query.options.maxResults) {
         results = results.slice(0, query.options.maxResults)
       }
-      
+
       this.searchStats.searchTime = Date.now() - startTime
       this.searchStats.resultCount = results.length
-      
+
       this.emit('search-completed', results, query, this.searchStats)
-      
+
       return results
     } catch (error) {
       this.emit('search-error', error as Error, query)
@@ -989,12 +988,12 @@ export class SearchService extends EventEmitter<{
   destroy(): void {
     this.saveIndex()
     this.saveRecentSearches()
-    
+
     if (this.worker) {
       this.worker.terminate()
       this.worker = null
     }
-    
+
     this.clear()
   }
 }

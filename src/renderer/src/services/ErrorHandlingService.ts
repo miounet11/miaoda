@@ -47,7 +47,7 @@ export class ErrorHandlingService {
    */
   private setupGlobalHandlers() {
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       this.handleError(new Error(event.reason), {
         component: 'global',
         action: 'unhandledRejection'
@@ -56,7 +56,7 @@ export class ErrorHandlingService {
     })
 
     // Handle global errors
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       this.handleError(event.error || new Error(event.message), {
         component: 'global',
         action: 'globalError',
@@ -97,21 +97,21 @@ export class ErrorHandlingService {
     recovery?: () => Promise<void>
   ): Promise<void> {
     const errorReport = this.createErrorReport(error, context, recovery)
-    
+
     // Log the error
     this.logError(errorReport)
-    
+
     // Add to queue for batch reporting
     this.errorQueue.push(errorReport)
-    
+
     // Show user-friendly message
     this.showUserMessage(errorReport)
-    
+
     // Attempt recovery if provided
     if (recovery) {
       await this.attemptRecovery(errorReport)
     }
-    
+
     // Report to backend if critical
     if (errorReport.severity === 'critical' || errorReport.severity === 'high') {
       await this.reportToBackend(errorReport)
@@ -128,7 +128,7 @@ export class ErrorHandlingService {
   ): ErrorReport {
     const id = this.generateErrorId()
     const severity = this.assessSeverity(error, context)
-    
+
     return {
       id,
       timestamp: new Date(),
@@ -148,22 +148,22 @@ export class ErrorHandlingService {
     if (error.message.includes('network') || error.message.includes('fetch')) {
       return 'low'
     }
-    
+
     // Authentication errors
     if (error.message.includes('auth') || error.message.includes('401')) {
       return 'medium'
     }
-    
+
     // Database errors
     if (error.message.includes('database') || error.message.includes('sqlite')) {
       return 'high'
     }
-    
+
     // Critical system errors
     if (context.component === 'global' || error.message.includes('critical')) {
       return 'critical'
     }
-    
+
     return 'medium'
   }
 
@@ -179,7 +179,7 @@ export class ErrorHandlingService {
       stack: report.error.stack,
       metadata: report.context.metadata
     }
-    
+
     switch (report.severity) {
       case 'critical':
       case 'high':
@@ -199,14 +199,14 @@ export class ErrorHandlingService {
    */
   private showUserMessage(report: ErrorReport) {
     if (!this.toastStore) return
-    
+
     const messages = {
       network: 'Network connection issue. Please check your internet connection.',
       auth: 'Authentication failed. Please log in again.',
       database: 'Data access error. Please try again.',
       default: 'An unexpected error occurred. Please try again.'
     }
-    
+
     let message = messages.default
     if (report.error.message.includes('network')) {
       message = messages.network
@@ -215,16 +215,18 @@ export class ErrorHandlingService {
     } else if (report.error.message.includes('database')) {
       message = messages.database
     }
-    
+
     this.toastStore.showToast({
       title: 'Error',
       message,
       type: report.severity === 'critical' || report.severity === 'high' ? 'error' : 'warning',
       duration: 5000,
-      action: report.recovery ? {
-        label: 'Retry',
-        handler: () => this.attemptRecovery(report)
-      } : undefined
+      action: report.recovery
+        ? {
+            label: 'Retry',
+            handler: () => this.attemptRecovery(report)
+          }
+        : undefined
     })
   }
 
@@ -233,7 +235,7 @@ export class ErrorHandlingService {
    */
   private async attemptRecovery(report: ErrorReport): Promise<void> {
     if (!report.recovery) return
-    
+
     const attempts = this.retryAttempts.get(report.id) || 0
     if (attempts >= this.maxRetries) {
       logger.error('Max retry attempts reached', report.context.component || 'unknown', {
@@ -242,9 +244,9 @@ export class ErrorHandlingService {
       })
       return
     }
-    
+
     this.retryAttempts.set(report.id, attempts + 1)
-    
+
     try {
       await report.recovery()
       logger.info('Error recovery successful', report.context.component || 'unknown', {
@@ -258,11 +260,14 @@ export class ErrorHandlingService {
         attempts: attempts + 1,
         recoveryError
       })
-      
+
       // Exponential backoff for next retry
-      setTimeout(() => {
-        this.attemptRecovery(report)
-      }, Math.pow(2, attempts) * 1000)
+      setTimeout(
+        () => {
+          this.attemptRecovery(report)
+        },
+        Math.pow(2, attempts) * 1000
+      )
     }
   }
 
@@ -309,13 +314,13 @@ export class ErrorHandlingService {
       },
       byComponent: {} as Record<string, number>
     }
-    
+
     this.errorQueue.forEach(report => {
       stats.bySeverity[report.severity]++
       const component = report.context.component || 'unknown'
       stats.byComponent[component] = (stats.byComponent[component] || 0) + 1
     })
-    
+
     return stats
   }
 

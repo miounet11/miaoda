@@ -4,27 +4,19 @@
       <AlertTriangle :size="16" class="error-icon" />
       <span class="error-text">{{ error }}</span>
     </div>
-    
+
     <div class="error-actions">
-      <button
-        v-if="showRetry"
-        @click="$emit('retry')"
-        class="retry-button"
-        :disabled="retrying"
-      >
+      <button v-if="showRetry" @click="$emit('retry')" class="retry-button" :disabled="retrying">
         <RefreshCw :size="14" :class="{ 'animate-spin': retrying }" />
-        {{ retrying ? 'Retrying...' : 'Retry' }}
+        {{ retrying ? $t('common.retrying') : $t('common.retry') }}
       </button>
-      
-      <button
-        @click="showDetails = !showDetails"
-        class="details-button"
-      >
+
+      <button @click="showDetails = !showDetails" class="details-button">
         <ChevronDown :size="14" :class="{ 'rotate-180': showDetails }" />
-        Details
+        {{ $t('common.details') }}
       </button>
     </div>
-    
+
     <Transition name="details">
       <div v-if="showDetails" class="error-details">
         <pre>{{ errorDetails }}</pre>
@@ -36,6 +28,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AlertTriangle, RefreshCw, ChevronDown } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   error: string
@@ -181,7 +176,7 @@ const showDetails = ref(false)
   --text-secondary: hsl(215, 20%, 45%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --error: hsl(0, 84%, 70%);
   --error-bg: hsl(0, 84%, 15%);
   --error-border: hsl(0, 84%, 25%);

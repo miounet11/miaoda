@@ -107,12 +107,12 @@ const componentMap = {
 // Computed
 const contentComponent = computed(() => {
   const tabType = props.tab.type as keyof typeof componentMap
-  
+
   // Handle custom tab types
   if (tabType === 'custom' && props.tab.data?.component) {
     return props.tab.data.component
   }
-  
+
   return componentMap[tabType] || ChatView // Default to ChatView
 })
 
@@ -137,28 +137,28 @@ const componentProps = computed(() => {
         messages: props.tab.data?.messages || [],
         model: props.tab.data?.model || 'claude-3-5-sonnet'
       }
-    
+
     case 'settings':
       return {
         ...baseProps,
         section: props.tab.data?.section || 'general',
         searchQuery: props.tab.data?.searchQuery || ''
       }
-    
+
     case 'tools':
       return {
         ...baseProps,
         selectedTool: props.tab.data?.selectedTool,
         toolCategory: props.tab.data?.category || 'all'
       }
-    
+
     case 'plugins':
       return {
         ...baseProps,
         selectedPlugin: props.tab.data?.selectedPlugin,
         pluginAction: props.tab.data?.action || 'browse'
       }
-    
+
     case 'file':
       return {
         ...baseProps,
@@ -166,21 +166,21 @@ const componentProps = computed(() => {
         fileType: props.tab.data?.fileType,
         readOnly: props.tab.data?.readOnly || false
       }
-    
+
     case 'browser':
       return {
         ...baseProps,
         url: props.tab.data?.url || 'about:blank',
         allowNavigation: props.tab.data?.allowNavigation !== false
       }
-    
+
     case 'terminal':
       return {
         ...baseProps,
         workingDirectory: props.tab.data?.workingDirectory,
         shellType: props.tab.data?.shellType || 'bash'
       }
-    
+
     case 'notes':
       return {
         ...baseProps,
@@ -188,7 +188,7 @@ const componentProps = computed(() => {
         noteContent: props.tab.data?.content || '',
         noteFormat: props.tab.data?.format || 'markdown'
       }
-    
+
     default:
       return baseProps
   }
@@ -331,7 +331,7 @@ const isTabVisible = ref(true)
 
 const handleVisibilityChange = () => {
   isTabVisible.value = !document.hidden
-  
+
   // Pause/resume heavy operations based on tab visibility
   if (isTabVisible.value) {
     startAutoSave()
@@ -345,7 +345,7 @@ onMounted(() => {
   document.addEventListener('keydown', handleKeyDown)
   document.addEventListener('visibilitychange', handleVisibilityChange)
   startAutoSave()
-  
+
   // Set initial title if not set
   if (!props.tab.title || props.tab.title === 'New Tab') {
     const defaultTitles = {
@@ -358,7 +358,7 @@ onMounted(() => {
       terminal: 'Terminal',
       notes: 'Notes'
     }
-    
+
     const defaultTitle = defaultTitles[props.tab.type as keyof typeof defaultTitles] || 'New Tab'
     updateTabTitle(defaultTitle)
   }
@@ -371,19 +371,26 @@ onUnmounted(() => {
 })
 
 // Watch for tab changes
-watch(() => props.tab.type, () => {
-  // Reset state when tab type changes
-  error.value = null
-  isLoading.value = false
-  retryCount.value = 0
-})
-
-watch(() => props.tab.data, (newData, oldData) => {
-  // Handle data changes that might require component updates
-  if (JSON.stringify(newData) !== JSON.stringify(oldData)) {
-    // Component will re-render due to componentProps computed property
+watch(
+  () => props.tab.type,
+  () => {
+    // Reset state when tab type changes
+    error.value = null
+    isLoading.value = false
+    retryCount.value = 0
   }
-}, { deep: true })
+)
+
+watch(
+  () => props.tab.data,
+  (newData, oldData) => {
+    // Handle data changes that might require component updates
+    if (JSON.stringify(newData) !== JSON.stringify(oldData)) {
+      // Component will re-render due to componentProps computed property
+    }
+  },
+  { deep: true }
+)
 
 // Expose methods for parent components
 defineExpose({
@@ -520,7 +527,7 @@ defineExpose({
   .debug-panel {
     @apply bottom-2 right-2 left-2 max-w-none;
   }
-  
+
   .error-actions {
     @apply flex-col;
   }
@@ -531,7 +538,7 @@ defineExpose({
   .tab-content-modified::before {
     @apply w-2;
   }
-  
+
   .error-icon {
     @apply text-red-600;
   }
@@ -542,8 +549,9 @@ defineExpose({
   .loading-spinner {
     animation: none;
   }
-  
-  .retry-btn, .close-btn {
+
+  .retry-btn,
+  .close-btn {
     transition: none;
   }
 }
@@ -553,8 +561,9 @@ defineExpose({
   .debug-panel {
     display: none;
   }
-  
-  .tab-error, .tab-loading {
+
+  .tab-error,
+  .tab-loading {
     display: none;
   }
 }

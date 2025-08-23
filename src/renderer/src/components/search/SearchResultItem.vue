@@ -6,7 +6,7 @@
         <div class="role-indicator" :class="`role-${result.message.role}`">
           <component :is="getRoleIcon(result.message.role)" :size="16" />
         </div>
-        
+
         <div class="message-meta">
           <span class="message-role">{{ formatRole(result.message.role) }}</span>
           <span class="message-time">{{ formatTime(result.message.timestamp) }}</span>
@@ -17,32 +17,24 @@
       </div>
 
       <div class="result-actions">
-        <div v-if="isSemanticResult" class="similarity-score" :title="`Similarity: ${(result.score * 100).toFixed(1)}%`">
+        <div
+          v-if="isSemanticResult"
+          class="similarity-score"
+          :title="`Similarity: ${(result.score * 100).toFixed(1)}%`"
+        >
           <Brain :size="14" />
           <span class="score-value">{{ (result.score * 100).toFixed(0) }}%</span>
         </div>
 
-        <button
-          @click="findSimilar"
-          class="action-btn similar-btn"
-          title="Find Similar Messages"
-        >
+        <button @click="findSimilar" class="action-btn similar-btn" title="Find Similar Messages">
           <Search :size="14" />
         </button>
 
-        <button
-          @click="copyContent"
-          class="action-btn copy-btn"
-          title="Copy Content"
-        >
+        <button @click="copyContent" class="action-btn copy-btn" title="Copy Content">
           <Copy :size="14" />
         </button>
 
-        <button
-          @click="goToMessage"
-          class="action-btn goto-btn"
-          title="Go to Message"
-        >
+        <button @click="goToMessage" class="action-btn goto-btn" title="Go to Message">
           <ExternalLink :size="14" />
         </button>
       </div>
@@ -58,9 +50,9 @@
           v-html="match.highlighted"
         />
       </div>
-      
+
       <div v-else class="full-content" v-html="highlightedContent" />
-      
+
       <!-- Content preview for long messages -->
       <div v-if="isTruncated" class="content-preview">
         <button @click.stop="toggleExpanded" class="expand-toggle">
@@ -76,7 +68,7 @@
         <Paperclip :size="14" />
         <span>{{ result.message.attachments.length }} attachment(s)</span>
       </div>
-      
+
       <div class="attachment-list">
         <div
           v-for="(attachment, index) in result.message.attachments.slice(0, 3)"
@@ -86,7 +78,7 @@
           <component :is="getAttachmentIcon(attachment)" :size="14" />
           <span class="attachment-name">{{ getAttachmentName(attachment) }}</span>
         </div>
-        
+
         <div v-if="result.message.attachments.length > 3" class="more-attachments">
           +{{ result.message.attachments.length - 3 }} more
         </div>
@@ -102,7 +94,7 @@
           <X :size="12" />
         </button>
       </div>
-      
+
       <div class="context-list">
         <div
           v-for="contextMsg in contextMessages.slice(0, 2)"
@@ -124,15 +116,11 @@
     <div v-if="result.message.metadata || result.message.tags?.length" class="message-metadata">
       <div v-if="result.message.tags?.length" class="message-tags">
         <Tag :size="12" />
-        <span
-          v-for="tag in result.message.tags.slice(0, 3)"
-          :key="tag"
-          class="tag-item"
-        >
+        <span v-for="tag in result.message.tags.slice(0, 3)" :key="tag" class="tag-item">
           {{ tag }}
         </span>
       </div>
-      
+
       <div v-if="result.message.error" class="error-indicator">
         <AlertTriangle :size="12" />
         <span class="error-text">{{ result.message.error }}</span>
@@ -145,22 +133,21 @@
         <Lightbulb :size="14" />
         <span>AI Insights</span>
       </div>
-      
+
       <div class="insights-content">
         <div v-if="semanticInsights.topics?.length" class="insight-topics">
           <span class="insight-label">Topics:</span>
-          <span
-            v-for="topic in semanticInsights.topics.slice(0, 3)"
-            :key="topic"
-            class="topic-tag"
-          >
+          <span v-for="topic in semanticInsights.topics.slice(0, 3)" :key="topic" class="topic-tag">
             {{ topic }}
           </span>
         </div>
-        
+
         <div v-if="semanticInsights.sentiment" class="insight-sentiment">
           <span class="insight-label">Tone:</span>
-          <span class="sentiment-value" :class="`sentiment-${semanticInsights.sentiment.toLowerCase()}`">
+          <span
+            class="sentiment-value"
+            :class="`sentiment-${semanticInsights.sentiment.toLowerCase()}`"
+          >
             {{ semanticInsights.sentiment }}
           </span>
         </div>
@@ -172,9 +159,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  Brain, Search, Copy, ExternalLink, ChevronUp, ChevronDown,
-  Paperclip, File, Image, MessageSquare, X, Tag, AlertTriangle,
-  Lightbulb, User, Bot, Settings
+  Brain,
+  Search,
+  Copy,
+  ExternalLink,
+  ChevronUp,
+  ChevronDown,
+  Paperclip,
+  File,
+  Image,
+  MessageSquare,
+  X,
+  Tag,
+  AlertTriangle,
+  Lightbulb,
+  User,
+  Bot,
+  Settings
 } from 'lucide-vue-next'
 import type { SearchResult } from '@main/db/searchTypes'
 
@@ -201,17 +202,18 @@ const contextMessages = ref<any[]>([])
 const semanticInsights = ref<any>(null)
 
 // Computed
-const isSemanticResult = computed(() => 
-  props.searchType === 'semantic' || (props.searchType === 'hybrid' && props.result.score > 0.5)
+const isSemanticResult = computed(
+  () =>
+    props.searchType === 'semantic' || (props.searchType === 'hybrid' && props.result.score > 0.5)
 )
 
 const highlightedContent = computed(() => {
   if (!props.highlightQuery) return props.result.message.content
-  
+
   const query = props.highlightQuery.toLowerCase()
   const content = props.result.message.content
   const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  
+
   return content.replace(regex, '<mark class="search-highlight">$1</mark>')
 })
 
@@ -230,10 +232,14 @@ const truncatedContent = computed(() => {
 // Methods
 const getRoleIcon = (role: string) => {
   switch (role) {
-    case 'user': return User
-    case 'assistant': return Bot
-    case 'system': return Settings
-    default: return MessageSquare
+    case 'user':
+      return User
+    case 'assistant':
+      return Bot
+    case 'system':
+      return Settings
+    default:
+      return MessageSquare
   }
 }
 
@@ -244,14 +250,18 @@ const formatRole = (role: string) => {
 const formatTime = (timestamp: Date) => {
   const now = new Date()
   const diff = now.getTime() - timestamp.getTime()
-  
-  if (diff < 60000) { // < 1 minute
+
+  if (diff < 60000) {
+    // < 1 minute
     return 'Just now'
-  } else if (diff < 3600000) { // < 1 hour
+  } else if (diff < 3600000) {
+    // < 1 hour
     return `${Math.floor(diff / 60000)}m ago`
-  } else if (diff < 86400000) { // < 1 day
+  } else if (diff < 86400000) {
+    // < 1 day
     return `${Math.floor(diff / 3600000)}h ago`
-  } else if (diff < 604800000) { // < 1 week
+  } else if (diff < 604800000) {
+    // < 1 week
     return `${Math.floor(diff / 86400000)}d ago`
   } else {
     return timestamp.toLocaleDateString()
@@ -260,7 +270,7 @@ const formatTime = (timestamp: Date) => {
 
 const getAttachmentIcon = (attachment: any) => {
   if (!attachment.type) return File
-  
+
   if (attachment.type.startsWith('image/')) return Image
   return File
 }
@@ -302,7 +312,7 @@ const loadContext = async () => {
 
 const generateSemanticInsights = async () => {
   if (!isSemanticResult.value) return
-  
+
   // This would generate AI insights about the message
   // For now, we'll create mock insights
   semanticInsights.value = {
@@ -536,7 +546,8 @@ onMounted(() => {
 }
 
 @keyframes semanticGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
   50% {

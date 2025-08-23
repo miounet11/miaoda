@@ -56,17 +56,18 @@ export class ClientLogger {
     const timestamp = new Date().toISOString()
     const contextStr = context ? `[${context}] ` : ''
     const fullMessage = `${timestamp} ${level} ${contextStr}${message}`
-    
+
     // Check if we should suppress this log message due to spam
     if (errorBoundaryService && (level === 'ERROR' || level === 'WARN')) {
-      const shouldSuppress = errorBoundaryService.shouldSuppressError ? 
-        errorBoundaryService.shouldSuppressError(`logger:${level}`, message) : false
-      
+      const shouldSuppress = errorBoundaryService.shouldSuppressError
+        ? errorBoundaryService.shouldSuppressError(`logger:${level}`, message)
+        : false
+
       if (shouldSuppress) {
         return
       }
     }
-    
+
     // Log based on level
     if (level === 'ERROR') {
       console.error(fullMessage, data || '')
@@ -76,7 +77,7 @@ export class ClientLogger {
       console.log(fullMessage, data || '')
     }
   }
-  
+
   // New method to safely log errors without triggering spam protection
   safeError(message: string, context?: string, error?: any): void {
     try {
@@ -86,12 +87,12 @@ export class ClientLogger {
       console.error('Logger failed:', logError, 'Original message:', message)
     }
   }
-  
+
   // Method to get error statistics from error boundary
   getErrorStats(): any {
     return errorBoundaryService?.getErrorStats?.() || { message: 'Error boundary not available' }
   }
-  
+
   // Method to clear error history
   clearErrorHistory(): void {
     errorBoundaryService?.clearErrorHistory?.()

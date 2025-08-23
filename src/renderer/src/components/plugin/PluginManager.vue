@@ -10,39 +10,39 @@
             <p class="header-subtitle">{{ $t('plugin.manageExtensions') }}</p>
           </div>
         </div>
-        
+
         <div class="header-actions">
           <button @click="refreshPlugins" class="action-btn" :disabled="isLoading">
             <RotateCcw :size="16" :class="{ 'animate-spin': isLoading }" />
             {{ $t('common.refresh') }}
           </button>
-          
+
           <button @click="showInstallDialog = true" class="action-btn primary">
             <Plus :size="16" />
             {{ $t('plugin.installPlugin') }}
           </button>
         </div>
       </div>
-      
+
       <!-- Stats -->
       <div class="stats-bar">
         <div class="stat-item">
           <span class="stat-label">{{ $t('plugin.totalPlugins') }}:</span>
           <span class="stat-value">{{ plugins.length }}</span>
         </div>
-        
+
         <div class="stat-item">
           <span class="stat-label">{{ $t('plugin.enabledPlugins') }}:</span>
           <span class="stat-value">{{ enabledCount }}</span>
         </div>
-        
+
         <div class="stat-item">
           <span class="stat-label">{{ $t('plugin.availableUpdates') }}:</span>
           <span class="stat-value">{{ updatesCount }}</span>
         </div>
       </div>
     </div>
-    
+
     <!-- Filters and Search -->
     <div class="manager-filters">
       <div class="search-container">
@@ -52,23 +52,23 @@
           type="text"
           :placeholder="$t('plugin.searchPlugins')"
           class="search-input"
-        >
+        />
       </div>
-      
+
       <div class="filter-tabs">
         <button
           v-for="filter in filterOptions"
           :key="filter.key"
           @click="activeFilter = filter.key"
           class="filter-tab"
-          :class="{ 'active': activeFilter === filter.key }"
+          :class="{ active: activeFilter === filter.key }"
         >
           <component :is="filter.icon" :size="16" />
           {{ filter.label }}
           <span v-if="filter.count > 0" class="filter-count">{{ filter.count }}</span>
         </button>
       </div>
-      
+
       <div class="sort-options">
         <select v-model="sortBy" class="sort-select">
           <option value="name">{{ $t('plugin.sortByName') }}</option>
@@ -78,14 +78,14 @@
         </select>
       </div>
     </div>
-    
+
     <!-- Plugin List -->
     <div class="plugin-list">
       <div v-if="isLoading" class="loading-state">
         <Loader :size="32" class="animate-spin" />
         <p>{{ $t('plugin.loadingPlugins') }}</p>
       </div>
-      
+
       <div v-else-if="filteredPlugins.length === 0" class="empty-state">
         <Package :size="48" class="empty-icon" />
         <h3>{{ $t('plugin.noPluginsFound') }}</h3>
@@ -94,7 +94,7 @@
           {{ $t('plugin.browsePlugins') }}
         </button>
       </div>
-      
+
       <div v-else class="plugin-grid">
         <PluginCard
           v-for="plugin in filteredPlugins"
@@ -108,7 +108,7 @@
         />
       </div>
     </div>
-    
+
     <!-- Install Dialog -->
     <PluginInstallDialog
       v-if="showInstallDialog"
@@ -116,7 +116,7 @@
       @close="showInstallDialog = false"
       @install="onPluginInstall"
     />
-    
+
     <!-- Plugin Details Modal -->
     <PluginDetailsModal
       v-if="selectedPlugin"
@@ -127,7 +127,7 @@
       @configure="configurePlugin"
       @uninstall="uninstallPlugin"
     />
-    
+
     <!-- Plugin Settings Modal -->
     <PluginSettingsModal
       v-if="configuringPlugin"
@@ -142,11 +142,25 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Puzzle, RotateCcw, Plus, Search, Package, Loader,
-  Grid, List, Filter, Settings, Download, Trash2
+  Puzzle,
+  RotateCcw,
+  Plus,
+  Search,
+  Package,
+  Loader,
+  Grid,
+  List,
+  Filter,
+  Settings,
+  Download,
+  Trash2
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { pluginManager, type PluginInstance, type PluginCategory } from '@renderer/src/services/plugin/PluginManager'
+import {
+  pluginManager,
+  type PluginInstance,
+  type PluginCategory
+} from '@renderer/src/services/plugin/PluginManager'
 import PluginCard from './PluginCard.vue'
 import PluginInstallDialog from './PluginInstallDialog.vue'
 import PluginDetailsModal from './PluginDetailsModal.vue'
@@ -202,11 +216,12 @@ const filteredPlugins = computed(() => {
   // Apply text search
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(plugin => 
-      plugin.manifest.name.toLowerCase().includes(query) ||
-      plugin.manifest.description.toLowerCase().includes(query) ||
-      plugin.manifest.author.toLowerCase().includes(query) ||
-      plugin.manifest.keywords?.some(k => k.toLowerCase().includes(query))
+    filtered = filtered.filter(
+      plugin =>
+        plugin.manifest.name.toLowerCase().includes(query) ||
+        plugin.manifest.description.toLowerCase().includes(query) ||
+        plugin.manifest.author.toLowerCase().includes(query) ||
+        plugin.manifest.keywords?.some(k => k.toLowerCase().includes(query))
     )
   }
 
@@ -512,8 +527,12 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -521,19 +540,19 @@ onUnmounted(() => {
   .header-content {
     @apply flex-col gap-4;
   }
-  
+
   .stats-bar {
     @apply flex-wrap gap-4;
   }
-  
+
   .manager-filters {
     @apply flex-col gap-4;
   }
-  
+
   .filter-tabs {
     @apply flex-wrap;
   }
-  
+
   .plugin-grid {
     @apply grid-cols-1;
   }
@@ -544,7 +563,7 @@ onUnmounted(() => {
   .plugin-manager {
     @apply border border-border;
   }
-  
+
   .filter-tab.active {
     @apply ring-2 ring-primary;
   }

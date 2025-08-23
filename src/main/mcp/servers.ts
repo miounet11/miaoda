@@ -11,28 +11,18 @@ export const builtInServers: MCPServer[] = [
   {
     name: 'filesystem',
     command: 'npx',
-    args: [
-      '-y',
-      '@modelcontextprotocol/server-filesystem',
-      join(homedir(), 'Documents')
-    ]
+    args: ['-y', '@modelcontextprotocol/server-filesystem', join(homedir(), 'Documents')]
   },
   {
     name: 'memory',
     command: 'npx',
-    args: [
-      '-y',
-      '@modelcontextprotocol/server-memory'
-    ]
+    args: ['-y', '@modelcontextprotocol/server-memory']
   },
   {
     name: 'context7',
     command: 'npx',
-    args: [
-      '-y',
-      '@upstash/context7-mcp'
-    ]
-  },
+    args: ['-y', '@upstash/context7-mcp']
+  }
 ]
 
 // User can add custom servers via settings

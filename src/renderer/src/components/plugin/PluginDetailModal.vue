@@ -1,24 +1,15 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="show"
-      class="modal-overlay"
-      @click.self="$emit('close')"
-    >
+    <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
       <div class="modal-container">
         <!-- Modal Header -->
         <div class="modal-header">
           <div class="header-left">
             <div class="plugin-icon-large">
-              <img
-                v-if="plugin.icon"
-                :src="plugin.icon"
-                :alt="plugin.name"
-                class="icon-image"
-              >
+              <img v-if="plugin.icon" :src="plugin.icon" :alt="plugin.name" class="icon-image" />
               <Package v-else :size="48" class="icon-default" />
             </div>
-            
+
             <div class="plugin-title-info">
               <div class="title-row">
                 <h1 class="plugin-title">{{ plugin.name }}</h1>
@@ -33,7 +24,7 @@
                   </span>
                 </div>
               </div>
-              
+
               <div class="plugin-meta">
                 <span class="author">by {{ plugin.author }}</span>
                 <span class="separator">•</span>
@@ -41,7 +32,7 @@
                 <span class="separator">•</span>
                 <span class="category">{{ plugin.category.name }}</span>
               </div>
-              
+
               <div class="plugin-stats">
                 <div class="stat-item">
                   <Star :size="16" class="star-icon" />
@@ -93,12 +84,12 @@
                 安装插件
               </button>
             </template>
-            
+
             <button @click="$emit('rate', plugin)" class="action-btn secondary">
               <Star :size="20" />
               评价
             </button>
-            
+
             <div class="pricing-info" v-if="plugin.pricing === 'paid'">
               <span class="price">${{ plugin.price }}</span>
               <span class="currency">{{ plugin.currency?.toUpperCase() }}</span>
@@ -134,7 +125,7 @@
                         class="screenshot-item"
                         @click="openScreenshot(index)"
                       >
-                        <img :src="screenshot" :alt="`Screenshot ${index + 1}`">
+                        <img :src="screenshot" :alt="`Screenshot ${index + 1}`" />
                       </div>
                     </div>
                   </div>
@@ -142,7 +133,10 @@
                   <!-- Description -->
                   <div class="description">
                     <h3 class="section-title">插件介绍</h3>
-                    <div class="description-content" v-html="formatDescription(plugin.description)" />
+                    <div
+                      class="description-content"
+                      v-html="formatDescription(plugin.description)"
+                    />
                   </div>
 
                   <!-- Features -->
@@ -217,11 +211,7 @@
                   <div class="info-card">
                     <h4 class="info-title">标签</h4>
                     <div class="tags-container">
-                      <span
-                        v-for="tag in plugin.tags"
-                        :key="tag"
-                        class="tag-item"
-                      >
+                      <span v-for="tag in plugin.tags" :key="tag" class="tag-item">
                         {{ tag }}
                       </span>
                     </div>
@@ -295,9 +285,23 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import {
-  Package, Shield, Sparkles, Star, Download, Calendar, X,
-  Trash2, Loader2, Settings, Check, ExternalLink, Github,
-  FileText, MessageCircle, Clock, Grid
+  Package,
+  Shield,
+  Sparkles,
+  Star,
+  Download,
+  Calendar,
+  X,
+  Trash2,
+  Loader2,
+  Settings,
+  Check,
+  ExternalLink,
+  Github,
+  FileText,
+  MessageCircle,
+  Clock,
+  Grid
 } from 'lucide-vue-next'
 
 import PluginReviews from './PluginReviews.vue'
@@ -348,19 +352,12 @@ const changeLog = computed(() => [
   {
     version: '2.1.0',
     date: '2024-01-15',
-    changes: [
-      '新增三角函数计算',
-      '优化界面响应速度',
-      '修复小数点精度问题'
-    ]
+    changes: ['新增三角函数计算', '优化界面响应速度', '修复小数点精度问题']
   },
   {
     version: '2.0.5',
     date: '2024-01-01',
-    changes: [
-      '支持科学计数法',
-      '添加历史记录功能'
-    ]
+    changes: ['支持科学计数法', '添加历史记录功能']
   }
 ])
 
@@ -647,7 +644,8 @@ const openScreenshot = (index: number) => {
   @apply text-sm mb-2;
 }
 
-.author-link, .permissions-link {
+.author-link,
+.permissions-link {
   @apply text-primary hover:underline;
 }
 

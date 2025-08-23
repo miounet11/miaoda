@@ -11,14 +11,18 @@
       >
         <!-- Enhanced Backdrop with Blur Animation -->
         <div class="absolute inset-0 bg-black/90 backdrop-blur-md transition-all duration-500" />
-        
+
         <!-- Enhanced Modal Content with Smooth Animations -->
-        <div class="relative w-full h-full max-w-7xl max-h-screen p-4 flex flex-col animate-modal-content">
+        <div
+          class="relative w-full h-full max-w-7xl max-h-screen p-4 flex flex-col animate-modal-content"
+        >
           <!-- Enhanced Header with Glass Morphism -->
           <div class="flex items-center justify-between mb-4 z-10 animate-header-slide">
             <!-- Enhanced Image Info -->
             <div class="flex items-center gap-3 text-white">
-              <div class="p-2 bg-white/10 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:scale-105">
+              <div
+                class="p-2 bg-white/10 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              >
                 <ImageIcon :size="20" class="animate-icon-float" />
               </div>
               <div class="animate-info-appear">
@@ -28,18 +32,23 @@
                   <span v-if="imageInfo.width && imageInfo.height" class="animate-dimensions-slide">
                     • {{ imageInfo.width }} × {{ imageInfo.height }}
                   </span>
-                  <span v-if="isAICapable" class="flex items-center gap-1 text-green-400 animate-ai-badge">
+                  <span
+                    v-if="isAICapable"
+                    class="flex items-center gap-1 text-green-400 animate-ai-badge"
+                  >
                     <Eye :size="12" class="animate-eye-sparkle" />
                     AI 可识别
                   </span>
                 </div>
               </div>
             </div>
-            
+
             <!-- Enhanced Actions with Morphing Buttons -->
             <div class="flex items-center gap-2 animate-actions-slide">
               <!-- Enhanced Zoom Controls -->
-              <div class="flex items-center gap-1 bg-white/10 rounded-lg p-1 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
+              <div
+                class="flex items-center gap-1 bg-white/10 rounded-lg p-1 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
+              >
                 <button
                   @click="zoomOut"
                   :disabled="scale <= minScale"
@@ -48,11 +57,13 @@
                 >
                   <ZoomOut :size="16" class="transition-transform duration-200" />
                 </button>
-                
-                <div class="px-3 py-2 text-sm text-white/90 font-mono min-w-[60px] text-center animate-zoom-value">
+
+                <div
+                  class="px-3 py-2 text-sm text-white/90 font-mono min-w-[60px] text-center animate-zoom-value"
+                >
                   {{ Math.round(scale * 100) }}%
                 </div>
-                
+
                 <button
                   @click="zoomIn"
                   :disabled="scale >= maxScale"
@@ -62,7 +73,7 @@
                   <ZoomIn :size="16" class="transition-transform duration-200" />
                 </button>
               </div>
-              
+
               <!-- Enhanced Action Buttons with Hover Effects -->
               <button
                 @click="resetZoom"
@@ -71,7 +82,7 @@
               >
                 <RotateCcw :size="16" class="animate-reset-spin" />
               </button>
-              
+
               <button
                 @click="fitToScreen"
                 class="action-btn p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
@@ -79,7 +90,7 @@
               >
                 <Maximize :size="16" class="animate-fit-pulse" />
               </button>
-              
+
               <button
                 @click="downloadImage"
                 class="action-btn p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
@@ -87,7 +98,7 @@
               >
                 <Download :size="16" class="animate-download-bounce" />
               </button>
-              
+
               <button
                 @click="close"
                 class="action-btn p-2 bg-white/10 hover:bg-red-500/20 rounded-lg text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
@@ -97,7 +108,7 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Enhanced Image Container with Advanced Interactions -->
           <div
             ref="imageContainerRef"
@@ -111,19 +122,23 @@
             :style="{ cursor: getCursor() }"
           >
             <!-- Enhanced Loading State -->
-            <div 
+            <div
               v-if="isLoading"
               class="absolute inset-0 flex items-center justify-center animate-loading-fade"
             >
               <div class="flex flex-col items-center gap-3 text-white">
                 <div class="relative">
-                  <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <div class="absolute inset-0 w-8 h-8 border-2 border-white/30 rounded-full animate-ping" />
+                  <div
+                    class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"
+                  />
+                  <div
+                    class="absolute inset-0 w-8 h-8 border-2 border-white/30 rounded-full animate-ping"
+                  />
                 </div>
                 <span class="text-sm animate-loading-text">加载中...</span>
               </div>
             </div>
-            
+
             <!-- Enhanced Error State -->
             <div
               v-else-if="hasError"
@@ -140,7 +155,7 @@
                 </button>
               </div>
             </div>
-            
+
             <!-- Enhanced Main Image with Smooth Transform -->
             <img
               v-else
@@ -161,8 +176,8 @@
               @load="onImageLoad"
               @error="onImageError"
               @dragstart.prevent
-            >
-            
+            />
+
             <!-- Enhanced Image Info Overlay -->
             <div
               v-if="scale > 1"
@@ -170,39 +185,57 @@
             >
               <div class="flex items-center gap-2">
                 <span class="opacity-70">位置:</span>
-                <span class="font-mono">{{ Math.round(translateX) }}, {{ Math.round(translateY) }}</span>
+                <span class="font-mono"
+                  >{{ Math.round(translateX) }}, {{ Math.round(translateY) }}</span
+                >
                 <span class="opacity-50">|</span>
                 <span class="opacity-70">缩放:</span>
                 <span class="font-mono text-primary">{{ Math.round(scale * 100) }}%</span>
               </div>
             </div>
           </div>
-          
+
           <!-- Enhanced Footer Info with Animations -->
-          <div class="flex items-center justify-between mt-4 text-sm text-white/70 animate-footer-slide">
+          <div
+            class="flex items-center justify-between mt-4 text-sm text-white/70 animate-footer-slide"
+          >
             <div class="flex items-center gap-4">
               <span class="flex items-center gap-1 animate-hint-float">
                 <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" />
                 按住拖拽移动
               </span>
-              <span class="flex items-center gap-1 animate-hint-float" style="animation-delay: 0.1s">
-                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.1s" />
+              <span
+                class="flex items-center gap-1 animate-hint-float"
+                style="animation-delay: 0.1s"
+              >
+                <span
+                  class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot"
+                  style="animation-delay: 0.1s"
+                />
                 滚轮缩放
               </span>
-              <span class="flex items-center gap-1 animate-hint-float" style="animation-delay: 0.2s">
-                <span class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot" style="animation-delay: 0.2s" />
+              <span
+                class="flex items-center gap-1 animate-hint-float"
+                style="animation-delay: 0.2s"
+              >
+                <span
+                  class="w-2 h-2 bg-white/50 rounded-full animate-hint-dot"
+                  style="animation-delay: 0.2s"
+                />
                 双击适应屏幕
               </span>
             </div>
             <div class="flex items-center gap-2 animate-kbd-bounce">
-              <kbd class="px-2 py-1 bg-white/10 rounded text-xs border border-white/20 hover:bg-white/20 transition-colors">
+              <kbd
+                class="px-2 py-1 bg-white/10 rounded text-xs border border-white/20 hover:bg-white/20 transition-colors"
+              >
                 Esc
               </kbd>
               <span>关闭</span>
             </div>
           </div>
         </div>
-        
+
         <!-- Enhanced Navigation Hint with Smooth Slides -->
         <div
           v-if="showNavigation && totalImages > 1"
@@ -217,7 +250,7 @@
             <ChevronLeft :size="24" class="animate-nav-arrow-left" />
           </button>
         </div>
-        
+
         <div
           v-if="showNavigation && totalImages > 1"
           class="absolute right-4 top-1/2 -translate-y-1/2 z-10 animate-nav-slide-right"
@@ -231,7 +264,7 @@
             <ChevronRight :size="24" class="animate-nav-arrow-right" />
           </button>
         </div>
-        
+
         <!-- Enhanced Image Counter with Morphing Animation -->
         <div
           v-if="totalImages > 1"
@@ -243,7 +276,7 @@
             <span class="font-mono opacity-80">{{ totalImages }}</span>
             <div class="w-px h-4 bg-white/30 mx-2" />
             <div class="flex gap-1">
-              <div 
+              <div
                 v-for="i in Math.min(totalImages, 5)"
                 :key="i"
                 class="w-1.5 h-1.5 rounded-full transition-all duration-300"
@@ -261,8 +294,17 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import {
-  X, ImageIcon, Eye, ZoomIn, ZoomOut, RotateCcw, Maximize,
-  Download, AlertCircle, ChevronLeft, ChevronRight
+  X,
+  ImageIcon,
+  Eye,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Maximize,
+  Download,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 
 interface Attachment {
@@ -338,11 +380,11 @@ const getCursor = () => {
 // Methods
 const formatFileSize = (bytes: number = 0): string => {
   if (bytes === 0) return '0 B'
-  
+
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
@@ -364,7 +406,7 @@ const zoomIn = () => {
 const zoomOut = () => {
   const newScale = Math.max(scale.value / 1.5, minScale)
   scale.value = newScale
-  
+
   // Reset pan if zoomed out completely
   if (newScale === minScale) {
     translateX.value = 0
@@ -380,13 +422,13 @@ const resetZoom = () => {
 
 const fitToScreen = () => {
   if (!imageRef.value || !imageContainerRef.value) return
-  
+
   const container = imageContainerRef.value.getBoundingClientRect()
   const image = imageRef.value
-  
+
   const containerAspect = container.width / container.height
   const imageAspect = image.naturalWidth / image.naturalHeight
-  
+
   let newScale = 1
   if (imageAspect > containerAspect) {
     // Image is wider than container
@@ -395,7 +437,7 @@ const fitToScreen = () => {
     // Image is taller than container
     newScale = container.height / image.naturalHeight
   }
-  
+
   scale.value = Math.min(newScale * 0.9, 1) // 90% of fit to leave some margin
   translateX.value = 0
   translateY.value = 0
@@ -410,21 +452,21 @@ const downloadImage = () => {
 const handleWheel = (event: WheelEvent) => {
   const delta = -event.deltaY
   const zoomFactor = delta > 0 ? 1.1 : 0.9
-  
+
   const newScale = Math.min(Math.max(scale.value * zoomFactor, minScale), maxScale)
-  
+
   if (newScale !== scale.value) {
     // Zoom towards mouse position
     const rect = imageContainerRef.value?.getBoundingClientRect()
     if (rect) {
       const mouseX = event.clientX - rect.left - rect.width / 2
       const mouseY = event.clientY - rect.top - rect.height / 2
-      
+
       const scaleDelta = newScale / scale.value
       translateX.value = mouseX - (mouseX - translateX.value) * scaleDelta
       translateY.value = mouseY - (mouseY - translateY.value) * scaleDelta
     }
-    
+
     scale.value = newScale
   }
 }
@@ -441,10 +483,10 @@ const handleMouseMove = (event: MouseEvent) => {
   if (isPanning.value) {
     const deltaX = event.clientX - lastMouseX.value
     const deltaY = event.clientY - lastMouseY.value
-    
+
     translateX.value += deltaX
     translateY.value += deltaY
-    
+
     lastMouseX.value = event.clientX
     lastMouseY.value = event.clientY
   }
@@ -520,13 +562,13 @@ const nextImage = () => {
 const onImageLoad = () => {
   isLoading.value = false
   hasError.value = false
-  
+
   if (imageRef.value) {
     imageInfo.value = {
       width: imageRef.value.naturalWidth,
       height: imageRef.value.naturalHeight
     }
-    
+
     // Auto fit large images
     nextTick(() => {
       fitToScreen()
@@ -542,29 +584,36 @@ const onImageError = () => {
 const retryLoad = () => {
   isLoading.value = true
   hasError.value = false
-  
+
   if (imageRef.value) {
     imageRef.value.src = imageRef.value.src
   }
 }
 
 // Reset state when attachment changes
-watch(() => props.attachment, (newAttachment) => {
-  if (newAttachment) {
-    isLoading.value = true
-    hasError.value = false
-    resetZoom()
-  }
-}, { immediate: true })
+watch(
+  () => props.attachment,
+  newAttachment => {
+    if (newAttachment) {
+      isLoading.value = true
+      hasError.value = false
+      resetZoom()
+    }
+  },
+  { immediate: true }
+)
 
 // Focus management
-watch(() => props.isVisible, (visible) => {
-  if (visible) {
-    nextTick(() => {
-      modalRef.value?.focus()
-    })
+watch(
+  () => props.isVisible,
+  visible => {
+    if (visible) {
+      nextTick(() => {
+        modalRef.value?.focus()
+      })
+    }
   }
-})
+)
 
 // Cleanup
 onMounted(() => {
@@ -632,7 +681,8 @@ onUnmounted(() => {
 }
 
 @keyframes iconFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
   }
   50% {
@@ -641,7 +691,8 @@ onUnmounted(() => {
 }
 
 @keyframes titleGlow {
-  0%, 100% {
+  0%,
+  100% {
     text-shadow: 0 0 0 rgba(255, 255, 255, 0);
   }
   50% {
@@ -696,7 +747,8 @@ onUnmounted(() => {
 }
 
 @keyframes eyeSparkle {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -771,12 +823,17 @@ onUnmounted(() => {
 }
 
 @keyframes resetSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
 }
 
 @keyframes fitPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -785,7 +842,8 @@ onUnmounted(() => {
 }
 
 @keyframes downloadBounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -794,8 +852,12 @@ onUnmounted(() => {
 }
 
 @keyframes closeRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(90deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(90deg);
+  }
 }
 
 .animate-actions-slide {
@@ -870,7 +932,8 @@ onUnmounted(() => {
 }
 
 @keyframes loadingText {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
   }
   50% {
@@ -879,13 +942,21 @@ onUnmounted(() => {
 }
 
 @keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 @keyframes errorPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
@@ -988,7 +1059,8 @@ onUnmounted(() => {
 }
 
 @keyframes hintFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -997,7 +1069,8 @@ onUnmounted(() => {
 }
 
 @keyframes hintDot {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
@@ -1008,7 +1081,8 @@ onUnmounted(() => {
 }
 
 @keyframes kbdBounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -1060,7 +1134,8 @@ onUnmounted(() => {
 }
 
 @keyframes navArrowLeft {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   50% {
@@ -1069,7 +1144,8 @@ onUnmounted(() => {
 }
 
 @keyframes navArrowRight {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   50% {
@@ -1089,7 +1165,8 @@ onUnmounted(() => {
 }
 
 @keyframes currentGlow {
-  0%, 100% {
+  0%,
+  100% {
     color: rgb(var(--primary-rgb));
     text-shadow: 0 0 0 rgba(var(--primary-rgb), 0);
   }
@@ -1218,12 +1295,12 @@ kbd:hover {
   .animate-current-glow {
     animation: none !important;
   }
-  
+
   .modal-enhanced-enter-active,
   .modal-enhanced-leave-active {
     transition: opacity 0.2s ease !important;
   }
-  
+
   .image-main {
     transition: transform 0.2s ease !important;
   }

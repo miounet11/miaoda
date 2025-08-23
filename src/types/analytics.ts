@@ -55,7 +55,7 @@ export interface PerformanceAnalytics {
 export interface ModelAnalytics {
   modelUsage: Array<{ model: string; count: number; percentage: number }>
   preferredModels: string[]
-  modelPerformance: Array<{ 
+  modelPerformance: Array<{
     model: string
     avgResponseTime: number
     errorRate: number

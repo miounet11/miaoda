@@ -47,7 +47,8 @@ export default {
     thinking: 'AI が考えています...',
     noChats: 'チャット履歴がありません',
     welcomeTitle: 'MiaoDa Chat へようこそ',
-    welcomeMessage: 'あなたのインテリジェントAIアシスタントです。質問への回答、コード作成、テキスト翻訳などを行います',
+    welcomeMessage:
+      'あなたのインテリジェントAIアシスタントです。質問への回答、コード作成、テキスト翻訳などを行います',
     startNewChat: '新しい会話を開始',
     messageCount: '{count} メッセージ',
     messagesCount: 'メッセージ',
@@ -64,10 +65,12 @@ export default {
     searchChats: 'チャットを検索...',
     noResults: '検索結果が見つかりません',
     deleteConfirm: 'このチャットを削除してもよろしいですか？',
-    deleteConfirmMessage: 'このチャットには{count}件のメッセージが含まれています。削除後は復元できません。',
+    deleteConfirmMessage:
+      'このチャットには{count}件のメッセージが含まれています。削除後は復元できません。',
     clearConfirm: 'この会話をクリアしてもよろしいですか？元に戻すことはできません。',
     newChatConfirm: '新しい会話を開始',
-    newChatConfirmMessage: '入力ボックスに未送信の内容があります。新しい会話を開始すると、これらの内容はクリアされます。続行しますか？'
+    newChatConfirmMessage:
+      '入力ボックスに未送信の内容があります。新しい会話を開始すると、これらの内容はクリアされます。続行しますか？'
   },
 
   // メッセージ

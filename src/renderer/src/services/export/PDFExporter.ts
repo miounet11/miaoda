@@ -4,9 +4,9 @@ import type { ExportChatData, ExportOptions, ExportResult } from './ExportServic
 
 export class PDFExporter {
   private static instance: PDFExporter
-  
+
   private constructor() {}
-  
+
   static getInstance(): PDFExporter {
     if (!PDFExporter.instance) {
       PDFExporter.instance = new PDFExporter()
@@ -60,7 +60,7 @@ export class PDFExporter {
 
       // Get PDF as string
       const pdfContent = pdf.output('datauristring')
-      
+
       return {
         content: pdfContent,
         filename: `chat-export-${timestamp}.pdf`,
@@ -90,7 +90,7 @@ export class PDFExporter {
     const margin = 20
     const lineHeight = 6
     const maxLineWidth = pageWidth - 2 * margin
-    
+
     let yPosition = margin
 
     // Add title
@@ -154,47 +154,57 @@ export class PDFExporter {
         // Message role
         pdf.setFontSize(12)
         pdf.setFont('helvetica', 'bold')
-        const roleText = message.role === 'user' ? '👤 User' : message.role === 'assistant' ? '🤖 Assistant' : '⚙️ System'
-        
+        const roleText =
+          message.role === 'user'
+            ? '👤 User'
+            : message.role === 'assistant'
+              ? '🤖 Assistant'
+              : '⚙️ System'
+
         // Note: jsPDF doesn't handle emojis well, so we'll use text alternatives
-        const roleTextAlt = message.role === 'user' ? '[User]' : message.role === 'assistant' ? '[Assistant]' : '[System]'
+        const roleTextAlt =
+          message.role === 'user'
+            ? '[User]'
+            : message.role === 'assistant'
+              ? '[Assistant]'
+              : '[System]'
         pdf.text(roleTextAlt, margin, yPosition)
-        
+
         if (options.includeTimestamps) {
           pdf.setFontSize(8)
           pdf.setFont('helvetica', 'normal')
           const timeText = new Date(message.created_at).toLocaleString()
           pdf.text(timeText, pageWidth - margin - pdf.getTextWidth(timeText), yPosition)
         }
-        
+
         yPosition += lineHeight
 
         // Message content
         pdf.setFontSize(10)
         pdf.setFont('helvetica', 'normal')
-        
+
         // Split long text into multiple lines
         const textLines = pdf.splitTextToSize(message.content, maxLineWidth)
-        
+
         for (const line of textLines) {
           // Check if we need a new page
           if (yPosition > pageHeight - 20) {
             pdf.addPage()
             yPosition = margin
           }
-          
+
           pdf.text(line, margin, yPosition)
           yPosition += lineHeight
         }
-        
+
         yPosition += lineHeight * 0.5 // Add spacing after message
       }
-      
+
       yPosition += lineHeight // Add spacing after chat
     }
 
     const pdfOutput = pdf.output('datauristring')
-    
+
     return {
       content: pdfOutput,
       filename: `chat-export-${timestamp}.pdf`,
@@ -246,7 +256,7 @@ export class PDFExporter {
             ${index + 1}. ${this.escapeHtml(chat.title)}
           </h2>
       `
-      
+
       if (options.includeTimestamps) {
         html += `
           <div style="font-size: 11px; color: #666; margin-bottom: 15px;">
@@ -259,9 +269,11 @@ export class PDFExporter {
 
       // Process messages
       for (const message of chat.messages) {
-        const roleColor = message.role === 'user' ? '#2563eb' : message.role === 'assistant' ? '#7c3aed' : '#f59e0b'
-        const roleName = message.role === 'user' ? 'User' : message.role === 'assistant' ? 'Assistant' : 'System'
-        
+        const roleColor =
+          message.role === 'user' ? '#2563eb' : message.role === 'assistant' ? '#7c3aed' : '#f59e0b'
+        const roleName =
+          message.role === 'user' ? 'User' : message.role === 'assistant' ? 'Assistant' : 'System'
+
         html += `
           <div style="margin-bottom: 15px; padding: 12px; border-left: 3px solid ${roleColor}; background-color: #f9f9f9;">
             <div style="font-weight: bold; margin-bottom: 5px; color: ${roleColor}; display: flex; justify-content: space-between; align-items: center;">
@@ -274,7 +286,7 @@ export class PDFExporter {
           </div>
         `
       }
-      
+
       html += '</div>'
     }
 
@@ -293,7 +305,7 @@ export class PDFExporter {
       '"': '&quot;',
       "'": '&#039;'
     }
-    return text.replace(/[&<>"']/g, (m) => map[m])
+    return text.replace(/[&<>"']/g, m => map[m])
   }
 
   /**
@@ -307,23 +319,23 @@ export class PDFExporter {
     const bstr = atob(arr[1])
     let n = bstr.length
     const u8arr = new Uint8Array(n)
-    
+
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }
-    
+
     const blob = new Blob([u8arr], { type: mime })
     const url = URL.createObjectURL(blob)
-    
+
     const a = document.createElement('a')
     a.href = url
     a.download = result.filename
     a.style.display = 'none'
-    
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    
+
     URL.revokeObjectURL(url)
   }
 }

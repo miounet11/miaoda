@@ -7,7 +7,7 @@
           <h1 class="market-title">插件市场</h1>
           <p class="market-subtitle">发现并安装强大的插件来扩展 MiaoDa Chat 功能</p>
         </div>
-        
+
         <!-- Search Bar -->
         <div class="search-section">
           <div class="search-bar">
@@ -19,16 +19,12 @@
               class="search-input"
               @input="onSearchInput"
               @keyup.enter="performSearch"
-            >
-            <button
-              v-if="searchQuery"
-              @click="clearSearch"
-              class="clear-search"
-            >
+            />
+            <button v-if="searchQuery" @click="clearSearch" class="clear-search">
               <X :size="16" />
             </button>
           </div>
-          
+
           <!-- Quick Filters -->
           <div class="quick-filters">
             <button
@@ -74,17 +70,13 @@
         <div class="filter-section">
           <h3 class="filter-title">价格</h3>
           <div class="pricing-filters">
-            <label
-              v-for="pricing in pricingOptions"
-              :key="pricing.value"
-              class="pricing-option"
-            >
+            <label v-for="pricing in pricingOptions" :key="pricing.value" class="pricing-option">
               <input
                 v-model="selectedPricing"
                 type="checkbox"
                 :value="pricing.value"
                 class="pricing-checkbox"
-              >
+              />
               <span class="pricing-label">{{ pricing.label }}</span>
               <span class="pricing-count">{{ getPricingCount(pricing.value) }}</span>
             </label>
@@ -118,20 +110,12 @@
         <div class="filter-section">
           <h3 class="filter-title">其他</h3>
           <label class="filter-option">
-            <input
-              v-model="onlyVerified"
-              type="checkbox"
-              class="filter-checkbox"
-            >
+            <input v-model="onlyVerified" type="checkbox" class="filter-checkbox" />
             <Shield :size="16" />
             <span>仅显示认证插件</span>
           </label>
           <label class="filter-option">
-            <input
-              v-model="onlyFeatured"
-              type="checkbox"
-              class="filter-checkbox"
-            >
+            <input v-model="onlyFeatured" type="checkbox" class="filter-checkbox" />
             <Sparkles :size="16" />
             <span>推荐插件</span>
           </label>
@@ -148,7 +132,7 @@
               <span v-if="searchQuery"> 符合 "{{ searchQuery }}" </span>
             </span>
           </div>
-          
+
           <div class="sort-controls">
             <select v-model="sortBy" class="sort-select">
               <option value="relevance">相关性</option>
@@ -157,7 +141,7 @@
               <option value="updated">更新时间</option>
               <option value="name">名称</option>
             </select>
-            
+
             <button
               @click="toggleSortOrder"
               class="sort-order-btn"
@@ -206,7 +190,7 @@
                       :src="plugin.icon"
                       :alt="plugin.name"
                       class="icon-image"
-                    >
+                    />
                     <Package v-else :size="24" />
                   </div>
                   <div class="featured-meta">
@@ -223,7 +207,9 @@
                     </span>
                   </div>
                 </div>
-                <p class="featured-description">{{ plugin.shortDescription || plugin.description }}</p>
+                <p class="featured-description">
+                  {{ plugin.shortDescription || plugin.description }}
+                </p>
               </div>
             </div>
           </div>
@@ -235,19 +221,16 @@
             <div class="loading-spinner" />
             <p>正在加载插件...</p>
           </div>
-          
+
           <div v-else-if="searchResult.plugins.length === 0" class="empty-state">
             <Package :size="48" class="empty-icon" />
             <h3>没有找到插件</h3>
             <p>尝试调整搜索条件或筛选器</p>
           </div>
-          
+
           <div
             v-else
-            :class="[
-              'plugins-container',
-              viewMode === 'grid' ? 'grid-view' : 'list-view'
-            ]"
+            :class="['plugins-container', viewMode === 'grid' ? 'grid-view' : 'list-view']"
           >
             <PluginMarketCard
               v-for="plugin in searchResult.plugins"
@@ -260,27 +243,17 @@
               @rate="showRatingModal"
             />
           </div>
-          
+
           <!-- Pagination -->
           <div v-if="searchResult.total > searchResult.limit" class="pagination">
-            <button
-              @click="previousPage"
-              :disabled="currentPage === 1"
-              class="pagination-btn"
-            >
+            <button @click="previousPage" :disabled="currentPage === 1" class="pagination-btn">
               <ChevronLeft :size="16" />
               上一页
             </button>
-            
-            <div class="pagination-info">
-              第 {{ currentPage }} 页，共 {{ totalPages }} 页
-            </div>
-            
-            <button
-              @click="nextPage"
-              :disabled="!searchResult.hasMore"
-              class="pagination-btn"
-            >
+
+            <div class="pagination-info">第 {{ currentPage }} 页，共 {{ totalPages }} 页</div>
+
+            <button @click="nextPage" :disabled="!searchResult.hasMore" class="pagination-btn">
               下一页
               <ChevronRight :size="16" />
             </button>
@@ -314,9 +287,22 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import {
-  Search, X, Shield, Sparkles, Star, Package, Grid, List,
-  ArrowUpDown, ChevronLeft, ChevronRight,
-  Puzzle, Paintbrush, Brain, Workflow, Settings
+  Search,
+  X,
+  Shield,
+  Sparkles,
+  Star,
+  Package,
+  Grid,
+  List,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  Puzzle,
+  Paintbrush,
+  Brain,
+  Workflow,
+  Settings
 } from 'lucide-vue-next'
 
 import PluginMarketCard from './PluginMarketCard.vue'
@@ -395,7 +381,7 @@ const featuredPlugins = computed(() =>
 
 const filters = computed<PluginFilters>(() => ({
   category: selectedCategory.value || undefined,
-  pricing: selectedPricing.value.length > 0 ? selectedPricing.value as any : undefined,
+  pricing: selectedPricing.value.length > 0 ? (selectedPricing.value as any) : undefined,
   rating: minRating.value > 0 ? minRating.value : undefined,
   verified: onlyVerified.value || undefined,
   search: searchQuery.value || undefined,
@@ -408,7 +394,12 @@ const filters = computed<PluginFilters>(() => ({
 // Methods
 const getCategoryIcon = (iconName: string) => {
   const icons: Record<string, any> = {
-    Package, Puzzle, Paintbrush, Brain, Workflow, Settings
+    Package,
+    Puzzle,
+    Paintbrush,
+    Brain,
+    Workflow,
+    Settings
   }
   return icons[iconName] || Package
 }
@@ -447,7 +438,7 @@ const toggleQuickFilter = (filterKey: string) => {
   } else {
     activeFilters.value.push(filterKey)
   }
-  
+
   // Apply filter logic
   switch (filterKey) {
     case 'verified':
@@ -461,7 +452,7 @@ const toggleQuickFilter = (filterKey: string) => {
       sortOrder.value = 'desc'
       break
   }
-  
+
   performSearch()
 }
 
@@ -552,11 +543,11 @@ const submitRating = async (rating: { rating: number; review?: string }) => {
 // Mock API call to load plugins
 const loadPlugins = async () => {
   loading.value = true
-  
+
   try {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     // Mock data - replace with actual API call
     const mockPlugins: PluginMarketListing[] = [
       {
@@ -580,22 +571,21 @@ const loadPlugins = async () => {
         featured: true,
         minVersion: '1.0.0',
         platforms: ['win', 'mac', 'linux']
-      },
+      }
       // Add more mock plugins...
     ]
-    
+
     searchResult.plugins = mockPlugins
     searchResult.total = mockPlugins.length
     searchResult.page = currentPage.value
     searchResult.hasMore = false
-    
+
     // Mock facets
     searchResult.facets = {
       categories: { tools: 25, themes: 12, llm: 8, workflow: 15, integration: 10 },
       tags: { calculator: 5, theme: 12, ai: 8, automation: 15 },
       pricing: { free: 45, paid: 18, freemium: 7 }
     }
-    
   } catch (error) {
     console.error('Failed to load plugins:', error)
   } finally {
@@ -604,13 +594,17 @@ const loadPlugins = async () => {
 }
 
 // Watch for filter changes
-watch(filters, () => {
-  if (currentPage.value === 1) {
-    loadPlugins()
-  } else {
-    currentPage.value = 1
-  }
-}, { deep: true })
+watch(
+  filters,
+  () => {
+    if (currentPage.value === 1) {
+      loadPlugins()
+    } else {
+      currentPage.value = 1
+    }
+  },
+  { deep: true }
+)
 
 // Initialize
 onMounted(() => {
@@ -719,7 +713,8 @@ onMounted(() => {
   @apply text-primary-foreground bg-primary-foreground/20;
 }
 
-.pricing-filters, .rating-filters {
+.pricing-filters,
+.rating-filters {
   @apply space-y-2;
 }
 
@@ -795,7 +790,8 @@ onMounted(() => {
   @apply px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary;
 }
 
-.sort-order-btn, .view-btn {
+.sort-order-btn,
+.view-btn {
   @apply p-2 border border-border rounded hover:bg-accent transition-colors;
 }
 

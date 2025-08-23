@@ -1,78 +1,42 @@
+/* Base styles first */
 @import './animations.css';
+
+/* Layout and positioning styles */
 @import '../../styles/mobile-improvements.css';
 @import '../../styles/macos-titlebar.css';
-@import '../../styles/micro-interactions.css';
 @import '../../styles/layout-optimizations.css';
+@import '../../styles/sidebar-enhancements.css';
+@import '../../styles/spacing-layout-fixes.css';
+
+/* Component base styles */
+@import '../../styles/micro-interactions.css';
+@import '../../styles/enhanced-interaction-feedback.css';
 @import '../../styles/ui-optimizations.css';
 @import '../../styles/design-system.css';
-@import '../../styles/ui-critical-fixes.css';
 @import '../../styles/component-fixes.css';
-@import '../../styles/modern-color-system.css';
-@import '../../styles/minimal-animations.css';
-@import '../../styles/sidebar-enhancements.css';
 @import '../../styles/input-critical-fixes.css';
-@import '../../styles/spacing-layout-fixes.css';
 @import '../../styles/button-interactive-fixes.css';
+@import '../../styles/minimal-animations.css';
+@import '../../styles/ui-critical-fixes.css';
 @import '../../styles/performance-accessibility-fixes.css';
+
+/* CRITICAL: Grok monochromatic color system */
+@import '../../styles/grok-monochrome.css';
+
+/* FINAL OVERRIDE: Force all remaining colors to monochromatic - ABSOLUTE LAST IMPORT */
+@import '../../styles/color-override-monochrome.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 45%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
-    --radius: 0.75rem;
-    
-    /* RGB values for enhanced styling */
-    --primary-rgb: 28, 28, 30;
-    --muted-rgb: 245, 245, 247;
-    --border-rgb: 229, 229, 234;
-  }
+  /* Base variables are now handled by grok-monochrome.css */
+  /* This section provides only additional overrides if needed */
 
-  .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 95%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 65%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-    
-    /* RGB values for dark mode */
-    --primary-rgb: 248, 250, 252;
-    --muted-rgb: 55, 65, 81;
-    --border-rgb: 75, 85, 99;
+  :root {
+    /* Ensure radius is defined for components */
+    --radius: 0.75rem;
   }
 }
 
@@ -82,18 +46,20 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
-  
+
   /* 确保消息内容始终可见 */
   .message-bubble {
     color: inherit;
   }
-  
+
   .message-bubble.bg-secondary\/50 {
     color: hsl(var(--foreground));
   }
-  
+
   /* 修复暗色模式下的文本对比度 */
   .dark .message-content-wrapper {
     color: hsl(var(--foreground)) !important;

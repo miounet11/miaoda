@@ -1,6 +1,13 @@
 <template>
-  <div v-if="open" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="handleBackdropClick">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex" @click.stop>
+  <div
+    v-if="open"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    @click="handleBackdropClick"
+  >
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex"
+      @click.stop
+    >
       <!-- Sidebar -->
       <div class="w-64 bg-gray-50 dark:bg-gray-900 border-r dark:border-gray-700 flex flex-col">
         <!-- Header -->
@@ -60,7 +67,9 @@
             <!-- Format & Basic Settings -->
             <div v-if="activeTab === 'format'" class="space-y-6">
               <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Export Format</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Export Format
+                </h3>
                 <div class="grid grid-cols-2 gap-3">
                   <div
                     v-for="format in formats"
@@ -74,10 +83,17 @@
                     ]"
                   >
                     <div class="flex items-center space-x-3">
-                      <component :is="format.icon" class="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                      <component
+                        :is="format.icon"
+                        class="w-6 h-6 text-gray-600 dark:text-gray-400"
+                      />
                       <div>
-                        <div class="font-medium text-gray-900 dark:text-white">{{ format.label }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ format.description }}</div>
+                        <div class="font-medium text-gray-900 dark:text-white">
+                          {{ format.label }}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                          {{ format.description }}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -89,14 +105,16 @@
 
               <!-- Basic Options -->
               <div>
-                <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Basic Options</h4>
+                <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                  Basic Options
+                </h4>
                 <div class="space-y-3">
                   <label class="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       v-model="options.includeTimestamps"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    >
+                    />
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include timestamps</span>
                   </label>
                   <label class="flex items-center space-x-3">
@@ -104,15 +122,17 @@
                       type="checkbox"
                       v-model="options.includeSystemMessages"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="text-sm text-gray-700 dark:text-gray-300"
+                      >Include system messages</span
                     >
-                    <span class="text-sm text-gray-700 dark:text-gray-300">Include system messages</span>
                   </label>
                   <label class="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       v-model="options.includeMetadata"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    >
+                    />
                     <span class="text-sm text-gray-700 dark:text-gray-300">Include metadata</span>
                   </label>
                   <label class="flex items-center space-x-3">
@@ -120,8 +140,10 @@
                       type="checkbox"
                       v-model="options.includeAttachments"
                       class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="text-sm text-gray-700 dark:text-gray-300"
+                      >Include attachments</span
                     >
-                    <span class="text-sm text-gray-700 dark:text-gray-300">Include attachments</span>
                   </label>
                 </div>
               </div>
@@ -129,8 +151,16 @@
 
             <!-- Selection & Filtering -->
             <div v-else-if="activeTab === 'selection'">
-              <ChatSelection v-model:scope="exportScope" v-model:selected="selectedChatIds" v-model:available="availableChats" />
-              <TimeFilter v-model:enabled="useTimeFilter" v-model:from="dateFrom" v-model:to="dateTo" />
+              <ChatSelection
+                v-model:scope="exportScope"
+                v-model:selected="selectedChatIds"
+                v-model:available="availableChats"
+              />
+              <TimeFilter
+                v-model:enabled="useTimeFilter"
+                v-model:from="dateFrom"
+                v-model:to="dateTo"
+              />
               <TagFilter v-model:tags="options.tags" />
             </div>
 
@@ -170,7 +200,10 @@
                 :disabled="!canExport || isExporting"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
               >
-                <div v-if="isExporting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div
+                  v-if="isExporting"
+                  class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                />
                 <Download v-else class="w-4 h-4" />
                 <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
               </button>
@@ -195,24 +228,34 @@
   </div>
 
   <!-- Export Result Dialog -->
-  <div v-if="showResult" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="showResult = false">
+  <div
+    v-if="showResult"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    @click="showResult = false"
+  >
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6" @click.stop>
       <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Export Complete</h3>
       <div v-if="exportResult" class="space-y-3">
         <div class="text-sm">
           <span class="font-medium text-gray-700 dark:text-gray-300">Filename:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400 font-mono text-xs">{{ exportResult.filename }}</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400 font-mono text-xs">{{
+            exportResult.filename
+          }}</span>
         </div>
         <div class="text-sm">
           <span class="font-medium text-gray-700 dark:text-gray-300">Size:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ formatFileSize(exportResult.size) }}</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400">{{
+            formatFileSize(exportResult.size)
+          }}</span>
         </div>
         <div class="text-sm">
           <span class="font-medium text-gray-700 dark:text-gray-300">Processing Time:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ Math.round(exportResult.processingTime) }}ms</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400"
+            >{{ Math.round(exportResult.processingTime) }}ms</span
+          >
         </div>
       </div>
-      
+
       <div class="flex justify-end mt-6">
         <button
           @click="showResult = false"
@@ -223,23 +266,35 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Error Dialog -->
-  <ExportErrorDialog 
-    v-model:open="showErrorDialog" 
-    :error="exportError"
-    @retry="retryExport"
-  />
+  <ExportErrorDialog v-model:open="showErrorDialog" :error="exportError" @retry="retryExport" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
-  FileText, File, Code, FileImage, Archive, Table, 
-  Settings, Filter, Palette, Layers, Eye, RotateCcw, 
-  Plus, Download 
+import {
+  FileText,
+  File,
+  Code,
+  FileImage,
+  Archive,
+  Table,
+  Settings,
+  Filter,
+  Palette,
+  Layers,
+  Eye,
+  RotateCcw,
+  Plus,
+  Download
 } from 'lucide-vue-next'
-import { exportService, type ExportOptions, type ExportResult, type ExportTemplate } from '@renderer/src/services/export/ExportService'
+import {
+  exportService,
+  type ExportOptions,
+  type ExportResult,
+  type ExportTemplate
+} from '@renderer/src/services/export/ExportService'
 import { exportQueue, type QueueStats } from '@renderer/src/services/export/ExportQueue'
 import type { ChatRecord } from '@renderer/src/types'
 import ExportPreview from './ExportPreview.vue'
@@ -321,41 +376,41 @@ const tabs = [
 ]
 
 const formats = [
-  { 
-    value: 'markdown', 
-    label: 'Markdown', 
+  {
+    value: 'markdown',
+    label: 'Markdown',
     description: 'GitHub-style markdown',
-    icon: FileText 
+    icon: FileText
   },
-  { 
-    value: 'html', 
-    label: 'HTML', 
+  {
+    value: 'html',
+    label: 'HTML',
     description: 'Interactive web format',
-    icon: Code 
+    icon: Code
   },
-  { 
-    value: 'pdf', 
-    label: 'PDF', 
+  {
+    value: 'pdf',
+    label: 'PDF',
     description: 'Portable document format',
-    icon: FileImage 
+    icon: FileImage
   },
-  { 
-    value: 'docx', 
-    label: 'Word', 
+  {
+    value: 'docx',
+    label: 'Word',
     description: 'Microsoft Word document',
-    icon: File 
+    icon: File
   },
-  { 
-    value: 'csv', 
-    label: 'CSV/Excel', 
+  {
+    value: 'csv',
+    label: 'CSV/Excel',
     description: 'Spreadsheet format',
-    icon: Table 
+    icon: Table
   },
-  { 
-    value: 'zip', 
-    label: 'ZIP Archive', 
+  {
+    value: 'zip',
+    label: 'ZIP Archive',
     description: 'Multiple formats in archive',
-    icon: Archive 
+    icon: Archive
   }
 ]
 
@@ -406,7 +461,7 @@ const handleExport = async () => {
 
   try {
     isExporting.value = true
-    
+
     const exportOptions: ExportOptions = {
       ...options.value,
       chatId: exportScope.value === 'current' ? props.currentChatId : undefined,
@@ -416,12 +471,11 @@ const handleExport = async () => {
     }
 
     const result = await exportService.exportChats(exportOptions)
-    
+
     exportService.downloadFile(result)
     exportResult.value = result
     showResult.value = true
     emit('update:open', false)
-    
   } catch (error: any) {
     console.error('Export failed:', error)
     exportError.value = {
@@ -448,9 +502,11 @@ const addToQueue = () => {
   }
 
   const taskName = `${options.value.format.toUpperCase()} Export - ${
-    exportScope.value === 'current' ? 'Current Chat' :
-    exportScope.value === 'selected' ? `${selectedChatIds.value.length} Chats` :
-    'All Chats'
+    exportScope.value === 'current'
+      ? 'Current Chat'
+      : exportScope.value === 'selected'
+        ? `${selectedChatIds.value.length} Chats`
+        : 'All Chats'
   }`
 
   exportQueue.addTask(taskName, exportOptions, 'normal')
@@ -474,7 +530,7 @@ const resetToDefaults = () => {
       retryAttempts: 3
     }
   }
-  
+
   exportScope.value = props.currentChatId ? 'current' : 'all'
   selectedChatIds.value = []
   useTimeFilter.value = false
@@ -507,7 +563,7 @@ onMounted(() => {
   if (props.currentChatId) {
     exportScope.value = 'current'
   }
-  
+
   // Set up queue monitoring
   exportQueue.addStatusCallback(updateQueueStats)
   exportQueue.setMaxConcurrency(maxConcurrency.value)

@@ -8,61 +8,50 @@
           :src="plugin.manifest.icon"
           :alt="plugin.manifest.name"
           class="icon-image"
-        >
+        />
         <Puzzle v-else :size="32" class="icon-default" />
       </div>
-      
+
       <div class="plugin-info">
         <h3 class="plugin-name">{{ plugin.manifest.name }}</h3>
         <p class="plugin-version">v{{ plugin.manifest.version }}</p>
         <p class="plugin-author">{{ $t('plugin.by') }} {{ plugin.manifest.author }}</p>
       </div>
-      
+
       <div class="card-actions">
         <button
           @click="$emit('toggle', plugin)"
           class="toggle-btn"
-          :class="{ 'enabled': plugin.enabled }"
+          :class="{ enabled: plugin.enabled }"
           :title="plugin.enabled ? $t('plugin.disable') : $t('plugin.enable')"
         >
           <Power :size="16" />
         </button>
-        
+
         <div class="action-menu">
           <button @click="showActions = !showActions" class="menu-trigger">
             <MoreVertical :size="16" />
           </button>
-          
+
           <div v-if="showActions" class="action-dropdown">
             <button @click="$emit('view-details', plugin)" class="action-item">
               <Info :size="14" />
               {{ $t('plugin.viewDetails') }}
             </button>
-            
-            <button
-              v-if="hasSettings"
-              @click="$emit('configure', plugin)"
-              class="action-item"
-            >
+
+            <button v-if="hasSettings" @click="$emit('configure', plugin)" class="action-item">
               <Settings :size="14" />
               {{ $t('plugin.configure') }}
             </button>
-            
-            <button
-              v-if="hasUpdate"
-              @click="$emit('update', plugin)"
-              class="action-item"
-            >
+
+            <button v-if="hasUpdate" @click="$emit('update', plugin)" class="action-item">
               <Download :size="14" />
               {{ $t('plugin.update') }}
             </button>
-            
+
             <div class="action-divider" />
-            
-            <button
-              @click="$emit('uninstall', plugin)"
-              class="action-item danger"
-            >
+
+            <button @click="$emit('uninstall', plugin)" class="action-item danger">
               <Trash2 :size="14" />
               {{ $t('plugin.uninstall') }}
             </button>
@@ -70,13 +59,16 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Plugin Description -->
     <div class="card-body">
       <p class="plugin-description">{{ plugin.manifest.description }}</p>
-      
+
       <!-- Keywords/Tags -->
-      <div v-if="plugin.manifest.keywords && plugin.manifest.keywords.length > 0" class="plugin-keywords">
+      <div
+        v-if="plugin.manifest.keywords && plugin.manifest.keywords.length > 0"
+        class="plugin-keywords"
+      >
         <span
           v-for="keyword in plugin.manifest.keywords.slice(0, 3)"
           :key="keyword"
@@ -89,7 +81,7 @@
         </span>
       </div>
     </div>
-    
+
     <!-- Plugin Status and Meta -->
     <div class="card-footer">
       <div class="status-indicators">
@@ -97,29 +89,29 @@
           <div class="status-dot" />
           <span class="status-text">{{ statusText }}</span>
         </div>
-        
+
         <div v-if="plugin.error" class="error-indicator" :title="plugin.error">
           <AlertTriangle :size="14" />
         </div>
-        
+
         <div class="category-badge" :class="categoryClass">
           <component :is="categoryIcon" :size="12" />
           {{ $t(`plugin.category.${plugin.manifest.category}`) }}
         </div>
       </div>
-      
+
       <div class="meta-info">
         <span v-if="plugin.manifest.license" class="license">
           {{ plugin.manifest.license }}
         </span>
-        
+
         <span class="permissions-count" :title="permissionsTitle">
           <Shield :size="12" />
           {{ plugin.manifest.requiredPermissions.length }}
         </span>
       </div>
     </div>
-    
+
     <!-- Loading Overlay -->
     <div v-if="isLoading" class="loading-overlay">
       <Loader :size="24" class="animate-spin" />
@@ -130,9 +122,24 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Puzzle, Power, MoreVertical, Info, Settings, Download, Trash2,
-  AlertTriangle, Shield, Loader, Code, Gamepad2, Wrench, BookOpen,
-  Users, Palette, Zap, Globe
+  Puzzle,
+  Power,
+  MoreVertical,
+  Info,
+  Settings,
+  Download,
+  Trash2,
+  AlertTriangle,
+  Shield,
+  Loader,
+  Code,
+  Gamepad2,
+  Wrench,
+  BookOpen,
+  Users,
+  Palette,
+  Zap,
+  Globe
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { PluginInstance, PluginCategory } from '@renderer/src/services/plugin/PluginManager'
@@ -434,8 +441,12 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Line clamp utility */
@@ -451,7 +462,7 @@ onUnmounted(() => {
   .plugin-card {
     @apply border-2;
   }
-  
+
   .toggle-btn:focus {
     @apply ring-2 ring-primary;
   }
@@ -462,15 +473,15 @@ onUnmounted(() => {
   .plugin-card {
     @apply p-3;
   }
-  
+
   .card-header {
     @apply gap-2;
   }
-  
+
   .plugin-keywords {
     @apply hidden;
   }
-  
+
   .card-footer {
     @apply flex-col items-start gap-2;
   }

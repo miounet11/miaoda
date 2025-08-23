@@ -1,7 +1,7 @@
 <template>
   <div class="attachments-preview mb-4">
     <!-- Enhanced Drag and Drop Zone with Morphing Animation -->
-    <div 
+    <div
       v-if="attachments.length === 0 && showDropZone"
       @drop="handleDrop"
       @dragover="handleDragOver"
@@ -10,18 +10,39 @@
       class="drag-drop-zone relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300"
       :class="dragDropClasses"
     >
-      <div class="drag-drop-content transition-all duration-300" :class="{ 'scale-110': isDragging }">
-        <div class="w-12 h-12 mx-auto mb-3 opacity-50 transition-all duration-300" :class="{ 'animate-bounce-gentle': isDragging }">
-          <ImageIcon :size="48" class="text-muted-foreground transition-colors duration-300" :class="{ 'text-primary': isDragging }" />
+      <div
+        class="drag-drop-content transition-all duration-300"
+        :class="{ 'scale-110': isDragging }"
+      >
+        <div
+          class="w-12 h-12 mx-auto mb-3 opacity-50 transition-all duration-300"
+          :class="{ 'animate-bounce-gentle': isDragging }"
+        >
+          <ImageIcon
+            :size="48"
+            class="text-muted-foreground transition-colors duration-300"
+            :class="{ 'text-primary': isDragging }"
+          />
         </div>
-        <p class="text-sm text-muted-foreground mb-2 transition-all duration-300" :class="{ 'text-primary font-medium': isDragging }">
-          拖拽图片到此处，或者 <span class="text-primary hover:underline cursor-pointer transition-all duration-200 hover:scale-105" @click="$emit('select-files')">点击选择</span>
+        <p
+          class="text-sm text-muted-foreground mb-2 transition-all duration-300"
+          :class="{ 'text-primary font-medium': isDragging }"
+        >
+          拖拽图片到此处，或者
+          <span
+            class="text-primary hover:underline cursor-pointer transition-all duration-200 hover:scale-105"
+            @click="$emit('select-files')"
+            >点击选择</span
+          >
         </p>
-        <p class="text-xs text-muted-foreground opacity-75 transition-all duration-300" :class="{ 'opacity-100': isDragging }">
+        <p
+          class="text-xs text-muted-foreground opacity-75 transition-all duration-300"
+          :class="{ 'opacity-100': isDragging }"
+        >
           支持图片、文档、音频、视频等多种格式，最大 50MB
         </p>
       </div>
-      
+
       <!-- Floating particles during drag -->
       <div v-if="isDragging" class="absolute inset-0 pointer-events-none">
         <div class="particle particle-1" />
@@ -43,7 +64,7 @@
             'animate-attachment-processing': attachment.status === 'processing',
             'animate-attachment-error': attachment.status === 'error'
           }"
-          :style="{ 
+          :style="{
             animationDelay: `${index * 80}ms`,
             '--stagger-index': index
           }"
@@ -51,25 +72,29 @@
           <!-- Enhanced Image Attachment -->
           <div v-if="attachment.type === 'image'" class="image-attachment relative">
             <!-- Enhanced Loading State with Ripple Effect -->
-            <div 
+            <div
               v-if="attachment.status === 'uploading'"
               class="upload-progress absolute inset-0 bg-black/60 rounded-lg flex flex-col items-center justify-center z-10"
             >
               <div class="relative">
-                <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <div class="absolute inset-0 w-8 h-8 border-2 border-white/30 rounded-full animate-ping" />
+                <div
+                  class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"
+                />
+                <div
+                  class="absolute inset-0 w-8 h-8 border-2 border-white/30 rounded-full animate-ping"
+                />
               </div>
               <span class="text-xs text-white font-medium mt-2 animate-pulse-text">上传中...</span>
               <div class="w-full max-w-[60px] h-1 bg-white/30 rounded-full mt-2 overflow-hidden">
-                <div 
-                  class="h-full bg-gradient-to-r from-white via-blue-200 to-white transition-all duration-300 animate-progress-shine" 
+                <div
+                  class="h-full bg-gradient-to-r from-white via-blue-200 to-white transition-all duration-300 animate-progress-shine"
                   :style="{ width: `${attachment.uploadProgress || 0}%` }"
                 />
               </div>
             </div>
 
             <!-- Enhanced AI Processing State with Morphing Animation -->
-            <div 
+            <div
               v-if="attachment.status === 'processing'"
               class="processing-overlay absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/70 rounded-lg flex flex-col items-center justify-center z-10"
             >
@@ -81,20 +106,31 @@
               </div>
               <span class="text-xs text-white font-medium animate-text-shimmer">AI分析中...</span>
               <div class="mt-1 flex space-x-1">
-                <div class="w-1 h-1 bg-white rounded-full animate-processing-dots" style="animation-delay: 0s" />
-                <div class="w-1 h-1 bg-white rounded-full animate-processing-dots" style="animation-delay: 0.2s" />
-                <div class="w-1 h-1 bg-white rounded-full animate-processing-dots" style="animation-delay: 0.4s" />
+                <div
+                  class="w-1 h-1 bg-white rounded-full animate-processing-dots"
+                  style="animation-delay: 0s"
+                />
+                <div
+                  class="w-1 h-1 bg-white rounded-full animate-processing-dots"
+                  style="animation-delay: 0.2s"
+                />
+                <div
+                  class="w-1 h-1 bg-white rounded-full animate-processing-dots"
+                  style="animation-delay: 0.4s"
+                />
               </div>
             </div>
 
             <!-- Enhanced Error State with Shake Animation -->
-            <div 
+            <div
               v-if="attachment.status === 'error'"
               class="error-overlay absolute inset-0 bg-gradient-to-br from-red-500/90 to-red-600/80 rounded-lg flex flex-col items-center justify-center z-10 animate-error-shake"
             >
               <AlertCircle :size="20" class="text-white mb-1 animate-error-icon" />
-              <span class="text-xs text-white font-medium text-center px-1 animate-fade-in-up">{{ attachment.error || '上传失败' }}</span>
-              <button 
+              <span class="text-xs text-white font-medium text-center px-1 animate-fade-in-up">{{
+                attachment.error || '上传失败'
+              }}</span>
+              <button
                 @click="$emit('retry', attachment.id)"
                 class="mt-2 px-2 py-1 bg-white/20 text-white text-xs rounded hover:bg-white/30 transition-all duration-200 hover:scale-105 active:scale-95"
               >
@@ -108,31 +144,38 @@
               :alt="attachment.name"
               class="attachment-image h-24 w-24 object-cover rounded-lg border border-border transition-all duration-300 cursor-pointer"
               :class="{
-                'opacity-50 scale-95': attachment.status === 'uploading' || attachment.status === 'processing',
+                'opacity-50 scale-95':
+                  attachment.status === 'uploading' || attachment.status === 'processing',
                 'opacity-70 grayscale': attachment.status === 'error',
-                'hover:scale-110 hover:shadow-xl hover:z-10 hover:border-primary/50': attachment.status === 'ready' || !attachment.status,
+                'hover:scale-110 hover:shadow-xl hover:z-10 hover:border-primary/50':
+                  attachment.status === 'ready' || !attachment.status,
                 'transform-gpu': true
               }"
               @load="onImageLoad(attachment)"
               @error="onImageError(attachment)"
               @click="openImagePreview(attachment)"
-            >
+            />
 
             <!-- Enhanced Hover Overlay with Glass Morphism -->
-            <div class="attachment-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+            <div
+              class="attachment-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm"
+            >
               <div class="absolute bottom-2 left-2 right-2 animate-slide-up">
                 <div class="text-xs text-white font-medium truncate mb-1 animate-text-glow">
                   {{ attachment.name }}
                 </div>
                 <div class="flex items-center justify-between text-xs text-white/80">
                   <span class="animate-fade-in-delayed">{{ formatFileSize(attachment.size) }}</span>
-                  <span v-if="isVisionCapable(attachment)" class="flex items-center gap-1 text-green-300 animate-bounce-subtle">
+                  <span
+                    v-if="isVisionCapable(attachment)"
+                    class="flex items-center gap-1 text-green-300 animate-bounce-subtle"
+                  >
                     <Eye :size="10" />
                     AI可识别
                   </span>
                 </div>
               </div>
-              
+
               <!-- Enhanced Action Buttons with Ripple Effect -->
               <div class="absolute top-1 right-1 flex gap-1 animate-slide-down">
                 <button
@@ -153,8 +196,10 @@
             </div>
 
             <!-- Enhanced Vision Capability Badge with Glow Effect -->
-            <div 
-              v-if="isVisionCapable(attachment) && (attachment.status === 'ready' || !attachment.status)"
+            <div
+              v-if="
+                isVisionCapable(attachment) && (attachment.status === 'ready' || !attachment.status)
+              "
               class="vision-badge absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs rounded-full font-medium shadow-lg flex items-center gap-1 animate-badge-appear"
             >
               <Eye :size="10" class="animate-eye-blink" />
@@ -162,8 +207,11 @@
             </div>
 
             <!-- Enhanced Provider Support Indicator -->
-            <div 
-              v-if="!isCurrentProviderVisionCapable && (attachment.status === 'ready' || !attachment.status)"
+            <div
+              v-if="
+                !isCurrentProviderVisionCapable &&
+                (attachment.status === 'ready' || !attachment.status)
+              "
               class="provider-warning absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs rounded-full font-medium shadow-lg flex items-center gap-1 animate-warning-pulse"
               title="当前LLM提供商不支持图片分析"
             >
@@ -171,7 +219,7 @@
               <span class="animate-text-shimmer">需切换模型</span>
             </div>
           </div>
-        
+
           <!-- Enhanced Video Attachment -->
           <div v-else-if="attachment.type === 'video'" class="video-attachment relative">
             <!-- Video thumbnail/preview -->
@@ -179,44 +227,56 @@
               class="video-preview h-24 w-32 bg-black rounded-lg overflow-hidden relative cursor-pointer"
               @click="openFilePreview(attachment)"
             >
-              <video 
+              <video
                 v-if="attachment.data"
-                :src="attachment.data" 
+                :src="attachment.data"
                 class="w-full h-full object-cover"
                 preload="metadata"
                 muted
               />
-              <div class="video-overlay absolute inset-0 bg-black/40 flex items-center justify-center">
+              <div
+                class="video-overlay absolute inset-0 bg-black/40 flex items-center justify-center"
+              >
                 <Play :size="24" class="text-white" />
               </div>
-              <div class="duration-badge absolute bottom-1 right-1 px-1 py-0.5 bg-black/70 text-white text-xs rounded">
+              <div
+                class="duration-badge absolute bottom-1 right-1 px-1 py-0.5 bg-black/70 text-white text-xs rounded"
+              >
                 {{ formatDuration(attachment.duration) }}
               </div>
             </div>
-            
+
             <!-- Video info -->
             <div class="video-info mt-1">
               <div class="text-xs font-medium truncate">{{ attachment.name }}</div>
               <div class="text-xs text-muted-foreground">{{ formatFileSize(attachment.size) }}</div>
             </div>
-            
+
             <!-- Actions -->
-            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+              class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <button @click.stop="openFilePreview(attachment)" class="action-btn" title="预览">
                 <Play :size="12" />
               </button>
               <button @click.stop="downloadFile(attachment)" class="action-btn" title="下载">
                 <Download :size="12" />
               </button>
-              <button @click.stop="$emit('remove', attachment.id)" class="action-btn-danger" title="删除">
+              <button
+                @click.stop="$emit('remove', attachment.id)"
+                class="action-btn-danger"
+                title="删除"
+              >
                 <X :size="12" />
               </button>
             </div>
           </div>
-          
+
           <!-- Enhanced Audio Attachment -->
           <div v-else-if="attachment.type === 'audio'" class="audio-attachment relative">
-            <div class="audio-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border w-64">
+            <div
+              class="audio-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border w-64"
+            >
               <div class="audio-icon p-2 bg-green-100 dark:bg-green-900 rounded-full">
                 <Music :size="20" class="text-green-600 dark:text-green-400" />
               </div>
@@ -224,28 +284,41 @@
                 <div class="text-sm font-medium truncate">{{ attachment.name }}</div>
                 <div class="text-xs text-muted-foreground flex items-center gap-2">
                   <span>{{ formatFileSize(attachment.size) }}</span>
-                  <span v-if="attachment.duration">• {{ formatDuration(attachment.duration) }}</span>
+                  <span v-if="attachment.duration"
+                    >• {{ formatDuration(attachment.duration) }}</span
+                  >
                 </div>
               </div>
-              <button @click="openFilePreview(attachment)" class="play-btn p-2 bg-primary/10 hover:bg-primary/20 rounded-full transition-colors">
+              <button
+                @click="openFilePreview(attachment)"
+                class="play-btn p-2 bg-primary/10 hover:bg-primary/20 rounded-full transition-colors"
+              >
                 <Play :size="16" class="text-primary" />
               </button>
             </div>
-            
+
             <!-- Actions -->
-            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+              class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <button @click.stop="downloadFile(attachment)" class="action-btn" title="下载">
                 <Download :size="12" />
               </button>
-              <button @click.stop="$emit('remove', attachment.id)" class="action-btn-danger" title="删除">
+              <button
+                @click.stop="$emit('remove', attachment.id)"
+                class="action-btn-danger"
+                title="删除"
+              >
                 <X :size="12" />
               </button>
             </div>
           </div>
-          
+
           <!-- Enhanced Document Attachment -->
           <div v-else-if="attachment.type === 'document'" class="document-attachment relative">
-            <div class="document-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border w-64">
+            <div
+              class="document-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border w-64"
+            >
               <div class="document-icon p-2 rounded-full" :class="getDocumentIconClass(attachment)">
                 <component :is="getDocumentIcon(attachment)" :size="20" />
               </div>
@@ -256,27 +329,42 @@
                   <span>• {{ formatFileSize(attachment.size) }}</span>
                 </div>
               </div>
-              <button @click="openFilePreview(attachment)" class="preview-btn p-2 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full transition-colors">
+              <button
+                @click="openFilePreview(attachment)"
+                class="preview-btn p-2 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full transition-colors"
+              >
                 <Eye :size="16" class="text-blue-600 dark:text-blue-400" />
               </button>
             </div>
-            
+
             <!-- Actions -->
-            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+              class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <button @click.stop="downloadFile(attachment)" class="action-btn" title="下载">
                 <Download :size="12" />
               </button>
-              <button @click.stop="$emit('remove', attachment.id)" class="action-btn-danger" title="删除">
+              <button
+                @click.stop="$emit('remove', attachment.id)"
+                class="action-btn-danger"
+                title="删除"
+              >
                 <X :size="12" />
               </button>
             </div>
           </div>
-        
+
           <!-- Generic File Attachment (Enhanced) -->
           <div v-else class="file-attachment relative">
-            <div class="file-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border min-w-[200px]">
+            <div
+              class="file-preview flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border min-w-[200px]"
+            >
               <div class="file-icon p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                <component :is="getGenericFileIcon(attachment)" :size="20" class="text-gray-600 dark:text-gray-400" />
+                <component
+                  :is="getGenericFileIcon(attachment)"
+                  :size="20"
+                  class="text-gray-600 dark:text-gray-400"
+                />
               </div>
               <div class="file-info flex-1 min-w-0">
                 <div class="text-sm font-medium truncate">{{ attachment.name }}</div>
@@ -286,20 +374,26 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Actions -->
-            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+              class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <button @click.stop="downloadFile(attachment)" class="action-btn" title="下载">
                 <Download :size="12" />
               </button>
-              <button @click.stop="$emit('remove', attachment.id)" class="action-btn-danger" title="删除">
+              <button
+                @click.stop="$emit('remove', attachment.id)"
+                class="action-btn-danger"
+                title="删除"
+              >
                 <X :size="12" />
               </button>
             </div>
           </div>
         </div>
       </div>
-    
+
       <!-- Upload Progress (if needed) -->
       <div v-if="uploadProgress.length > 0" class="upload-progress mt-2 space-y-1">
         <div
@@ -322,10 +416,23 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { 
-  X, FileText, File, ImageIcon, Eye, Maximize2, 
-  AlertCircle, Sparkles, AlertTriangle, Play, Music,
-  Video, FileAudio, FileImage, Archive, Download
+import {
+  X,
+  FileText,
+  File,
+  ImageIcon,
+  Eye,
+  Maximize2,
+  AlertCircle,
+  Sparkles,
+  AlertTriangle,
+  Play,
+  Music,
+  Video,
+  FileAudio,
+  FileImage,
+  Archive,
+  Download
 } from 'lucide-vue-next'
 import { useSettingsStore } from '@renderer/src/stores/settings'
 
@@ -382,7 +489,12 @@ const dragCounter = ref(0)
 const visionCapableProviders = ['openai', 'anthropic', 'google']
 const visionCapableModels = {
   openai: ['gpt-4o', 'gpt-4-vision-preview', 'gpt-4-turbo'],
-  anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'],
+  anthropic: [
+    'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229',
+    'claude-3-haiku-20240307',
+    'claude-3-5-sonnet-20241022'
+  ],
   google: ['gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash']
 }
 
@@ -395,45 +507,45 @@ const dragDropClasses = computed(() => ({
 const isCurrentProviderVisionCapable = computed(() => {
   const currentProvider = settingsStore.llmProvider
   const currentModel = settingsStore.modelName
-  
+
   if (!visionCapableProviders.includes(currentProvider)) {
     return false
   }
-  
+
   if (visionCapableModels[currentProvider as keyof typeof visionCapableModels]) {
-    return visionCapableModels[currentProvider as keyof typeof visionCapableModels].some(model => 
-      currentModel.includes(model) || model.includes(currentModel)
+    return visionCapableModels[currentProvider as keyof typeof visionCapableModels].some(
+      model => currentModel.includes(model) || model.includes(currentModel)
     )
   }
-  
+
   return false
 })
 
 // Format file size for display
 const formatFileSize = (bytes: number = 0): string => {
   if (bytes === 0) return '0 B'
-  
+
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
 // Format duration for display (seconds to mm:ss format)
 const formatDuration = (seconds: number = 0): string => {
   if (seconds === 0) return '0:00'
-  
+
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = Math.floor(seconds % 60)
-  
+
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
 // Get file type label
 const getFileTypeLabel = (attachment: Attachment): string => {
   const extension = attachment.name.split('.').pop()?.toLowerCase() || ''
-  
+
   const typeMap: Record<string, string> = {
     pdf: 'PDF',
     doc: 'Word',
@@ -453,55 +565,59 @@ const getFileTypeLabel = (attachment: Attachment): string => {
     tar: '压缩包',
     gz: '压缩包'
   }
-  
+
   return typeMap[extension] || extension.toUpperCase()
 }
 
 // Get document icon based on file type
 const getDocumentIcon = (attachment: Attachment) => {
   const extension = attachment.name.split('.').pop()?.toLowerCase() || ''
-  
+
   if (['pdf'].includes(extension)) return FileText
   if (['doc', 'docx'].includes(extension)) return FileText
   if (['xls', 'xlsx'].includes(extension)) return FileText
   if (['ppt', 'pptx'].includes(extension)) return FileText
   if (['txt', 'md'].includes(extension)) return FileText
-  
+
   return File
 }
 
 // Get document icon class
 const getDocumentIconClass = (attachment: Attachment): string => {
   const extension = attachment.name.split('.').pop()?.toLowerCase() || ''
-  
+
   if (extension === 'pdf') return 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-  if (['doc', 'docx'].includes(extension)) return 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
-  if (['xls', 'xlsx'].includes(extension)) return 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-  if (['ppt', 'pptx'].includes(extension)) return 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
-  if (['txt', 'md'].includes(extension)) return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-  
+  if (['doc', 'docx'].includes(extension))
+    return 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+  if (['xls', 'xlsx'].includes(extension))
+    return 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+  if (['ppt', 'pptx'].includes(extension))
+    return 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
+  if (['txt', 'md'].includes(extension))
+    return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+
   return 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
 }
 
 // Get generic file icon
 const getGenericFileIcon = (attachment: Attachment) => {
   const extension = attachment.name.split('.').pop()?.toLowerCase() || ''
-  
+
   if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return Archive
   if (['mp3', 'wav', 'ogg', 'm4a'].includes(extension)) return FileAudio
   if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return FileImage
   if (['mp4', 'avi', 'mov', 'wmv'].includes(extension)) return Video
-  
+
   return File
 }
 
 // Check if attachment is vision-capable
 const isVisionCapable = (attachment: Attachment): boolean => {
   if (attachment.type !== 'image') return false
-  
+
   const supportedFormats = ['jpeg', 'jpg', 'png', 'webp', 'gif']
   const fileExtension = attachment.name.split('.').pop()?.toLowerCase()
-  
+
   return supportedFormats.includes(fileExtension || '')
 }
 
@@ -583,12 +699,13 @@ const downloadFile = async (attachment: Attachment) => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(45deg, 
-    transparent 25%, 
-    rgba(var(--primary-rgb), 0.1) 25%, 
-    rgba(var(--primary-rgb), 0.1) 50%, 
-    transparent 50%, 
-    transparent 75%, 
+  background: linear-gradient(
+    45deg,
+    transparent 25%,
+    rgba(var(--primary-rgb), 0.1) 25%,
+    rgba(var(--primary-rgb), 0.1) 50%,
+    transparent 50%,
+    transparent 75%,
     rgba(var(--primary-rgb), 0.1) 75%
   );
   background-size: 20px 20px;
@@ -599,7 +716,11 @@ const downloadFile = async (attachment: Attachment) => {
 .drag-drop-zone.border-primary {
   animation: dragPulse 2s ease-in-out infinite;
   border-color: rgb(var(--primary-rgb));
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-rgb), 0.1),
+    rgba(var(--primary-rgb), 0.05)
+  );
 }
 
 .drag-drop-zone.border-primary::before {
@@ -608,19 +729,28 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes dragPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4), inset 0 0 0 0 rgba(var(--primary-rgb), 0.1);
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(var(--primary-rgb), 0.4),
+      inset 0 0 0 0 rgba(var(--primary-rgb), 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0.1), inset 0 0 20px rgba(var(--primary-rgb), 0.2);
+    box-shadow:
+      0 0 0 10px rgba(var(--primary-rgb), 0.1),
+      inset 0 0 20px rgba(var(--primary-rgb), 0.2);
     transform: scale(1.02);
   }
 }
 
 @keyframes backgroundMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 20px 20px; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
 }
 
 /* Floating particles for drag state */
@@ -652,23 +782,49 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes float1 {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
-  50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.5);
+    opacity: 1;
+  }
 }
 
 @keyframes float2 {
-  0%, 100% { transform: translateX(0) scale(0.8); opacity: 0.4; }
-  50% { transform: translateX(15px) scale(1.2); opacity: 0.8; }
+  0%,
+  100% {
+    transform: translateX(0) scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(15px) scale(1.2);
+    opacity: 0.8;
+  }
 }
 
 @keyframes float3 {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-  50% { transform: translate(-10px, -15px) scale(1.3); opacity: 0.9; }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-10px, -15px) scale(1.3);
+    opacity: 0.9;
+  }
 }
 
 @keyframes bounceGentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 /* Enhanced attachment animations with staggered entrance */
@@ -742,7 +898,8 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes uploadingPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3);
   }
@@ -753,7 +910,8 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes processingGlow {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
   }
@@ -764,9 +922,16 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px) rotate(-1deg); }
-  75% { transform: translateX(4px) rotate(1deg); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px) rotate(-1deg);
+  }
+  75% {
+    transform: translateX(4px) rotate(1deg);
+  }
 }
 
 /* Enhanced image interactions with hover lift */
@@ -830,7 +995,9 @@ const downloadFile = async (attachment: Attachment) => {
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
   }
   to {
-    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.3);
+    text-shadow:
+      0 0 6px rgba(255, 255, 255, 0.6),
+      0 0 12px rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -839,8 +1006,12 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes fadeInDelayed {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-bounce-subtle {
@@ -848,8 +1019,13 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes bounceSubtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 /* Video preview styles */
@@ -940,7 +1116,9 @@ const downloadFile = async (attachment: Attachment) => {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
   transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
 }
 
 .ripple-effect:active::before {
@@ -949,7 +1127,9 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 /* Enhanced video, audio, and document styles */
-.video-attachment, .audio-attachment, .document-attachment {
+.video-attachment,
+.audio-attachment,
+.document-attachment {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
@@ -957,13 +1137,17 @@ const downloadFile = async (attachment: Attachment) => {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.video-attachment:hover, .audio-attachment:hover, .document-attachment:hover {
+.video-attachment:hover,
+.audio-attachment:hover,
+.document-attachment:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* Enhanced upload and processing states */
-.upload-progress, .processing-overlay, .error-overlay {
+.upload-progress,
+.processing-overlay,
+.error-overlay {
   backdrop-filter: blur(8px);
   border-radius: inherit;
 }
@@ -974,8 +1158,12 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes progressShine {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-pulse-text {
@@ -983,8 +1171,13 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes pulseText {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .animate-processing-pulse {
@@ -992,7 +1185,8 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes processingPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
@@ -1007,7 +1201,8 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes processingGlow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
     transform: scale(0.8);
   }
@@ -1022,7 +1217,9 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes processingDots {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8) translateY(0);
   }
@@ -1046,8 +1243,13 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes textShimmer {
-  0%, 100% { background-position: -200% 0; }
-  50% { background-position: 200% 0; }
+  0%,
+  100% {
+    background-position: -200% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-error-icon {
@@ -1055,9 +1257,16 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes errorIcon {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.2) rotate(-10deg); }
-  75% { transform: scale(1.2) rotate(10deg); }
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(-10deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(10deg);
+  }
 }
 
 .animate-fade-in-up {
@@ -1100,8 +1309,14 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes eyeBlink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.1); }
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
 }
 
 .animate-warning-pulse {
@@ -1109,7 +1324,8 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes warningPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
   }
   50% {
@@ -1122,9 +1338,16 @@ const downloadFile = async (attachment: Attachment) => {
 }
 
 @keyframes triangleWiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
 }
 
 /* Action buttons */
@@ -1198,11 +1421,11 @@ const downloadFile = async (attachment: Attachment) => {
     min-width: auto;
     flex: 1;
   }
-  
+
   .attachments-preview .flex {
     flex-direction: column;
   }
-  
+
   .image-attachment {
     align-self: flex-start;
   }
@@ -1220,7 +1443,7 @@ const downloadFile = async (attachment: Attachment) => {
   --primary-light: hsl(221, 83%, 63%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --border: hsl(215, 20%, 25%);
   --muted: hsl(217, 33%, 17%);
   --muted-foreground: hsl(215, 20%, 65%);

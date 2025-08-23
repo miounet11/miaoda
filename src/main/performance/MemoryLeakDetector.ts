@@ -60,15 +60,15 @@ export class MemoryLeakDetector extends EventEmitter {
   private snapshotTimer: NodeJS.Timeout | null = null
   private analysisTimer: NodeJS.Timeout | null = null
   private cleanupTimer: NodeJS.Timeout | null = null
-  
+
   // Advanced tracking
   private objectReferences = new Map<string, WeakRef<object>>()
   private eventListenerCount = new Map<string, number>()
   private gcCallbacks: (() => void)[] = []
-  
+
   constructor(config: Partial<DetectionConfig> = {}) {
     super()
-    
+
     this.config = {
       enabled: true,
       snapshotInterval: 10000, // 10 seconds
@@ -84,7 +84,7 @@ export class MemoryLeakDetector extends EventEmitter {
       enableDetailedAnalysis: true,
       ...config
     }
-    
+
     this.initialize()
   }
 
@@ -93,21 +93,21 @@ export class MemoryLeakDetector extends EventEmitter {
       logger.info('Memory leak detector disabled', 'MemoryLeakDetector')
       return
     }
-    
+
     logger.info('Initializing memory leak detector', 'MemoryLeakDetector', this.config)
-    
+
     // Start periodic snapshots
     this.startSnapshotCollection()
-    
+
     // Start periodic analysis
     this.startPeriodicAnalysis()
-    
+
     // Start cleanup timer
     this.startCleanupTimer()
-    
+
     // Setup process monitoring
     this.setupProcessMonitoring()
-    
+
     // Setup GC callbacks
     this.setupGCCallbacks()
   }
@@ -117,7 +117,7 @@ export class MemoryLeakDetector extends EventEmitter {
    */
   takeSnapshot(windowId?: number): MemorySnapshot {
     const memoryUsage = process.memoryUsage()
-    
+
     const snapshot: MemorySnapshot = {
       timestamp: Date.now(),
       heapUsed: memoryUsage.heapUsed,
@@ -128,10 +128,10 @@ export class MemoryLeakDetector extends EventEmitter {
       processId: process.pid,
       windowId
     }
-    
+
     this.snapshots.push(snapshot)
     this.emit('snapshot-taken', snapshot)
-    
+
     return snapshot
   }
 
@@ -140,7 +140,7 @@ export class MemoryLeakDetector extends EventEmitter {
    */
   analyzeMemoryLeaks(): DetectionResult {
     const recentSnapshots = this.getRecentSnapshots(this.config.analysisInterval * 5)
-    
+
     if (recentSnapshots.length < 2) {
       return {
         leaks: [],
@@ -150,35 +150,35 @@ export class MemoryLeakDetector extends EventEmitter {
         growthTrend: 'stable'
       }
     }
-    
+
     const leaks: MemoryLeak[] = []
-    
+
     // Detect heap growth leaks
     const heapLeaks = this.detectHeapGrowthLeaks(recentSnapshots)
     leaks.push(...heapLeaks)
-    
+
     // Detect external memory leaks
     const externalLeaks = this.detectExternalMemoryLeaks(recentSnapshots)
     leaks.push(...externalLeaks)
-    
+
     // Detect event listener leaks (if detailed analysis enabled)
     if (this.config.enableDetailedAnalysis) {
       const listenerLeaks = this.detectEventListenerLeaks()
       leaks.push(...listenerLeaks)
     }
-    
+
     // Update existing leaks
     this.updateExistingLeaks(leaks)
-    
+
     // Calculate health score
     const healthScore = this.calculateHealthScore(leaks, recentSnapshots)
-    
+
     // Generate recommendations
     const recommendations = this.generateRecommendations(leaks, recentSnapshots)
-    
+
     // Determine growth trend
     const growthTrend = this.analyzeGrowthTrend(recentSnapshots)
-    
+
     const result: DetectionResult = {
       leaks,
       healthScore,
@@ -186,9 +186,9 @@ export class MemoryLeakDetector extends EventEmitter {
       totalMemoryUsage: this.getCurrentMemoryUsage(),
       growthTrend
     }
-    
+
     this.emit('analysis-complete', result)
-    
+
     return result
   }
 
@@ -199,16 +199,16 @@ export class MemoryLeakDetector extends EventEmitter {
     if (this.config.enableGCTrigger && global.gc) {
       logger.info('Forcing garbage collection', 'MemoryLeakDetector')
       global.gc()
-      
+
       // Take snapshot after GC
       setTimeout(() => {
         this.takeSnapshot()
         this.emit('gc-forced')
       }, 1000)
-      
+
       return true
     }
-    
+
     return false
   }
 
@@ -247,7 +247,7 @@ export class MemoryLeakDetector extends EventEmitter {
     samples: MemorySnapshot[]
   } {
     const recentSnapshots = this.getRecentSnapshots(periodMs)
-    
+
     if (recentSnapshots.length < 2) {
       return {
         trend: 'stable',
@@ -255,18 +255,19 @@ export class MemoryLeakDetector extends EventEmitter {
         samples: recentSnapshots
       }
     }
-    
+
     const firstSnapshot = recentSnapshots[0]
     const lastSnapshot = recentSnapshots[recentSnapshots.length - 1]
     const timeDiff = lastSnapshot.timestamp - firstSnapshot.timestamp
     const memoryDiff = lastSnapshot.total - firstSnapshot.total
     const growthRate = (memoryDiff / timeDiff) * 1000 // bytes per second
-    
+
     let trend: 'growing' | 'shrinking' | 'stable' = 'stable'
-    if (Math.abs(growthRate) > 1024) { // 1KB/s threshold
+    if (Math.abs(growthRate) > 1024) {
+      // 1KB/s threshold
       trend = growthRate > 0 ? 'growing' : 'shrinking'
     }
-    
+
     return {
       trend,
       growthRate,
@@ -290,7 +291,7 @@ export class MemoryLeakDetector extends EventEmitter {
   } {
     const analysis = this.analyzeMemoryLeaks()
     const criticalLeaks = analysis.leaks.filter(leak => leak.severity === 'critical').length
-    
+
     return {
       summary: {
         totalLeaks: analysis.leaks.length,
@@ -314,31 +315,31 @@ export class MemoryLeakDetector extends EventEmitter {
   } {
     const initialMemory = this.getCurrentMemoryUsage()
     const actionsPerformed: string[] = []
-    
+
     try {
       // Force garbage collection
       if (this.forceGarbageCollection()) {
         actionsPerformed.push('Forced garbage collection')
       }
-      
+
       // Clean up weak references
       this.cleanupWeakReferences()
       actionsPerformed.push('Cleaned up weak references')
-      
+
       // Clear caches in windows
       this.cleanupWindowCaches()
       actionsPerformed.push('Cleared window caches')
-      
+
       // Trigger manual cleanup callbacks
       this.triggerCleanupCallbacks()
       actionsPerformed.push('Triggered cleanup callbacks')
-      
+
       // Wait a bit for cleanup to take effect
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         setTimeout(() => {
           const finalMemory = this.getCurrentMemoryUsage()
           const memoryFreed = initialMemory - finalMemory
-          
+
           resolve({
             actionsPerformed,
             memoryFreed,
@@ -346,7 +347,6 @@ export class MemoryLeakDetector extends EventEmitter {
           })
         }, 2000)
       }) as any
-      
     } catch (error) {
       logger.error('Memory cleanup failed', 'MemoryLeakDetector', { error })
       return {
@@ -363,7 +363,7 @@ export class MemoryLeakDetector extends EventEmitter {
     this.snapshotTimer = setInterval(() => {
       this.takeSnapshot()
     }, this.config.snapshotInterval)
-    
+
     // Take initial snapshot
     this.takeSnapshot()
   }
@@ -371,13 +371,13 @@ export class MemoryLeakDetector extends EventEmitter {
   private startPeriodicAnalysis(): void {
     this.analysisTimer = setInterval(() => {
       const result = this.analyzeMemoryLeaks()
-      
+
       // Emit alerts for critical leaks
       const criticalLeaks = result.leaks.filter(leak => leak.severity === 'critical')
       if (criticalLeaks.length > 0) {
         this.emit('critical-leaks-detected', criticalLeaks)
       }
-      
+
       // Auto-cleanup if health score is too low
       if (result.healthScore < 30) {
         logger.warn('Low memory health score, attempting cleanup', 'MemoryLeakDetector', {
@@ -386,20 +386,22 @@ export class MemoryLeakDetector extends EventEmitter {
         })
         this.attemptMemoryCleanup()
       }
-      
     }, this.config.analysisInterval)
   }
 
   private startCleanupTimer(): void {
-    this.cleanupTimer = setInterval(() => {
-      this.cleanupOldData()
-    }, 60 * 60 * 1000) // Every hour
+    this.cleanupTimer = setInterval(
+      () => {
+        this.cleanupOldData()
+      },
+      60 * 60 * 1000
+    ) // Every hour
   }
 
   private setupProcessMonitoring(): void {
     // Monitor memory warnings
     if (process.listenerCount('warning') === 0) {
-      process.on('warning', (warning) => {
+      process.on('warning', warning => {
         if (warning.name === 'MaxListenersExceededWarning') {
           this.createEventListenerLeak(warning.message)
         }
@@ -413,7 +415,7 @@ export class MemoryLeakDetector extends EventEmitter {
       const registry = new FinalizationRegistry((id: string) => {
         this.objectReferences.delete(id)
       })
-      
+
       // Track object lifecycle
       const originalTrackObject = this.trackObject.bind(this)
       this.trackObject = (id: string, object: object) => {
@@ -425,22 +427,22 @@ export class MemoryLeakDetector extends EventEmitter {
 
   private detectHeapGrowthLeaks(snapshots: MemorySnapshot[]): MemoryLeak[] {
     const leaks: MemoryLeak[] = []
-    
+
     if (snapshots.length < this.config.thresholds.consecutiveGrowthPeriods) {
       return leaks
     }
-    
+
     // Check for consistent heap growth
     let consecutiveGrowth = 0
     let totalGrowth = 0
-    
+
     for (let i = 1; i < snapshots.length; i++) {
       const prev = snapshots[i - 1]
       const current = snapshots[i]
       const timeDiff = (current.timestamp - prev.timestamp) / 1000
       const heapDiff = current.heapUsed - prev.heapUsed
       const growthRate = heapDiff / timeDiff
-      
+
       if (growthRate > this.config.thresholds.heapGrowthRate) {
         consecutiveGrowth++
         totalGrowth += heapDiff
@@ -448,7 +450,7 @@ export class MemoryLeakDetector extends EventEmitter {
         consecutiveGrowth = 0
       }
     }
-    
+
     if (consecutiveGrowth >= this.config.thresholds.consecutiveGrowthPeriods) {
       const leak: MemoryLeak = {
         id: `heap_leak_${Date.now()}`,
@@ -457,7 +459,11 @@ export class MemoryLeakDetector extends EventEmitter {
         description: `Consistent heap growth detected over ${consecutiveGrowth} periods`,
         firstDetected: snapshots[snapshots.length - consecutiveGrowth].timestamp,
         lastSeen: Date.now(),
-        growthRate: totalGrowth / ((snapshots[snapshots.length - 1].timestamp - snapshots[snapshots.length - consecutiveGrowth].timestamp) / 1000),
+        growthRate:
+          totalGrowth /
+          ((snapshots[snapshots.length - 1].timestamp -
+            snapshots[snapshots.length - consecutiveGrowth].timestamp) /
+            1000),
         samples: snapshots.slice(-consecutiveGrowth),
         recommendations: [
           'Check for objects not being properly garbage collected',
@@ -465,23 +471,23 @@ export class MemoryLeakDetector extends EventEmitter {
           'Consider implementing weak references for large objects'
         ]
       }
-      
+
       leaks.push(leak)
     }
-    
+
     return leaks
   }
 
   private detectExternalMemoryLeaks(snapshots: MemorySnapshot[]): MemoryLeak[] {
     const leaks: MemoryLeak[] = []
-    
+
     if (snapshots.length < 2) return leaks
-    
+
     const recent = snapshots.slice(-10) // Last 10 snapshots
     const externalGrowth = recent[recent.length - 1].external - recent[0].external
     const timeDiff = (recent[recent.length - 1].timestamp - recent[0].timestamp) / 1000
     const growthRate = externalGrowth / timeDiff
-    
+
     if (growthRate > this.config.thresholds.externalGrowthRate) {
       const leak: MemoryLeak = {
         id: `external_leak_${Date.now()}`,
@@ -498,18 +504,19 @@ export class MemoryLeakDetector extends EventEmitter {
           'Monitor ArrayBuffer and TypedArray usage'
         ]
       }
-      
+
       leaks.push(leak)
     }
-    
+
     return leaks
   }
 
   private detectEventListenerLeaks(): MemoryLeak[] {
     const leaks: MemoryLeak[] = []
-    
+
     for (const [source, count] of this.eventListenerCount.entries()) {
-      if (count > 100) { // Threshold for too many listeners
+      if (count > 100) {
+        // Threshold for too many listeners
         const leak: MemoryLeak = {
           id: `listeners_leak_${source}_${Date.now()}`,
           type: 'event-listeners',
@@ -526,11 +533,11 @@ export class MemoryLeakDetector extends EventEmitter {
             'Implement proper cleanup in component lifecycle'
           ]
         }
-        
+
         leaks.push(leak)
       }
     }
-    
+
     return leaks
   }
 
@@ -540,7 +547,7 @@ export class MemoryLeakDetector extends EventEmitter {
       const existingIndex = this.detectedLeaks.findIndex(
         existing => existing.type === newLeak.type && existing.source === newLeak.source
       )
-      
+
       if (existingIndex >= 0) {
         // Update existing leak
         const existing = this.detectedLeaks[existingIndex]
@@ -553,15 +560,15 @@ export class MemoryLeakDetector extends EventEmitter {
         this.detectedLeaks.push(newLeak)
       }
     }
-    
+
     // Remove resolved leaks (not seen for a while)
-    const cutoffTime = Date.now() - (5 * 60 * 1000) // 5 minutes
+    const cutoffTime = Date.now() - 5 * 60 * 1000 // 5 minutes
     this.detectedLeaks = this.detectedLeaks.filter(leak => leak.lastSeen > cutoffTime)
   }
 
   private calculateHealthScore(leaks: MemoryLeak[], snapshots: MemorySnapshot[]): number {
     let score = 100
-    
+
     // Penalize for leaks by severity
     for (const leak of leaks) {
       switch (leak.severity) {
@@ -579,12 +586,12 @@ export class MemoryLeakDetector extends EventEmitter {
           break
       }
     }
-    
+
     // Penalize for high memory usage
     if (snapshots.length > 0) {
       const currentMemory = snapshots[snapshots.length - 1].total
       const memoryPercentage = (currentMemory / this.config.thresholds.totalMemoryLimit) * 100
-      
+
       if (memoryPercentage > 90) {
         score -= 20
       } else if (memoryPercentage > 75) {
@@ -593,56 +600,56 @@ export class MemoryLeakDetector extends EventEmitter {
         score -= 5
       }
     }
-    
+
     return Math.max(0, score)
   }
 
   private generateRecommendations(leaks: MemoryLeak[], snapshots: MemorySnapshot[]): string[] {
     const recommendations = new Set<string>()
-    
+
     // Leak-specific recommendations
     for (const leak of leaks) {
       leak.recommendations.forEach(rec => recommendations.add(rec))
     }
-    
+
     // General recommendations based on memory usage
     if (snapshots.length > 0) {
       const currentMemory = snapshots[snapshots.length - 1].total
       const memoryMB = currentMemory / (1024 * 1024)
-      
+
       if (memoryMB > 400) {
         recommendations.add('Consider implementing memory limits for large operations')
         recommendations.add('Enable more aggressive garbage collection')
       }
-      
+
       if (memoryMB > 250) {
         recommendations.add('Monitor and limit cache sizes')
         recommendations.add('Implement periodic cleanup routines')
       }
     }
-    
+
     // Growth trend recommendations
     const trend = this.analyzeGrowthTrend(snapshots)
     if (trend === 'growing') {
       recommendations.add('Investigate continuous memory growth patterns')
       recommendations.add('Check for accumulating objects in global scope')
     }
-    
+
     return Array.from(recommendations)
   }
 
   private analyzeGrowthTrend(snapshots: MemorySnapshot[]): 'stable' | 'growing' | 'shrinking' {
     if (snapshots.length < 3) return 'stable'
-    
+
     const recent = snapshots.slice(-10)
     const growthValues = []
-    
+
     for (let i = 1; i < recent.length; i++) {
       growthValues.push(recent[i].total - recent[i - 1].total)
     }
-    
+
     const avgGrowth = growthValues.reduce((sum, val) => sum + val, 0) / growthValues.length
-    
+
     if (avgGrowth > 1024 * 1024) return 'growing' // 1MB average growth
     if (avgGrowth < -1024 * 1024) return 'shrinking'
     return 'stable'
@@ -650,7 +657,7 @@ export class MemoryLeakDetector extends EventEmitter {
 
   private calculateLeakSeverity(growthBytes: number): MemoryLeak['severity'] {
     const growthMB = growthBytes / (1024 * 1024)
-    
+
     if (growthMB > 100) return 'critical'
     if (growthMB > 50) return 'high'
     if (growthMB > 10) return 'medium'
@@ -678,27 +685,27 @@ export class MemoryLeakDetector extends EventEmitter {
         'Use once() instead of on() where appropriate'
       ]
     }
-    
+
     this.detectedLeaks.push(leak)
     this.emit('memory-leak-detected', leak)
   }
 
   private cleanupWeakReferences(): void {
     let cleaned = 0
-    
+
     for (const [id, ref] of this.objectReferences.entries()) {
       if (!ref.deref()) {
         this.objectReferences.delete(id)
         cleaned++
       }
     }
-    
+
     logger.debug('Cleaned up weak references', 'MemoryLeakDetector', { cleaned })
   }
 
   private async cleanupWindowCaches(): Promise<void> {
     const windows = BrowserWindow.getAllWindows()
-    
+
     for (const window of windows) {
       try {
         if (window.webContents && !window.webContents.isDestroyed()) {
@@ -725,13 +732,13 @@ export class MemoryLeakDetector extends EventEmitter {
 
   private cleanupOldData(): void {
     const cutoffTime = Date.now() - this.config.retentionPeriod
-    
+
     // Clean up old snapshots
     this.snapshots = this.snapshots.filter(s => s.timestamp > cutoffTime)
-    
+
     // Clean up old leaks
     this.detectedLeaks = this.detectedLeaks.filter(l => l.lastSeen > cutoffTime)
-    
+
     logger.debug('Memory leak detector data cleanup', 'MemoryLeakDetector', {
       snapshots: this.snapshots.length,
       leaks: this.detectedLeaks.length
@@ -743,7 +750,7 @@ export class MemoryLeakDetector extends EventEmitter {
    */
   registerCleanupCallback(callback: () => void): () => void {
     this.gcCallbacks.push(callback)
-    
+
     return () => {
       const index = this.gcCallbacks.indexOf(callback)
       if (index > -1) {
@@ -760,22 +767,22 @@ export class MemoryLeakDetector extends EventEmitter {
       clearInterval(this.snapshotTimer)
       this.snapshotTimer = null
     }
-    
+
     if (this.analysisTimer) {
       clearInterval(this.analysisTimer)
       this.analysisTimer = null
     }
-    
+
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = null
     }
-    
+
     this.objectReferences.clear()
     this.eventListenerCount.clear()
     this.gcCallbacks = []
     this.removeAllListeners()
-    
+
     logger.info('Memory leak detector destroyed', 'MemoryLeakDetector')
   }
 }

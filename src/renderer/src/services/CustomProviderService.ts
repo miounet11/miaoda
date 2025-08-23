@@ -1,6 +1,6 @@
-import type { 
-  CustomProviderConfig, 
-  CustomProviderCreateRequest, 
+import type {
+  CustomProviderConfig,
+  CustomProviderCreateRequest,
   CustomProviderUpdateRequest,
   ProviderHealthStatus,
   ProviderImportExport
@@ -23,7 +23,9 @@ export class CustomProviderService {
   /**
    * Add a new custom provider
    */
-  async addProvider(config: CustomProviderCreateRequest): Promise<{ success: boolean; id?: string; error?: string }> {
+  async addProvider(
+    config: CustomProviderCreateRequest
+  ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       return await window.api.llm.addCustomProvider(config)
     } catch (error: any) {
@@ -35,7 +37,9 @@ export class CustomProviderService {
   /**
    * Create a new provider (alias for addProvider with form data)
    */
-  async createProvider(formData: CustomProviderFormData): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
+  async createProvider(
+    formData: CustomProviderFormData
+  ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const config: CustomProviderCreateRequest = {
         name: formData.name,
@@ -49,7 +53,7 @@ export class CustomProviderService {
       }
 
       const result = await window.api.llm.addCustomProvider(config)
-      
+
       if (result.success && result.id) {
         // Fetch the created provider to return full config
         const getResult = await this.getProvider(result.id)
@@ -65,7 +69,7 @@ export class CustomProviderService {
           data: { ...config, id: result.id } as CustomProviderConfig
         }
       }
-      
+
       return { success: false, error: result.error }
     } catch (error: any) {
       console.error('Failed to create custom provider:', error)
@@ -76,7 +80,10 @@ export class CustomProviderService {
   /**
    * Update an existing custom provider
    */
-  async updateProvider(id: string, updates: Partial<CustomProviderFormData>): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
+  async updateProvider(
+    id: string,
+    updates: Partial<CustomProviderFormData>
+  ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const updateRequest: CustomProviderUpdateRequest = {
         name: updates.name,
@@ -89,7 +96,7 @@ export class CustomProviderService {
       }
 
       const result = await window.api.llm.updateCustomProvider(id, updateRequest)
-      
+
       if (result.success) {
         // Fetch the updated provider to return full config
         const updatedProvider = await this.getProvider(id)
@@ -98,7 +105,7 @@ export class CustomProviderService {
           data: updatedProvider || undefined
         }
       }
-      
+
       return { success: false, error: result.error }
     } catch (error: any) {
       console.error('Failed to update custom provider:', error)
@@ -128,7 +135,11 @@ export class CustomProviderService {
   /**
    * Get all custom providers
    */
-  async getAllProviders(): Promise<{ success: boolean; data?: CustomProviderConfig[]; error?: string }> {
+  async getAllProviders(): Promise<{
+    success: boolean
+    data?: CustomProviderConfig[]
+    error?: string
+  }> {
     try {
       const providers = await window.api.llm.getAllCustomProviders()
       return { success: true, data: providers }
@@ -141,7 +152,9 @@ export class CustomProviderService {
   /**
    * Get a specific custom provider by ID
    */
-  async getProvider(id: string): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
+  async getProvider(
+    id: string
+  ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const provider = await window.api.llm.getCustomProvider(id)
       if (provider) {
@@ -158,7 +171,13 @@ export class CustomProviderService {
   /**
    * Check health of a specific provider
    */
-  async checkProviderHealth(id: string): Promise<{ status: 'healthy' | 'unhealthy' | 'unknown' | 'error'; error?: string; responseTime?: number }> {
+  async checkProviderHealth(
+    id: string
+  ): Promise<{
+    status: 'healthy' | 'unhealthy' | 'unknown' | 'error'
+    error?: string
+    responseTime?: number
+  }> {
     try {
       const health = await window.api.llm.checkCustomProviderHealth(id)
       if (health) {
@@ -255,9 +274,9 @@ export class CustomProviderService {
         }
       }
 
-      return { 
-        success: allSuccess, 
-        error: errors.length > 0 ? errors.join('; ') : undefined 
+      return {
+        success: allSuccess,
+        error: errors.length > 0 ? errors.join('; ') : undefined
       }
     } catch (error: any) {
       console.error('Failed to reset providers:', error)
@@ -298,7 +317,8 @@ export class CustomProviderService {
     }
 
     if (formData.parameters) {
-      const { temperature, maxTokens, topP, frequencyPenalty, presencePenalty } = formData.parameters
+      const { temperature, maxTokens, topP, frequencyPenalty, presencePenalty } =
+        formData.parameters
 
       if (temperature !== undefined && (temperature < 0 || temperature > 2)) {
         errors.push('Temperature must be between 0 and 2')
@@ -327,7 +347,9 @@ export class CustomProviderService {
   /**
    * Validate provider configuration without saving
    */
-  async validateProvider(config: CustomProviderCreateRequest): Promise<{ valid: boolean; error?: string }> {
+  async validateProvider(
+    config: CustomProviderCreateRequest
+  ): Promise<{ valid: boolean; error?: string }> {
     // Basic client-side validation
     if (!config.name || config.name.trim() === '') {
       return { valid: false, error: 'Provider name is required' }

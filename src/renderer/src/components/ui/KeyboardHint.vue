@@ -1,29 +1,24 @@
 <template>
-  <div 
-    v-if="visible" 
-    class="keyboard-hint"
-    :class="hintClasses"
-    @animationend="handleAnimationEnd"
-  >
+  <div v-if="visible" class="keyboard-hint" :class="hintClasses" @animationend="handleAnimationEnd">
     <!-- Shortcut display -->
     <div class="shortcut-container">
       <div class="shortcut-keys">
-        <kbd 
-          v-for="(key, index) in parsedKeys" 
+        <kbd
+          v-for="(key, index) in parsedKeys"
           :key="index"
           class="key"
-          :class="{ 'modifier': key.isModifier }"
+          :class="{ modifier: key.isModifier }"
         >
           {{ key.display }}
         </kbd>
       </div>
-      
+
       <!-- Action description -->
       <div class="action-description">
         {{ description }}
       </div>
     </div>
-    
+
     <!-- Visual indicator -->
     <div class="indicator">
       <div class="indicator-pulse" />
@@ -53,8 +48,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'show': []
-  'hide': []
+  show: []
+  hide: []
   'shortcut-triggered': [shortcut: string]
 }>()
 
@@ -73,12 +68,12 @@ const hintClasses = computed(() => ({
 const parsedKeys = computed(() => {
   const keys = props.shortcut.split('+').map(key => key.trim())
   const isMac = navigator.platform.toLowerCase().includes('mac')
-  
+
   return keys.map(key => {
     const lowerKey = key.toLowerCase()
     let display = key
     let isModifier = false
-    
+
     // Handle modifier keys
     if (lowerKey === 'ctrl' || lowerKey === 'cmd' || lowerKey === 'command') {
       display = isMac ? '⌘' : 'Ctrl'
@@ -104,7 +99,7 @@ const parsedKeys = computed(() => {
     } else {
       display = key.toUpperCase()
     }
-    
+
     return { display, isModifier }
   })
 })
@@ -112,11 +107,11 @@ const parsedKeys = computed(() => {
 // Methods
 const show = () => {
   if (visible.value) return
-  
+
   visible.value = true
   animationState.value = 'entering'
   emit('show')
-  
+
   if (props.autoHide && props.duration > 0) {
     hideTimer.value = setTimeout(() => {
       hide()
@@ -126,9 +121,9 @@ const show = () => {
 
 const hide = () => {
   if (!visible.value) return
-  
+
   animationState.value = 'exiting'
-  
+
   if (hideTimer.value) {
     clearTimeout(hideTimer.value)
     hideTimer.value = null
@@ -147,23 +142,26 @@ const handleAnimationEnd = () => {
 
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
-  const shortcutParts = props.shortcut.toLowerCase().split('+').map(s => s.trim())
+  const shortcutParts = props.shortcut
+    .toLowerCase()
+    .split('+')
+    .map(s => s.trim())
   const pressedKeys: string[] = []
-  
+
   if (event.ctrlKey || event.metaKey) pressedKeys.push('ctrl')
   if (event.altKey) pressedKeys.push('alt')
   if (event.shiftKey) pressedKeys.push('shift')
-  
+
   const mainKey = event.key.toLowerCase()
   if (!['control', 'alt', 'shift', 'meta', 'cmd', 'command'].includes(mainKey)) {
     pressedKeys.push(mainKey === ' ' ? 'space' : mainKey)
   }
-  
-  const matches = shortcutParts.every(part => 
-    pressedKeys.includes(part) || 
-    (part === 'cmd' && pressedKeys.includes('ctrl'))
-  ) && pressedKeys.length === shortcutParts.length
-  
+
+  const matches =
+    shortcutParts.every(
+      part => pressedKeys.includes(part) || (part === 'cmd' && pressedKeys.includes('ctrl'))
+    ) && pressedKeys.length === shortcutParts.length
+
   if (matches) {
     emit('shortcut-triggered', props.shortcut)
     if (props.trigger === 'auto') {
@@ -173,11 +171,15 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 // Auto-trigger on mount
-watch(() => props.trigger, (newTrigger) => {
-  if (newTrigger === 'auto') {
-    show()
-  }
-}, { immediate: true })
+watch(
+  () => props.trigger,
+  newTrigger => {
+    if (newTrigger === 'auto') {
+      show()
+    }
+  },
+  { immediate: true }
+)
 
 // Lifecycle
 onMounted(() => {
@@ -185,7 +187,7 @@ onMounted(() => {
     // Delay slightly to ensure smooth appearance
     setTimeout(show, 100)
   }
-  
+
   // Listen for keyboard events
   document.addEventListener('keydown', handleKeydown)
 })
@@ -255,7 +257,7 @@ defineExpose({
 .hint-enhanced {
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(30, 30, 30, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -288,7 +290,7 @@ defineExpose({
   font-weight: 600;
   color: #333;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-  box-shadow: 
+  box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
   transition: all 0.2s ease;
@@ -366,7 +368,8 @@ defineExpose({
 }
 
 @keyframes hintFloatBreathe {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(-50%) translateY(0);
   }
   50% {
@@ -375,7 +378,8 @@ defineExpose({
 }
 
 @keyframes indicatorPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.4;
   }
@@ -452,19 +456,19 @@ defineExpose({
     background: rgba(20, 20, 20, 0.95);
     border-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   .hint-enhanced {
     background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(40, 40, 40, 0.95));
     border-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   .key {
     background: linear-gradient(145deg, #404040, #303030);
     border-color: #505050;
     color: #e0e0e0;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
   }
-  
+
   .key.modifier {
     background: linear-gradient(145deg, #505050, #404040);
     border-color: #606060;
@@ -476,13 +480,13 @@ defineExpose({
   .keyboard-hint {
     animation: none !important;
   }
-  
+
   .hint-entering,
   .hint-exiting,
   .hint-visible {
     animation: none !important;
   }
-  
+
   .indicator-pulse {
     animation: none !important;
     opacity: 0.6;
@@ -495,13 +499,13 @@ defineExpose({
     background: rgba(0, 0, 0, 0.95);
     border: 2px solid #ffffff;
   }
-  
+
   .key {
     background: #ffffff;
     border: 2px solid #000000;
     color: #000000;
   }
-  
+
   .action-description {
     color: #ffffff;
     font-weight: 700;

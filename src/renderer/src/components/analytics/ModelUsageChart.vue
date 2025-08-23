@@ -2,9 +2,7 @@
   <div class="model-usage-chart">
     <div class="mb-4">
       <h3 class="text-lg font-semibold mb-2">Model Usage Distribution</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        Usage percentage by AI model
-      </p>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Usage percentage by AI model</p>
     </div>
 
     <BaseChart
@@ -17,9 +15,7 @@
 
     <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="stats-summary">
-        <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">
-          Top Models
-        </h4>
+        <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Top Models</h4>
         <div class="space-y-1">
           <div
             v-for="model in topModels"
@@ -31,9 +27,7 @@
               <span class="text-gray-900 dark:text-gray-100 font-medium">
                 {{ model.count }}
               </span>
-              <span class="text-xs text-gray-500">
-                ({{ model.percentage.toFixed(1) }}%)
-              </span>
+              <span class="text-xs text-gray-500"> ({{ model.percentage.toFixed(1) }}%) </span>
             </div>
           </div>
         </div>
@@ -96,14 +90,12 @@ const colors = [
   '#84CC16', // Lime
   '#F97316', // Orange
   '#EC4899', // Pink
-  '#6B7280'  // Gray
+  '#6B7280' // Gray
 ]
 
 const topModels = computed(() => {
   if (!props.data?.modelUsage) return []
-  return props.data.modelUsage
-    .filter(model => model.model !== 'Unknown')
-    .slice(0, 5)
+  return props.data.modelUsage.filter(model => model.model !== 'Unknown').slice(0, 5)
 })
 
 const chartOption = computed((): EChartsOption => {
@@ -121,8 +113,8 @@ const chartOption = computed((): EChartsOption => {
     }
   }
 
-  const validModels = props.data.modelUsage.filter(model => 
-    model.model !== 'Unknown' && model.count > 0
+  const validModels = props.data.modelUsage.filter(
+    model => model.model !== 'Unknown' && model.count > 0
   )
 
   if (validModels.length === 0) {
@@ -168,36 +160,38 @@ const chartOption = computed((): EChartsOption => {
         fontSize: 12
       }
     },
-    series: [{
-      name: 'Model Usage',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      center: ['50%', '50%'],
-      data: validModels.map((model, index) => ({
-        name: model.model,
-        value: model.count,
-        itemStyle: {
-          color: colors[index % colors.length]
+    series: [
+      {
+        name: 'Model Usage',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['50%', '50%'],
+        data: validModels.map((model, index) => ({
+          name: model.model,
+          value: model.count,
+          itemStyle: {
+            color: colors[index % colors.length]
+          }
+        })),
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        label: {
+          show: true,
+          formatter: '{b}\n{d}%',
+          fontSize: 11
+        },
+        labelLine: {
+          show: true,
+          length: 15,
+          length2: 10
         }
-      })),
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
-      },
-      label: {
-        show: true,
-        formatter: '{b}\n{d}%',
-        fontSize: 11
-      },
-      labelLine: {
-        show: true,
-        length: 15,
-        length2: 10
       }
-    }]
+    ]
   }
 })
 
@@ -211,7 +205,8 @@ const handleChartClick = (params: any) => {
   @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm;
 }
 
-.stats-summary, .performance-summary {
+.stats-summary,
+.performance-summary {
   @apply bg-gray-50 dark:bg-gray-700 rounded-lg p-3;
 }
 </style>

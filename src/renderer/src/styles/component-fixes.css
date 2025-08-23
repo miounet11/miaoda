@@ -110,15 +110,15 @@
   .virtual-message-list .message-container {
     padding: 0 16px !important;
   }
-  
+
   .chat-summary {
     padding: 12px 16px !important;
   }
-  
+
   .global-search-modal {
     padding: 16px !important;
   }
-  
+
   .confirm-dialog {
     margin: 16px !important;
     padding: 20px !important;
@@ -130,11 +130,11 @@
   .virtual-message-list .message-container {
     padding: 0 12px !important;
   }
-  
+
   .chat-summary {
     padding: 12px !important;
   }
-  
+
   .global-search-modal {
     padding: 12px !important;
   }

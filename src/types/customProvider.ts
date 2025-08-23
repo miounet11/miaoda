@@ -1,8 +1,5 @@
 // Re-export types for frontend usage
-export type {
-  CustomProviderConfig,
-  ProviderHealthStatus
-} from '../main/llm/provider'
+export type { CustomProviderConfig, ProviderHealthStatus } from '../main/llm/provider'
 
 export interface CustomProviderFormData {
   name: string

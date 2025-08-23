@@ -1,10 +1,6 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="show"
-      class="modal-overlay"
-      @click.self="$emit('close')"
-    >
+    <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
       <div class="modal-container">
         <div class="modal-header">
           <h2 class="modal-title">评价插件</h2>
@@ -16,12 +12,7 @@
         <div class="modal-content">
           <div class="plugin-info">
             <div class="plugin-icon">
-              <img
-                v-if="plugin.icon"
-                :src="plugin.icon"
-                :alt="plugin.name"
-                class="icon-image"
-              >
+              <img v-if="plugin.icon" :src="plugin.icon" :alt="plugin.name" class="icon-image" />
               <Package v-else :size="32" />
             </div>
             <div class="plugin-details">
@@ -91,24 +82,14 @@
             <!-- Anonymous Option -->
             <div class="options-section">
               <label class="option-item">
-                <input
-                  v-model="isAnonymous"
-                  type="checkbox"
-                  class="option-checkbox"
-                >
+                <input v-model="isAnonymous" type="checkbox" class="option-checkbox" />
                 <span class="option-text">匿名发布评价</span>
               </label>
             </div>
 
             <!-- Actions -->
             <div class="modal-actions">
-              <button
-                type="button"
-                @click="$emit('close')"
-                class="action-btn cancel"
-              >
-                取消
-              </button>
+              <button type="button" @click="$emit('close')" class="action-btn cancel">取消</button>
               <button
                 type="submit"
                 :disabled="rating === 0 || isSubmitting"
@@ -172,14 +153,7 @@ const setRating = (value: number) => {
 
 const getRatingText = (): string => {
   const currentRating = hoverRating.value || rating.value
-  const texts = [
-    '',
-    '很差',
-    '一般',
-    '不错',
-    '很好',
-    '非常好'
-  ]
+  const texts = ['', '很差', '一般', '不错', '很好', '非常好']
   return texts[currentRating] || ''
 }
 
@@ -188,7 +162,8 @@ const toggleTag = (tag: string) => {
   if (index > -1) {
     selectedTags.value.splice(index, 1)
   } else {
-    if (selectedTags.value.length < 5) { // Limit to 5 tags
+    if (selectedTags.value.length < 5) {
+      // Limit to 5 tags
       selectedTags.value.push(tag)
     }
   }
@@ -196,9 +171,9 @@ const toggleTag = (tag: string) => {
 
 const submitRating = async () => {
   if (rating.value === 0) return
-  
+
   isSubmitting.value = true
-  
+
   try {
     const ratingData = {
       rating: rating.value,
@@ -206,7 +181,7 @@ const submitRating = async () => {
       tags: selectedTags.value.length > 0 ? selectedTags.value : undefined,
       anonymous: isAnonymous.value || undefined
     }
-    
+
     emit('submit', ratingData)
   } catch (error) {
     console.error('Failed to submit rating:', error)
@@ -269,7 +244,10 @@ const submitRating = async () => {
   @apply space-y-6;
 }
 
-.rating-section, .review-section, .tags-section, .options-section {
+.rating-section,
+.review-section,
+.tags-section,
+.options-section {
   @apply space-y-3;
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="chat-view flex h-screen bg-background overflow-hidden">
     <!-- 侧边栏 -->
-    <aside 
+    <aside
       v-show="!sidebarCollapsed"
       class="sidebar flex flex-col transition-all duration-300 overflow-hidden border-r border-border/50 flex-shrink-0"
       :class="{ 'pt-8': isMacOS }"
@@ -18,7 +18,10 @@
               class="p-2 hover:bg-secondary/60 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
               title="新建聊天 (⌘N)"
             >
-              <Plus :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+              <Plus
+                :size="18"
+                class="text-muted-foreground group-hover:text-primary transition-colors"
+              />
             </button>
             <!-- 收起侧边栏按钮 -->
             <button
@@ -26,25 +29,32 @@
               class="p-2 hover:bg-secondary/60 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
               :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
             >
-              <PanelLeftClose v-if="!sidebarCollapsed" :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
-              <PanelLeft v-else :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+              <PanelLeftClose
+                v-if="!sidebarCollapsed"
+                :size="18"
+                class="text-muted-foreground group-hover:text-primary transition-colors"
+              />
+              <PanelLeft
+                v-else
+                :size="18"
+                class="text-muted-foreground group-hover:text-primary transition-colors"
+              />
             </button>
           </div>
         </div>
       </div>
-      
+
       <!-- 搜索栏 -->
       <div v-if="!sidebarCollapsed" class="search-container">
         <div class="relative">
-          <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="搜索聊天记录..."
-          >
+          <Search
+            :size="18"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <input v-model="searchQuery" type="text" placeholder="搜索聊天记录..." />
         </div>
       </div>
-      
+
       <!-- 聊天列表 -->
       <div class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         <TransitionGroup name="chat-list">
@@ -54,12 +64,12 @@
             :data-chat-id="chat.id"
             @click="selectChat(chat.id)"
             class="chat-item"
-            :class="{ 'active': currentChatId === chat.id }"
+            :class="{ active: currentChatId === chat.id }"
           >
             <div class="flex items-start gap-3">
               <div class="flex-shrink-0 mt-1">
-                <MessageSquare 
-                  :size="16" 
+                <MessageSquare
+                  :size="16"
                   :class="currentChatId === chat.id ? 'text-primary' : 'text-muted-foreground'"
                 />
               </div>
@@ -67,9 +77,11 @@
                 <h3>{{ chat.title }}</h3>
                 <p>{{ formatTime(chat.updatedAt) }}</p>
               </div>
-              
+
               <!-- 操作按钮 -->
-              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div
+                class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
                 <button
                   @click.stop="deleteChat(chat.id)"
                   class="delete-btn p-1 hover:bg-background rounded transition-colors"
@@ -81,7 +93,7 @@
             </div>
           </div>
         </TransitionGroup>
-        
+
         <!-- 空状态 -->
         <div v-if="filteredChats.length === 0" class="text-center py-12">
           <MessageSquare :size="32" class="mx-auto mb-3 text-muted-foreground/50" />
@@ -90,7 +102,7 @@
           </p>
         </div>
       </div>
-      
+
       <!-- 侧边栏底部 -->
       <div class="sidebar-footer p-4 border-t border-border/50 space-y-2">
         <button
@@ -111,7 +123,7 @@
         </button>
       </div>
     </aside>
-    
+
     <!-- 可调整大小的分隔条 -->
     <div
       v-if="!sidebarCollapsed"
@@ -122,7 +134,7 @@
     <!-- 主聊天区域 -->
     <main class="flex-1 flex flex-col min-w-0 min-h-0 relative">
       <!-- Optimized Chat Header -->
-      <header class="chat-header flex items-center justify-between" :class="{ 'macos': isMacOS }">
+      <header class="chat-header flex items-center justify-between" :class="{ macos: isMacOS }">
         <!-- Left side: Mobile menu + Title -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <button
@@ -133,7 +145,7 @@
           >
             <Menu :size="20" class="text-muted-foreground" />
           </button>
-          
+
           <div class="min-w-0 flex-1">
             <h1 class="chat-title">
               {{ currentChat?.title || 'New Conversation' }}
@@ -152,11 +164,11 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Right side: Simplified controls -->
         <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           <!-- Model selector (compact) -->
-          <ProviderModelSelector 
+          <ProviderModelSelector
             v-if="!isMobile || !sidebarCollapsed"
             :disabled="isLoading"
             :compact="true"
@@ -165,26 +177,37 @@
             @settings-opened="handleSettingsOpened"
             class="hidden sm:flex"
           />
-          
+
           <!-- Search -->
           <button
             @click="openGlobalSearch"
             class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
             title="Search conversations (⌘K)"
           >
-            <Search :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+            <Search
+              :size="18"
+              class="text-muted-foreground group-hover:text-primary transition-colors"
+            />
           </button>
-          
+
           <!-- Theme toggle -->
           <button
             @click="toggleTheme"
             class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
             :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
           >
-            <Sun v-if="isDark" :size="18" class="text-amber-500 group-hover:text-amber-400 transition-colors" />
-            <Moon v-else :size="18" class="text-blue-600 group-hover:text-blue-500 transition-colors" />
+            <Sun
+              v-if="isDark"
+              :size="18"
+              class="text-mono-600 group-hover:text-mono-500 transition-colors"
+            />
+            <Moon
+              v-else
+              :size="18"
+              class="text-mono-600 group-hover:text-mono-700 transition-colors"
+            />
           </button>
-          
+
           <!-- Settings button (visible when sidebar is collapsed) -->
           <button
             v-if="sidebarCollapsed || isMobile"
@@ -192,36 +215,43 @@
             class="p-2.5 hover:bg-secondary/40 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 group"
             title="Settings"
           >
-            <Settings :size="18" class="text-muted-foreground group-hover:text-primary transition-colors" />
+            <Settings
+              :size="18"
+              class="text-muted-foreground group-hover:text-primary transition-colors"
+            />
           </button>
-          
+
           <!-- More menu -->
           <div class="relative">
             <button
               @click="showHeaderMenu = !showHeaderMenu"
               :class="[
                 'p-2.5 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95',
-                showHeaderMenu ? 'bg-secondary text-foreground' : 'hover:bg-secondary/40 text-muted-foreground'
+                showHeaderMenu
+                  ? 'bg-secondary text-foreground'
+                  : 'hover:bg-secondary/40 text-muted-foreground'
               ]"
               title="More options"
             >
               <MoreVertical :size="18" />
             </button>
-            
+
             <!-- Header dropdown menu -->
             <Transition name="menu-slide">
               <div
-                v-if="showHeaderMenu" 
+                v-if="showHeaderMenu"
                 class="absolute top-full mt-2 right-0 w-56 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
                 @click="showHeaderMenu = false"
               >
                 <div class="p-2">
                   <!-- Mobile model selector -->
                   <div v-if="isMobile" class="sm:hidden mb-2 pb-2 border-b border-border/40">
-                    <div class="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    <div
+                      class="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                    >
                       AI Model
                     </div>
-                    <ProviderModelSelector 
+                    <ProviderModelSelector
                       :disabled="isLoading"
                       :compact="false"
                       @provider-changed="handleProviderChanged"
@@ -230,7 +260,7 @@
                       class="w-full"
                     />
                   </div>
-                  
+
                   <button
                     @click="exportCurrentChat"
                     class="w-full px-3 py-2.5 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
@@ -238,7 +268,7 @@
                     <Download :size="16" />
                     Export Chat
                   </button>
-                  
+
                   <button
                     @click="shareCurrentChat"
                     class="w-full px-3 py-2.5 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
@@ -246,9 +276,9 @@
                     <Share :size="16" />
                     Share Chat
                   </button>
-                  
+
                   <div class="h-px bg-border/40 my-2" />
-                  
+
                   <button
                     @click="clearCurrentChat"
                     class="w-full px-3 py-2.5 text-left hover:bg-destructive/10 text-destructive rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
@@ -264,8 +294,11 @@
       </header>
 
       <!-- 智能摘要区域 -->
-      <div v-if="currentChat && currentChat.messages?.length > 3" class="smart-summary border-b border-border/30 px-6 py-4 bg-secondary/10">
-        <ChatSummary 
+      <div
+        v-if="currentChat && currentChat.messages?.length > 3"
+        class="smart-summary border-b border-border/30 px-6 py-4 bg-secondary/10"
+      >
+        <ChatSummary
           :chat-id="currentChat.id"
           :messages="currentMessages"
           :auto-generate="true"
@@ -276,38 +309,39 @@
       </div>
 
       <!-- 消息区域 -->
-      <div 
+      <div
         class="flex-1 flex flex-col min-h-0 chat-content"
         @drop="handleDrop"
         @dragover.prevent
         @dragenter.prevent
       >
         <!-- 欢迎界面 -->
-        <div v-if="!currentChat || (!currentChat.messages?.length && isInitialized && !isLoading)" class="welcome-screen flex-1 flex items-center justify-center">
+        <div
+          v-if="!currentChat || (!currentChat.messages?.length && isInitialized && !isLoading)"
+          class="welcome-screen flex-1 flex items-center justify-center"
+        >
           <div class="text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg">
+            <div
+              class="inline-flex items-center justify-center w-20 h-20 mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl shadow-lg"
+            >
               <Sparkles :size="36" class="text-primary" />
             </div>
-            <h2>
-              欢迎使用 MiaoDa Chat
-            </h2>
-            <p>
-              你的智能 AI 助手，随时准备帮你解答问题、编写代码、翻译文本等
-            </p>
-            
+            <h2>欢迎使用 MiaoDa Chat</h2>
+            <p>你的智能 AI 助手，随时准备帮你解答问题、编写代码、翻译文本等</p>
+
             <!-- 开始新对话按钮 -->
             <div class="mb-8">
-              <button
-                @click="createNewChat"
-              >
+              <button @click="createNewChat">
                 <Plus :size="20" />
                 <span>开始新对话</span>
               </button>
             </div>
-            
+
             <!-- 快速开始建议 -->
             <div class="mb-4">
-              <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">或者选择一个话题开始</h3>
+              <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                或者选择一个话题开始
+              </h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
               <button
@@ -317,7 +351,9 @@
                 class="suggestion-card"
               >
                 <div class="flex items-start gap-4">
-                  <div class="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all group-hover:scale-110">
+                  <div
+                    class="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all group-hover:scale-110"
+                  >
                     <component :is="suggestion.icon" :size="22" class="text-primary" />
                   </div>
                   <div>
@@ -329,9 +365,9 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 性能优化的虚拟消息列表 -->
-        <div 
+        <div
           v-else-if="currentChat && currentChat.messages"
           ref="messagesContainer"
           class="flex-1 min-h-0 relative"
@@ -350,14 +386,17 @@
             class="h-full"
           />
         </div>
-        
+
         <!-- Enhanced loading state with skeleton -->
-        <div v-else-if="!isInitialized || (isLoading && !currentChat?.messages?.length)" class="flex-1 p-6">
+        <div
+          v-else-if="!isInitialized || (isLoading && !currentChat?.messages?.length)"
+          class="flex-1 p-6"
+        >
           <SkeletonLoader variant="header" class="mb-6" />
           <SkeletonLoader variant="message" :count="3" class="mb-6" />
           <SkeletonLoader variant="input" />
         </div>
-        
+
         <!-- 滚动到底部按钮 -->
         <Transition name="fade">
           <button
@@ -369,42 +408,66 @@
             <ArrowDown :size="20" class="text-muted-foreground" />
           </button>
         </Transition>
-        
+
         <!-- 增强的加载状态 -->
         <Transition name="loading-fade" appear>
           <div v-if="isLoading && currentChat?.messages?.length" class="px-6 py-4">
             <div class="ai-thinking-bubble relative overflow-hidden">
-              <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-secondary/20 via-secondary/30 to-secondary/20 rounded-2xl border border-border/30 backdrop-blur-sm">
+              <div
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-secondary/20 via-secondary/30 to-secondary/20 rounded-2xl border border-border/30 backdrop-blur-sm"
+              >
                 <!-- AI 头像动画 -->
                 <div class="flex-shrink-0 relative">
-                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-sm animate-pulse-glow">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-sm animate-pulse-glow"
+                  >
                     <Sparkles :size="16" class="text-white animate-sparkle" />
                   </div>
                   <!-- 思考波纹 -->
-                  <div class="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
-                  <div class="absolute inset-0 rounded-full border-2 border-primary/10 animate-ping" style="animation-delay: 0.5s;" />
+                  <div
+                    class="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping"
+                  />
+                  <div
+                    class="absolute inset-0 rounded-full border-2 border-primary/10 animate-ping"
+                    style="animation-delay: 0.5s"
+                  />
                 </div>
-                
+
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
                     <div class="thinking-dots flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0s" />
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.3s" />
-                      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot" style="animation-delay: 0.6s" />
+                      <span
+                        class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot"
+                        style="animation-delay: 0s"
+                      />
+                      <span
+                        class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot"
+                        style="animation-delay: 0.3s"
+                      />
+                      <span
+                        class="w-1.5 h-1.5 bg-primary rounded-full animate-thinking-dot"
+                        style="animation-delay: 0.6s"
+                      />
                     </div>
-                    <span class="text-sm font-medium text-foreground animate-text-shimmer">AI 正在思考</span>
+                    <span class="text-sm font-medium text-foreground animate-text-shimmer"
+                      >AI 正在思考</span
+                    >
                   </div>
                   <div class="text-xs text-muted-foreground">正在分析您的问题并生成回复...</div>
-                  
+
                   <!-- 进度条 -->
                   <div class="mt-2 w-full bg-secondary/50 rounded-full h-1 overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-primary to-primary/50 animate-progress-wave" />
+                    <div
+                      class="h-full bg-gradient-to-r from-primary to-primary/50 animate-progress-wave"
+                    />
                   </div>
                 </div>
               </div>
-              
+
               <!-- 背景动效 -->
-              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer-bg" />
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer-bg"
+              />
             </div>
           </div>
         </Transition>
@@ -418,7 +481,9 @@
               <RefreshCw :size="16" class="text-primary" />
               <div>
                 <div class="text-sm font-medium text-foreground">回复消息</div>
-                <div class="text-xs text-muted-foreground truncate max-w-md">{{ replyingTo.content }}</div>
+                <div class="text-xs text-muted-foreground truncate max-w-md">
+                  {{ replyingTo.content }}
+                </div>
               </div>
             </div>
             <button
@@ -435,23 +500,25 @@
       <div class="input-area">
         <div class="max-w-4xl mx-auto">
           <!-- 配置提示 -->
-          <div 
-            v-if="!isConfigured" 
+          <div
+            v-if="!isConfigured"
             class="mb-3 p-3 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-2"
           >
             <AlertCircle :size="16" class="text-warning flex-shrink-0" />
             <span class="text-sm">请先在设置中配置 LLM 提供商</span>
-            <button 
-              @click="$router.push('/settings')" 
+            <button
+              @click="$router.push('/settings')"
               class="ml-auto text-sm font-medium text-primary hover:underline"
             >
               立即配置 →
             </button>
           </div>
-          
+
           <!-- 附件预览 -->
           <div v-if="attachments.length > 0" class="mb-4">
-            <div class="flex flex-wrap gap-3 p-4 bg-secondary/20 rounded-xl border border-border/30">
+            <div
+              class="flex flex-wrap gap-3 p-4 bg-secondary/20 rounded-xl border border-border/30"
+            >
               <TransitionGroup name="attachment">
                 <div
                   v-for="(attachment, index) in attachments"
@@ -460,11 +527,11 @@
                 >
                   <!-- 图片附件 -->
                   <div v-if="attachment.type === 'image'" class="relative">
-                    <img 
-                      :src="attachment.data" 
+                    <img
+                      :src="attachment.data"
                       :alt="attachment.name"
                       class="h-20 w-20 object-cover rounded-lg border border-border"
-                    >
+                    />
                     <button
                       @click="removeAttachment(index)"
                       class="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
@@ -472,9 +539,12 @@
                       <X :size="12" />
                     </button>
                   </div>
-                  
+
                   <!-- 文件附件 -->
-                  <div v-else class="flex items-center gap-2 px-3 py-2 bg-secondary/50 rounded-lg border border-border">
+                  <div
+                    v-else
+                    class="flex items-center gap-2 px-3 py-2 bg-secondary/50 rounded-lg border border-border"
+                  >
                     <FileText :size="16" class="text-muted-foreground" />
                     <span class="text-sm max-w-[150px] truncate">{{ attachment.name }}</span>
                     <button
@@ -488,21 +558,17 @@
               </TransitionGroup>
             </div>
           </div>
-          
+
           <!-- 输入框容器 -->
           <div class="relative">
             <div class="input-container">
               <!-- 附件按钮 -->
               <div class="flex gap-2">
-                <button
-                  @click="selectFiles"
-                  title="添加附件"
-                  :disabled="isLoading"
-                >
+                <button @click="selectFiles" title="添加附件" :disabled="isLoading">
                   <Paperclip :size="20" />
                 </button>
               </div>
-              
+
               <!-- 文本输入框 -->
               <div class="flex-1 relative">
                 <textarea
@@ -517,7 +583,7 @@
                   ref="messageInput"
                 />
               </div>
-              
+
               <!-- 语音和发送按钮 -->
               <div class="flex gap-2">
                 <!-- 语音输入按钮 -->
@@ -530,7 +596,7 @@
                 >
                   <Mic :size="20" />
                 </button>
-                
+
                 <!-- 发送按钮 -->
                 <button
                   @click="sendMessage"
@@ -542,21 +608,21 @@
                 </button>
               </div>
             </div>
-            
+
             <!-- 智能提示栏 -->
             <div class="input-hints">
               <div class="flex items-center gap-4 text-xs text-muted-foreground">
                 <span class="flex items-center gap-1.5">
-                  <kbd>Enter</kbd> 发送
+                  <kbd>Enter</kbd> {{ $t('chat.enterToSend') }}
                 </span>
                 <span class="flex items-center gap-1.5">
-                  <kbd>Shift+Enter</kbd> 换行
+                  <kbd>Shift+Enter</kbd> {{ $t('chat.shiftEnterToNewline') }}
                 </span>
                 <span class="flex items-center gap-1.5" v-if="!isMobile">
-                  <kbd>⌘K</kbd> 搜索
+                  <kbd>⌘K</kbd> {{ $t('chat.searchShortcut') }}
                 </span>
               </div>
-              
+
               <!-- 字符计数和状态 -->
               <div class="flex items-center gap-3 text-xs text-muted-foreground">
                 <Transition name="status-slide" mode="out-in">
@@ -565,15 +631,17 @@
                     AI 响应中...
                   </span>
                 </Transition>
-                
+
                 <Transition name="counter-bounce">
-                  <span 
-                    v-if="inputCharacterCount > 0" 
+                  <span
+                    v-if="inputCharacterCount > 0"
                     :class="[
                       'font-medium tabular-nums transition-all duration-300',
-                      inputCharacterCount > 4000 ? 'text-destructive animate-error-shake' : 
-                      inputCharacterCount > 3000 ? 'text-warning' : 
-                      'text-muted-foreground hover:text-foreground'
+                      inputCharacterCount > 4000
+                        ? 'text-destructive animate-error-shake'
+                        : inputCharacterCount > 3000
+                          ? 'text-warning'
+                          : 'text-muted-foreground hover:text-foreground'
                     ]"
                   >
                     {{ inputCharacterCount.toLocaleString() }}/4000
@@ -585,7 +653,7 @@
         </div>
       </div>
     </main>
-    
+
     <!-- 移动端侧边栏遮罩 -->
     <Transition name="overlay-fade">
       <div
@@ -595,7 +663,7 @@
         @touchstart.passive="toggleSidebar"
       />
     </Transition>
-    
+
     <!-- 全局搜索 -->
     <GlobalSearch
       v-if="showGlobalSearch"
@@ -604,14 +672,14 @@
       @message-click="handleSearchMessageClick"
       @chat-click="handleSearchChatClick"
     />
-    
+
     <!-- Progressive Onboarding -->
-    <ProgressiveOnboarding
+    <!-- <ProgressiveOnboarding
       @start-sample-conversation="handleStartSampleConversation"
       @open-settings="$router.push('/settings')"
       @complete="handleOnboardingComplete"
       @toggle-theme="toggleTheme"
-    />
+    /> -->
     <!-- 删除聊天确认对话框 -->
     <ConfirmDialog
       :is-open="showDeleteConfirm"
@@ -624,7 +692,7 @@
       @confirm="confirmDeleteChat"
       @cancel="cancelDeleteChat"
     />
-    
+
     <!-- 新建聊天确认对话框 -->
     <ConfirmDialog
       :is-open="showNewChatConfirm"
@@ -641,12 +709,37 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted, watch, defineComponent, h } from 'vue'
-import { 
-  Plus, Send, Settings, Paperclip, X, FileText, Mic,
-  MessageSquare, Loader2, AlertCircle, Search, Trash2, Menu,
-  Sun, Moon, MoreVertical, RefreshCw, PanelLeft, PanelLeftClose,
-  Sparkles, Code2, Languages, HelpCircle, Check, CheckCircle, XCircle,
-  ArrowDown, BarChart3, Download, Share
+import {
+  Plus,
+  Send,
+  Settings,
+  Paperclip,
+  X,
+  FileText,
+  Mic,
+  MessageSquare,
+  Loader2,
+  AlertCircle,
+  Search,
+  Trash2,
+  Menu,
+  Sun,
+  Moon,
+  MoreVertical,
+  RefreshCw,
+  PanelLeft,
+  PanelLeftClose,
+  Sparkles,
+  Code2,
+  Languages,
+  HelpCircle,
+  Check,
+  CheckCircle,
+  XCircle,
+  ArrowDown,
+  BarChart3,
+  Download,
+  Share
 } from 'lucide-vue-next'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useSettingsStore } from '@renderer/src/stores/settings'
@@ -693,49 +786,104 @@ const MessageStatusIndicator = defineComponent({
     const getStatusIcon = () => {
       switch (props.status) {
         case 'sending':
-          return h('div', {
-            class: 'flex items-center gap-1 text-xs text-muted-foreground/70 animate-pulse-subtle',
-            title: '发送中...'
-          }, [
-            h(Loader2, { size: 12, class: 'animate-spin' }),
-            h('span', { class: 'hidden sm:inline sending-dots' }, '发送中')
-          ])
+          return h(
+            'div',
+            {
+              class:
+                'flex items-center gap-1 text-xs text-muted-foreground/70 animate-pulse-subtle',
+              title: '发送中...'
+            },
+            [
+              h(Loader2, { size: 12, class: 'animate-spin' }),
+              h('span', { class: 'hidden sm:inline sending-dots' }, '发送中')
+            ]
+          )
         case 'sent':
-          return h('div', {
-            class: 'flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 hover:text-foreground',
-            title: '已发送'
-          }, [
-            h(Check, { size: 12, class: 'transition-all duration-300 animate-success-check' }),
-            h('span', { class: 'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200' }, '已发送')
-          ])
+          return h(
+            'div',
+            {
+              class:
+                'flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 hover:text-foreground',
+              title: '已发送'
+            },
+            [
+              h(Check, { size: 12, class: 'transition-all duration-300 animate-success-check' }),
+              h(
+                'span',
+                {
+                  class:
+                    'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+                },
+                '已发送'
+              )
+            ]
+          )
         case 'delivered':
-          return h('div', {
-            class: 'flex items-center gap-1 text-xs text-primary transition-all duration-300 animate-bounce-in',
-            title: '已送达'
-          }, [
-            h(Check, { size: 12, class: 'transition-all duration-300 scale-110 animate-success-check' }),
-            h('span', { class: 'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200' }, '已送达')
-          ])
+          return h(
+            'div',
+            {
+              class:
+                'flex items-center gap-1 text-xs text-primary transition-all duration-300 animate-bounce-in',
+              title: '已送达'
+            },
+            [
+              h(Check, {
+                size: 12,
+                class: 'transition-all duration-300 scale-110 animate-success-check'
+              }),
+              h(
+                'span',
+                {
+                  class:
+                    'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+                },
+                '已送达'
+              )
+            ]
+          )
         case 'read':
-          return h('div', {
-            class: 'flex items-center gap-1 text-xs text-primary transition-all duration-300 animate-bounce-in',
-            title: '已读'
-          }, [
-            h(CheckCircle, { size: 12, class: 'transition-all duration-300 scale-110 animate-success-check' }),
-            h('span', { class: 'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200' }, '已读')
-          ])
+          return h(
+            'div',
+            {
+              class:
+                'flex items-center gap-1 text-xs text-primary transition-all duration-300 animate-bounce-in',
+              title: '已读'
+            },
+            [
+              h(CheckCircle, {
+                size: 12,
+                class: 'transition-all duration-300 scale-110 animate-success-check'
+              }),
+              h(
+                'span',
+                {
+                  class:
+                    'hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+                },
+                '已读'
+              )
+            ]
+          )
         case 'error':
-          return h('div', {
-            class: 'flex items-center gap-1 text-xs text-destructive transition-all duration-300 cursor-pointer hover:text-destructive/80 animate-error-shake',
-            title: '发送失败，点击重试',
-            onClick: () => {
-              // 触发重试逻辑
-              // Retry message sending
-            }
-          }, [
-            h(XCircle, { size: 12, class: 'transition-all duration-300 hover:scale-110 animate-error-shake' }),
-            h('span', { class: 'hidden sm:inline animate-error-shake' }, '重试')
-          ])
+          return h(
+            'div',
+            {
+              class:
+                'flex items-center gap-1 text-xs text-destructive transition-all duration-300 cursor-pointer hover:text-destructive/80 animate-error-shake',
+              title: '发送失败，点击重试',
+              onClick: () => {
+                // 触发重试逻辑
+                // Retry message sending
+              }
+            },
+            [
+              h(XCircle, {
+                size: 12,
+                class: 'transition-all duration-300 hover:scale-110 animate-error-shake'
+              }),
+              h('span', { class: 'hidden sm:inline animate-error-shake' }, '重试')
+            ]
+          )
         default:
           return null
       }
@@ -841,11 +989,12 @@ const currentChat = computed(() => chatStore.currentChat)
 const filteredChats = computed(() => {
   const allChats = chats.value || []
   if (!searchQuery.value) return allChats
-  
+
   const query = searchQuery.value.toLowerCase()
-  return allChats.filter(chat => 
-    chat.title.toLowerCase().includes(query) ||
-    (chat.messages && chat.messages.some(msg => msg.content.toLowerCase().includes(query)))
+  return allChats.filter(
+    chat =>
+      chat.title.toLowerCase().includes(query) ||
+      (chat.messages && chat.messages.some(msg => msg.content.toLowerCase().includes(query)))
   )
 })
 
@@ -854,15 +1003,17 @@ const currentMessages = computed(() => {
 })
 
 const canSend = computed(() => {
-  return (inputMessage.value.trim() || attachments.value.length > 0) && 
-         !isLoading.value && 
-         isConfigured.value
+  return (
+    (inputMessage.value.trim() || attachments.value.length > 0) &&
+    !isLoading.value &&
+    isConfigured.value
+  )
 })
 
 // Provider icon for mobile display
 const providerIcons = {
   openai: '🤖',
-  anthropic: '🧠', 
+  anthropic: '🧠',
   google: '🌟',
   local: '🏠',
   custom: '⚡'
@@ -881,7 +1032,7 @@ onMounted(async () => {
   try {
     // 检测操作系统
     isMacOS.value = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-    
+
     // 初始化 chat store with error handling
     // Initializing chat store
     try {
@@ -891,7 +1042,7 @@ onMounted(async () => {
       logger.error('Failed to initialize chat store', 'ChatViewImproved', storeError)
       // Continue anyway - the app should still be usable
     }
-    
+
     // 检查 LLM 配置
     try {
       isConfigured.value = await window.api.llm.isConfigured()
@@ -900,28 +1051,28 @@ onMounted(async () => {
       logger.error('Failed to check LLM configuration', 'ChatViewImproved', error)
       isConfigured.value = false
     }
-    
+
     // 检查主题
     isDark.value = document.documentElement.classList.contains('dark')
-    
+
     // 检查移动端
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
+
     // 初始化语音识别
     try {
       initializeVoiceRecognition()
     } catch (error) {
       logger.error('Failed to initialize voice recognition', 'ChatViewImproved', error)
     }
-    
+
     // 注册快捷键
     try {
       setupShortcuts()
     } catch (error) {
       logger.error('Failed to setup shortcuts', 'ChatViewImproved', error)
     }
-    
+
     // 恢复侧边栏宽度
     try {
       const savedWidth = localStorage.getItem('sidebarWidth')
@@ -934,7 +1085,7 @@ onMounted(async () => {
     } catch (error) {
       logger.error('Failed to restore sidebar width', 'ChatViewImproved', error)
     }
-    
+
     // 初始化消息容器高度监听
     initializeMessageContainer()
   } catch (error) {
@@ -946,12 +1097,12 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
   cleanupShortcuts()
-  
+
   // 清理计时器
   if (inputChangeTimeout.value) {
     clearTimeout(inputChangeTimeout.value)
   }
-  
+
   // 清理尺寸监听器
   if (resizeObserver.value) {
     resizeObserver.value.disconnect()
@@ -959,12 +1110,15 @@ onUnmounted(() => {
 })
 
 // 监听配置变化
-watch(() => chatStore.currentChatId, () => {
-  // 切换聊天时滚动到底部
-  nextTick(() => {
-    scrollToBottom()
-  })
-})
+watch(
+  () => chatStore.currentChatId,
+  () => {
+    // 切换聊天时滚动到底部
+    nextTick(() => {
+      scrollToBottom()
+    })
+  }
+)
 
 // 方法
 const createNewChat = () => {
@@ -1022,32 +1176,35 @@ const deleteChat = async (chatId: string) => {
 
 const confirmDeleteChat = async () => {
   if (!chatToDelete.value) return
-  
+
   const chatId = chatToDelete.value
   const chatTitle = deleteChatTitle.value
   const messageCount = deleteChatMessageCount.value
-  
+
   try {
     // Show loading state
     deleteChatLoading.value = true
-    
+
     // Call the store to delete the chat
     await chatStore.deleteChat(chatId)
-    
+
     // Provide user feedback
     console.log(`Chat "${chatTitle}" (${messageCount} messages) deleted successfully`)
-    logger.info('Chat deleted successfully from UI', 'ChatViewImproved', { chatId, chatTitle, messageCount })
-    
+    logger.info('Chat deleted successfully from UI', 'ChatViewImproved', {
+      chatId,
+      chatTitle,
+      messageCount
+    })
+
     // Close dialog
     showDeleteConfirm.value = false
     chatToDelete.value = null
     deleteChatTitle.value = ''
     deleteChatMessageCount.value = 0
-    
   } catch (error) {
     console.error('Failed to delete chat:', error)
     logger.error('Failed to delete chat from UI', 'ChatViewImproved', error)
-    
+
     // Show error message (you could implement a toast notification here)
     alert('删除聊天失败，请重试')
   } finally {
@@ -1064,7 +1221,7 @@ const cancelDeleteChat = () => {
 
 const formatTime = (date: Date | string | number | undefined | null) => {
   if (!date) return '刚刚'
-  
+
   try {
     // 使用更安全的时间格式化函数
     return formatTimeWithFallback(date)
@@ -1076,7 +1233,7 @@ const formatTime = (date: Date | string | number | undefined | null) => {
 
 const formatMessageTime = (date: Date | string | undefined) => {
   if (!date) return ''
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date
     if (isNaN(dateObj.getTime())) return ''
@@ -1107,47 +1264,48 @@ const toggleTheme = () => {
 // 语音输入相关方法
 const initializeVoiceRecognition = () => {
   // Initializing voice recognition
-  
+
   // 检查语音识别支持
   const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
   // Speech recognition availability checked
-  
+
   if (hasSpeechRecognition) {
     try {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       recognition.value = new SpeechRecognition()
-      
+
       recognition.value.continuous = false
       recognition.value.interimResults = false
       recognition.value.lang = 'zh-CN'
-      
+
       recognition.value.onstart = () => {
         isRecording.value = true
         // Voice recording started
       }
-      
+
       recognition.value.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript
         const confidence = event.results[0][0].confidence
-        
+
         // Voice transcript received
-        
+
         if (confidence > 0.7) {
           inputMessage.value = transcript
           messageInput.value?.focus()
         }
       }
-      
+
       recognition.value.onerror = (event: any) => {
         logger.error('Voice recognition error', 'VoiceRecognition', event.error)
         isRecording.value = false
       }
-      
+
       recognition.value.onend = () => {
         isRecording.value = false
         // Voice recording ended
       }
-      
+
       isVoiceSupported.value = true
       // Voice recognition initialized successfully
     } catch (error) {
@@ -1162,7 +1320,7 @@ const initializeVoiceRecognition = () => {
 
 const toggleVoiceRecording = () => {
   if (!recognition.value) return
-  
+
   if (isRecording.value) {
     recognition.value.stop()
   } else {
@@ -1205,18 +1363,18 @@ const checkMobile = () => {
 const startResize = (e: MouseEvent) => {
   const startX = e.clientX
   const startWidth = sidebarWidth.value
-  
+
   const handleMouseMove = (e: MouseEvent) => {
     const newWidth = startWidth + (e.clientX - startX)
     sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth))
   }
-  
+
   const handleMouseUp = () => {
     document.removeEventListener('mousemove', handleMouseMove)
     document.removeEventListener('mouseup', handleMouseUp)
     localStorage.setItem('sidebarWidth', sidebarWidth.value.toString())
   }
-  
+
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
 }
@@ -1224,7 +1382,7 @@ const startResize = (e: MouseEvent) => {
 // 文件处理
 const selectFiles = async () => {
   const files = await window.api.file.select()
-  
+
   for (const file of files) {
     const attachment: Attachment = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -1240,19 +1398,19 @@ const selectFiles = async () => {
 const handlePaste = async (event: ClipboardEvent) => {
   const items = event.clipboardData?.items
   if (!items) return
-  
+
   for (const item of items) {
     if (item.type.startsWith('image/')) {
       event.preventDefault()
-      
+
       const file = item.getAsFile()
       if (!file) continue
-      
+
       const reader = new FileReader()
-      reader.onload = async (e) => {
+      reader.onload = async e => {
         const dataUrl = e.target?.result as string
         const fileInfo = await window.api.file.paste(dataUrl)
-        
+
         attachments.value.push({
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           name: fileInfo.name,
@@ -1269,12 +1427,12 @@ const handleDrop = async (event: DragEvent) => {
   event.preventDefault()
   const files = event.dataTransfer?.files
   if (!files) return
-  
+
   for (const file of files) {
     const reader = new FileReader()
-    
+
     if (file.type.startsWith('image/')) {
-      reader.onload = (e) => {
+      reader.onload = e => {
         attachments.value.push({
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           name: file.name,
@@ -1284,7 +1442,7 @@ const handleDrop = async (event: DragEvent) => {
       }
       reader.readAsDataURL(file)
     } else if (file.type.startsWith('text/')) {
-      reader.onload = (e) => {
+      reader.onload = e => {
         attachments.value.push({
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           name: file.name,
@@ -1316,15 +1474,15 @@ const onInputBlur = () => {
 
 const onInputChange = () => {
   inputCharacterCount.value = inputMessage.value.length
-  
+
   // 清除之前的延时
   if (inputChangeTimeout.value) {
     clearTimeout(inputChangeTimeout.value)
   }
-  
+
   // 显示打字效果
   isTypingEffect.value = true
-  
+
   // 延时隐藏打字效果
   inputChangeTimeout.value = setTimeout(() => {
     if (!isFocused.value) {
@@ -1426,26 +1584,26 @@ const sendQuickMessage = (message: string) => {
 
 const sendMessage = async () => {
   if (!canSend.value) return
-  
+
   const message = inputMessage.value
   const messageAttachments = [...attachments.value]
-  
+
   inputMessage.value = ''
   attachments.value = []
-  
+
   // 发送消息后滚动到底部
   nextTick(() => {
     scrollToBottom('smooth')
   })
-  
+
   // 构建消息内容 - 支持多模态输入
   let messageContent: any
   const hasImages = messageAttachments.some(att => att.type === 'image' && att.data)
-  
+
   if (hasImages) {
     // 多模态消息格式 - 符合OpenAI Vision API规范
     const content: any[] = []
-    
+
     // 添加文本内容
     if (message.trim()) {
       content.push({
@@ -1453,7 +1611,7 @@ const sendMessage = async () => {
         text: message
       })
     }
-    
+
     // 添加图片内容
     for (const attachment of messageAttachments) {
       if (attachment.type === 'image' && attachment.data) {
@@ -1476,7 +1634,7 @@ const sendMessage = async () => {
         }
       }
     }
-    
+
     messageContent = content
   } else {
     // 纯文本消息
@@ -1488,15 +1646,22 @@ const sendMessage = async () => {
     }
     messageContent = fullContent
   }
-  
+
   // 添加用户消息（带状态和回复）
   // 对于显示，使用文本格式；对于API调用，使用结构化格式
-  const displayContent = typeof messageContent === 'string' ? messageContent : 
-    (messageContent as any[]).map(c => 
-      c.type === 'text' ? c.text : 
-      c.type === 'image_url' ? `[图片: ${messageAttachments.find(att => att.data === c.image_url.url)?.name || '未知'}]` : ''
-    ).join('\n')
-  
+  const displayContent =
+    typeof messageContent === 'string'
+      ? messageContent
+      : (messageContent as any[])
+          .map(c =>
+            c.type === 'text'
+              ? c.text
+              : c.type === 'image_url'
+                ? `[图片: ${messageAttachments.find(att => att.data === c.image_url.url)?.name || '未知'}]`
+                : ''
+          )
+          .join('\n')
+
   const userMessage = await chatStore.addMessage({
     role: 'user',
     content: displayContent,
@@ -1504,21 +1669,21 @@ const sendMessage = async () => {
     replyTo: replyingTo.value,
     attachments: messageAttachments // 保存附件信息
   })
-  
+
   // 清除回复状态
   replyingTo.value = null
-  
+
   // 立即更新为已发送状态
   setTimeout(() => {
     if (userMessage) {
       userMessage.status = 'sent'
     }
   }, 100)
-  
+
   // 滚动到底部
   await nextTick()
   scrollToBottom()
-  
+
   // 检查配置
   if (!isConfigured.value) {
     await chatStore.addMessage({
@@ -1528,71 +1693,78 @@ const sendMessage = async () => {
     })
     return
   }
-  
+
   isLoading.value = true
-  
+
   // 创建助手消息 - 使用占位符内容避免验证错误
   const assistantMessage = await chatStore.addMessage({
     role: 'assistant',
-    content: '...',  // 使用占位符避免空内容验证错误
+    content: '...', // 使用占位符避免空内容验证错误
     timestamp: new Date()
   })
-  
+
   try {
     // 设置流式响应监听
     let streamedContent = ''
     const currentMessageId = assistantMessage.id
     const currentChatId = currentChat.value?.id
-    
-    console.log('[ChatView] Setting up chunk listener', { chatId: currentChatId, messageId: currentMessageId })
-    
+
+    console.log('[ChatView] Setting up chunk listener', {
+      chatId: currentChatId,
+      messageId: currentMessageId
+    })
+
     const cleanupChunk = window.api.llm.onChunk((data: any) => {
-      console.log('[ChatView] Received chunk data', { 
-        data, 
+      console.log('[ChatView] Received chunk data', {
+        data,
         matchesChat: data.chatId === currentChatId,
-        matchesMessage: data.messageId === currentMessageId 
+        matchesMessage: data.messageId === currentMessageId
       })
-      
+
       if (data.chatId === currentChatId && data.messageId === currentMessageId) {
         streamedContent += data.chunk
-        console.log('[ChatView] Updating message with chunk', { 
-          messageId: currentMessageId, 
+        console.log('[ChatView] Updating message with chunk', {
+          messageId: currentMessageId,
           chunkLength: data.chunk.length,
-          totalLength: streamedContent.length 
+          totalLength: streamedContent.length
         })
-        
+
         // 使用store的方法更新消息内容
         chatStore.updateMessageContent(currentMessageId, streamedContent)
-        
+
         nextTick(() => {
           scrollToBottom()
         })
       }
     })
-    
+
     // 发送到 LLM - 使用正确的消息格式
-    console.log('[ChatView] Sending message to LLM', { messageContent, chatId: currentChat.value!.id, messageId: assistantMessage.id })
+    console.log('[ChatView] Sending message to LLM', {
+      messageContent,
+      chatId: currentChat.value!.id,
+      messageId: assistantMessage.id
+    })
     const response = await window.api.llm.sendMessage(
       messageContent,
       currentChat.value!.id,
       assistantMessage.id
     )
-    
+
     console.log('[ChatView] LLM response received', { response, responseLength: response?.length })
-    
+
     // 更新最终响应
     // Test with a simple message first
-    const testResponse = response || "测试响应内容 - 如果你看到这个，说明更新机制是工作的"
+    const testResponse = response || '测试响应内容 - 如果你看到这个，说明更新机制是工作的'
     console.log('[ChatView] Using response', { testResponse, length: testResponse?.length })
-    
+
     await chatStore.updateMessageContent(assistantMessage.id, testResponse)
     console.log('[ChatView] Message content updated')
-    
+
     // AI回复完成后滚动到底部
     nextTick(() => {
       scrollToBottom('smooth')
     })
-    
+
     cleanupChunk()
   } catch (error: any) {
     // 更新错误消息
@@ -1626,16 +1798,16 @@ const scrollToBottom = () => {
 // 初始化消息容器高度监听
 const initializeMessageContainer = () => {
   if (!messagesContainer.value) return
-  
+
   const updateHeight = () => {
     if (messagesContainer.value) {
       messagesContainerHeight.value = messagesContainer.value.clientHeight
     }
   }
-  
+
   // 初始更新高度
   nextTick(updateHeight)
-  
+
   // 监听尺寸变化
   resizeObserver.value = new ResizeObserver(debounce(updateHeight, 100))
   resizeObserver.value.observe(messagesContainer.value)
@@ -1662,14 +1834,14 @@ const handleCopyMessage = async (content: string) => {
 // 处理消息重新生成
 const handleRegenerateMessage = async (index: number) => {
   if (!currentChat.value) return
-  
+
   try {
     isLoading.value = true
-    
+
     // 获取当前消息之前的所有消息作为上下文
     const contextMessages = currentChat.value.messages.slice(0, index)
     const targetMessage = currentChat.value.messages[index]
-    
+
     if (targetMessage.role === 'assistant') {
       // 重新生成助手回复
       const response = await window.api.llm.sendMessage(
@@ -1677,7 +1849,7 @@ const handleRegenerateMessage = async (index: number) => {
         currentChat.value.id,
         targetMessage.id
       )
-      
+
       // 更新消息内容
       await chatStore.updateMessageContent(targetMessage.id, response)
     }
@@ -1688,7 +1860,6 @@ const handleRegenerateMessage = async (index: number) => {
   }
 }
 
-
 // 快捷键设置
 const setupShortcuts = () => {
   window.addEventListener('app:new-chat', createNewChat)
@@ -1698,7 +1869,7 @@ const setupShortcuts = () => {
       createNewChat()
     }
   })
-  
+
   // 添加全局搜索快捷键
   const handleKeydown = (e: KeyboardEvent) => {
     // Cmd/Ctrl + Shift + F 打开全局搜索
@@ -1712,7 +1883,7 @@ const setupShortcuts = () => {
     }
   }
   document.addEventListener('keydown', handleKeydown)
-  
+
   // 保存引用以便清理
   ;(window as any).__searchKeydownHandler = handleKeydown
 }
@@ -1757,17 +1928,17 @@ const openProviderSelectorModal = () => {
 const exportCurrentChat = () => {
   showHeaderMenu.value = false
   if (!currentChat.value) return
-  
+
   // TODO: Implement chat export functionality
   // Exporting current chat
-  
+
   // For now, create a simple text export
   const chatData = {
     title: currentChat.value.title,
     messages: currentChat.value.messages,
     exportedAt: new Date().toISOString()
   }
-  
+
   const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -1780,30 +1951,35 @@ const exportCurrentChat = () => {
 const shareCurrentChat = () => {
   showHeaderMenu.value = false
   if (!currentChat.value) return
-  
+
   // TODO: Implement chat sharing functionality
   // Sharing current chat
-  
+
   if (navigator.share) {
-    navigator.share({
-      title: `Chat: ${currentChat.value.title}`,
-      text: `Check out this conversation: ${currentChat.value.title}`,
-      url: `${window.location.origin}/chat/${currentChat.value.id}`
-    }).catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
+    navigator
+      .share({
+        title: `Chat: ${currentChat.value.title}`,
+        text: `Check out this conversation: ${currentChat.value.title}`,
+        url: `${window.location.origin}/chat/${currentChat.value.id}`
+      })
+      .catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
   } else {
     // Fallback to clipboard
     const shareUrl = `${window.location.origin}/chat/${currentChat.value.id}`
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      // TODO: Add toast notification for share URL copied
-      // Share URL copied to clipboard
-    }).catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        // TODO: Add toast notification for share URL copied
+        // Share URL copied to clipboard
+      })
+      .catch(error => logger.error('Failed to copy share URL', 'handleShare', error))
   }
 }
 
 const clearCurrentChat = () => {
   showHeaderMenu.value = false
   if (!currentChat.value) return
-  
+
   if (confirm('Are you sure you want to clear this conversation? This cannot be undone.')) {
     // Clear messages but keep the chat
     currentChat.value.messages = []
@@ -1815,17 +1991,17 @@ const clearCurrentChat = () => {
 // Onboarding handlers
 const handleStartSampleConversation = async (sample: any) => {
   // Starting sample conversation
-  
+
   // Create a new chat for the sample
   const newChat = await chatStore.createChat()
-  
+
   // Add the sample conversation
   await chatStore.addMessage({
     role: 'user',
     content: sample.prompt,
     timestamp: new Date()
   })
-  
+
   // Add a pre-written AI response to demonstrate the interface
   const sampleResponses = {
     'code-review': `I'd be happy to help you review your JavaScript code! Here are some general best practices to keep in mind:
@@ -1916,7 +2092,7 @@ Would you like me to elaborate on any of these sections or adjust the focus?`,
 
 Would you like me to dive deeper into any specific trend or analyze particular aspects?`,
 
-    'learning': `I'd be happy to explain quantum computing in simple terms! Let's break it down step by step:
+    learning: `I'd be happy to explain quantum computing in simple terms! Let's break it down step by step:
 
 ## Quantum Computing Simplified
 
@@ -1955,16 +2131,17 @@ Would you like me to dive deeper into any specific trend or analyze particular a
 
 What specific aspect would you like me to explain further?`
   }
-  
+
   // Add the sample AI response
   setTimeout(async () => {
     await chatStore.addMessage({
       role: 'assistant',
-      content: sampleResponses[sample.id as keyof typeof sampleResponses] || 
-               `Thanks for that interesting question about "${sample.title}"! I'd be happy to help you explore this topic further. What specific aspects would you like to focus on?`,
+      content:
+        sampleResponses[sample.id as keyof typeof sampleResponses] ||
+        `Thanks for that interesting question about "${sample.title}"! I'd be happy to help you explore this topic further. What specific aspects would you like to focus on?`,
       timestamp: new Date()
     })
-    
+
     // Scroll to show the conversation
     await nextTick()
     scrollToBottom()
@@ -1980,8 +2157,13 @@ const handleOnboardingComplete = () => {
 <style scoped>
 /* === 高亮闪烁效果 === */
 @keyframes highlight-flash {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: rgba(var(--primary), 0.2); }
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(var(--primary), 0.2);
+  }
 }
 
 .highlight-flash {
@@ -1990,8 +2172,13 @@ const handleOnboardingComplete = () => {
 
 /* === 消息状态动画 === */
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes success-check {
@@ -2010,9 +2197,23 @@ const handleOnboardingComplete = () => {
 }
 
 @keyframes error-shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 @keyframes bounce-in {
@@ -2138,7 +2339,9 @@ textarea {
 
 /* 输入框聚焦效果 */
 .input-container {
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 /* 侧边栏调整大小 */
@@ -2208,7 +2411,7 @@ textarea {
   .action-button:hover {
     background-color: inherit;
   }
-  
+
   .action-button:active {
     transform: scale(0.95);
     background-color: hsl(var(--muted));
@@ -2222,7 +2425,7 @@ textarea {
     /* Prevent scroll during sidebar animation */
     overflow-x: hidden;
   }
-  
+
   .sidebar {
     @apply fixed left-0 top-0 h-full z-50 shadow-2xl;
     transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -2233,15 +2436,15 @@ textarea {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  
+
   .sidebar.collapsed {
     transform: translate3d(-100%, 0, 0);
   }
-  
+
   .sidebar-resizer {
     @apply hidden;
   }
-  
+
   /* Better mobile header */
   .chat-header {
     @apply h-16 px-3;
@@ -2250,14 +2453,14 @@ textarea {
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   .chat-header button {
     @apply p-2.5 active:scale-95;
     min-width: 44px;
     min-height: 44px;
     transition: transform 150ms ease;
   }
-  
+
   /* Optimize input area for mobile */
   .input-area {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
@@ -2265,89 +2468,89 @@ textarea {
     position: relative;
     z-index: 10;
   }
-  
+
   /* Better attachment handling */
   .attachment-item {
     @apply max-w-[200px];
   }
-  
+
   .attachment-item button {
     @apply active:scale-90;
     transition: transform 120ms ease;
   }
-  
+
   /* Mobile-friendly welcome screen */
   .welcome-screen {
     @apply px-4 py-8;
   }
-  
+
   .welcome-screen .grid {
     @apply grid-cols-1 gap-3;
   }
-  
+
   .welcome-screen button {
     @apply p-4 text-left;
     min-height: 80px;
     transition: transform 150ms ease;
   }
-  
+
   .welcome-screen button:active {
     transform: scale(0.98);
   }
-  
+
   /* Improve text readability on mobile */
   .welcome-screen h2 {
     @apply text-2xl;
   }
-  
+
   .welcome-screen p {
     @apply text-base;
   }
-  
+
   /* Better chat item touch targets */
   .chat-item {
     @apply active:scale-[0.98];
     transition: transform 120ms ease;
     min-height: 64px;
   }
-  
+
   /* Mobile-optimized message bubbles */
   .message-bubble {
     @apply max-w-[85%];
   }
-  
+
   /* Better scrollbar for mobile */
   .sidebar::-webkit-scrollbar {
     width: 3px;
   }
-  
+
   /* Improve button spacing */
   .sidebar-header button,
   .sidebar-footer button {
     @apply active:scale-95;
     transition: transform 150ms ease;
   }
-  
+
   /* Text input improvements */
   .text-16 {
     font-size: 16px !important; /* Prevent zoom on iOS */
   }
-  
+
   /* Safe area handling */
   .sidebar-header {
     padding: 1rem;
     padding-top: max(1rem, env(safe-area-inset-top));
     border-bottom: 1px solid rgba(var(--border), 0.5);
   }
-  
+
   .sidebar-footer {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
-  
+
   .search-container {
     padding: 0 1rem 1rem 1rem;
   }
-  
+
   .search-container input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
@@ -2358,13 +2561,13 @@ textarea {
     font-size: 0.875rem;
     transition: all 0.2s ease;
   }
-  
+
   .search-container input:focus {
     outline: none;
     border-color: rgba(var(--primary), 0.8);
     box-shadow: 0 0 0 2px rgba(var(--primary), 0.1);
   }
-  
+
   .search-container input::placeholder {
     color: var(--muted-foreground);
   }
@@ -2372,7 +2575,8 @@ textarea {
 
 /* === 输入框动画 === */
 @keyframes focus-breathe {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 2px rgba(var(--primary), 0.2);
   }
   50% {
@@ -2381,7 +2585,9 @@ textarea {
 }
 
 @keyframes typing-dot {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8);
   }
@@ -2430,7 +2636,8 @@ textarea {
 
 /* === 加载动画 === */
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
   }
   50% {
@@ -2439,12 +2646,19 @@ textarea {
 }
 
 @keyframes sparkle {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.1); }
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
 }
 
 @keyframes thinking-dot {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     opacity: 0.3;
     transform: translateY(0);
   }
@@ -2455,9 +2669,15 @@ textarea {
 }
 
 @keyframes text-shimmer {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes progress-wave {
@@ -2520,7 +2740,8 @@ textarea {
 }
 
 @keyframes audio-bar {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(0.3);
   }
   50% {
@@ -2641,7 +2862,8 @@ textarea {
 
 /* === 滚动动画 === */
 @keyframes bounce-subtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -2752,7 +2974,7 @@ main {
   .message-bubble:hover {
     transform: translate3d(0, -1px, 0) scale(1.02);
   }
-  
+
   .input-container.focused {
     transform: translate3d(0, 0, 0) scale(1.01);
   }

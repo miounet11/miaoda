@@ -11,173 +11,185 @@
 /* ============== 全局设计令牌重定义 ============== */
 :root {
   /* === 主色调系统 - 现代蓝紫渐变 === */
-  --primary-50: 240 249 255;     /* 极浅蓝 */
-  --primary-100: 224 242 254;    /* 浅蓝 */
-  --primary-200: 186 230 253;    /* 蓝白 */
-  --primary-300: 125 211 252;    /* 亮蓝 */
-  --primary-400: 56 189 248;     /* 标准蓝 */
-  --primary-500: 14 165 233;     /* 主蓝色 */
-  --primary-600: 2 132 199;      /* 深蓝 */
-  --primary-700: 3 105 161;      /* 更深蓝 */
-  --primary-800: 7 89 133;       /* 海军蓝 */
-  --primary-900: 12 74 110;      /* 最深蓝 */
-  
+  --primary-50: 240 249 255; /* 极浅蓝 */
+  --primary-100: 224 242 254; /* 浅蓝 */
+  --primary-200: 186 230 253; /* 蓝白 */
+  --primary-300: 125 211 252; /* 亮蓝 */
+  --primary-400: 56 189 248; /* 标准蓝 */
+  --primary-500: 14 165 233; /* 主蓝色 */
+  --primary-600: 2 132 199; /* 深蓝 */
+  --primary-700: 3 105 161; /* 更深蓝 */
+  --primary-800: 7 89 133; /* 海军蓝 */
+  --primary-900: 12 74 110; /* 最深蓝 */
+
   /* === 中性色系统 - 温暖灰调 === */
-  --neutral-50: 249 250 251;     /* 接近白色 */
-  --neutral-100: 243 244 246;    /* 极浅灰 */
-  --neutral-200: 229 231 235;    /* 浅灰 */
-  --neutral-300: 209 213 219;    /* 中浅灰 */
-  --neutral-400: 156 163 175;    /* 中灰 */
-  --neutral-500: 107 114 128;    /* 标准灰 */
-  --neutral-600: 75 85 99;       /* 深灰 */
-  --neutral-700: 55 65 81;       /* 更深灰 */
-  --neutral-800: 31 41 55;       /* 炭灰色 */
-  --neutral-900: 15 23 42;       /* 最深灰 */
+  --neutral-50: 249 250 251; /* 接近白色 */
+  --neutral-100: 243 244 246; /* 极浅灰 */
+  --neutral-200: 229 231 235; /* 浅灰 */
+  --neutral-300: 209 213 219; /* 中浅灰 */
+  --neutral-400: 156 163 175; /* 中灰 */
+  --neutral-500: 107 114 128; /* 标准灰 */
+  --neutral-600: 75 85 99; /* 深灰 */
+  --neutral-700: 55 65 81; /* 更深灰 */
+  --neutral-800: 31 41 55; /* 炭灰色 */
+  --neutral-900: 15 23 42; /* 最深灰 */
 
   /* === 功能色系统 === */
   --success-50: 236 253 245;
-  --success-500: 16 185 129;     /* 成功绿 */
+  --success-500: 16 185 129; /* 成功绿 */
   --success-700: 4 120 87;
-  
+
   --warning-50: 255 251 235;
-  --warning-500: 245 158 11;     /* 警告橙 */
+  --warning-500: 245 158 11; /* 警告橙 */
   --warning-700: 180 83 9;
-  
+
   --error-50: 254 242 242;
-  --error-500: 239 68 68;        /* 错误红 */
+  --error-500: 239 68 68; /* 错误红 */
   --error-700: 185 28 28;
 
   /* === 主题变量重新定义 === */
   --background: var(--neutral-50);
   --foreground: var(--neutral-900);
-  
-  --card: 255 255 255;           /* 纯白卡片 */
+
+  --card: 255 255 255; /* 纯白卡片 */
   --card-foreground: var(--neutral-900);
-  
+
   --popover: 255 255 255;
   --popover-foreground: var(--neutral-900);
-  
+
   --primary: var(--primary-600);
   --primary-foreground: 255 255 255;
-  
+
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--neutral-700);
-  
+
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-500);
-  
+
   --accent: var(--primary-50);
   --accent-foreground: var(--primary-700);
-  
+
   --destructive: var(--error-500);
   --destructive-foreground: 255 255 255;
-  
+
   --border: var(--neutral-200);
   --input: var(--neutral-200);
   --ring: var(--primary-500);
-  
+
   /* === 新增设计令牌 === */
-  --surface-elevated: 255 255 255;     /* 悬浮表面 */
-  --surface-hover: var(--neutral-50);   /* 悬停表面 */
+  --surface-elevated: 255 255 255; /* 悬浮表面 */
+  --surface-hover: var(--neutral-50); /* 悬停表面 */
   --surface-pressed: var(--neutral-100); /* 按压表面 */
-  
-  --text-primary: var(--neutral-900);   /* 主要文本 */
+
+  --text-primary: var(--neutral-900); /* 主要文本 */
   --text-secondary: var(--neutral-600); /* 次要文本 */
-  --text-tertiary: var(--neutral-400);  /* 第三级文本 */
-  --text-disabled: var(--neutral-300);  /* 禁用文本 */
-  
-  --icon-primary: var(--neutral-700);   /* 主要图标 */
+  --text-tertiary: var(--neutral-400); /* 第三级文本 */
+  --text-disabled: var(--neutral-300); /* 禁用文本 */
+
+  --icon-primary: var(--neutral-700); /* 主要图标 */
   --icon-secondary: var(--neutral-500); /* 次要图标 */
-  --icon-tertiary: var(--neutral-400);  /* 第三级图标 */
-  
-  --divider: var(--neutral-200);        /* 分割线 */
+  --icon-tertiary: var(--neutral-400); /* 第三级图标 */
+
+  --divider: var(--neutral-200); /* 分割线 */
   --divider-strong: var(--neutral-300); /* 强分割线 */
-  
+
   /* === 交互状态颜色 === */
   --interactive-hover: var(--primary-50);
   --interactive-active: var(--primary-100);
   --interactive-disabled: var(--neutral-100);
-  
+
   /* === 品牌渐变 === */
-  --gradient-primary: linear-gradient(135deg, 
-    hsl(var(--primary-500)) 0%, 
-    hsl(var(--primary-600)) 100%);
-    
-  --gradient-hero: linear-gradient(135deg,
+  --gradient-primary: linear-gradient(
+    135deg,
+    hsl(var(--primary-500)) 0%,
+    hsl(var(--primary-600)) 100%
+  );
+
+  --gradient-hero: linear-gradient(
+    135deg,
     hsl(var(--primary-400)) 0%,
     hsl(var(--primary-600)) 50%,
-    hsl(var(--primary-700)) 100%);
-    
-  --gradient-subtle: linear-gradient(135deg,
+    hsl(var(--primary-700)) 100%
+  );
+
+  --gradient-subtle: linear-gradient(
+    135deg,
     hsl(var(--primary-50)) 0%,
-    hsl(var(--primary-100)) 100%);
+    hsl(var(--primary-100)) 100%
+  );
 }
 
 /* ============== 深色主题优化 ============== */
 .dark {
   /* === 深色背景系统 === */
-  --background: 8 8 16;              /* 深蓝黑 */
+  --background: 8 8 16; /* 深蓝黑 */
   --foreground: var(--neutral-100);
-  
-  --card: 15 16 28;                  /* 深色卡片 */
+
+  --card: 15 16 28; /* 深色卡片 */
   --card-foreground: var(--neutral-100);
-  
+
   --popover: 15 16 28;
   --popover-foreground: var(--neutral-100);
-  
+
   --primary: var(--primary-400);
   --primary-foreground: var(--neutral-900);
-  
-  --secondary: 20 21 35;             /* 深色次要背景 */
+
+  --secondary: 20 21 35; /* 深色次要背景 */
   --secondary-foreground: var(--neutral-300);
-  
+
   --muted: 20 21 35;
   --muted-foreground: var(--neutral-400);
-  
+
   --accent: 20 21 35;
   --accent-foreground: var(--primary-400);
-  
+
   --destructive: var(--error-500);
   --destructive-foreground: var(--neutral-100);
-  
-  --border: 35 39 57;                /* 深色边框 */
+
+  --border: 35 39 57; /* 深色边框 */
   --input: 35 39 57;
   --ring: var(--primary-400);
-  
+
   /* === 深色模式新增令牌 === */
-  --surface-elevated: 22 24 40;      /* 深色悬浮表面 */
-  --surface-hover: 25 27 43;         /* 深色悬停 */
-  --surface-pressed: 30 33 48;       /* 深色按压 */
-  
+  --surface-elevated: 22 24 40; /* 深色悬浮表面 */
+  --surface-hover: 25 27 43; /* 深色悬停 */
+  --surface-pressed: 30 33 48; /* 深色按压 */
+
   --text-primary: var(--neutral-100); /* 深色主文本 */
   --text-secondary: var(--neutral-300); /* 深色次文本 */
-  --text-tertiary: var(--neutral-500);  /* 深色第三文本 */
-  --text-disabled: var(--neutral-600);  /* 深色禁用文本 */
-  
-  --icon-primary: var(--neutral-300);   /* 深色主图标 */
+  --text-tertiary: var(--neutral-500); /* 深色第三文本 */
+  --text-disabled: var(--neutral-600); /* 深色禁用文本 */
+
+  --icon-primary: var(--neutral-300); /* 深色主图标 */
   --icon-secondary: var(--neutral-400); /* 深色次图标 */
-  --icon-tertiary: var(--neutral-500);  /* 深色第三图标 */
-  
-  --divider: 35 39 57;               /* 深色分割线 */
-  --divider-strong: 50 56 73;        /* 深色强分割线 */
-  
-  --interactive-hover: 25 30 50;      /* 深色交互悬停 */
-  --interactive-active: 30 35 55;     /* 深色交互激活 */
-  --interactive-disabled: 20 21 35;   /* 深色交互禁用 */
-  
+  --icon-tertiary: var(--neutral-500); /* 深色第三图标 */
+
+  --divider: 35 39 57; /* 深色分割线 */
+  --divider-strong: 50 56 73; /* 深色强分割线 */
+
+  --interactive-hover: 25 30 50; /* 深色交互悬停 */
+  --interactive-active: 30 35 55; /* 深色交互激活 */
+  --interactive-disabled: 20 21 35; /* 深色交互禁用 */
+
   /* === 深色模式渐变 === */
-  --gradient-primary: linear-gradient(135deg,
+  --gradient-primary: linear-gradient(
+    135deg,
     hsl(var(--primary-400)) 0%,
-    hsl(var(--primary-500)) 100%);
-    
-  --gradient-hero: linear-gradient(135deg,
+    hsl(var(--primary-500)) 100%
+  );
+
+  --gradient-hero: linear-gradient(
+    135deg,
     hsl(var(--primary-400)) 0%,
     hsl(var(--primary-500)) 50%,
-    hsl(var(--primary-600)) 100%);
-    
-  --gradient-subtle: linear-gradient(135deg,
+    hsl(var(--primary-600)) 100%
+  );
+
+  --gradient-subtle: linear-gradient(
+    135deg,
     rgba(var(--primary-400), 0.1) 0%,
-    rgba(var(--primary-500), 0.05) 100%);
+    rgba(var(--primary-500), 0.05) 100%
+  );
 }
 
 /* ============== 现代UI组件样式 ============== */
@@ -187,10 +199,10 @@
   background: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--divider)) !important;
   color: hsl(var(--text-primary)) !important;
-  box-shadow: 
+  box-shadow:
     0 1px 3px 0 rgba(0, 0, 0, 0.1),
     0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-  
+
   transition: all 0.2s ease !important;
 }
 
@@ -198,7 +210,7 @@
   background: hsl(var(--surface-hover)) !important;
   border-color: hsl(var(--border)) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 
+  box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
@@ -216,14 +228,16 @@
 
 /* === 侧边栏现代化增强 === */
 .sidebar {
-  background: linear-gradient(to bottom,
+  background: linear-gradient(
+    to bottom,
     hsl(var(--background)) 0%,
-    hsl(var(--background) / 0.98) 100%) !important;
+    hsl(var(--background) / 0.98) 100%
+  ) !important;
   border-right: 1px solid hsl(var(--divider) / 0.8) !important;
   backdrop-filter: blur(12px) !important;
-  
+
   /* 增强层次感 */
-  box-shadow: 
+  box-shadow:
     inset -1px 0 0 hsl(var(--border) / 0.3),
     2px 0 12px rgba(0, 0, 0, 0.06) !important;
 }
@@ -232,7 +246,7 @@
   background: hsl(var(--surface-elevated) / 0.95) !important;
   border-bottom: 1px solid hsl(var(--divider) / 0.6) !important;
   padding: 24px 20px !important;
-  
+
   /* 增加层次阴影 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
@@ -259,23 +273,25 @@
   background: hsl(var(--surface-hover) / 0.8) !important;
   border-color: hsl(var(--border) / 0.5) !important;
   transform: translateX(4px) translateY(-1px) !important;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.06),
     0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 .chat-item.active {
-  background: linear-gradient(135deg, 
-    hsl(var(--primary-50)) 0%, 
-    hsl(var(--primary-100) / 0.8) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary-50)) 0%,
+    hsl(var(--primary-100) / 0.8) 100%
+  ) !important;
   border-color: hsl(var(--primary-300) / 0.6) !important;
   color: hsl(var(--primary-700)) !important;
-  
+
   /* 增强激活状态 */
-  box-shadow: 
+  box-shadow:
     0 3px 12px rgba(var(--primary-500), 0.15),
     inset 0 1px 0 hsl(var(--primary-200) / 0.5) !important;
-  
+
   transform: translateX(6px) !important;
   border-left: 3px solid hsl(var(--primary-500)) !important;
 }
@@ -307,7 +323,7 @@
   background: hsl(var(--surface-elevated) / 0.95) !important;
   backdrop-filter: blur(20px) !important;
   border-bottom: 1px solid hsl(var(--divider)) !important;
-  box-shadow: 
+  box-shadow:
     0 1px 3px 0 rgba(0, 0, 0, 0.1),
     0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
 }
@@ -331,7 +347,7 @@
 .input-container {
   background: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--divider)) !important;
-  box-shadow: 
+  box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
   transition: all 0.2s ease !important;
@@ -339,7 +355,7 @@
 
 .input-container:focus-within {
   border-color: hsl(var(--primary-500)) !important;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px hsl(var(--primary-500) / 0.1),
     0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-1px) !important;
@@ -359,7 +375,7 @@
   background: var(--gradient-primary) !important;
   color: white !important;
   border: none !important;
-  box-shadow: 
+  box-shadow:
     0 4px 6px -1px rgba(var(--primary-500), 0.3),
     0 2px 4px -1px rgba(var(--primary-500), 0.06) !important;
   transition: all 0.2s ease !important;
@@ -367,7 +383,7 @@
 
 .btn-primary:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 25px -5px rgba(var(--primary-500), 0.4),
     0 10px 10px -5px rgba(var(--primary-500), 0.04) !important;
 }
@@ -458,8 +474,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -489,12 +509,12 @@
   .message-bubble {
     margin: 8px 12px !important;
   }
-  
+
   .chat-item {
     margin: 4px 6px !important;
     padding: 10px 12px !important;
   }
-  
+
   .sidebar-header {
     padding: 16px !important;
   }
@@ -514,11 +534,11 @@
   .message-bubble {
     border-width: 2px !important;
   }
-  
+
   .input-container {
     border-width: 2px !important;
   }
-  
+
   .chat-item.active {
     border-width: 2px !important;
   }

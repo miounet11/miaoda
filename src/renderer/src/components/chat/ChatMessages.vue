@@ -1,16 +1,24 @@
 <template>
-  <div class="chat-messages flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6" ref="messagesContainer">
+  <div
+    class="chat-messages flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6"
+    ref="messagesContainer"
+  >
     <div class="max-w-3xl mx-auto">
       <!-- Empty State -->
       <div v-if="!messages.length" class="empty-state text-center py-20">
-        <div class="inline-flex items-center justify-center w-20 h-20 mb-6 bg-primary/10 rounded-full">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 mb-6 bg-primary/10 rounded-full"
+        >
           <MessageSquare :size="40" class="text-primary" />
         </div>
         <h2 class="text-2xl font-semibold mb-4">{{ emptyStateTitle }}</h2>
         <p class="text-muted-foreground mb-8">{{ emptyStateDescription }}</p>
-        
+
         <!-- Quick start suggestions -->
-        <div v-if="quickSuggestions.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-lg mx-auto px-4 sm:px-0">
+        <div
+          v-if="quickSuggestions.length > 0"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-lg mx-auto px-4 sm:px-0"
+        >
           <button
             v-for="suggestion in quickSuggestions"
             :key="suggestion"
@@ -21,7 +29,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- Messages -->
       <div v-else class="messages-list space-y-6">
         <MessageItem
@@ -35,7 +43,7 @@
           @delete="$emit('delete-message', message)"
           @copy="copyMessage"
         />
-        
+
         <!-- Loading indicator for new message -->
         <div v-if="isGenerating" class="message-loading">
           <MessageSkeleton />
@@ -81,10 +89,10 @@ const props = withDefaults(defineProps<Props>(), {
   emptyStateTitle: 'Welcome to MiaoDa Chat',
   emptyStateDescription: 'Start a conversation with your AI assistant',
   quickSuggestions: () => [
-    "Explain quantum computing in simple terms",
-    "Write a Python function to sort a list",
-    "What are the benefits of meditation?",
-    "Help me plan a healthy meal"
+    'Explain quantum computing in simple terms',
+    'Write a Python function to sort a list',
+    'What are the benefits of meditation?',
+    'Help me plan a healthy meal'
   ],
   autoScroll: true
 })
@@ -103,7 +111,7 @@ const { showSuccess } = useErrorHandler()
 // Auto scroll to bottom
 const scrollToBottom = (smooth = true) => {
   if (!messagesContainer.value) return
-  
+
   messagesContainer.value.scrollTo({
     top: messagesContainer.value.scrollHeight,
     behavior: smooth ? 'smooth' : 'auto'
@@ -113,7 +121,7 @@ const scrollToBottom = (smooth = true) => {
 // Check if user is near bottom
 const isNearBottom = () => {
   if (!messagesContainer.value) return true
-  
+
   const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
   return scrollHeight - scrollTop - clientHeight < 100
 }
@@ -134,25 +142,31 @@ const copyMessage = async (message: Message) => {
 }
 
 // Watch for new messages and auto-scroll
-watch(() => props.messages.length, (newLength, oldLength) => {
-  if (newLength > oldLength && props.autoScroll && isNearBottom()) {
-    nextTick(() => scrollToBottom())
+watch(
+  () => props.messages.length,
+  (newLength, oldLength) => {
+    if (newLength > oldLength && props.autoScroll && isNearBottom()) {
+      nextTick(() => scrollToBottom())
+    }
   }
-})
+)
 
 // Watch for loading state changes
-watch(() => props.isLoading, (isLoading) => {
-  if (isLoading && props.autoScroll) {
-    nextTick(() => scrollToBottom())
+watch(
+  () => props.isLoading,
+  isLoading => {
+    if (isLoading && props.autoScroll) {
+      nextTick(() => scrollToBottom())
+    }
   }
-})
+)
 
 // Setup scroll listener
 onMounted(() => {
   if (messagesContainer.value) {
     messagesContainer.value.addEventListener('scroll', handleScroll, { passive: true })
   }
-  
+
   // Initial scroll to bottom
   nextTick(() => scrollToBottom(false))
 })
@@ -194,11 +208,11 @@ defineExpose({
 }
 
 /* Dark theme scrollbar */
-:root[data-theme="dark"] .chat-messages::-webkit-scrollbar-thumb {
+:root[data-theme='dark'] .chat-messages::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
 }
 
-:root[data-theme="dark"] .chat-messages::-webkit-scrollbar-thumb:hover {
+:root[data-theme='dark'] .chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
@@ -240,7 +254,8 @@ defineExpose({
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -253,7 +268,7 @@ defineExpose({
   .empty-state h2 {
     font-size: 1.5rem;
   }
-  
+
   .empty-state p {
     font-size: 0.875rem;
   }

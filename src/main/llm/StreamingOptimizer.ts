@@ -44,10 +44,10 @@ export class LLMStreamingOptimizer extends EventEmitter {
   private metricsTimer: NodeJS.Timeout | null = null
   private memoryPressureTimer: NodeJS.Timeout | null = null
   private chunkPool: ChunkBuffer[] = []
-  
+
   constructor(settings: Partial<StreamingOptimizationSettings> = {}) {
     super()
-    
+
     this.settings = {
       maxBufferSize: 1024 * 1024, // 1MB
       chunkThreshold: 4096, // 4KB
@@ -58,20 +58,20 @@ export class LLMStreamingOptimizer extends EventEmitter {
       metricsCollectionInterval: 1000, // 1 second
       ...settings
     }
-    
+
     this.globalMetrics = this.initializeMetrics()
     this.initialize()
   }
 
   private initialize(): void {
     logger.info('Initializing LLM streaming optimizer', 'StreamingOptimizer', this.settings)
-    
+
     // Start metrics collection
     this.startMetricsCollection()
-    
+
     // Start memory monitoring
     this.startMemoryMonitoring()
-    
+
     // Pre-allocate chunk buffers for better performance
     this.preallocateChunkBuffers()
   }
@@ -91,13 +91,13 @@ export class LLMStreamingOptimizer extends EventEmitter {
   ): OptimizedStreamHandler {
     const context = new StreamContext(streamId, this.settings, options)
     this.activeStreams.set(streamId, context)
-    
+
     logger.debug('Created optimized stream', 'StreamingOptimizer', {
       streamId,
       expectedSize: options.expectedSize,
       priority: options.priority || 'normal'
     })
-    
+
     return new OptimizedStreamHandler(context, this)
   }
 
@@ -105,32 +105,34 @@ export class LLMStreamingOptimizer extends EventEmitter {
    * Process incoming chunk with optimization
    */
   public processChunk(
-    streamId: string, 
-    chunk: string, 
+    streamId: string,
+    chunk: string,
     metadata: Partial<ChunkMetadata> = {}
   ): boolean {
     const context = this.activeStreams.get(streamId)
     if (!context) {
-      logger.warn('Attempted to process chunk for unknown stream', 'StreamingOptimizer', { streamId })
+      logger.warn('Attempted to process chunk for unknown stream', 'StreamingOptimizer', {
+        streamId
+      })
       return false
     }
 
     const startTime = performance.now()
-    
+
     try {
       // Check memory pressure before processing
       if (this.isMemoryPressureHigh()) {
         this.handleMemoryPressure(streamId)
         return false
       }
-      
+
       // Apply backpressure if buffer is too full
       if (context.shouldApplyBackpressure()) {
         logger.debug('Applying backpressure', 'StreamingOptimizer', { streamId })
         this.emit('backpressure', streamId)
         return false
       }
-      
+
       // Process the chunk
       const processedChunk = this.optimizeChunk(chunk, context)
       const chunkMetadata: ChunkMetadata = {
@@ -141,25 +143,24 @@ export class LLMStreamingOptimizer extends EventEmitter {
         isComplete: metadata.isComplete || false,
         ...metadata
       }
-      
+
       // Update context
       context.addChunk(processedChunk, chunkMetadata)
-      
+
       // Update metrics
       this.updateMetrics(processedChunk, performance.now() - startTime)
-      
+
       // Emit chunk if ready
       if (context.options.onChunk) {
         context.options.onChunk(processedChunk, chunkMetadata)
       }
-      
+
       // Check if stream is complete
       if (chunkMetadata.isComplete) {
         this.completeStream(streamId)
       }
-      
+
       return true
-      
     } catch (error) {
       logger.error('Chunk processing failed', 'StreamingOptimizer', { streamId, error })
       this.handleStreamError(streamId, error as Error)
@@ -172,15 +173,15 @@ export class LLMStreamingOptimizer extends EventEmitter {
    */
   private optimizeChunk(chunk: string, context: StreamContext): string {
     let optimized = chunk
-    
+
     // Adaptive chunk sizing
     if (this.settings.enableAdaptiveBuffering) {
       optimized = this.adaptiveChunkSizing(optimized, context)
     }
-    
+
     // Content preprocessing (remove excessive whitespace, etc.)
     optimized = this.preprocessContent(optimized)
-    
+
     return optimized
   }
 
@@ -189,18 +190,18 @@ export class LLMStreamingOptimizer extends EventEmitter {
    */
   private adaptiveChunkSizing(chunk: string, context: StreamContext): string {
     const targetSize = context.getOptimalChunkSize()
-    
+
     if (chunk.length < targetSize * 0.5) {
       // Chunk too small, buffer it
       context.bufferChunk(chunk)
       return ''
     }
-    
+
     if (chunk.length > targetSize * 1.5) {
       // Chunk too large, split it
       return this.splitChunk(chunk, targetSize)
     }
-    
+
     return chunk
   }
 
@@ -219,7 +220,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
     // Find natural break points (sentence endings, paragraphs)
     const sentences = chunk.split(/([.!?]+\s+)/)
     let result = ''
-    
+
     for (const sentence of sentences) {
       if ((result + sentence).length <= targetSize) {
         result += sentence
@@ -227,7 +228,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
         break
       }
     }
-    
+
     return result || chunk.substring(0, targetSize)
   }
 
@@ -237,27 +238,26 @@ export class LLMStreamingOptimizer extends EventEmitter {
   private completeStream(streamId: string): void {
     const context = this.activeStreams.get(streamId)
     if (!context) return
-    
+
     try {
       const finalContent = context.getFinalContent()
-      
+
       if (context.options.onComplete) {
         context.options.onComplete(finalContent)
       }
-      
+
       logger.debug('Stream completed', 'StreamingOptimizer', {
         streamId,
         totalChunks: context.chunkCount,
         totalSize: context.totalSize,
         duration: Date.now() - context.startTime
       })
-      
+
       this.emit('stream-complete', streamId, {
         totalChunks: context.chunkCount,
         totalSize: context.totalSize,
         duration: Date.now() - context.startTime
       })
-      
     } catch (error) {
       this.handleStreamError(streamId, error as Error)
     } finally {
@@ -270,14 +270,14 @@ export class LLMStreamingOptimizer extends EventEmitter {
    */
   private handleStreamError(streamId: string, error: Error): void {
     const context = this.activeStreams.get(streamId)
-    
+
     if (context?.options.onError) {
       context.options.onError(error)
     }
-    
+
     logger.error('Stream error', 'StreamingOptimizer', { streamId, error: error.message })
     this.emit('stream-error', streamId, error)
-    
+
     this.cleanupStream(streamId)
   }
 
@@ -289,7 +289,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
     if (context) {
       context.cleanup()
       this.activeStreams.delete(streamId)
-      
+
       // Return buffers to pool
       this.returnBuffersToPool(context.getBuffers())
     }
@@ -303,13 +303,13 @@ export class LLMStreamingOptimizer extends EventEmitter {
       const usage = process.memoryUsage()
       return usage.heapUsed > this.settings.memoryLimit
     }
-    
+
     // Browser environment
     if ('memory' in (performance as any)) {
       const memInfo = (performance as any).memory
       return memInfo.usedJSHeapSize > this.settings.memoryLimit
     }
-    
+
     return false
   }
 
@@ -318,16 +318,16 @@ export class LLMStreamingOptimizer extends EventEmitter {
    */
   private handleMemoryPressure(excludeStreamId?: string): void {
     logger.warn('Memory pressure detected, reducing buffers', 'StreamingOptimizer')
-    
+
     for (const [streamId, context] of this.activeStreams.entries()) {
       if (streamId !== excludeStreamId) {
         context.reduceBufferSize()
       }
     }
-    
+
     // Clear chunk pool
     this.chunkPool = []
-    
+
     this.emit('memory-pressure')
   }
 
@@ -335,12 +335,15 @@ export class LLMStreamingOptimizer extends EventEmitter {
    * Pre-allocate chunk buffers for better performance
    */
   private preallocateChunkBuffers(): void {
-    const bufferCount = Math.min(10, Math.floor(this.settings.maxBufferSize / this.settings.chunkThreshold))
-    
+    const bufferCount = Math.min(
+      10,
+      Math.floor(this.settings.maxBufferSize / this.settings.chunkThreshold)
+    )
+
     for (let i = 0; i < bufferCount; i++) {
       this.chunkPool.push(new ChunkBuffer(this.settings.chunkThreshold))
     }
-    
+
     logger.debug('Pre-allocated chunk buffers', 'StreamingOptimizer', { count: bufferCount })
   }
 
@@ -369,17 +372,18 @@ export class LLMStreamingOptimizer extends EventEmitter {
   private updateMetrics(chunk: string, processingTime: number): void {
     this.globalMetrics.totalChunks++
     this.globalMetrics.totalBytes += chunk.length
-    this.globalMetrics.averageChunkSize = this.globalMetrics.totalBytes / this.globalMetrics.totalChunks
-    
+    this.globalMetrics.averageChunkSize =
+      this.globalMetrics.totalBytes / this.globalMetrics.totalChunks
+
     // Update latency metrics (simplified)
     if (this.globalMetrics.latency.first === 0) {
       this.globalMetrics.latency.first = processingTime
     }
-    
+
     // Moving average for average latency
-    this.globalMetrics.latency.average = (
-      (this.globalMetrics.latency.average * (this.globalMetrics.totalChunks - 1)) + processingTime
-    ) / this.globalMetrics.totalChunks
+    this.globalMetrics.latency.average =
+      (this.globalMetrics.latency.average * (this.globalMetrics.totalChunks - 1) + processingTime) /
+      this.globalMetrics.totalChunks
   }
 
   /**
@@ -418,13 +422,13 @@ export class LLMStreamingOptimizer extends EventEmitter {
     const totalActiveStreams = this.activeStreams.size
     let criticalStreams = 0
     let warningStreams = 0
-    
+
     for (const context of this.activeStreams.values()) {
       const bufferRatio = context.getBufferUtilization()
       if (bufferRatio > 0.9) criticalStreams++
       else if (bufferRatio > 0.7) warningStreams++
     }
-    
+
     if (criticalStreams > 0) {
       this.globalMetrics.bufferHealth = 'critical'
     } else if (warningStreams > totalActiveStreams * 0.5) {
@@ -432,12 +436,12 @@ export class LLMStreamingOptimizer extends EventEmitter {
     } else {
       this.globalMetrics.bufferHealth = 'healthy'
     }
-    
+
     // Update memory usage
     if (typeof process !== 'undefined' && process.memoryUsage) {
       this.globalMetrics.memoryUsage = process.memoryUsage().heapUsed
     }
-    
+
     // Emit metrics for monitoring
     this.emit('metrics', this.globalMetrics)
   }
@@ -475,20 +479,20 @@ export class LLMStreamingOptimizer extends EventEmitter {
     for (const streamId of this.activeStreams.keys()) {
       this.cleanupStream(streamId)
     }
-    
+
     if (this.metricsTimer) {
       clearInterval(this.metricsTimer)
       this.metricsTimer = null
     }
-    
+
     if (this.memoryPressureTimer) {
       clearInterval(this.memoryPressureTimer)
       this.memoryPressureTimer = null
     }
-    
+
     this.chunkPool = []
     this.removeAllListeners()
-    
+
     logger.info('LLM streaming optimizer cleaned up', 'StreamingOptimizer')
   }
 }
@@ -501,12 +505,12 @@ class StreamContext {
   public sequenceNumber = 0
   public chunkCount = 0
   public totalSize = 0
-  
+
   private buffer: string[] = []
   private chunkBuffers: ChunkBuffer[] = []
   private bufferSize = 0
   private maxBufferSize: number
-  
+
   constructor(
     public readonly id: string,
     private settings: StreamingOptimizationSettings,
@@ -520,7 +524,7 @@ class StreamContext {
     this.bufferSize += chunk.length
     this.chunkCount++
     this.totalSize += chunk.length
-    
+
     // Manage buffer size
     if (this.bufferSize > this.maxBufferSize) {
       this.flushOldestChunks()
@@ -545,15 +549,16 @@ class StreamContext {
   getOptimalChunkSize(): number {
     // Adaptive chunk size based on stream characteristics
     const baseSize = this.settings.chunkThreshold
-    
+
     if (this.options.priority === 'high') {
       return Math.floor(baseSize * 0.8) // Smaller chunks for faster response
     }
-    
-    if (this.totalSize > 100000) { // Large content
+
+    if (this.totalSize > 100000) {
+      // Large content
       return Math.floor(baseSize * 1.5) // Larger chunks for efficiency
     }
-    
+
     return baseSize
   }
 

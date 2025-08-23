@@ -83,7 +83,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
 
   constructor(config: Partial<OptimizationConfig> = {}) {
     super()
-    
+
     this.config = {
       enableGPUAcceleration: true,
       enableHardwareAcceleration: true,
@@ -103,29 +103,29 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       },
       ...config
     }
-    
+
     this.metrics = this.initializeMetrics()
     this.initialize()
   }
 
   private initialize(): void {
     logger.info('Initializing Electron performance optimizer', 'ElectronOptimizer', this.config)
-    
+
     // Apply app-level optimizations
     this.applyAppOptimizations()
-    
+
     // Setup IPC monitoring
     this.setupIPCMonitoring()
-    
+
     // Setup power management
     this.setupPowerManagement()
-    
+
     // Setup window management
     this.setupWindowManagement()
-    
+
     // Start metrics collection
     this.startMetricsCollection()
-    
+
     // Setup cleanup handlers
     this.setupCleanupHandlers()
   }
@@ -140,32 +140,34 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         app.disableHardwareAcceleration()
         logger.info('Hardware acceleration disabled', 'ElectronOptimizer')
       }
-      
+
       // V8 cache options
       if (this.config.v8CacheOptions.enabled) {
-        app.commandLine.appendSwitch('js-flags', `--max-old-space-size=${this.config.v8CacheOptions.maxSize / (1024 * 1024)}`)
+        app.commandLine.appendSwitch(
+          'js-flags',
+          `--max-old-space-size=${this.config.v8CacheOptions.maxSize / (1024 * 1024)}`
+        )
         app.commandLine.appendSwitch('disk-cache-size', '50000000') // 50MB disk cache
       }
-      
+
       // Process optimization flags
       app.commandLine.appendSwitch('no-sandbox')
       app.commandLine.appendSwitch('disable-web-security')
       app.commandLine.appendSwitch('disable-features', 'VizDisplayCompositor')
-      
+
       // Memory optimization
       app.commandLine.appendSwitch('memory-pressure-off')
       app.commandLine.appendSwitch('max_old_space_size', '4096')
-      
+
       // Network optimization
       app.commandLine.appendSwitch('aggressive-cache-discard')
-      
+
       // Background throttling
       if (this.config.backgroundThrottling) {
         app.commandLine.appendSwitch('enable-background-tracing')
       }
-      
+
       logger.info('Applied app-level optimizations', 'ElectronOptimizer')
-      
     } catch (error) {
       logger.error('Failed to apply app optimizations', 'ElectronOptimizer', { error })
     }
@@ -194,20 +196,20 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       },
       ...options
     }
-    
+
     const window = new BrowserWindow(optimizedOptions)
-    
+
     // Apply window-specific optimizations
     this.optimizeWindow(window)
-    
+
     // Track window for monitoring
     this.trackWindow(window)
-    
-    logger.debug('Created optimized window', 'ElectronOptimizer', { 
+
+    logger.debug('Created optimized window', 'ElectronOptimizer', {
       id: window.id,
       options: Object.keys(optimizedOptions)
     })
-    
+
     return window
   }
 
@@ -216,38 +218,38 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   optimizeWindow(window: BrowserWindow): void {
     const windowId = window.id
-    
+
     // Set up window lifecycle optimization
     window.once('ready-to-show', () => {
       window.show()
       this.emit('window-ready', windowId)
     })
-    
+
     // Background throttling
     window.on('hide', () => {
       if (this.config.backgroundThrottling) {
         this.throttleBackgroundWindow(windowId)
       }
     })
-    
+
     window.on('show', () => {
       this.unthrottleBackgroundWindow(windowId)
     })
-    
+
     // Memory management
     window.on('focus', () => {
       this.prioritizeWindow(windowId)
     })
-    
+
     window.on('blur', () => {
       this.deprioritizeWindow(windowId)
     })
-    
+
     // Clean up on close
     window.on('closed', () => {
       this.untrackWindow(windowId)
     })
-    
+
     // Set optimization settings
     const settings: WindowOptimizationSettings = {
       enableBackgroundThrottling: this.config.backgroundThrottling,
@@ -255,7 +257,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       webSecurity: false,
       experimentalFeatures: []
     }
-    
+
     this.windowOptimizations.set(windowId, settings)
   }
 
@@ -265,18 +267,18 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
   private setupIPCMonitoring(): void {
     const originalHandle = ipcMain.handle.bind(ipcMain)
     const originalOn = ipcMain.on.bind(ipcMain)
-    
+
     // Wrap ipcMain.handle for monitoring
     ipcMain.handle = (channel: string, listener: any) => {
       const wrappedListener = async (event: any, ...args: any[]) => {
         const startTime = performance.now()
         this.ipcMetrics.messageCount++
-        
+
         try {
           const result = await listener(event, ...args)
           const duration = performance.now() - startTime
           this.ipcMetrics.responseTimeSum += duration
-          
+
           // Log slow IPC calls
           if (duration > 100) {
             logger.warn('Slow IPC call detected', 'ElectronOptimizer', {
@@ -285,7 +287,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
               args: args.length
             })
           }
-          
+
           return result
         } catch (error) {
           this.ipcMetrics.errorCount++
@@ -293,10 +295,10 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
           throw error
         }
       }
-      
+
       return originalHandle(channel, wrappedListener)
     }
-    
+
     // Wrap ipcMain.on for monitoring
     ipcMain.on = (channel: string, listener: any) => {
       const wrappedListener = (event: any, ...args: any[]) => {
@@ -308,10 +310,10 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
           logger.error('IPC listener failed', 'ElectronOptimizer', { channel, error })
         }
       }
-      
+
       return originalOn(channel, wrappedListener)
     }
-    
+
     logger.info('IPC monitoring setup completed', 'ElectronOptimizer')
   }
 
@@ -323,27 +325,27 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       logger.warn('Power monitor not available', 'ElectronOptimizer')
       return
     }
-    
+
     powerMonitor.on('suspend', () => {
       logger.info('System suspended, applying power optimizations', 'ElectronOptimizer')
       this.applyPowerSaveMode(true)
     })
-    
+
     powerMonitor.on('resume', () => {
       logger.info('System resumed, restoring performance mode', 'ElectronOptimizer')
       this.applyPowerSaveMode(false)
     })
-    
+
     powerMonitor.on('on-ac', () => {
       logger.info('AC power connected', 'ElectronOptimizer')
       this.applyPowerSaveMode(false)
     })
-    
+
     powerMonitor.on('on-battery', () => {
       logger.info('Battery power detected', 'ElectronOptimizer')
       this.applyPowerSaveMode(true)
     })
-    
+
     // Check initial power state
     app.whenReady().then(() => {
       const onBattery = powerMonitor.isOnBatteryPower?.() || false
@@ -351,7 +353,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         this.applyPowerSaveMode(true)
       }
     })
-    
+
     logger.info('Power management setup completed', 'ElectronOptimizer')
   }
 
@@ -360,23 +362,31 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   private applyPowerSaveMode(enable: boolean): void {
     const windows = BrowserWindow.getAllWindows()
-    
+
     for (const window of windows) {
       if (enable) {
         // Reduce refresh rate, disable animations, etc.
-        window.webContents.executeJavaScript(`
+        window.webContents
+          .executeJavaScript(
+            `
           if (window.powerSaveMode) window.powerSaveMode(true);
           document.body.classList.add('power-save-mode');
-        `).catch(() => {})
+        `
+          )
+          .catch(() => {})
       } else {
         // Restore full performance
-        window.webContents.executeJavaScript(`
+        window.webContents
+          .executeJavaScript(
+            `
           if (window.powerSaveMode) window.powerSaveMode(false);
           document.body.classList.remove('power-save-mode');
-        `).catch(() => {})
+        `
+          )
+          .catch(() => {})
       }
     }
-    
+
     this.emit('power-mode-changed', enable)
   }
 
@@ -389,7 +399,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       this.backgroundWindowThrottle.clear()
       this.windowOptimizations.clear()
     })
-    
+
     app.on('before-quit', () => {
       this.cleanup()
     })
@@ -403,14 +413,18 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       const window = BrowserWindow.fromId(windowId)
       if (window && !window.isVisible()) {
         // Reduce background window resources
-        window.webContents.executeJavaScript(`
+        window.webContents
+          .executeJavaScript(
+            `
           if (window.throttleBackground) window.throttleBackground(true);
-        `).catch(() => {})
-        
+        `
+          )
+          .catch(() => {})
+
         logger.debug('Throttled background window', 'ElectronOptimizer', { windowId })
       }
     }, 5000) // 5 second delay
-    
+
     this.backgroundWindowThrottle.set(windowId, throttleTimer)
   }
 
@@ -423,13 +437,17 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       clearTimeout(throttleTimer)
       this.backgroundWindowThrottle.delete(windowId)
     }
-    
+
     const window = BrowserWindow.fromId(windowId)
     if (window) {
-      window.webContents.executeJavaScript(`
+      window.webContents
+        .executeJavaScript(
+          `
         if (window.throttleBackground) window.throttleBackground(false);
-      `).catch(() => {})
-      
+      `
+        )
+        .catch(() => {})
+
       logger.debug('Unthrottled window', 'ElectronOptimizer', { windowId })
     }
   }
@@ -441,9 +459,13 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     const window = BrowserWindow.fromId(windowId)
     if (window) {
       // Give priority to focused window
-      window.webContents.executeJavaScript(`
+      window.webContents
+        .executeJavaScript(
+          `
         if (window.setPriority) window.setPriority('high');
-      `).catch(() => {})
+      `
+        )
+        .catch(() => {})
     }
   }
 
@@ -453,9 +475,13 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
   private deprioritizeWindow(windowId: number): void {
     const window = BrowserWindow.fromId(windowId)
     if (window) {
-      window.webContents.executeJavaScript(`
+      window.webContents
+        .executeJavaScript(
+          `
         if (window.setPriority) window.setPriority('normal');
-      `).catch(() => {})
+      `
+        )
+        .catch(() => {})
     }
   }
 
@@ -464,22 +490,22 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   private trackWindow(window: BrowserWindow): void {
     const windowId = window.id
-    
+
     // Monitor window events
     window.webContents.on('did-finish-load', () => {
       this.emit('window-loaded', windowId)
     })
-    
+
     window.webContents.on('crashed', () => {
       logger.error('Window renderer crashed', 'ElectronOptimizer', { windowId })
       this.emit('window-crashed', windowId)
     })
-    
+
     window.webContents.on('unresponsive', () => {
       logger.warn('Window became unresponsive', 'ElectronOptimizer', { windowId })
       this.emit('window-unresponsive', windowId)
     })
-    
+
     window.webContents.on('responsive', () => {
       logger.info('Window became responsive', 'ElectronOptimizer', { windowId })
       this.emit('window-responsive', windowId)
@@ -510,10 +536,10 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     try {
       // CPU metrics
       const cpuUsage = process.cpuUsage()
-      
+
       // Memory metrics
       const memoryInfo = process.memoryUsage()
-      
+
       // Window metrics
       const windows = BrowserWindow.getAllWindows().map(window => ({
         id: window.id,
@@ -522,14 +548,15 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         memoryUsage: 0, // Would need additional implementation
         cpuUsage: 0 // Would need additional implementation
       }))
-      
+
       // IPC metrics
       const currentTime = Date.now()
       const timeElapsed = (currentTime - this.ipcMetrics.startTime) / 1000
       const messagesPerSecond = this.ipcMetrics.messageCount / timeElapsed
-      const averageResponseTime = this.ipcMetrics.responseTimeSum / this.ipcMetrics.messageCount || 0
+      const averageResponseTime =
+        this.ipcMetrics.responseTimeSum / this.ipcMetrics.messageCount || 0
       const errorRate = (this.ipcMetrics.errorCount / this.ipcMetrics.messageCount) * 100 || 0
-      
+
       this.metrics = {
         cpu: {
           usage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to ms
@@ -559,13 +586,12 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
           utility: []
         }
       }
-      
+
       // Check for performance issues
       this.checkPerformanceThresholds()
-      
+
       // Emit metrics for external monitoring
       this.emit('metrics', this.metrics)
-      
     } catch (error) {
       logger.error('Failed to collect metrics', 'ElectronOptimizer', { error })
     }
@@ -576,30 +602,30 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   private checkPerformanceThresholds(): void {
     const { memory, cpu } = this.metrics
-    
+
     // Memory threshold check
     if (memory.percentage > this.config.memoryThreshold) {
       logger.warn('Memory usage high', 'ElectronOptimizer', {
         usage: Math.round(memory.percentage),
         threshold: this.config.memoryThreshold
       })
-      
+
       this.emit('memory-warning', {
         usage: memory.percentage,
         threshold: this.config.memoryThreshold
       })
-      
+
       // Trigger memory cleanup
       this.triggerMemoryCleanup()
     }
-    
+
     // CPU threshold check
     if (cpu.usage > this.config.cpuThreshold) {
       logger.warn('CPU usage high', 'ElectronOptimizer', {
         usage: Math.round(cpu.usage),
         threshold: this.config.cpuThreshold
       })
-      
+
       this.emit('cpu-warning', {
         usage: cpu.usage,
         threshold: this.config.cpuThreshold
@@ -612,26 +638,30 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   private triggerMemoryCleanup(): void {
     logger.info('Triggering memory cleanup', 'ElectronOptimizer')
-    
+
     const windows = BrowserWindow.getAllWindows()
-    
+
     for (const window of windows) {
       // Trigger garbage collection in renderer
-      window.webContents.executeJavaScript(`
+      window.webContents
+        .executeJavaScript(
+          `
         if (window.gc) {
           window.gc();
         }
         if (window.triggerMemoryCleanup) {
           window.triggerMemoryCleanup();
         }
-      `).catch(() => {})
+      `
+        )
+        .catch(() => {})
     }
-    
+
     // Force main process GC if available
     if (global.gc) {
       global.gc()
     }
-    
+
     this.emit('memory-cleanup-triggered')
   }
 
@@ -655,12 +685,12 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
   updateConfig(updates: Partial<OptimizationConfig>): void {
     this.config = { ...this.config, ...updates }
     logger.info('Configuration updated', 'ElectronOptimizer', updates)
-    
+
     // Apply changes that can be updated at runtime
     if (updates.powerSaveMode !== undefined) {
       this.applyPowerSaveMode(updates.powerSaveMode)
     }
-    
+
     this.emit('config-updated', this.config)
   }
 
@@ -669,23 +699,22 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   async forceOptimization(): Promise<void> {
     logger.info('Starting forced optimization', 'ElectronOptimizer')
-    
+
     try {
       // Optimize all windows
       const windows = BrowserWindow.getAllWindows()
       for (const window of windows) {
         await this.optimizeWindowResources(window)
       }
-      
+
       // Trigger memory cleanup
       this.triggerMemoryCleanup()
-      
+
       // Clear caches
       await this.clearApplicationCaches()
-      
+
       logger.info('Forced optimization completed', 'ElectronOptimizer')
       this.emit('optimization-completed')
-      
     } catch (error) {
       logger.error('Forced optimization failed', 'ElectronOptimizer', { error })
       throw error
@@ -699,19 +728,18 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     try {
       // Clear caches
       await window.webContents.session.clearCache()
-      
+
       // Clear storage data for better performance
       await window.webContents.session.clearStorageData({
         storages: ['indexdb', 'websql']
       })
-      
+
       // Trigger renderer optimization
       await window.webContents.executeJavaScript(`
         if (window.optimizeResources) {
           window.optimizeResources();
         }
       `)
-      
     } catch (error) {
       logger.debug('Window optimization failed', 'ElectronOptimizer', {
         windowId: window.id,
@@ -725,11 +753,11 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
    */
   private async clearApplicationCaches(): Promise<void> {
     const windows = BrowserWindow.getAllWindows()
-    
-    const clearPromises = windows.map(window => 
+
+    const clearPromises = windows.map(window =>
       window.webContents.session.clearCache().catch(() => {})
     )
-    
+
     await Promise.all(clearPromises)
     logger.info('Application caches cleared', 'ElectronOptimizer')
   }
@@ -741,11 +769,11 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     const cleanup = () => {
       this.cleanup()
     }
-    
+
     process.on('exit', cleanup)
     process.on('SIGINT', cleanup)
     process.on('SIGTERM', cleanup)
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       logger.error('Uncaught exception', 'ElectronOptimizer', { error })
       cleanup()
       process.exit(1)
@@ -774,18 +802,18 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       clearInterval(this.metricsTimer)
       this.metricsTimer = null
     }
-    
+
     // Clear all window throttles
     for (const timer of this.backgroundWindowThrottle.values()) {
       clearTimeout(timer)
     }
     this.backgroundWindowThrottle.clear()
-    
+
     // Clear optimizations
     this.windowOptimizations.clear()
-    
+
     this.removeAllListeners()
-    
+
     logger.info('Electron performance optimizer cleaned up', 'ElectronOptimizer')
   }
 }
@@ -793,6 +821,8 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
 /**
  * Global instance factory
  */
-export function createElectronOptimizer(config?: Partial<OptimizationConfig>): ElectronPerformanceOptimizer {
+export function createElectronOptimizer(
+  config?: Partial<OptimizationConfig>
+): ElectronPerformanceOptimizer {
   return new ElectronPerformanceOptimizer(config)
 }

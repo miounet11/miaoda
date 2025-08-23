@@ -5,38 +5,34 @@
     :title="tooltip"
   >
     <!-- Icon -->
-    <component 
-      v-if="showIcon && capabilityConfig.icon" 
-      :is="capabilityConfig.icon" 
-      :size="12" 
+    <component
+      v-if="showIcon && capabilityConfig.icon"
+      :is="capabilityConfig.icon"
+      :size="12"
       class="flex-shrink-0"
     />
-    
+
     <!-- Text -->
     <span class="truncate">{{ capabilityConfig.label }}</span>
-    
+
     <!-- Optional status indicator -->
-    <div
-      v-if="showStatus"
-      class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-      :class="statusClasses"
-    />
+    <div v-if="showStatus" class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="statusClasses" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { 
-  MessageSquare, 
-  Zap, 
-  Wrench, 
-  Image, 
-  Mic, 
-  Volume2, 
-  Video, 
-  FileText, 
-  Thermometer, 
-  Target, 
+import {
+  MessageSquare,
+  Zap,
+  Wrench,
+  Image,
+  Mic,
+  Volume2,
+  Video,
+  FileText,
+  Thermometer,
+  Target,
   Hash,
   Repeat,
   RotateCcw
@@ -181,12 +177,14 @@ const sizeStyles = {
 // Computed properties
 const capabilityConfig = computed(() => {
   const config = capabilityConfigs[props.capability as keyof typeof capabilityConfigs]
-  return config || {
-    label: props.capability,
-    icon: FileText,
-    description: `${props.capability} capability`,
-    variant: 'default'
-  }
+  return (
+    config || {
+      label: props.capability,
+      icon: FileText,
+      description: `${props.capability} capability`,
+      variant: 'default'
+    }
+  )
 })
 
 const effectiveVariant = computed(() => {
@@ -196,7 +194,7 @@ const effectiveVariant = computed(() => {
 const badgeClasses = computed(() => {
   const variant = effectiveVariant.value
   const isActive = props.status === 'active'
-  
+
   return [
     sizeStyles[props.size],
     isActive ? variantStyles[variant].active : variantStyles[variant].base,
@@ -222,7 +220,7 @@ const statusClasses = computed(() => {
 
 const tooltip = computed(() => {
   let tooltip = capabilityConfig.value.description
-  
+
   if (props.showStatus) {
     const statusText = {
       active: 'Fully supported',
@@ -231,7 +229,7 @@ const tooltip = computed(() => {
     }
     tooltip += ` - ${statusText[props.status]}`
   }
-  
+
   return tooltip
 })
 </script>
@@ -253,11 +251,16 @@ const tooltip = computed(() => {
 
 /* Pulse animation for active status */
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.capability-badge[data-status="active"] {
+.capability-badge[data-status='active'] {
   animation: pulse-subtle 3s infinite;
 }
 
@@ -280,7 +283,7 @@ const tooltip = computed(() => {
   .capability-badge {
     animation: none;
   }
-  
+
   .capability-badge:hover {
     transform: none;
   }

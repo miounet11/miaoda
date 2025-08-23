@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="message-item-enhanced group relative gpu-accelerated"
     :class="[messageClasses, { 'message-appear': isNewMessage }]"
     :data-message-id="message.id"
@@ -11,16 +11,19 @@
     <!-- Modern Message Layout -->
     <div class="flex gap-3 w-full" :class="layoutClasses">
       <!-- Avatar -->
-      <div class="avatar-container flex-shrink-0 transition-transform duration-200 group-hover:scale-105" :class="avatarClasses">
+      <div
+        class="avatar-container flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
+        :class="avatarClasses"
+      >
         <div class="avatar float-breathe" :class="avatarStyle">
           <component :is="avatarIcon" :size="16" class="avatar-icon" />
         </div>
       </div>
-    
+
       <!-- Message Content -->
       <div class="message-content-wrapper flex-1 min-w-0">
         <!-- Message Bubble -->
-        <div 
+        <div
           class="message-bubble-modern group/bubble"
           :class="[bubbleClasses, { 'elastic-click': !isLoading }]"
           @click="handleBubbleClick"
@@ -34,7 +37,7 @@
             </div>
             <span class="ai-thinking">AI is thinking...</span>
           </div>
-          
+
           <!-- Primary Content Display with Error Handling -->
           <div v-if="!isLoading && message.content" class="message-content-display">
             <!-- Basic content display with enhanced features -->
@@ -49,17 +52,20 @@
               @retry="$emit('retry')"
               class="enhanced-content"
             />
-            
+
             <!-- Emergency fallback for content display -->
-            <div 
+            <div
               v-if="contentRenderError"
               class="fallback-content whitespace-pre-wrap"
               v-text="message.content"
             />
           </div>
-          
+
           <!-- Simplified Message Status -->
-          <div v-if="message.role === 'user' && showStatus" class="message-status text-xs text-muted-foreground mt-1">
+          <div
+            v-if="message.role === 'user' && showStatus"
+            class="message-status text-xs text-muted-foreground mt-1"
+          >
             <span v-if="messageStatus === 'sending'" class="flex items-center gap-1">
               <Loader2 :size="10" class="animate-spin" />
               Sending...
@@ -67,10 +73,10 @@
             <span v-else-if="messageStatus === 'delivered'" class="opacity-60">Delivered</span>
             <span v-else-if="messageStatus === 'error'" class="text-destructive">Failed</span>
           </div>
-        
+
           <!-- Enhanced Action Menu -->
           <Transition name="action-menu" appear>
-            <div 
+            <div
               v-if="showActions || actionsVisible"
               class="action-menu-modern"
               :class="actionMenuClasses"
@@ -83,17 +89,17 @@
                 >
                   <Copy :size="14" />
                 </button>
-                
+
                 <button
                   v-if="enableVoice && voiceSupported && message.content.trim()"
                   @click="toggleVoiceControls"
                   class="action-button-modern"
-                  :class="{ 'active': showVoiceControls }"
+                  :class="{ active: showVoiceControls }"
                   :title="showVoiceControls ? 'Stop voice' : 'Play voice'"
                 >
                   <Volume2 :size="14" />
                 </button>
-                
+
                 <button
                   v-if="message.role === 'user'"
                   @click="$emit('edit')"
@@ -102,7 +108,7 @@
                 >
                   <Edit2 :size="14" />
                 </button>
-                
+
                 <button
                   v-if="message.role === 'assistant' && !isLoading"
                   @click="$emit('retry')"
@@ -111,7 +117,7 @@
                 >
                   <RefreshCw :size="14" />
                 </button>
-                
+
                 <button
                   @click="handleDelete"
                   class="action-button-modern action-button-destructive btn-interactive"
@@ -123,10 +129,10 @@
             </div>
           </Transition>
         </div>
-        
+
         <!-- Enhanced Voice Controls -->
         <Transition name="voice-controls" appear>
-          <div 
+          <div
             v-if="showVoiceControls && enableVoice && voiceSupported && message.content.trim()"
             class="voice-controls-container"
           >
@@ -145,12 +151,12 @@
             />
           </div>
         </Transition>
-      
+
         <!-- Enhanced Message Metadata -->
         <div v-if="showMetadata" class="message-metadata-modern">
           <div class="metadata-content-modern">
             <span class="timestamp-modern">{{ formatTime(message.timestamp) }}</span>
-            
+
             <!-- Token count display for assistant messages -->
             <span
               v-if="message.role === 'assistant' && message.content && !isLoading"
@@ -159,7 +165,7 @@
             >
               ~{{ estimatedTokens }} tokens
             </span>
-            
+
             <span
               v-if="message.role === 'assistant' && isLoading"
               class="loading-indicator flex items-center gap-1"
@@ -167,7 +173,7 @@
               <Loader2 :size="12" class="animate-spin" />
               Generating...
             </span>
-            
+
             <button
               v-if="hasAttachments"
               @click="toggleAttachments"
@@ -178,7 +184,7 @@
             </button>
           </div>
         </div>
-      
+
         <!-- Simplified Attachments Preview -->
         <Transition name="attachments" appear>
           <div v-if="showAttachments && hasAttachments" class="attachments-preview">
@@ -202,7 +208,19 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Bot, User, Sparkles, Copy, Edit2, RefreshCw, Trash2, Volume2, Loader2, Paperclip, FileText } from 'lucide-vue-next'
+import {
+  Bot,
+  User,
+  Sparkles,
+  Copy,
+  Edit2,
+  RefreshCw,
+  Trash2,
+  Volume2,
+  Loader2,
+  Paperclip,
+  FileText
+} from 'lucide-vue-next'
 import TypingIndicator from '../loading/TypingIndicator.vue'
 import EnhancedTypingIndicator from '../loading/EnhancedTypingIndicator.vue'
 import UnifiedMessageContent from '../UnifiedMessageContent.vue'
@@ -273,7 +291,7 @@ const isNewMessage = computed(() => {
   if (!props.message.timestamp) return false
   const messageTime = new Date(props.message.timestamp).getTime()
   const now = Date.now()
-  return (now - messageTime) < 2000 // Consider message "new" for 2 seconds
+  return now - messageTime < 2000 // Consider message "new" for 2 seconds
 })
 
 const messageClasses = computed(() => ({
@@ -305,32 +323,29 @@ const avatarStyle = computed(() => ({
 }))
 
 const avatarIcon = computed(() => {
-  return props.message.role === 'user' ? User : (props.message.role === 'assistant' ? Sparkles : Bot)
+  return props.message.role === 'user' ? User : props.message.role === 'assistant' ? Sparkles : Bot
 })
 
 // Token estimation computed property
 const estimatedTokens = computed(() => {
   if (!props.message.content) return 0
-  
+
   const content = props.message.content
-  
+
   // Simple token estimation algorithm
   // English: ~4 characters per token
   // Chinese: ~1.5 characters per token
   // Code and special chars: ~3 characters per token
-  
+
   const englishChars = (content.match(/[a-zA-Z0-9\s]/g) || []).length
   const chineseChars = (content.match(/[\u4e00-\u9fff]/g) || []).length
   const codeChars = (content.match(/[`{}[\]().,;:!?'"<>=+\-*/\\]/g) || []).length
   const otherChars = content.length - englishChars - chineseChars - codeChars
-  
+
   const tokenEstimate = Math.ceil(
-    englishChars / 4 + 
-    chineseChars / 1.5 + 
-    codeChars / 3 + 
-    otherChars / 3
+    englishChars / 4 + chineseChars / 1.5 + codeChars / 3 + otherChars / 3
   )
-  
+
   return Math.max(1, tokenEstimate) // At least 1 token
 })
 
@@ -369,31 +384,31 @@ const hasMarkdownContent = computed(() => {
   if (!content || typeof content !== 'string' || content.trim().length === 0) {
     return false
   }
-  
+
   try {
     // Check for common markdown patterns with more precise regex
     const markdownPatterns = [
-      /```[\s\S]*?```/g,        // Code blocks
-      /`[^`\n]+`/g,             // Inline code (not spanning lines)
-      /^#{1,6}\s+.+$/m,         // Headers with content
-      /\*\*[^*\n]+\*\*/g,       // Bold (not spanning lines)
-      /\*[^*\n]+\*/g,           // Italic (not spanning lines)
-      /\[[^\]]+\]\([^)]+\)/g,   // Links
-      /^\s*[-*+]\s+.+$/m,       // Lists with content
-      /^\s*\d+\.\s+.+$/m,       // Numbered lists with content
-      /^>\s+.+$/m,              // Blockquotes with content
-      /\|[^|\n]+\|/g            // Tables (not spanning lines)
+      /```[\s\S]*?```/g, // Code blocks
+      /`[^`\n]+`/g, // Inline code (not spanning lines)
+      /^#{1,6}\s+.+$/m, // Headers with content
+      /\*\*[^*\n]+\*\*/g, // Bold (not spanning lines)
+      /\*[^*\n]+\*/g, // Italic (not spanning lines)
+      /\[[^\]]+\]\([^)]+\)/g, // Links
+      /^\s*[-*+]\s+.+$/m, // Lists with content
+      /^\s*\d+\.\s+.+$/m, // Numbered lists with content
+      /^>\s+.+$/m, // Blockquotes with content
+      /\|[^|\n]+\|/g // Tables (not spanning lines)
     ]
-    
+
     // Only consider it markdown if it has substantial markdown content
     const matchCount = markdownPatterns.reduce((count, pattern) => {
       return count + (pattern.test(content) ? 1 : 0)
     }, 0)
-    
+
     // Require at least one strong markdown indicator or multiple weak ones
     const hasStrongMarkdown = /```[\s\S]*?```|^#{1,6}\s+|\|[^|\n]+\|/.test(content)
     const hasMultipleWeakMarkdown = matchCount >= 2
-    
+
     return hasStrongMarkdown || hasMultipleWeakMarkdown
   } catch (error) {
     console.error('Error in markdown detection for message:', props.message.id, error)
@@ -405,7 +420,7 @@ const hasMarkdownContent = computed(() => {
 const handleMouseEnter = () => {
   showActions.value = true
   isHovered.value = true
-  
+
   // Add subtle interaction feedback
   const messageElement = document.querySelector(`[data-message-id="${props.message.id}"]`)
   if (messageElement) {
@@ -419,7 +434,7 @@ const handleMouseLeave = () => {
     if (!isFocused.value) {
       showActions.value = false
       isHovered.value = false
-      
+
       // Remove hover class
       const messageElement = document.querySelector(`[data-message-id="${props.message.id}"]`)
       if (messageElement) {
@@ -445,14 +460,16 @@ const handleBubbleClick = () => {
   // Add micro-interaction feedback
   if (!props.isLoading) {
     // Trigger subtle visual feedback
-    const bubbleElement = document.querySelector(`[data-message-id="${props.message.id}"] .message-bubble-modern`)
+    const bubbleElement = document.querySelector(
+      `[data-message-id="${props.message.id}"] .message-bubble-modern`
+    )
     if (bubbleElement) {
       bubbleElement.classList.add('bubble-clicked')
       setTimeout(() => {
         bubbleElement.classList.remove('bubble-clicked')
       }, 200)
     }
-    
+
     // Could be used for selection or copy functionality
     emit('copy')
   }
@@ -461,13 +478,15 @@ const handleBubbleClick = () => {
 const handleCopy = async () => {
   try {
     await navigator.clipboard.writeText(props.message.content)
-    
+
     // Visual feedback for copy action
     const copyButtonId = 'copy-btn'
     actionButtonAnimations.value[copyButtonId] = true
-    
+
     // Find and animate the copy button
-    const copyButton = document.querySelector(`[data-message-id="${props.message.id}"] .action-button-modern[title="Copy message"]`)
+    const copyButton = document.querySelector(
+      `[data-message-id="${props.message.id}"] .action-button-modern[title="Copy message"]`
+    )
     if (copyButton) {
       copyButton.classList.add('copy-success')
       setTimeout(() => {
@@ -475,7 +494,7 @@ const handleCopy = async () => {
         actionButtonAnimations.value[copyButtonId] = false
       }, 600)
     }
-    
+
     emit('copy')
   } catch (error) {
     console.error('Failed to copy message:', error)
@@ -496,43 +515,40 @@ const toggleAttachments = () => {
 }
 
 const formatTime = (date: Date | string | number | undefined) => {
+  // 如果没有提供日期，返回空字符串而不是显示警告
   if (!date) {
-    console.warn('No date provided to formatTime for message:', props.message.id)
-    return 'just now' // More user-friendly than 'unknown'
+    return ''
   }
-  
+
   try {
     // Handle different date formats
-    let dateObj: Date;
-    
+    let dateObj: Date
+
     if (date instanceof Date) {
-      dateObj = date;
+      dateObj = date
     } else if (typeof date === 'string') {
       // Handle empty strings
       if (date.trim() === '') {
-        return 'just now';
+        return ''
       }
       // Try parsing ISO string or other formats
-      dateObj = new Date(date);
+      dateObj = new Date(date)
     } else if (typeof date === 'number') {
       // Handle timestamp
-      dateObj = new Date(date);
+      dateObj = new Date(date)
     } else {
-      console.warn('Invalid date type:', typeof date, date);
-      return 'just now';
+      return ''
     }
-    
+
     // Check if date is valid
     if (isNaN(dateObj.getTime())) {
-      console.warn('Invalid date value:', date);
-      return 'just now';
+      return ''
     }
-    
+
     // Use the improved formatTimeWithFallback function
     return formatTimeWithFallback(dateObj)
   } catch (error) {
-    console.error('Error formatting time for message:', props.message.id, error)
-    return 'just now'
+    return ''
   }
 }
 
@@ -554,7 +570,7 @@ const checkVoiceSupport = () => {
 
 const toggleVoiceControls = () => {
   showVoiceControls.value = !showVoiceControls.value
-  
+
   // Keep actions visible while voice controls are shown
   if (showVoiceControls.value) {
     keepActionsVisible()
@@ -584,14 +600,16 @@ const handleContentRenderError = () => {
 // Lifecycle
 onMounted(() => {
   checkVoiceSupport()
-  
+
   // Auto-play voice if enabled and this is an assistant message
-  if (props.enableVoice && props.autoPlayVoice && 
-      props.message.role === 'assistant' && 
-      props.message.content.trim() && 
-      voiceSupported.value && 
-      !props.isLoading) {
-    
+  if (
+    props.enableVoice &&
+    props.autoPlayVoice &&
+    props.message.role === 'assistant' &&
+    props.message.content.trim() &&
+    voiceSupported.value &&
+    !props.isLoading
+  ) {
     // Delay slightly to ensure message is fully rendered
     setTimeout(() => {
       showVoiceControls.value = true
@@ -660,12 +678,12 @@ onUnmounted(() => {
     margin-bottom: 1rem;
     padding: 0 0.5rem;
   }
-  
+
   .message-item-enhanced.message-user {
     padding-left: 1rem;
     padding-right: 0.25rem;
   }
-  
+
   .message-item-enhanced.message-assistant {
     padding-right: 1rem;
     padding-left: 0.25rem;
@@ -677,7 +695,7 @@ onUnmounted(() => {
     margin-bottom: 0.75rem;
     padding: 0 0.25rem;
   }
-  
+
   .message-item-enhanced.message-user,
   .message-item-enhanced.message-assistant {
     padding-left: 0.25rem;
@@ -691,7 +709,11 @@ onUnmounted(() => {
 }
 
 .message-item.message-highlighted {
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.04));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-rgb), 0.08),
+    rgba(var(--primary-rgb), 0.04)
+  );
   border: 1px solid rgba(var(--primary-rgb), 0.2);
   animation: highlightPulse 1s ease-in-out;
 }
@@ -1034,7 +1056,7 @@ onUnmounted(() => {
     border-color: rgba(255, 255, 255, 0.1);
     color: #9ca3af;
   }
-  
+
   .token-count:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
@@ -1132,7 +1154,8 @@ onUnmounted(() => {
 }
 
 @keyframes highlightPulse {
-  0%, 100% {
+  0%,
+  100% {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.04));
   }
   50% {
@@ -1147,16 +1170,21 @@ onUnmounted(() => {
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 4px 16px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 0 0 2px rgba(59, 130, 246, 0.3),
+      0 4px 16px rgba(0, 0, 0, 0.12);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow:
+      0 0 0 2px rgba(59, 130, 246, 0.3),
+      0 2px 12px rgba(0, 0, 0, 0.08);
   }
 }
 
 @keyframes loadingPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.8;
   }
   50% {
@@ -1195,40 +1223,40 @@ onUnmounted(() => {
     color: #f3f4f6;
     border-color: rgba(75, 85, 99, 0.8);
   }
-  
+
   .action-buttons {
     background: rgba(31, 41, 55, 0.98);
     border-color: rgba(75, 85, 99, 0.5);
   }
-  
+
   .action-button {
     color: #9ca3af;
   }
-  
+
   .action-button:hover {
     background: rgba(55, 65, 81, 0.5);
     color: #f3f4f6;
   }
-  
+
   .action-button.active {
     background: rgba(59, 130, 246, 0.2);
     color: #60a5fa;
   }
-  
+
   .action-button.destructive:hover {
     background: rgba(239, 68, 68, 0.2);
     color: #f87171;
   }
-  
+
   .metadata-content {
     color: #9ca3af;
   }
-  
+
   .voice-controls-container {
     background: rgba(31, 41, 55, 0.98);
     border-color: rgba(75, 85, 99, 0.5);
   }
-  
+
   .attachment-preview-modal {
     background: rgba(17, 24, 39, 0.98);
   }
@@ -1298,50 +1326,50 @@ onUnmounted(() => {
   .message-item {
     padding: 0.5rem 0.75rem;
   }
-  
+
   .message-bubble {
     max-width: 92%;
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
   }
-  
+
   .message-bubble.bubble-compact {
     padding: 0.5rem 0.75rem;
     font-size: 0.8125rem;
   }
-  
+
   .action-menu {
     position: static;
     margin-top: 0.5rem;
     display: flex;
     justify-content: center;
   }
-  
+
   .action-buttons {
     border-radius: 0.625rem;
     gap: 0.125rem;
     padding: 0.25rem;
   }
-  
+
   .action-button {
     padding: 0.375rem;
   }
-  
+
   .avatar {
     width: 1.75rem;
     height: 1.75rem;
   }
-  
+
   .metadata-content {
     font-size: 0.6875rem;
     gap: 0.5rem;
   }
-  
+
   /* Improve touch targets */
   .message-bubble {
     min-height: 44px; /* Minimum touch target size */
   }
-  
+
   /* Better text readability on mobile */
   .message-content-display {
     line-height: 1.5;
@@ -1352,31 +1380,31 @@ onUnmounted(() => {
   .message-item {
     padding: 0.375rem 0.5rem;
   }
-  
+
   .message-bubble {
     max-width: 95%;
     padding: 0.625rem 0.875rem;
   }
-  
+
   .avatar {
     width: 1.5rem;
     height: 1.5rem;
   }
-  
+
   .voice-controls-container {
     padding: 0.5rem;
   }
-  
+
   .attachments-preview {
     padding: 0.5rem;
   }
-  
+
   /* Stack action buttons vertically on very small screens */
   .action-buttons {
     flex-wrap: wrap;
     max-width: 200px;
   }
-  
+
   /* Improve text wrapping */
   .message-content-display {
     word-break: break-word;
@@ -1389,12 +1417,12 @@ onUnmounted(() => {
   .message-bubble {
     max-width: min(75%, 48rem);
   }
-  
+
   .action-menu {
     opacity: 0;
     transition: opacity 0.2s ease;
   }
-  
+
   .message-item:hover .action-menu {
     opacity: 1;
   }
@@ -1414,16 +1442,16 @@ onUnmounted(() => {
     border-color: rgba(75, 85, 99, 0.4);
     color: #f9fafb;
   }
-  
+
   .action-buttons {
     background: rgba(17, 24, 39, 0.9);
     border-color: rgba(75, 85, 99, 0.4);
   }
-  
+
   .voice-controls-container {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.08));
   }
-  
+
   .attachments-preview {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(75, 85, 99, 0.3);
@@ -1441,7 +1469,9 @@ onUnmounted(() => {
 
 /* Enhanced Micro-interactions and Animations */
 @keyframes typingDotsAnimation {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8);
   }
@@ -1505,7 +1535,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.2);
   }
   50% {
@@ -1514,7 +1545,8 @@ onUnmounted(() => {
 }
 
 @keyframes breathe {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -1547,7 +1579,8 @@ onUnmounted(() => {
 }
 
 @keyframes errorPulse {
-  0%, 100% {
+  0%,
+  100% {
     border-color: rgba(239, 68, 68, 0.3);
     background: rgba(239, 68, 68, 0.05);
   }
@@ -1737,11 +1770,21 @@ onUnmounted(() => {
   gap: 0.25rem;
 }
 
-.action-button-modern:nth-child(1) { animation-delay: 0ms; }
-.action-button-modern:nth-child(2) { animation-delay: 50ms; }
-.action-button-modern:nth-child(3) { animation-delay: 100ms; }
-.action-button-modern:nth-child(4) { animation-delay: 150ms; }
-.action-button-modern:nth-child(5) { animation-delay: 200ms; }
+.action-button-modern:nth-child(1) {
+  animation-delay: 0ms;
+}
+.action-button-modern:nth-child(2) {
+  animation-delay: 50ms;
+}
+.action-button-modern:nth-child(3) {
+  animation-delay: 100ms;
+}
+.action-button-modern:nth-child(4) {
+  animation-delay: 150ms;
+}
+.action-button-modern:nth-child(5) {
+  animation-delay: 200ms;
+}
 
 /* Copy success feedback */
 .action-button-modern.copy-success {
@@ -1751,12 +1794,7 @@ onUnmounted(() => {
 /* Text selection shine effect */
 .message-content-display:hover .enhanced-markdown-content,
 .message-content-display:hover .enhanced-content {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 200% 100%;
   animation: textShine 1.5s ease-in-out;
 }
@@ -1779,7 +1817,7 @@ onUnmounted(() => {
     animation: none;
     transition: none;
   }
-  
+
   .message-item-enhanced.message-appear,
   .message-new {
     opacity: 1;

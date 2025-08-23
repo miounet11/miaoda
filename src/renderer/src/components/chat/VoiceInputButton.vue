@@ -7,10 +7,10 @@
     :disabled="disabled || !isSupported"
   >
     <component :is="buttonIcon" :size="iconSize" />
-    
+
     <!-- Recording pulse animation -->
     <span v-if="isRecording" class="record-pulse" />
-    
+
     <!-- Permission indicator -->
     <span v-if="!hasPermission && !isRecording" class="permission-indicator" />
   </button>
@@ -41,7 +41,7 @@ const emit = defineEmits<{
   'recording-start': []
   'recording-stop': []
   'permission-required': []
-  'error': [error: string]
+  error: [error: string]
 }>()
 
 // State
@@ -53,9 +53,12 @@ const isInitializing = ref(false)
 // Computed properties
 const iconSize = computed(() => {
   switch (props.size) {
-    case 'sm': return 14
-    case 'lg': return 20
-    default: return 16
+    case 'sm':
+      return 14
+    case 'lg':
+      return 20
+    default:
+      return 16
   }
 })
 
@@ -104,7 +107,7 @@ const startRecording = async () => {
 
   try {
     isInitializing.value = true
-    
+
     const success = await voiceService.startRecognition({
       language: 'zh-CN',
       continuous: true,
@@ -129,7 +132,7 @@ const stopRecording = async () => {
 
   try {
     const success = voiceService.stopRecognition()
-    
+
     if (success) {
       isRecording.value = false
       emit('recording-stop')
@@ -178,12 +181,12 @@ const onRecognitionError = (error: Error) => {
 onMounted(async () => {
   checkSupport()
   await checkPermission()
-  
+
   // Setup event listeners
   voiceService.on('recognition-start', onRecognitionStart)
   voiceService.on('recognition-end', onRecognitionEnd)
   voiceService.on('recognition-error', onRecognitionError)
-  
+
   // Auto-start if requested
   if (props.autoStart && hasPermission.value && isSupported.value) {
     await nextTick()
@@ -196,7 +199,7 @@ onUnmounted(() => {
   if (isRecording.value) {
     stopRecording()
   }
-  
+
   // Remove event listeners
   voiceService.off('recognition-start', onRecognitionStart)
   voiceService.off('recognition-end', onRecognitionEnd)
@@ -249,7 +252,9 @@ defineExpose({
 /* State variants */
 .voice-input-btn--recording {
   @apply bg-red-500 hover:bg-red-600 text-white border-red-500;
-  animation: pulse 2s infinite, breathe 2s infinite;
+  animation:
+    pulse 2s infinite,
+    breathe 2s infinite;
 }
 
 .voice-input-btn--disabled {
@@ -279,7 +284,8 @@ defineExpose({
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -290,7 +296,8 @@ defineExpose({
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -299,7 +306,8 @@ defineExpose({
 }
 
 @keyframes breathe {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
   50% {
@@ -328,12 +336,12 @@ defineExpose({
   .voice-input-btn--recording {
     animation: none;
   }
-  
+
   .record-pulse {
     animation: none;
     opacity: 0.3;
   }
-  
+
   .permission-indicator {
     animation: none;
   }
@@ -344,11 +352,11 @@ defineExpose({
   .voice-input-btn {
     @apply border-2;
   }
-  
+
   .voice-input-btn--recording {
     @apply border-red-700;
   }
-  
+
   .voice-input-btn--no-permission {
     @apply border-warning;
   }
@@ -359,7 +367,7 @@ defineExpose({
   .voice-input-btn--default {
     @apply bg-muted/30 hover:bg-muted/50;
   }
-  
+
   .voice-input-btn--no-permission {
     @apply bg-warning/20 hover:bg-warning/30;
   }

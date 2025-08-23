@@ -1,9 +1,6 @@
 <template>
   <div class="base-chart" :style="{ height: height }">
-    <div
-      ref="chartContainer"
-      class="chart-container w-full h-full"
-    />
+    <div ref="chartContainer" class="chart-container w-full h-full" />
   </div>
 </template>
 
@@ -37,7 +34,7 @@ const initChart = async () => {
   if (!chartContainer.value) return
 
   await nextTick()
-  
+
   // Dispose existing chart
   if (chart) {
     chart.dispose()
@@ -45,7 +42,7 @@ const initChart = async () => {
 
   // Create new chart
   chart = echarts.init(chartContainer.value, props.theme === 'dark' ? 'dark' : null)
-  
+
   // Set option
   chart.setOption(props.option, true)
 
@@ -83,20 +80,26 @@ const updateChart = () => {
 watch(() => props.option, updateChart, { deep: true })
 
 // Watch for theme changes
-watch(() => props.theme, () => {
-  initChart()
-})
+watch(
+  () => props.theme,
+  () => {
+    initChart()
+  }
+)
 
 // Watch for loading state
-watch(() => props.loading, (loading) => {
-  if (chart && !chart.isDisposed()) {
-    if (loading) {
-      chart.showLoading()
-    } else {
-      chart.hideLoading()
+watch(
+  () => props.loading,
+  loading => {
+    if (chart && !chart.isDisposed()) {
+      if (loading) {
+        chart.showLoading()
+      } else {
+        chart.hideLoading()
+      }
     }
   }
-})
+)
 
 onMounted(() => {
   initChart()

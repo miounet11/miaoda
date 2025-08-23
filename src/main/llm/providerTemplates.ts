@@ -253,7 +253,7 @@ export function getTemplatesByCategory(category: ProviderTemplate['category']): 
  * Create a custom provider config from template
  */
 export function createConfigFromTemplate(
-  templateId: string, 
+  templateId: string,
   overrides: Partial<CustomProviderConfig> = {}
 ): Partial<CustomProviderConfig> | null {
   const template = getTemplate(templateId)
@@ -279,7 +279,7 @@ export const VALIDATION_RULES = {
     urlPattern: /^https?:\/\/.+/,
     modelPattern: /^claude-.+/
   },
-  'custom': {
+  custom: {
     requiredFields: ['name', 'displayName', 'baseURL'],
     urlPattern: /^https?:\/\/.+/,
     modelPattern: /.+/
@@ -291,7 +291,8 @@ export const VALIDATION_RULES = {
  */
 export const TEST_MESSAGES = {
   basic: 'Hello, can you respond with a simple greeting?',
-  streaming: 'Please provide a longer response to test streaming functionality. Tell me about the weather in a few sentences.',
+  streaming:
+    'Please provide a longer response to test streaming functionality. Tell me about the weather in a few sentences.',
   tools: 'Can you help me read a file from the filesystem? This tests tool calling capabilities.',
   multimodal: 'Describe what you see in this image (if multimodal is supported).'
 }
@@ -300,11 +301,11 @@ export const TEST_MESSAGES = {
  * Common error messages and solutions
  */
 export const ERROR_SOLUTIONS = {
-  'ECONNREFUSED': 'Connection refused. Please check if the server is running and the URL is correct.',
-  'ENOTFOUND': 'Server not found. Please verify the hostname in your Base URL.',
-  'UNAUTHORIZED': 'Invalid API key. Please check your authentication credentials.',
-  'FORBIDDEN': 'Access denied. Your API key may not have the required permissions.',
-  'TIMEOUT': 'Request timeout. The server may be overloaded or your network connection is slow.',
-  'INVALID_MODEL': 'The specified model is not available. Please check the model name.',
-  'RATE_LIMITED': 'Too many requests. Please wait before trying again.'
+  ECONNREFUSED: 'Connection refused. Please check if the server is running and the URL is correct.',
+  ENOTFOUND: 'Server not found. Please verify the hostname in your Base URL.',
+  UNAUTHORIZED: 'Invalid API key. Please check your authentication credentials.',
+  FORBIDDEN: 'Access denied. Your API key may not have the required permissions.',
+  TIMEOUT: 'Request timeout. The server may be overloaded or your network connection is slow.',
+  INVALID_MODEL: 'The specified model is not available. Please check the model name.',
+  RATE_LIMITED: 'Too many requests. Please wait before trying again.'
 }

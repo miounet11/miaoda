@@ -3,9 +3,7 @@ import Database from 'better-sqlite3'
 import { app } from 'electron'
 import { join } from 'path'
 import { mkdirSync, existsSync } from 'fs'
-import type { 
-  SearchQuery
-} from './searchTypes'
+import type { SearchQuery } from './searchTypes'
 import type { ChatRecord, MessageRecord } from './types'
 
 // Re-export types for external use
@@ -17,7 +15,6 @@ import { SummaryService } from './SummaryService'
 import { AnalyticsService } from './AnalyticsService'
 import { DatabaseInitializer } from './DatabaseInitializer'
 import type { AnalyticsData, AnalyticsFilter } from '../../types/analytics'
-
 
 /**
  * Main database class that orchestrates all database services
@@ -35,7 +32,7 @@ export class LocalDatabase {
   constructor() {
     const userDataPath = app.getPath('userData')
     const dbPath = join(userDataPath, 'data')
-    
+
     this.ensureDirectoryExists(dbPath)
     this.db = this.openDatabase(dbPath)
     this.initializeServices()
@@ -131,7 +128,13 @@ export class LocalDatabase {
   }
 
   // Summary operations - delegated to SummaryService
-  updateChatSummary(chatId: string, summary: string, tags: string[], keyPoints: string[], tokens?: number): void {
+  updateChatSummary(
+    chatId: string,
+    summary: string,
+    tags: string[],
+    keyPoints: string[],
+    tokens?: number
+  ): void {
     this.summaryService.updateChatSummary(chatId, summary, tags, keyPoints, tokens)
   }
 

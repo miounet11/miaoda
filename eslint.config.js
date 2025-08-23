@@ -5,29 +5,37 @@ import tsParser from '@typescript-eslint/parser'
 import vue from 'eslint-plugin-vue'
 
 export default [
-  { ignores: ['dist', 'out', 'node_modules', 'debug-*', '**/quality-assessment*', 'example-plugins'] },
+  {
+    ignores: ['dist', 'out', 'node_modules', 'debug-*', '**/quality-assessment*', 'example-plugins']
+  },
   // Base JavaScript configuration
   js.configs.recommended,
   // Node.js files (main process, scripts, configs)
   {
-    files: ['src/main/**/*.{ts,js}', 'scripts/**/*.js', '*.config.js', 'vitest.config.ts', 'electron.vite.config.ts'],
+    files: [
+      'src/main/**/*.{ts,js}',
+      'scripts/**/*.js',
+      '*.config.js',
+      'vitest.config.ts',
+      'electron.vite.config.ts'
+    ],
     languageOptions: {
       parser: tsParser,
       globals: {
         ...globals.node,
         ...globals.nodeBuiltin,
         __dirname: 'readonly',
-        __filename: 'readonly',
-      },
+        __filename: 'readonly'
+      }
     },
     plugins: {
-      '@typescript-eslint': tsPlugin,
+      '@typescript-eslint': tsPlugin
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    },
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+    }
   },
   // Browser files (renderer process)
   {
@@ -36,17 +44,17 @@ export default [
       parser: tsParser,
       globals: {
         ...globals.browser,
-        ...globals.es2020,
-      },
+        ...globals.es2020
+      }
     },
     plugins: {
-      '@typescript-eslint': tsPlugin,
+      '@typescript-eslint': tsPlugin
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    },
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+    }
   },
   // Test files
   {
@@ -64,17 +72,17 @@ export default [
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
-        global: 'writable',
-      },
+        global: 'writable'
+      }
     },
     plugins: {
-      '@typescript-eslint': tsPlugin,
+      '@typescript-eslint': tsPlugin
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    },
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+    }
   },
   // Vue files
   ...vue.configs['flat/recommended'],
@@ -82,17 +90,17 @@ export default [
     files: ['**/*.vue'],
     languageOptions: {
       globals: {
-        ...globals.browser,
+        ...globals.browser
       },
       parserOptions: {
-        parser: tsParser,
-      },
+        parser: tsParser
+      }
     },
     rules: {
       'vue/multi-word-component-names': 'off',
       'vue/singleline-html-element-content-newline': 'off',
       'vue/max-attributes-per-line': 'off',
-      'vue/attributes-order': 'off',
-    },
-  },
+      'vue/attributes-order': 'off'
+    }
+  }
 ]

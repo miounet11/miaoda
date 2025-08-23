@@ -9,7 +9,7 @@
           写评价
         </button>
       </div>
-      
+
       <div class="summary-stats">
         <div class="overall-rating">
           <div class="rating-score">{{ plugin.rating.toFixed(1) }}</div>
@@ -23,19 +23,12 @@
           </div>
           <div class="rating-count">{{ formatNumber(plugin.reviewCount) }} 条评价</div>
         </div>
-        
+
         <div class="rating-breakdown">
-          <div
-            v-for="rating in [5, 4, 3, 2, 1]"
-            :key="rating"
-            class="rating-bar"
-          >
+          <div v-for="rating in [5, 4, 3, 2, 1]" :key="rating" class="rating-bar">
             <span class="rating-label">{{ rating }} 星</span>
             <div class="bar-container">
-              <div 
-                class="bar-fill" 
-                :style="{ width: `${getRatingPercentage(rating)}%` }"
-              />
+              <div class="bar-fill" :style="{ width: `${getRatingPercentage(rating)}%` }" />
             </div>
             <span class="rating-count">{{ getRatingCount(rating) }}</span>
           </div>
@@ -55,7 +48,7 @@
           {{ filter.label }}
         </button>
       </div>
-      
+
       <div class="sort-controls">
         <select v-model="sortBy" class="sort-select">
           <option value="helpful">最有帮助</option>
@@ -73,22 +66,16 @@
         <div class="loading-spinner" />
         <p>正在加载评价...</p>
       </div>
-      
+
       <div v-else-if="filteredReviews.length === 0" class="empty-state">
         <MessageSquare :size="48" class="empty-icon" />
         <h3>暂无评价</h3>
         <p>成为第一个评价此插件的用户</p>
-        <button @click="$emit('add-review')" class="add-review-btn">
-          写评价
-        </button>
+        <button @click="$emit('add-review')" class="add-review-btn">写评价</button>
       </div>
-      
+
       <div v-else class="reviews-container">
-        <div
-          v-for="review in paginatedReviews"
-          :key="review.id"
-          class="review-item"
-        >
+        <div v-for="review in paginatedReviews" :key="review.id" class="review-item">
           <!-- Review Header -->
           <div class="review-header">
             <div class="reviewer-info">
@@ -98,7 +85,7 @@
                   :src="review.userAvatar"
                   :alt="review.userName"
                   class="avatar-image"
-                >
+                />
                 <User v-else :size="20" />
               </div>
               <div class="reviewer-details">
@@ -121,7 +108,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="review-actions">
               <button
                 @click="toggleHelpful(review)"
@@ -136,14 +123,10 @@
           <!-- Review Content -->
           <div class="review-content">
             <p class="review-text">{{ review.review }}</p>
-            
+
             <!-- Review Tags -->
             <div v-if="review.tags?.length" class="review-tags">
-              <span
-                v-for="tag in review.tags"
-                :key="tag"
-                class="review-tag"
-              >
+              <span v-for="tag in review.tags" :key="tag" class="review-tag">
                 {{ tag }}
               </span>
             </div>
@@ -155,29 +138,25 @@
                   <Code :size="14" />
                   开发者回复
                 </div>
-                <span class="response-date">{{ formatDate(review.developerResponse.createdAt) }}</span>
+                <span class="response-date">{{
+                  formatDate(review.developerResponse.createdAt)
+                }}</span>
               </div>
               <p class="response-text">{{ review.developerResponse.text }}</p>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="pagination">
-        <button
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-          class="pagination-btn"
-        >
+        <button @click="currentPage--" :disabled="currentPage === 1" class="pagination-btn">
           <ChevronLeft :size="16" />
           上一页
         </button>
-        
-        <div class="pagination-info">
-          第 {{ currentPage }} 页，共 {{ totalPages }} 页
-        </div>
-        
+
+        <div class="pagination-info">第 {{ currentPage }} 页，共 {{ totalPages }} 页</div>
+
         <button
           @click="currentPage++"
           :disabled="currentPage === totalPages"
@@ -194,8 +173,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  Plus, Star, MessageSquare, User, Shield, ThumbsUp, Code,
-  ChevronLeft, ChevronRight
+  Plus,
+  Star,
+  MessageSquare,
+  User,
+  Shield,
+  ThumbsUp,
+  Code,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 
 import type { PluginMarketListing, PluginRating } from '../../types/plugins'
@@ -297,12 +283,12 @@ const ratingDistribution = ref({
 // Computed properties
 const filteredReviews = computed(() => {
   let filtered = reviews.value
-  
+
   if (selectedFilter.value !== 'all') {
     const rating = parseInt(selectedFilter.value)
     filtered = filtered.filter(review => review.rating === rating)
   }
-  
+
   // Sort reviews
   const sorted = [...filtered].sort((a, b) => {
     switch (sortBy.value) {
@@ -320,7 +306,7 @@ const filteredReviews = computed(() => {
         return 0
     }
   })
-  
+
   return sorted
 })
 
@@ -342,7 +328,7 @@ const formatDate = (dateString: string): string => {
   const now = new Date()
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 1) return '昨天'
   if (diffDays < 7) return `${diffDays}天前`
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前`

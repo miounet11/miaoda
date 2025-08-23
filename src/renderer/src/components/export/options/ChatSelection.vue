@@ -9,7 +9,7 @@
             value="current"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          >
+          />
           <span class="text-sm text-gray-700 dark:text-gray-300">Current conversation only</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -18,7 +18,7 @@
             value="selected"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          >
+          />
           <span class="text-sm text-gray-700 dark:text-gray-300">Selected conversations</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -27,7 +27,7 @@
             value="all"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          >
+          />
           <span class="text-sm text-gray-700 dark:text-gray-300">All conversations</span>
         </label>
         <label class="flex items-center space-x-3 cursor-pointer">
@@ -36,7 +36,7 @@
             value="filtered"
             v-model="scope"
             class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-          >
+          />
           <span class="text-sm text-gray-700 dark:text-gray-300">Filtered conversations</span>
         </label>
       </div>
@@ -61,20 +61,25 @@
           </button>
         </div>
       </div>
-      
+
       <div class="max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg">
         <div v-if="loadingChats" class="flex items-center justify-center py-8">
           <div class="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-            <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div
+              class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+            />
             <span class="text-sm">Loading conversations...</span>
           </div>
         </div>
-        
-        <div v-else-if="available.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+
+        <div
+          v-else-if="available.length === 0"
+          class="text-center py-8 text-gray-500 dark:text-gray-400"
+        >
           <MessageCircle class="w-12 h-12 mx-auto mb-2 opacity-50" />
           <p class="text-sm">No conversations available</p>
         </div>
-        
+
         <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
           <label
             v-for="chat in available"
@@ -86,7 +91,7 @@
               :value="chat.id"
               v-model="selected"
               class="w-4 h-4 text-blue-600 focus:ring-blue-500"
-            >
+            />
             <div class="flex-1 min-w-0">
               <div class="font-medium text-gray-900 dark:text-white truncate">
                 {{ chat.title || 'Untitled Conversation' }}
@@ -100,7 +105,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
         {{ selected.length }} of {{ available.length }} conversation(s) selected
       </div>
@@ -108,18 +113,22 @@
 
     <!-- Filtered Options -->
     <div v-if="scope === 'filtered'" class="space-y-4">
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div
+        class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+      >
         <div class="flex items-start space-x-3">
           <Info class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Filtered Export</h4>
+            <h4 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+              Filtered Export
+            </h4>
             <p class="text-sm text-blue-700 dark:text-blue-300">
               Conversations will be filtered based on the time range and tags you specify below.
             </p>
           </div>
         </div>
       </div>
-      
+
       <div>
         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Filter Criteria</h5>
         <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -170,7 +179,10 @@ const hasTagFilter = computed(() => {
 
 // Methods
 const selectAll = () => {
-  emit('update:selected', props.available.map(chat => chat.id))
+  emit(
+    'update:selected',
+    props.available.map(chat => chat.id)
+  )
 }
 
 const selectNone = () => {
@@ -179,11 +191,11 @@ const selectNone = () => {
 
 const loadAvailableChats = async () => {
   if (loadingChats.value) return
-  
+
   try {
     loadingChats.value = true
     // In a real implementation, this would call the API
-    const chats = await window.api?.export?.getAllChats?.() || []
+    const chats = (await window.api?.export?.getAllChats?.()) || []
     emit('update:available', chats)
   } catch (error) {
     console.error('Failed to load chats:', error)
@@ -213,11 +225,14 @@ const formatDate = (dateString: string) => {
 }
 
 // Watchers
-watch(() => props.scope, (newScope) => {
-  if (newScope === 'selected' && props.available.length === 0) {
-    loadAvailableChats()
+watch(
+  () => props.scope,
+  newScope => {
+    if (newScope === 'selected' && props.available.length === 0) {
+      loadAvailableChats()
+    }
   }
-})
+)
 
 // Initialize
 onMounted(() => {

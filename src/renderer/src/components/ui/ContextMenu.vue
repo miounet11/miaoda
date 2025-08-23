@@ -15,7 +15,7 @@
         <template v-for="(item, index) in items" :key="item.id">
           <!-- Separator -->
           <div v-if="item.separator" class="my-1 h-px bg-border" />
-          
+
           <!-- Menu Item -->
           <div
             v-else
@@ -34,15 +34,15 @@
               :size="16"
               class="flex-shrink-0"
             />
-            
+
             <!-- Label -->
             <span class="flex-1">{{ item.label }}</span>
-            
+
             <!-- Shortcut -->
             <span v-if="item.shortcut" class="text-xs text-muted-foreground">
               {{ formatShortcut(item.shortcut) }}
             </span>
-            
+
             <!-- Submenu indicator -->
             <ChevronRight
               v-if="item.submenu && item.submenu.length > 0"
@@ -123,32 +123,32 @@ const menuStyle = computed(() => {
     left: `${props.x}px`,
     top: `${props.y}px`
   }
-  
+
   return style
 })
 
 // Handle item click
 const handleItemClick = (item: ContextMenuItem) => {
   if (item.disabled || !item.action) return
-  
+
   emit('action', item.action)
 }
 
 // Position menu to stay within viewport
 const positionMenu = async () => {
   if (!menuRef.value || !props.visible) return
-  
+
   await nextTick()
-  
+
   const menu = menuRef.value
   const rect = menu.getBoundingClientRect()
   const viewport = {
     width: window.innerWidth,
     height: window.innerHeight
   }
-  
+
   let { x, y } = props
-  
+
   // Adjust horizontal position
   if (x + rect.width > viewport.width) {
     x = viewport.width - rect.width - 8
@@ -156,7 +156,7 @@ const positionMenu = async () => {
   if (x < 8) {
     x = 8
   }
-  
+
   // Adjust vertical position
   if (y + rect.height > viewport.height) {
     y = viewport.height - rect.height - 8
@@ -164,7 +164,7 @@ const positionMenu = async () => {
   if (y < 8) {
     y = 8
   }
-  
+
   // Apply adjusted position
   menu.style.left = `${x}px`
   menu.style.top = `${y}px`
@@ -185,13 +185,16 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 // Watch for visibility changes
-watch(() => props.visible, (visible) => {
-  if (visible) {
-    nextTick(() => {
-      positionMenu()
-    })
+watch(
+  () => props.visible,
+  visible => {
+    if (visible) {
+      nextTick(() => {
+        positionMenu()
+      })
+    }
   }
-})
+)
 
 // Setup event listeners
 onMounted(() => {
@@ -210,7 +213,7 @@ onUnmounted(() => {
 
 .context-menu {
   animation: contextMenuAppear 0.15s ease-out;
-  box-shadow: 
+  box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -260,7 +263,7 @@ onUnmounted(() => {
   --destructive-foreground: hsl(0, 0%, 100%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --background: hsl(222, 47%, 15%);
   --border: hsl(215, 20%, 25%);
   --accent: hsl(217, 33%, 17%);
@@ -274,7 +277,7 @@ onUnmounted(() => {
   .context-menu {
     border-width: 2px;
   }
-  
+
   .context-menu-item:hover {
     outline: 2px solid var(--accent);
   }
@@ -285,7 +288,7 @@ onUnmounted(() => {
   .context-menu {
     animation: none;
   }
-  
+
   .context-menu-item {
     transition: none;
   }

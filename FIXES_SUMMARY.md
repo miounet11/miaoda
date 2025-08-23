@@ -7,12 +7,14 @@ This document summarizes the comprehensive fixes implemented to resolve persiste
 ## 1. Markdown Rendering Error Fix
 
 ### **Problem**: "TypeError: value.replace is not a function"
+
 - **Root Cause**: Non-string values being passed to marked.js parser
 - **Impact**: Application crashes and content rendering failures
 
 ### **Solution Implemented**:
 
 #### Enhanced Content Sanitization
+
 - **File**: `UnifiedMessageContent.vue` and `EnhancedMarkdown.vue`
 - **Function**: `sanitizeContent()` / `sanitizeMarkdownContent()`
 
@@ -23,26 +25,26 @@ const sanitizeContent = (rawContent: any): string => {
   if (rawContent === null || rawContent === undefined) {
     return ''
   }
-  
+
   // Handle different data types safely
   if (typeof rawContent === 'string') {
     return rawContent.trim()
   }
-  
+
   // Handle numbers and booleans
   if (typeof rawContent === 'number' || typeof rawContent === 'boolean') {
     return String(rawContent)
   }
-  
+
   // Handle arrays with filtering
   if (Array.isArray(rawContent)) {
     return rawContent
       .filter(item => item !== null && item !== undefined)
-      .map(item => typeof item === 'string' ? item : String(item))
+      .map(item => (typeof item === 'string' ? item : String(item)))
       .join('\\n')
       .trim()
   }
-  
+
   // Handle objects safely
   if (typeof rawContent === 'object' && rawContent !== null) {
     try {
@@ -51,14 +53,15 @@ const sanitizeContent = (rawContent: any): string => {
       return '[Complex Object]'
     }
   }
-  
+
   // Final fallback
   return String(rawContent || '').trim()
 }
 ```
 
 #### Safe Markdown Parsing
-- **Multiple Fallback Layers**: 
+
+- **Multiple Fallback Layers**:
   1. Content sanitization
   2. Marked.js parsing with error handling
   3. HTML escaping fallback
@@ -69,18 +72,18 @@ const parseMarkdownSafely = (content: string): string => {
   try {
     // Validate and normalize content
     const processedContent = content
-      .replace(/\\r\\n/g, '\\n')  // Normalize line endings
+      .replace(/\\r\\n/g, '\\n') // Normalize line endings
       .replace(/\\r/g, '\\n')
       .trim()
-    
+
     // Parse with marked.js
     const result = marked.parse(processedContent)
-    
+
     // Validate result is string
     if (typeof result !== 'string') {
       throw new Error('Marked parser returned non-string result')
     }
-    
+
     return result
   } catch (error) {
     // Safe fallback to escaped HTML
@@ -92,28 +95,35 @@ const parseMarkdownSafely = (content: string): string => {
 ## 2. Content Expansion Functionality Fix
 
 ### **Problem**: "显示原始内容" (Show raw content) button not working
+
 - **Root Cause**: Poor HTML structure and CSS conflicts in error states
 - **Impact**: Users cannot view original content when rendering fails
 
 ### **Solution Implemented**:
 
 #### Enhanced Error Display Structure
+
 - **Improved HTML structure** with proper semantic elements
 - **Interactive details/summary** with custom styling
 - **Accessible keyboard navigation**
 
 ```html
 <details class="mt-2 cursor-pointer group">
-  <summary class="text-sm text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 transition-colors cursor-pointer select-none group-hover:underline">
+  <summary
+    class="text-sm text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 transition-colors cursor-pointer select-none group-hover:underline"
+  >
     显示原始内容 (Click to expand)
   </summary>
-  <pre class="text-xs text-red-600 dark:text-red-400 mt-2 p-2 bg-red-100 dark:bg-red-900/30 rounded border overflow-auto max-h-40 whitespace-pre-wrap select-text break-all">
+  <pre
+    class="text-xs text-red-600 dark:text-red-400 mt-2 p-2 bg-red-100 dark:bg-red-900/30 rounded border overflow-auto max-h-40 whitespace-pre-wrap select-text break-all"
+  >
     ${escapeHtml(content)}
   </pre>
 </details>
 ```
 
 #### Enhanced CSS Styling
+
 ```css
 .error-content details {
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -145,12 +155,14 @@ const parseMarkdownSafely = (content: string): string => {
 ## 3. UI Layout Artifacts Resolution
 
 ### **Problem**: Strange UI boxes and layout inconsistencies
+
 - **Root Cause**: CSS conflicts and improper containment
 - **Impact**: Visual artifacts and poor user experience
 
 ### **Solution Implemented**:
 
 #### Layout Containment and GPU Acceleration
+
 ```css
 .message-content {
   /* Fix layout artifacts and prevent UI boxes */
@@ -175,6 +187,7 @@ const parseMarkdownSafely = (content: string): string => {
 ```
 
 #### Isolation and Z-Index Management
+
 ```css
 /* Fix z-index and positioning conflicts */
 .enhanced-markdown-content .code-block-wrapper,
@@ -189,30 +202,37 @@ const parseMarkdownSafely = (content: string): string => {
 ## 4. Enhanced Error Handling
 
 ### **Problem**: Poor error feedback and recovery
+
 - **Root Cause**: Limited error handling strategies
 - **Impact**: Application instability and poor user experience
 
 ### **Solution Implemented**:
 
 #### Multi-Layer Error Handling
+
 1. **Input Validation**: Comprehensive type checking
 2. **Processing Errors**: Safe markdown parsing with fallbacks
 3. **Rendering Errors**: Emergency display modes
 4. **User Feedback**: Clear error messages with expansion options
 
 #### Enhanced Copy Functionality
+
 ```typescript
 // Enhanced copy function with fallback for older browsers
-;(window as any).copyToClipboard = async (button: HTMLElement, encodedCode: string, language: string) => {
+;(window as any).copyToClipboard = async (
+  button: HTMLElement,
+  encodedCode: string,
+  language: string
+) => {
   try {
     // Validate inputs
     if (!button || !encodedCode) {
       throw new Error('Invalid copy parameters')
     }
-    
+
     const code = decodeURIComponent(encodedCode)
     await navigator.clipboard.writeText(code)
-    
+
     // Visual feedback with timeout
     // ... implementation details
   } catch (error) {
@@ -227,6 +247,7 @@ const parseMarkdownSafely = (content: string): string => {
 ## 5. Testing and Verification
 
 ### **Test Suite Created**: `test-markdown-fixes.html`
+
 - **Content Expansion Test**: Verifies details/summary functionality
 - **Content Sanitization Test**: Tests various input types
 - **Error Fallback Test**: Validates error display mechanisms

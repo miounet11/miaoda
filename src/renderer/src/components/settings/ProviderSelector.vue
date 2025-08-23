@@ -18,11 +18,11 @@
             ]"
           >
             <!-- Status Indicator -->
-            <div 
-              v-if="selectedProviderId === provider.id" 
+            <div
+              v-if="selectedProviderId === provider.id"
               class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full animate-pulse"
             />
-            
+
             <div class="text-2xl mb-2">{{ provider.emoji }}</div>
             <div class="font-medium text-sm">{{ provider.name }}</div>
             <div class="text-xs text-muted-foreground mt-1">{{ provider.subtitle }}</div>
@@ -41,12 +41,15 @@
             + Add Provider
           </button>
         </div>
-        
-        <div v-if="customProviders.length === 0" class="text-center py-8 bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+
+        <div
+          v-if="customProviders.length === 0"
+          class="text-center py-8 bg-muted/20 rounded-lg border-2 border-dashed border-muted"
+        >
           <div class="text-muted-foreground">
             <Plus :size="32" class="mx-auto mb-2 opacity-50" />
             <p class="text-sm">No custom providers configured</p>
-            <button 
+            <button
               @click="showAddProvider = true"
               class="mt-2 text-xs text-primary hover:underline"
             >
@@ -54,7 +57,7 @@
             </button>
           </div>
         </div>
-        
+
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div
             v-for="provider in customProviders"
@@ -69,16 +72,13 @@
           >
             <!-- Status Indicator -->
             <div class="absolute top-3 right-3 flex items-center gap-2">
-              <div 
-                v-if="selectedProviderId === provider.id" 
+              <div
+                v-if="selectedProviderId === provider.id"
                 class="w-2 h-2 bg-primary rounded-full animate-pulse"
               />
-              <StatusIndicator 
-                :status="getProviderStatus(provider.id)" 
-                size="sm"
-              />
+              <StatusIndicator :status="getProviderStatus(provider.id)" size="sm" />
             </div>
-            
+
             <div class="pr-8">
               <div class="font-medium text-sm mb-1">{{ provider.displayName }}</div>
               <div class="text-xs text-muted-foreground truncate">{{ provider.baseURL }}</div>
@@ -86,7 +86,7 @@
                 Model: <span class="text-foreground">{{ provider.model }}</span>
               </div>
             </div>
-            
+
             <!-- Actions -->
             <div class="mt-3 pt-3 border-t border-muted/50 flex gap-2">
               <button
@@ -115,7 +115,7 @@
       <!-- Configuration Section for Selected Provider -->
       <div v-if="selectedProviderId" class="mt-6 p-4 bg-muted/20 rounded-lg">
         <h4 class="text-sm font-medium mb-3">Provider Configuration</h4>
-        
+
         <!-- API Key for built-in providers -->
         <div v-if="!isCustomProvider(selectedProviderId)" class="space-y-4">
           <div>
@@ -126,7 +126,7 @@
                 :type="showApiKey ? 'text' : 'password'"
                 placeholder="Enter your API key..."
                 class="w-full px-3 py-2 pr-10 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
+              />
               <button
                 @click="showApiKey = !showApiKey"
                 type="button"
@@ -137,11 +137,11 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Optional Base URL Override -->
           <div>
             <label class="block text-sm font-medium mb-2">
-              Base URL 
+              Base URL
               <span class="text-muted-foreground text-xs">(optional - for custom endpoints)</span>
             </label>
             <input
@@ -149,7 +149,7 @@
               type="url"
               :placeholder="getDefaultBaseURL(selectedProviderId)"
               class="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
+            />
           </div>
 
           <!-- Model Selection for providers that support it -->
@@ -171,7 +171,7 @@
                 type="text"
                 placeholder="Enter model name"
                 class="flex-1 px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
+              />
             </div>
           </div>
         </div>
@@ -179,16 +179,18 @@
         <!-- Custom Provider Info -->
         <div v-else class="space-y-3">
           <div class="text-sm">
-            <span class="text-muted-foreground">Type:</span> 
+            <span class="text-muted-foreground">Type:</span>
             <span class="ml-2">{{ getCustomProvider(selectedProviderId)?.type }}</span>
           </div>
           <div class="text-sm">
-            <span class="text-muted-foreground">Model:</span> 
+            <span class="text-muted-foreground">Model:</span>
             <span class="ml-2">{{ getCustomProvider(selectedProviderId)?.model }}</span>
           </div>
           <div class="text-sm">
-            <span class="text-muted-foreground">Base URL:</span> 
-            <span class="ml-2 text-xs font-mono">{{ getCustomProvider(selectedProviderId)?.baseURL }}</span>
+            <span class="text-muted-foreground">Base URL:</span>
+            <span class="ml-2 text-xs font-mono">{{
+              getCustomProvider(selectedProviderId)?.baseURL
+            }}</span>
           </div>
         </div>
       </div>
@@ -267,7 +269,7 @@ const getProviderStatus = (providerId: string) => {
 const selectProvider = (providerId: string) => {
   selectedProviderId.value = providerId
   emit('update:modelValue', providerId)
-  
+
   // Emit provider configuration
   const config = isCustomProvider(providerId)
     ? getCustomProvider(providerId)
@@ -277,7 +279,7 @@ const selectProvider = (providerId: string) => {
         baseURL: baseURL.value || undefined,
         model: selectedModel.value === 'custom' ? customModel.value : selectedModel.value
       }
-  
+
   emit('provider-selected', config)
 }
 
@@ -362,11 +364,11 @@ onMounted(() => {
     min-height: 100px;
     padding: 12px;
   }
-  
+
   .custom-provider {
     min-height: 120px;
   }
-  
+
   .grid.grid-cols-1 {
     gap: 12px;
   }
@@ -378,8 +380,9 @@ onMounted(() => {
     min-height: 44px;
     padding: 12px 16px;
   }
-  
-  input, select {
+
+  input,
+  select {
     min-height: 44px;
     font-size: 16px; /* Prevents zoom on iOS */
   }

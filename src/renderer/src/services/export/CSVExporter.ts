@@ -3,9 +3,9 @@ import type { ExportChatData, ExportOptions, ExportResult, CSVExportOptions } fr
 
 export class CSVExporter {
   private static instance: CSVExporter
-  
+
   private constructor() {}
-  
+
   static getInstance(): CSVExporter {
     if (!CSVExporter.instance) {
       CSVExporter.instance = new CSVExporter()
@@ -23,7 +23,7 @@ export class CSVExporter {
 
     // Prepare data for CSV export
     const csvData: any[] = []
-    
+
     if (csvOptions.includeHeaders) {
       csvData.push(this.createHeaders(csvOptions))
     }
@@ -34,7 +34,7 @@ export class CSVExporter {
         const row = this.createMessageRow(chat, message, messageIndex, options, csvOptions)
         csvData.push(row)
       }
-      
+
       // Add separator row between chats if needed
       if (chats.length > 1 && chat !== chats[chats.length - 1]) {
         csvData.push(this.createSeparatorRow())
@@ -69,29 +69,29 @@ export class CSVExporter {
 
     // Create workbook
     const workbook = XLSX.utils.book_new()
-    
+
     if (chats.length === 1) {
       // Single chat - create one worksheet
       const chat = chats[0]
       const worksheetData = this.createWorksheetData(chat, options, csvOptions)
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
-      
+
       // Apply formatting
       this.applyWorksheetFormatting(worksheet, worksheetData)
-      
+
       const sheetName = this.sanitizeSheetName(chat.title)
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
     } else {
       // Multiple chats - create overview sheet and individual chat sheets
       this.createOverviewSheet(workbook, chats, options)
-      
+
       // Create individual sheets for each chat (limit to 10 for performance)
       const maxSheets = 10
       for (const [index, chat] of chats.slice(0, maxSheets).entries()) {
         const worksheetData = this.createWorksheetData(chat, options, csvOptions)
         const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
         this.applyWorksheetFormatting(worksheet, worksheetData)
-        
+
         const sheetName = this.sanitizeSheetName(`${index + 1}. ${chat.title}`)
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
       }
@@ -149,7 +149,7 @@ export class CSVExporter {
     csvOptions: CSVExportOptions
   ): (string | number)[] {
     let content = message.content || ''
-    
+
     // Flatten content if requested
     if (csvOptions.flattenContent) {
       content = content.replace(/[\r\n]+/g, ' ').trim()
@@ -187,7 +187,7 @@ export class CSVExporter {
     csvOptions: CSVExportOptions
   ): any[][] {
     const data: any[][] = []
-    
+
     // Add chat header
     data.push(['Chat Information'])
     data.push(['Title:', chat.title])
@@ -198,19 +198,19 @@ export class CSVExporter {
     }
     data.push(['Messages:', chat.messages.length])
     data.push([]) // Empty row
-    
+
     // Add message headers
     if (csvOptions.includeHeaders) {
       data.push(['Message #', 'Role', 'Content', 'Timestamp', 'Length'])
     }
-    
+
     // Add messages
     for (const [index, message] of chat.messages.entries()) {
       let content = message.content || ''
       if (csvOptions.flattenContent) {
         content = content.replace(/[\r\n]+/g, ' ').trim()
       }
-      
+
       const row = [
         index + 1,
         message.role,
@@ -218,10 +218,10 @@ export class CSVExporter {
         options.includeTimestamps ? new Date(message.created_at).toLocaleString() : '',
         content.length
       ]
-      
+
       data.push(row)
     }
-    
+
     return data
   }
 
@@ -234,17 +234,20 @@ export class CSVExporter {
     options: ExportOptions
   ): void {
     const overviewData: any[][] = []
-    
+
     // Add summary
     overviewData.push(['Chat Export Overview'])
     overviewData.push(['Export Date:', new Date().toLocaleString()])
     overviewData.push(['Total Chats:', chats.length])
-    overviewData.push(['Total Messages:', chats.reduce((sum, chat) => sum + chat.messages.length, 0)])
+    overviewData.push([
+      'Total Messages:',
+      chats.reduce((sum, chat) => sum + chat.messages.length, 0)
+    ])
     overviewData.push([]) // Empty row
-    
+
     // Add chat list headers
     overviewData.push(['#', 'Chat Title', 'Messages', 'Created', 'Updated'])
-    
+
     // Add chat list
     for (const [index, chat] of chats.entries()) {
       overviewData.push([
@@ -255,7 +258,7 @@ export class CSVExporter {
         options.includeTimestamps ? new Date(chat.updatedAt).toLocaleString() : ''
       ])
     }
-    
+
     const worksheet = XLSX.utils.aoa_to_sheet(overviewData)
     this.applyWorksheetFormatting(worksheet, overviewData)
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Overview')
@@ -267,7 +270,7 @@ export class CSVExporter {
   private applyWorksheetFormatting(worksheet: XLSX.WorkSheet, data: any[][]): void {
     // Auto-size columns
     const colWidths: number[] = []
-    
+
     for (let col = 0; col < (data[0]?.length || 0); col++) {
       let maxWidth = 10
       for (let row = 0; row < data.length; row++) {
@@ -279,9 +282,9 @@ export class CSVExporter {
       }
       colWidths.push(maxWidth)
     }
-    
+
     worksheet['!cols'] = colWidths.map(width => ({ width }))
-    
+
     // Freeze first row if it contains headers
     if (data.length > 1) {
       worksheet['!freeze'] = { xSplit: 0, ySplit: 1 }
@@ -329,7 +332,7 @@ export class CSVExporter {
    */
   downloadFile(result: ExportResult): void {
     let blob: Blob
-    
+
     if (result.content.startsWith('data:')) {
       // Handle Excel files (base64 data URI)
       const arr = result.content.split(',')
@@ -338,27 +341,27 @@ export class CSVExporter {
       const bstr = atob(arr[1])
       const n = bstr.length
       const u8arr = new Uint8Array(n)
-      
+
       for (let i = 0; i < n; i++) {
         u8arr[i] = bstr.charCodeAt(i)
       }
-      
+
       blob = new Blob([u8arr], { type: mime })
     } else {
       // Handle CSV files (text content)
       blob = new Blob([result.content], { type: result.mimeType })
     }
-    
+
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = result.filename
     a.style.display = 'none'
-    
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    
+
     URL.revokeObjectURL(url)
   }
 }

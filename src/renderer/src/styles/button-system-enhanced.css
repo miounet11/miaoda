@@ -1,0 +1,557 @@
+/**
+ * 按钮微交互系统增强
+ * Enhanced Button Micro-interaction System
+ * 
+ * 针对 MiaoDa Chat 应用中所有按钮类型的微交互优化
+ * 提供统一的交互反馈和视觉效果
+ */
+
+/* ============== 按钮系统初始化 ============== */
+
+/* 自动应用按钮微交互类 */
+button:not([data-no-micro]),
+.button:not([data-no-micro]),
+input[type='button']:not([data-no-micro]),
+input[type='submit']:not([data-no-micro]),
+.btn:not([data-no-micro]) {
+  /* 继承微交互系统基类 */
+  @extend .btn-micro;
+
+  /* 确保触摸友好 */
+  min-height: 44px;
+  min-width: 44px;
+
+  /* 文本按钮特殊处理 */
+  &.btn-text,
+  &[data-variant='text'] {
+    min-height: auto;
+    min-width: auto;
+    padding: 8px 12px;
+  }
+}
+
+/* ============== 特定按钮类型增强 ============== */
+
+/* === 发送按钮专门优化 === */
+.send-button,
+button[data-type='send'],
+.chat-input .send-btn {
+  position: relative;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* 发送动画准备 */
+  transition: all var(--micro-quick) var(--ease-out);
+  transform: translateZ(0);
+}
+
+.send-button:hover:not(:disabled),
+button[data-type='send']:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow:
+    0 6px 16px hsl(var(--primary) / 0.4),
+    0 0 0 4px hsl(var(--primary) / 0.1);
+}
+
+.send-button:active:not(:disabled),
+button[data-type='send']:active:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
+  transition-duration: var(--micro-instant);
+}
+
+/* 发送成功动画 */
+.send-button.sent,
+button[data-type='send'].sent {
+  animation: sendSuccess var(--micro-deliberate) var(--ease-bounce);
+}
+
+@keyframes sendSuccess {
+  0% {
+    transform: scale(1);
+    background: var(--gradient-primary);
+  }
+  25% {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, var(--color-success), var(--color-success));
+    box-shadow: 0 0 0 8px hsl(142 71% 45% / 0.3);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 12px hsl(142 71% 45% / 0.2);
+  }
+  75% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 16px hsl(142 71% 45% / 0.1);
+  }
+  100% {
+    transform: scale(1);
+    background: var(--gradient-primary);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* === 侧边栏按钮优化 === */
+.sidebar button,
+.settings-sidebar button,
+nav button,
+.chat-sidebar button {
+  /* 应用菜单项微交互 */
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  transition: all var(--micro-quick) var(--ease-out);
+}
+
+.sidebar button:hover,
+.settings-sidebar button:hover,
+nav button:hover,
+.chat-sidebar button:hover {
+  transform: translateX(2px) scale(1.02);
+  background: var(--feedback-hover);
+}
+
+.sidebar button:active,
+.settings-sidebar button:active,
+nav button:active,
+.chat-sidebar button:active {
+  transform: translateX(1px) scale(0.98);
+}
+
+/* 侧边栏按钮活跃状态指示器 */
+.sidebar button.active,
+.settings-sidebar button.active,
+nav button.active {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  position: relative;
+}
+
+.sidebar button.active::before,
+.settings-sidebar button.active::before,
+nav button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10%;
+  width: 3px;
+  height: 80%;
+  background: hsl(var(--primary));
+  border-radius: 0 2px 2px 0;
+  animation: activeIndicatorSlide var(--micro-normal) var(--ease-back);
+}
+
+@keyframes activeIndicatorSlide {
+  0% {
+    height: 0;
+    top: 50%;
+    opacity: 0;
+  }
+  100% {
+    height: 80%;
+    top: 10%;
+    opacity: 1;
+  }
+}
+
+/* === 模态框按钮增强 === */
+.modal button,
+.dialog button,
+.popup button {
+  /* 模态框内按钮需要更明显的反馈 */
+  transition: all var(--micro-quick) var(--ease-out);
+  backdrop-filter: blur(4px);
+}
+
+.modal .btn-primary,
+.dialog .btn-primary,
+.popup .btn-primary {
+  box-shadow:
+    0 4px 12px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 hsl(255 255% 255% / 0.1);
+}
+
+.modal .btn-primary:hover,
+.dialog .btn-primary:hover,
+.popup .btn-primary:hover {
+  box-shadow:
+    0 6px 16px hsl(var(--primary) / 0.4),
+    0 0 0 4px hsl(var(--primary) / 0.1),
+    inset 0 1px 0 hsl(255 255% 255% / 0.15);
+}
+
+/* === 危险操作按钮特殊处理 === */
+.btn-destructive,
+.btn-danger,
+button[data-variant='destructive'],
+button[data-danger='true'] {
+  background: linear-gradient(135deg, hsl(var(--error-500)) 0%, hsl(var(--error-600)) 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-destructive:hover:not(:disabled),
+.btn-danger:hover:not(:disabled),
+button[data-variant='destructive']:hover:not(:disabled) {
+  background: linear-gradient(135deg, hsl(var(--error-600)) 0%, hsl(var(--error-700)) 100%);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow:
+    0 4px 12px hsl(var(--error-500) / 0.4),
+    0 0 0 4px hsl(var(--error-500) / 0.1);
+}
+
+/* 危险操作警告动画 */
+.btn-destructive.warning,
+.btn-danger.warning,
+button[data-variant='destructive'].warning {
+  animation: dangerPulse 1s ease-in-out infinite;
+}
+
+@keyframes dangerPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--error-500) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--error-500) / 0.1);
+  }
+}
+
+/* === 加载状态按钮增强 === */
+.btn-loading,
+button[data-loading='true'],
+.loading button {
+  position: relative;
+  color: transparent !important;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.btn-loading::after,
+button[data-loading='true']::after,
+.loading button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  color: hsl(var(--primary-foreground));
+}
+
+/* 更平滑的加载动画 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* === 浮动操作按钮 (FAB) === */
+.fab,
+.floating-action-button,
+button[data-type='fab'] {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow:
+    0 6px 12px hsl(0 0% 0% / 0.15),
+    0 4px 8px hsl(var(--primary) / 0.3);
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all var(--micro-normal) var(--ease-out);
+}
+
+.fab:hover,
+.floating-action-button:hover,
+button[data-type='fab']:hover {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow:
+    0 12px 24px hsl(0 0% 0% / 0.2),
+    0 8px 16px hsl(var(--primary) / 0.4);
+}
+
+.fab:active,
+.floating-action-button:active,
+button[data-type='fab']:active {
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* === 切换按钮 === */
+.toggle-button,
+button[data-type='toggle'] {
+  position: relative;
+  background: hsl(var(--muted));
+  border: 2px solid hsl(var(--border));
+  transition: all var(--micro-normal) var(--ease-out);
+}
+
+.toggle-button.active,
+button[data-type='toggle'].active,
+button[data-type='toggle'][aria-pressed='true'] {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+  transform: scale(1.02);
+}
+
+.toggle-button:hover,
+button[data-type='toggle']:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--accent));
+}
+
+/* === 分割按钮组 === */
+.button-group {
+  display: flex;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-small);
+}
+
+.button-group button {
+  border-radius: 0;
+  border-right: 1px solid hsl(var(--border));
+  margin: 0;
+}
+
+.button-group button:first-child {
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.button-group button:last-child {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  border-right: none;
+}
+
+.button-group button:hover {
+  z-index: 1;
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* ============== 响应式按钮优化 ============== */
+
+/* 移动端按钮调整 */
+@media (max-width: 768px) {
+  button:not([data-no-mobile-adjust]) {
+    /* 确保移动端触摸目标足够大 */
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+  }
+
+  .send-button,
+  button[data-type='send'] {
+    width: 52px;
+    height: 52px;
+  }
+
+  .fab,
+  .floating-action-button,
+  button[data-type='fab'] {
+    width: 64px;
+    height: 64px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  /* 移动端禁用悬停效果 */
+  button:hover {
+    transform: none;
+    box-shadow: initial;
+  }
+
+  /* 移动端激活状态更明显 */
+  button:active {
+    transform: scale(0.95);
+    transition-duration: var(--micro-instant);
+  }
+}
+
+/* 平板端优化 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar button,
+  .settings-sidebar button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* ============== 键盘导航增强 ============== */
+
+/* 焦点指示器 */
+button:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* 键盘激活效果 */
+button:focus-visible:active {
+  outline-color: hsl(var(--primary-600));
+  transform: scale(0.98);
+}
+
+/* Tab 导航顺序优化 */
+.primary-actions button {
+  tab-index: 1;
+}
+
+.secondary-actions button {
+  tab-index: 2;
+}
+
+.danger-actions button {
+  tab-index: 3;
+}
+
+/* ============== 特殊状态处理 ============== */
+
+/* 成功状态 */
+.btn-success,
+button[data-state='success'] {
+  background: var(--color-success);
+  color: white;
+  animation: successGlow var(--micro-normal) var(--ease-out);
+}
+
+@keyframes successGlow {
+  0% {
+    box-shadow: 0 0 0 0 hsl(142 71% 45% / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(142 71% 45% / 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* 警告状态 */
+.btn-warning,
+button[data-state='warning'] {
+  background: var(--color-warning);
+  color: white;
+  position: relative;
+}
+
+.btn-warning::before,
+button[data-state='warning']::before {
+  content: '⚠';
+  position: absolute;
+  left: 8px;
+  animation: warningBounce 2s ease-in-out infinite;
+}
+
+@keyframes warningBounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 禁用状态改进 */
+button:disabled,
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+button:disabled::after,
+button[disabled]::after {
+  display: none;
+}
+
+/* ============== 性能优化 ============== */
+
+/* 只在需要时启用 will-change */
+button:hover:not(:disabled),
+button:focus:not(:disabled),
+button:active:not(:disabled),
+button.animating {
+  will-change: transform, box-shadow, background-color;
+}
+
+button:not(:hover):not(:focus):not(:active):not(.animating) {
+  will-change: auto;
+}
+
+/* 动画完成后清理 */
+button {
+  animation-fill-mode: forwards;
+}
+
+button:not(.animating) {
+  animation: none;
+}
+
+/* ============== 调试工具 ============== */
+
+/* 开发模式：显示按钮状态 */
+.debug-mode button::before {
+  content: attr(data-state) ' ' attr(data-type) ' ' attr(data-variant);
+  position: absolute;
+  top: -24px;
+  left: 0;
+  font-size: 10px;
+  background: hsl(0 0% 0% / 0.8);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* 性能监控类 */
+.perf-monitor-button {
+  position: relative;
+}
+
+.perf-monitor-button::after {
+  content: counter(button-interactions);
+  counter-increment: button-interactions;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

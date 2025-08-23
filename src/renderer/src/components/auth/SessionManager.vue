@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+  >
     <!-- Header -->
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-        Active Sessions
-      </h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Active Sessions</h2>
       <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
         Manage devices where you're signed in
       </p>
@@ -24,18 +24,22 @@
           v-for="session in sessions"
           :key="session.id"
           class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-          :class="session.current ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : ''"
+          :class="
+            session.current
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+              : ''
+          "
         >
           <!-- Device info -->
           <div class="flex items-center space-x-4">
             <!-- Device icon -->
             <div class="flex-shrink-0">
-              <component 
-                :is="getDeviceIcon(session.device_type)" 
+              <component
+                :is="getDeviceIcon(session.device_type)"
                 class="h-8 w-8 text-gray-500 dark:text-gray-400"
               />
             </div>
-            
+
             <!-- Device details -->
             <div>
               <div class="flex items-center space-x-2">
@@ -49,20 +53,20 @@
                   Current
                 </span>
               </div>
-              
+
               <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <div class="flex items-center space-x-4">
                   <span class="flex items-center">
                     <MapPinIcon class="h-4 w-4 mr-1" />
                     {{ session.location || 'Unknown Location' }}
                   </span>
-                  
+
                   <span class="flex items-center">
                     <ClockIcon class="h-4 w-4 mr-1" />
                     {{ formatLastActive(session.last_active) }}
                   </span>
                 </div>
-                
+
                 <div class="flex items-center">
                   <GlobeAltIcon class="h-4 w-4 mr-1" />
                   <span class="text-xs font-mono">{{ session.ip_address || 'Unknown IP' }}</span>
@@ -76,10 +80,7 @@
             <!-- Security status -->
             <div class="text-right mr-3">
               <div class="flex items-center justify-end">
-                <div
-                  :class="getSecurityStatusColor(session)"
-                  class="h-2 w-2 rounded-full mr-2"
-                />
+                <div :class="getSecurityStatusColor(session)" class="h-2 w-2 rounded-full mr-2" />
                 <span class="text-xs text-gray-500">
                   {{ getSecurityStatus(session) }}
                 </span>
@@ -103,13 +104,17 @@
         </div>
 
         <!-- Revoke all others button -->
-        <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div
+          class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700"
+        >
           <div>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ nonCurrentSessions.length }} other active session{{ nonCurrentSessions.length !== 1 ? 's' : '' }}
+              {{ nonCurrentSessions.length }} other active session{{
+                nonCurrentSessions.length !== 1 ? 's' : ''
+              }}
             </p>
           </div>
-          
+
           <button
             v-if="nonCurrentSessions.length > 0"
             @click="revokeAllOtherSessions"
@@ -128,18 +133,22 @@
       <!-- Empty state -->
       <div v-else class="text-center py-8">
         <DevicePhoneMobileIcon class="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <p class="text-gray-600 dark:text-gray-400">
-          No active sessions found
-        </p>
+        <p class="text-gray-600 dark:text-gray-400">No active sessions found</p>
       </div>
 
       <!-- Error message -->
-      <div v-if="errorMessage" class="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+      <div
+        v-if="errorMessage"
+        class="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+      >
         <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
       </div>
 
       <!-- Success message -->
-      <div v-if="successMessage" class="mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+      <div
+        v-if="successMessage"
+        class="mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
+      >
         <p class="text-sm text-green-600 dark:text-green-400">{{ successMessage }}</p>
       </div>
     </div>
@@ -185,9 +194,7 @@ const revokeTarget = ref<any>(null)
 const revokeConfirmTitle = ref('')
 const revokeConfirmMessage = ref('')
 
-const nonCurrentSessions = computed(() => 
-  sessions.value.filter(s => !s.current)
-)
+const nonCurrentSessions = computed(() => sessions.value.filter(s => !s.current))
 
 const getDeviceIcon = (deviceType: string) => {
   switch (deviceType?.toLowerCase()) {
@@ -214,7 +221,7 @@ const formatLastActive = (timestamp: string | number) => {
   if (diffMins < 60) return `${diffMins} minutes ago`
   if (diffHours < 24) return `${diffHours} hours ago`
   if (diffDays < 7) return `${diffDays} days ago`
-  
+
   return date.toLocaleDateString()
 }
 
@@ -222,7 +229,7 @@ const getSecurityStatus = (session: any) => {
   const lastActive = new Date(session.last_active)
   const now = new Date()
   const diffHours = (now.getTime() - lastActive.getTime()) / (1000 * 60 * 60)
-  
+
   if (session.current) return 'Active'
   if (diffHours < 1) return 'Recent'
   if (diffHours < 24) return 'Today'
@@ -231,7 +238,7 @@ const getSecurityStatus = (session: any) => {
 
 const getSecurityStatusColor = (session: any) => {
   const status = getSecurityStatus(session)
-  
+
   switch (status) {
     case 'Active':
       return 'bg-green-500'
@@ -246,10 +253,10 @@ const getSecurityStatusColor = (session: any) => {
 
 const loadSessions = async () => {
   if (isLoading.value) return
-  
+
   isLoading.value = true
   errorMessage.value = ''
-  
+
   try {
     sessions.value = await authStore.getActiveSessions()
   } catch (error: any) {
@@ -276,13 +283,13 @@ const revokeAllOtherSessions = () => {
 
 const confirmRevoke = async () => {
   showRevokeConfirm.value = false
-  
+
   if (revokeTarget.value === 'all') {
     await handleRevokeAllOthers()
   } else {
     await handleRevokeSession(revokeTarget.value)
   }
-  
+
   revokeTarget.value = null
 }
 
@@ -295,15 +302,15 @@ const handleRevokeSession = async (session: any) => {
   revokingSessionId.value = session.id
   errorMessage.value = ''
   successMessage.value = ''
-  
+
   try {
     await authStore.revokeSession(session.id)
-    
+
     // Remove session from list
     sessions.value = sessions.value.filter(s => s.id !== session.id)
-    
+
     successMessage.value = `Session on "${session.device_name || 'Unknown Device'}" has been revoked.`
-    
+
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
@@ -319,20 +326,18 @@ const handleRevokeAllOthers = async () => {
   isRevokingAll.value = true
   errorMessage.value = ''
   successMessage.value = ''
-  
+
   try {
     // Revoke all non-current sessions
-    const promises = nonCurrentSessions.value.map(session => 
-      authStore.revokeSession(session.id)
-    )
-    
+    const promises = nonCurrentSessions.value.map(session => authStore.revokeSession(session.id))
+
     await Promise.all(promises)
-    
+
     // Keep only current session
     sessions.value = sessions.value.filter(s => s.current)
-    
+
     successMessage.value = 'All other sessions have been revoked.'
-    
+
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)

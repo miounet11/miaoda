@@ -2,12 +2,8 @@
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
       <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Change Password
-        </h2>
-        <p class="text-gray-600 dark:text-gray-400">
-          Update your account password
-        </p>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Change Password</h2>
+        <p class="text-gray-600 dark:text-gray-400">Update your account password</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -23,7 +19,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Enter your current password"
-            >
+            />
             <button
               type="button"
               @click="showCurrentPassword = !showCurrentPassword"
@@ -47,7 +43,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Enter your new password"
-            >
+            />
             <button
               type="button"
               @click="showNewPassword = !showNewPassword"
@@ -57,7 +53,7 @@
               <EyeSlashIcon v-else class="h-5 w-5" />
             </button>
           </div>
-          
+
           <!-- Password strength indicator -->
           <div v-if="form.newPassword" class="mt-2">
             <div class="flex space-x-1">
@@ -86,7 +82,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Confirm your new password"
-            >
+            />
             <button
               type="button"
               @click="showConfirmPassword = !showConfirmPassword"
@@ -96,15 +92,11 @@
               <EyeSlashIcon v-else class="h-5 w-5" />
             </button>
           </div>
-          
+
           <!-- Password match indicator -->
           <div v-if="form.confirmPassword" class="mt-1">
-            <p v-if="passwordsMatch" class="text-xs text-green-500">
-              ✓ Passwords match
-            </p>
-            <p v-else class="text-xs text-red-500">
-              ✗ Passwords do not match
-            </p>
+            <p v-if="passwordsMatch" class="text-xs text-green-500">✓ Passwords match</p>
+            <p v-else class="text-xs text-red-500">✗ Passwords do not match</p>
           </div>
         </div>
 
@@ -133,7 +125,10 @@
         </div>
 
         <!-- Error message -->
-        <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+        <div
+          v-if="errorMessage"
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+        >
           <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
         </div>
 
@@ -150,7 +145,7 @@
             </div>
             <span v-else>Change Password</span>
           </button>
-          
+
           <button
             type="button"
             @click="$emit('close')"
@@ -207,21 +202,22 @@ const hasUpperCase = computed(() => /[A-Z]/.test(form.newPassword))
 const hasNumber = computed(() => /[0-9]/.test(form.newPassword))
 const hasSpecialChar = computed(() => /[^A-Za-z0-9]/.test(form.newPassword))
 
-const passwordsMatch = computed(() => 
-  form.newPassword === form.confirmPassword && form.confirmPassword.length > 0
+const passwordsMatch = computed(
+  () => form.newPassword === form.confirmPassword && form.confirmPassword.length > 0
 )
 
-const isPasswordValid = computed(() => 
-  hasMinLength.value && hasLowerCase.value && hasUpperCase.value && hasNumber.value
+const isPasswordValid = computed(
+  () => hasMinLength.value && hasLowerCase.value && hasUpperCase.value && hasNumber.value
 )
 
-const canSubmit = computed(() => 
-  form.currentPassword && 
-  form.newPassword && 
-  form.confirmPassword && 
-  passwordsMatch.value && 
-  isPasswordValid.value &&
-  form.currentPassword !== form.newPassword
+const canSubmit = computed(
+  () =>
+    form.currentPassword &&
+    form.newPassword &&
+    form.confirmPassword &&
+    passwordsMatch.value &&
+    isPasswordValid.value &&
+    form.currentPassword !== form.newPassword
 )
 
 // Password strength calculation
@@ -259,13 +255,13 @@ const getPasswordStrengthTextColor = () => {
 
 const handleSubmit = async () => {
   if (!canSubmit.value || isLoading.value) return
-  
+
   errorMessage.value = ''
   isLoading.value = true
-  
+
   try {
     await authStore.changePassword(form.currentPassword, form.newPassword)
-    
+
     emit('success')
     emit('close')
   } catch (error: any) {

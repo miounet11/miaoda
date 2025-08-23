@@ -45,17 +45,17 @@ export interface FormField {
   options?: SelectOption[]
 }
 
-export type FieldType = 
-  | 'text' 
-  | 'email' 
-  | 'password' 
-  | 'number' 
-  | 'textarea' 
-  | 'select' 
-  | 'checkbox' 
-  | 'radio' 
-  | 'file' 
-  | 'date' 
+export type FieldType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'checkbox'
+  | 'radio'
+  | 'file'
+  | 'date'
   | 'range'
 
 export interface SelectOption {

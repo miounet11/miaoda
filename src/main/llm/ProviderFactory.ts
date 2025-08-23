@@ -1,4 +1,10 @@
-import { LLMProvider, OpenAIProvider, AnthropicProvider, OllamaProvider, CustomOpenAIProvider } from './provider'
+import {
+  LLMProvider,
+  OpenAIProvider,
+  AnthropicProvider,
+  OllamaProvider,
+  CustomOpenAIProvider
+} from './provider'
 import type { CustomProviderManager } from './customProviderManager'
 
 export interface LLMConfig {
@@ -62,11 +68,14 @@ export class ProviderFactory {
 
     console.log('[ProviderFactory] Creating custom provider:', config.customProviderId)
     const customConfig = this.customProviderManager.getProvider(config.customProviderId)
-    
+
     if (!customConfig) {
       // List available custom providers for debugging
       const available = this.customProviderManager.getAllProviders()
-      console.error('[ProviderFactory] Available custom providers:', available.map(p => p.id))
+      console.error(
+        '[ProviderFactory] Available custom providers:',
+        available.map(p => p.id)
+      )
       throw new Error(`Custom provider not found: ${config.customProviderId}`)
     }
 
@@ -121,7 +130,7 @@ export class ProviderFactory {
   /**
    * Get available built-in providers
    */
-  static getBuiltInProviders(): Array<{id: string; name: string; displayName: string}> {
+  static getBuiltInProviders(): Array<{ id: string; name: string; displayName: string }> {
     return [
       { id: 'openai', name: 'openai', displayName: 'OpenAI' },
       { id: 'anthropic', name: 'anthropic', displayName: 'Anthropic Claude' },
@@ -132,9 +141,14 @@ export class ProviderFactory {
   /**
    * Get all available providers (built-in + custom)
    */
-  static getAllProviders(): Array<{id: string; name: string; displayName: string; isCustom?: boolean}> {
+  static getAllProviders(): Array<{
+    id: string
+    name: string
+    displayName: string
+    isCustom?: boolean
+  }> {
     const builtIn = this.getBuiltInProviders()
-    const custom = this.customProviderManager 
+    const custom = this.customProviderManager
       ? this.customProviderManager.getAllProviders().map(config => ({
           id: config.id,
           name: config.name,
@@ -142,7 +156,7 @@ export class ProviderFactory {
           isCustom: true
         }))
       : []
-    
+
     return [...builtIn, ...custom]
   }
 }

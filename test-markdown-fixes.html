@@ -1,129 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test Markdown Rendering Fixes</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f9fafb;
-        }
-        .test-case {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .test-title {
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 10px;
-        }
-        .test-input {
-            background: #f3f4f6;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-family: monospace;
-        }
-        .error-content {
-            position: relative;
-            z-index: 10;
-            contain: layout style;
-            overflow: visible;
-            box-sizing: border-box;
-        }
-        .error-content details {
-            margin-top: 0.5rem;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 0.375rem;
-            overflow: hidden;
-            background: rgba(239, 68, 68, 0.02);
-            transition: all 0.3s ease;
-        }
-        .error-content details:hover {
-            border-color: rgba(239, 68, 68, 0.4);
-            background: rgba(239, 68, 68, 0.05);
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
-        }
-        .error-content details[open] {
-            border-color: rgba(239, 68, 68, 0.5);
-            background: rgba(239, 68, 68, 0.08);
-        }
-        .error-content summary {
-            padding: 0.75rem 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
-            background: rgba(239, 68, 68, 0.05);
-            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
-            transition: all 0.2s ease;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .error-content summary:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: #dc2626;
-        }
-        .error-content summary::marker {
-            display: none;
-        }
-        .error-content summary::after {
-            content: '▶';
-            font-size: 0.75rem;
-            transition: transform 0.2s ease;
-            color: currentColor;
-            opacity: 0.7;
-        }
-        .error-content details[open] summary::after {
-            transform: rotate(90deg);
-        }
-        .error-content pre {
-            margin: 0;
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 12rem;
-            line-height: 1.4;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            font-size: 0.75rem;
-            white-space: pre-wrap;
-            word-break: break-word;
-            padding: 0.75rem;
-            margin: 0;
-            border: none;
-            border-radius: 0;
-            background: rgba(239, 68, 68, 0.05) !important;
-        }
-        .success {
-            color: #059669;
-            font-weight: bold;
-        }
-        .error {
-            color: #dc2626;
-            font-weight: bold;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f9fafb;
+      }
+      .test-case {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 10px;
+      }
+      .test-input {
+        background: #f3f4f6;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+      }
+      .error-content {
+        position: relative;
+        z-index: 10;
+        contain: layout style;
+        overflow: visible;
+        box-sizing: border-box;
+      }
+      .error-content details {
+        margin-top: 0.5rem;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 0.375rem;
+        overflow: hidden;
+        background: rgba(239, 68, 68, 0.02);
+        transition: all 0.3s ease;
+      }
+      .error-content details:hover {
+        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.05);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+      }
+      .error-content details[open] {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .error-content summary {
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        user-select: none;
+        background: rgba(239, 68, 68, 0.05);
+        border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+        transition: all 0.2s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .error-content summary:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+      }
+      .error-content summary::marker {
+        display: none;
+      }
+      .error-content summary::after {
+        content: '▶';
+        font-size: 0.75rem;
+        transition: transform 0.2s ease;
+        color: currentColor;
+        opacity: 0.7;
+      }
+      .error-content details[open] summary::after {
+        transform: rotate(90deg);
+      }
+      .error-content pre {
+        margin: 0;
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 12rem;
+        line-height: 1.4;
+        font-family:
+          'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        font-size: 0.75rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        padding: 0.75rem;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        background: rgba(239, 68, 68, 0.05) !important;
+      }
+      .success {
+        color: #059669;
+        font-weight: bold;
+      }
+      .error {
+        color: #dc2626;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Markdown Rendering Fixes Test Suite</h1>
-    
+
     <div class="test-case">
-        <div class="test-title">Test 1: Content Expansion (显示原始内容) Functionality</div>
-        <p>This tests if the "显示原始内容" button works properly in error states.</p>
-        
-        <div class="error-content">
-            <p style="color: #dc2626; font-weight: 500;">⚠️ Content rendering error</p>
-            <p style="font-size: 0.875rem; color: #dc2626; margin-top: 0.25rem;">TypeError: value.replace is not a function</p>
-            <details style="margin-top: 0.5rem;">
-                <summary>显示原始内容 (Click to expand)</summary>
-                <pre>This is some test content that should expand properly when clicked.
+      <div class="test-title">Test 1: Content Expansion (显示原始内容) Functionality</div>
+      <p>This tests if the "显示原始内容" button works properly in error states.</p>
+
+      <div class="error-content">
+        <p style="color: #dc2626; font-weight: 500">⚠️ Content rendering error</p>
+        <p style="font-size: 0.875rem; color: #dc2626; margin-top: 0.25rem">
+          TypeError: value.replace is not a function
+        </p>
+        <details style="margin-top: 0.5rem">
+          <summary>显示原始内容 (Click to expand)</summary>
+          <pre>
+This is some test content that should expand properly when clicked.
 
 It contains multiple lines of text and should be readable.
 
@@ -133,41 +137,45 @@ Unicode: 中文测试 🎉
 Code example:
 function test() {
     return "Hello World";
-}</pre>
-            </details>
-        </div>
-        
-        <div id="test1-result" style="margin-top: 10px;"></div>
+}</pre
+          >
+        </details>
+      </div>
+
+      <div id="test1-result" style="margin-top: 10px"></div>
     </div>
-    
+
     <div class="test-case">
-        <div class="test-title">Test 2: Content Sanitization Test</div>
-        <p>This tests various problematic inputs that previously caused errors.</p>
-        
-        <div class="test-input">Test inputs:</div>
-        <ul>
-            <li>null values</li>
-            <li>undefined values</li>
-            <li>empty strings</li>
-            <li>numbers: 42</li>
-            <li>arrays: ["item1", "item2"]</li>
-            <li>objects: {key: "value"}</li>
-            <li>non-string types</li>
-        </ul>
-        
-        <div id="test2-result" style="margin-top: 10px;"></div>
+      <div class="test-title">Test 2: Content Sanitization Test</div>
+      <p>This tests various problematic inputs that previously caused errors.</p>
+
+      <div class="test-input">Test inputs:</div>
+      <ul>
+        <li>null values</li>
+        <li>undefined values</li>
+        <li>empty strings</li>
+        <li>numbers: 42</li>
+        <li>arrays: ["item1", "item2"]</li>
+        <li>objects: {key: "value"}</li>
+        <li>non-string types</li>
+      </ul>
+
+      <div id="test2-result" style="margin-top: 10px"></div>
     </div>
-    
+
     <div class="test-case">
-        <div class="test-title">Test 3: Error Fallback Display</div>
-        <p>This tests the enhanced error fallback when content cannot be rendered.</p>
-        
-        <div class="error-content">
-            <p style="color: #dc2626; font-weight: 500;">⚠️ Markdown 渲染错误</p>
-            <p style="font-size: 0.875rem; color: #dc2626; margin-top: 0.25rem;">Marked parser returned non-string result</p>
-            <details style="margin-top: 0.5rem; cursor: pointer;">
-                <summary style="cursor: pointer;">显示原始内容</summary>
-                <pre># This is markdown content that failed to render
+      <div class="test-title">Test 3: Error Fallback Display</div>
+      <p>This tests the enhanced error fallback when content cannot be rendered.</p>
+
+      <div class="error-content">
+        <p style="color: #dc2626; font-weight: 500">⚠️ Markdown 渲染错误</p>
+        <p style="font-size: 0.875rem; color: #dc2626; margin-top: 0.25rem">
+          Marked parser returned non-string result
+        </p>
+        <details style="margin-top: 0.5rem; cursor: pointer">
+          <summary style="cursor: pointer">显示原始内容</summary>
+          <pre>
+# This is markdown content that failed to render
 
 ```javascript
 console.log("Hello World");
@@ -176,252 +184,252 @@ console.log("Hello World");
 - List item 1
 - List item 2
 
-[Link example](https://example.com)</pre>
-            </details>
-        </div>
-        
-        <div id="test3-result" style="margin-top: 10px;"></div>
+[Link example](https://example.com)</pre
+          >
+        </details>
+      </div>
+
+      <div id="test3-result" style="margin-top: 10px"></div>
     </div>
-    
+
     <div class="test-case">
-        <div class="test-title">Test 4: UI Layout Artifacts Check</div>
-        <p>This checks for any strange UI boxes or layout issues.</p>
-        
-        <div style="border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px;">
-            <div style="contain: layout style; transform: translateZ(0); position: relative; z-index: 1;">
-                Normal content container - should not have unexpected borders or artifacts
-            </div>
+      <div class="test-title">Test 4: UI Layout Artifacts Check</div>
+      <p>This checks for any strange UI boxes or layout issues.</p>
+
+      <div style="border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px">
+        <div
+          style="contain: layout style; transform: translateZ(0); position: relative; z-index: 1"
+        >
+          Normal content container - should not have unexpected borders or artifacts
         </div>
-        
-        <div id="test4-result" style="margin-top: 10px;"></div>
+      </div>
+
+      <div id="test4-result" style="margin-top: 10px"></div>
     </div>
 
     <script>
-        // Test 1: Check if details/summary expansion works
-        function test1() {
-            const details = document.querySelector('.test-case:nth-child(2) details');
-            const summary = details.querySelector('summary');
-            const resultDiv = document.getElementById('test1-result');
-            
-            let testPassed = true;
-            let testMessage = '';
-            
-            try {
-                // Test click behavior
-                summary.click();
-                if (details.open) {
-                    testMessage += '✓ Details element opens on click. ';
-                } else {
-                    testMessage += '✗ Details element failed to open. ';
-                    testPassed = false;
-                }
-                
-                // Test content visibility
-                const pre = details.querySelector('pre');
-                if (pre && pre.textContent.length > 0) {
-                    testMessage += '✓ Content is visible and accessible. ';
-                } else {
-                    testMessage += '✗ Content is not accessible. ';
-                    testPassed = false;
-                }
-                
-                // Close it again
-                summary.click();
-                if (!details.open) {
-                    testMessage += '✓ Details element closes properly.';
-                } else {
-                    testMessage += '✗ Details element failed to close.';
-                    testPassed = false;
-                }
-                
-            } catch (error) {
-                testMessage = '✗ Error during test: ' + error.message;
-                testPassed = false;
-            }
-            
-            resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`;
-            return testPassed;
+      // Test 1: Check if details/summary expansion works
+      function test1() {
+        const details = document.querySelector('.test-case:nth-child(2) details')
+        const summary = details.querySelector('summary')
+        const resultDiv = document.getElementById('test1-result')
+
+        let testPassed = true
+        let testMessage = ''
+
+        try {
+          // Test click behavior
+          summary.click()
+          if (details.open) {
+            testMessage += '✓ Details element opens on click. '
+          } else {
+            testMessage += '✗ Details element failed to open. '
+            testPassed = false
+          }
+
+          // Test content visibility
+          const pre = details.querySelector('pre')
+          if (pre && pre.textContent.length > 0) {
+            testMessage += '✓ Content is visible and accessible. '
+          } else {
+            testMessage += '✗ Content is not accessible. '
+            testPassed = false
+          }
+
+          // Close it again
+          summary.click()
+          if (!details.open) {
+            testMessage += '✓ Details element closes properly.'
+          } else {
+            testMessage += '✗ Details element failed to close.'
+            testPassed = false
+          }
+        } catch (error) {
+          testMessage = '✗ Error during test: ' + error.message
+          testPassed = false
         }
-        
-        // Test 2: Content sanitization
-        function test2() {
-            const resultDiv = document.getElementById('test2-result');
-            
-            // Simulate the sanitization function
-            function sanitizeContent(rawContent) {
-                try {
-                    if (rawContent === null || rawContent === undefined) {
-                        return '';
-                    }
-                    
-                    if (typeof rawContent === 'string') {
-                        return rawContent.trim();
-                    }
-                    
-                    if (typeof rawContent === 'number' || typeof rawContent === 'boolean') {
-                        return String(rawContent);
-                    }
-                    
-                    if (Array.isArray(rawContent)) {
-                        return rawContent
-                            .filter(item => item !== null && item !== undefined)
-                            .map(item => typeof item === 'string' ? item : String(item))
-                            .join('\n')
-                            .trim();
-                    }
-                    
-                    if (typeof rawContent === 'object' && rawContent !== null) {
-                        try {
-                            return JSON.stringify(rawContent, null, 2).trim();
-                        } catch {
-                            return '[Complex Object]';
-                        }
-                    }
-                    
-                    return String(rawContent || '').trim();
-                } catch (error) {
-                    return String(rawContent || '').trim();
-                }
+
+        resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`
+        return testPassed
+      }
+
+      // Test 2: Content sanitization
+      function test2() {
+        const resultDiv = document.getElementById('test2-result')
+
+        // Simulate the sanitization function
+        function sanitizeContent(rawContent) {
+          try {
+            if (rawContent === null || rawContent === undefined) {
+              return ''
             }
-            
-            const testCases = [
-                { input: null, expected: '' },
-                { input: undefined, expected: '' },
-                { input: '', expected: '' },
-                { input: 42, expected: '42' },
-                { input: ['item1', 'item2'], expected: 'item1\nitem2' },
-                { input: { key: 'value' }, expected: '{\n  "key": "value"\n}' },
-                { input: true, expected: 'true' }
-            ];
-            
-            let allPassed = true;
-            let results = [];
-            
-            testCases.forEach((testCase, index) => {
-                try {
-                    const result = sanitizeContent(testCase.input);
-                    const passed = result === testCase.expected;
-                    results.push(`Test ${index + 1}: ${passed ? '✓' : '✗'} ${typeof testCase.input}`);
-                    if (!passed) allPassed = false;
-                } catch (error) {
-                    results.push(`Test ${index + 1}: ✗ Error - ${error.message}`);
-                    allPassed = false;
-                }
-            });
-            
-            resultDiv.innerHTML = `<span class="${allPassed ? 'success' : 'error'}">${results.join('<br>')}</span>`;
-            return allPassed;
-        }
-        
-        // Test 3: Error fallback display
-        function test3() {
-            const resultDiv = document.getElementById('test3-result');
-            const errorContent = document.querySelector('.test-case:nth-child(4) .error-content');
-            
-            let testPassed = true;
-            let testMessage = '';
-            
-            try {
-                // Check if error content is properly styled
-                const computedStyle = window.getComputedStyle(errorContent);
-                if (computedStyle.position === 'relative') {
-                    testMessage += '✓ Error content has proper positioning. ';
-                } else {
-                    testMessage += '✗ Error content positioning issue. ';
-                    testPassed = false;
-                }
-                
-                // Check if details/summary is functional
-                const details = errorContent.querySelector('details');
-                const summary = details.querySelector('summary');
-                summary.click();
-                
-                if (details.open) {
-                    testMessage += '✓ Error fallback expansion works.';
-                    summary.click(); // Close it
-                } else {
-                    testMessage += '✗ Error fallback expansion failed.';
-                    testPassed = false;
-                }
-                
-            } catch (error) {
-                testMessage = '✗ Error during test: ' + error.message;
-                testPassed = false;
+
+            if (typeof rawContent === 'string') {
+              return rawContent.trim()
             }
-            
-            resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`;
-            return testPassed;
-        }
-        
-        // Test 4: UI layout artifacts
-        function test4() {
-            const resultDiv = document.getElementById('test4-result');
-            const container = document.querySelector('.test-case:nth-child(5) div[style*="contain"]');
-            
-            let testPassed = true;
-            let testMessage = '';
-            
-            try {
-                const computedStyle = window.getComputedStyle(container);
-                
-                // Check for proper containment
-                if (computedStyle.contain.includes('layout')) {
-                    testMessage += '✓ Layout containment applied. ';
-                } else {
-                    testMessage += '✗ Layout containment missing. ';
-                    testPassed = false;
-                }
-                
-                // Check for GPU acceleration
-                if (computedStyle.transform !== 'none') {
-                    testMessage += '✓ GPU acceleration enabled. ';
-                } else {
-                    testMessage += '✗ GPU acceleration missing. ';
-                    testPassed = false;
-                }
-                
-                testMessage += '✓ No unexpected borders or artifacts detected.';
-                
-            } catch (error) {
-                testMessage = '✗ Error during test: ' + error.message;
-                testPassed = false;
+
+            if (typeof rawContent === 'number' || typeof rawContent === 'boolean') {
+              return String(rawContent)
             }
-            
-            resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`;
-            return testPassed;
+
+            if (Array.isArray(rawContent)) {
+              return rawContent
+                .filter(item => item !== null && item !== undefined)
+                .map(item => (typeof item === 'string' ? item : String(item)))
+                .join('\n')
+                .trim()
+            }
+
+            if (typeof rawContent === 'object' && rawContent !== null) {
+              try {
+                return JSON.stringify(rawContent, null, 2).trim()
+              } catch {
+                return '[Complex Object]'
+              }
+            }
+
+            return String(rawContent || '').trim()
+          } catch (error) {
+            return String(rawContent || '').trim()
+          }
         }
-        
-        // Run all tests
-        function runAllTests() {
-            console.log('Running all tests...');
-            
-            const results = [];
-            results.push(test1());
-            results.push(test2());
-            results.push(test3());
-            results.push(test4());
-            
-            const allPassed = results.every(result => result);
-            
-            console.log(`All tests ${allPassed ? 'PASSED' : 'FAILED'}`);
-            
-            // Add summary
-            const summary = document.createElement('div');
-            summary.className = 'test-case';
-            summary.innerHTML = `
+
+        const testCases = [
+          { input: null, expected: '' },
+          { input: undefined, expected: '' },
+          { input: '', expected: '' },
+          { input: 42, expected: '42' },
+          { input: ['item1', 'item2'], expected: 'item1\nitem2' },
+          { input: { key: 'value' }, expected: '{\n  "key": "value"\n}' },
+          { input: true, expected: 'true' }
+        ]
+
+        let allPassed = true
+        let results = []
+
+        testCases.forEach((testCase, index) => {
+          try {
+            const result = sanitizeContent(testCase.input)
+            const passed = result === testCase.expected
+            results.push(`Test ${index + 1}: ${passed ? '✓' : '✗'} ${typeof testCase.input}`)
+            if (!passed) allPassed = false
+          } catch (error) {
+            results.push(`Test ${index + 1}: ✗ Error - ${error.message}`)
+            allPassed = false
+          }
+        })
+
+        resultDiv.innerHTML = `<span class="${allPassed ? 'success' : 'error'}">${results.join('<br>')}</span>`
+        return allPassed
+      }
+
+      // Test 3: Error fallback display
+      function test3() {
+        const resultDiv = document.getElementById('test3-result')
+        const errorContent = document.querySelector('.test-case:nth-child(4) .error-content')
+
+        let testPassed = true
+        let testMessage = ''
+
+        try {
+          // Check if error content is properly styled
+          const computedStyle = window.getComputedStyle(errorContent)
+          if (computedStyle.position === 'relative') {
+            testMessage += '✓ Error content has proper positioning. '
+          } else {
+            testMessage += '✗ Error content positioning issue. '
+            testPassed = false
+          }
+
+          // Check if details/summary is functional
+          const details = errorContent.querySelector('details')
+          const summary = details.querySelector('summary')
+          summary.click()
+
+          if (details.open) {
+            testMessage += '✓ Error fallback expansion works.'
+            summary.click() // Close it
+          } else {
+            testMessage += '✗ Error fallback expansion failed.'
+            testPassed = false
+          }
+        } catch (error) {
+          testMessage = '✗ Error during test: ' + error.message
+          testPassed = false
+        }
+
+        resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`
+        return testPassed
+      }
+
+      // Test 4: UI layout artifacts
+      function test4() {
+        const resultDiv = document.getElementById('test4-result')
+        const container = document.querySelector('.test-case:nth-child(5) div[style*="contain"]')
+
+        let testPassed = true
+        let testMessage = ''
+
+        try {
+          const computedStyle = window.getComputedStyle(container)
+
+          // Check for proper containment
+          if (computedStyle.contain.includes('layout')) {
+            testMessage += '✓ Layout containment applied. '
+          } else {
+            testMessage += '✗ Layout containment missing. '
+            testPassed = false
+          }
+
+          // Check for GPU acceleration
+          if (computedStyle.transform !== 'none') {
+            testMessage += '✓ GPU acceleration enabled. '
+          } else {
+            testMessage += '✗ GPU acceleration missing. '
+            testPassed = false
+          }
+
+          testMessage += '✓ No unexpected borders or artifacts detected.'
+        } catch (error) {
+          testMessage = '✗ Error during test: ' + error.message
+          testPassed = false
+        }
+
+        resultDiv.innerHTML = `<span class="${testPassed ? 'success' : 'error'}">${testMessage}</span>`
+        return testPassed
+      }
+
+      // Run all tests
+      function runAllTests() {
+        console.log('Running all tests...')
+
+        const results = []
+        results.push(test1())
+        results.push(test2())
+        results.push(test3())
+        results.push(test4())
+
+        const allPassed = results.every(result => result)
+
+        console.log(`All tests ${allPassed ? 'PASSED' : 'FAILED'}`)
+
+        // Add summary
+        const summary = document.createElement('div')
+        summary.className = 'test-case'
+        summary.innerHTML = `
                 <div class="test-title">Test Summary</div>
                 <p class="${allPassed ? 'success' : 'error'}">
                     ${allPassed ? '✓ All tests passed!' : '✗ Some tests failed.'}
                     (${results.filter(r => r).length}/${results.length} passed)
                 </p>
-            `;
-            document.body.appendChild(summary);
-        }
-        
-        // Run tests when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(runAllTests, 100);
-        });
+            `
+        document.body.appendChild(summary)
+      }
+
+      // Run tests when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(runAllTests, 100)
+      })
     </script>
-</body>
+  </body>
 </html>

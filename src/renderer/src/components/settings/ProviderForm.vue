@@ -1,13 +1,12 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- Backdrop -->
-    <div 
-      class="fixed inset-0 bg-black/20 backdrop-blur-sm"
-      @click="handleClose"
-    />
-    
+    <div class="fixed inset-0 bg-black/20 backdrop-blur-sm" @click="handleClose" />
+
     <!-- Modal -->
-    <div class="relative w-full max-w-2xl max-h-[90vh] bg-background rounded-lg shadow-xl border border-border overflow-hidden mx-4">
+    <div
+      class="relative w-full max-w-2xl max-h-[90vh] bg-background rounded-lg shadow-xl border border-border overflow-hidden mx-4"
+    >
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-border">
         <div>
@@ -18,10 +17,7 @@
             {{ isEditing ? 'Update provider configuration' : 'Configure a new LLM provider' }}
           </p>
         </div>
-        <button
-          @click="handleClose"
-          class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
-        >
+        <button @click="handleClose" class="p-2 hover:bg-accent/50 rounded-lg transition-colors">
           <X :size="20" />
         </button>
       </div>
@@ -32,7 +28,7 @@
           <!-- Basic Information -->
           <div class="space-y-4">
             <h3 class="font-medium text-lg">Basic Information</h3>
-            
+
             <!-- Provider Type -->
             <div class="space-y-2">
               <label class="block text-sm font-medium">Provider Type</label>
@@ -69,12 +65,12 @@
                   :disabled="isEditing"
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all disabled:opacity-50"
                   required
-                >
+                />
                 <p class="text-xs text-muted-foreground mt-1">
                   Unique identifier (cannot be changed)
                 </p>
               </div>
-              
+
               <div>
                 <label for="displayName" class="block text-sm font-medium mb-2">
                   Display Name <span class="text-red-500">*</span>
@@ -86,7 +82,7 @@
                   placeholder="e.g., My Custom OpenAI"
                   class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   required
-                >
+                />
               </div>
             </div>
 
@@ -113,7 +109,7 @@
                   placeholder="🤖"
                   maxlength="2"
                   class="w-16 px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center"
-                >
+                />
                 <div class="flex gap-2 flex-wrap">
                   <button
                     v-for="emoji in commonEmojis"
@@ -133,7 +129,7 @@
           <!-- API Configuration -->
           <div class="space-y-4">
             <h3 class="font-medium text-lg">API Configuration</h3>
-            
+
             <!-- Base URL -->
             <div>
               <label for="baseUrl" class="block text-sm font-medium mb-2">
@@ -146,7 +142,7 @@
                 placeholder="https://api.example.com/v1"
                 class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 required
-              >
+              />
             </div>
 
             <!-- API Key -->
@@ -163,7 +159,7 @@
                   placeholder="Enter your API key"
                   class="w-full px-3 py-2 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   :required="form.requiresAuth"
-                >
+                />
                 <button
                   type="button"
                   @click="showApiKey = !showApiKey"
@@ -177,43 +173,53 @@
 
             <!-- Authentication Required Toggle -->
             <div>
-              <label class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors">
+              <label
+                class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors"
+              >
                 <div>
                   <span class="text-sm font-medium block">Requires Authentication</span>
-                  <span class="text-xs text-muted-foreground">Enable if API requires authentication</span>
+                  <span class="text-xs text-muted-foreground"
+                    >Enable if API requires authentication</span
+                  >
                 </div>
                 <input
                   v-model="form.requiresAuth"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                >
+                />
               </label>
             </div>
 
             <!-- Advanced Options -->
             <details class="group">
-              <summary class="cursor-pointer list-none flex items-center gap-2 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+              <summary
+                class="cursor-pointer list-none flex items-center gap-2 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+              >
                 <ChevronDown :size="16" class="transition-transform group-open:rotate-180" />
                 <span class="font-medium">Advanced Options</span>
               </summary>
-              
+
               <div class="mt-4 space-y-4">
                 <!-- Organization ID -->
                 <div>
-                  <label for="organizationId" class="block text-sm font-medium mb-2">Organization ID</label>
+                  <label for="organizationId" class="block text-sm font-medium mb-2"
+                    >Organization ID</label
+                  >
                   <input
                     id="organizationId"
                     v-model="form.organizationId"
                     type="text"
                     placeholder="Optional organization identifier"
                     class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  >
+                  />
                 </div>
 
                 <!-- Timeout and Retries -->
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label for="timeout" class="block text-sm font-medium mb-2">Timeout (seconds)</label>
+                    <label for="timeout" class="block text-sm font-medium mb-2"
+                      >Timeout (seconds)</label
+                    >
                     <input
                       id="timeout"
                       v-model.number="form.timeout"
@@ -222,9 +228,9 @@
                       max="300"
                       placeholder="30"
                       class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    >
+                    />
                   </div>
-                  
+
                   <div>
                     <label for="retries" class="block text-sm font-medium mb-2">Max Retries</label>
                     <input
@@ -235,7 +241,7 @@
                       max="10"
                       placeholder="3"
                       class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    >
+                    />
                   </div>
                 </div>
               </div>
@@ -255,7 +261,7 @@
                   v-model="form.capabilities[key]"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                >
+                />
                 <div>
                   <span class="text-sm font-medium block">{{ capability.label }}</span>
                   <span class="text-xs text-muted-foreground">{{ capability.description }}</span>
@@ -265,14 +271,13 @@
           </div>
 
           <!-- Models Configuration -->
-          <ModelConfiguration
-            v-model="form.models"
-            :provider-type="form.type"
-            class="space-y-4"
-          />
+          <ModelConfiguration v-model="form.models" :provider-type="form.type" class="space-y-4" />
 
           <!-- Test Connection -->
-          <div v-if="isEditing || (form.baseUrl && (form.apiKey || !form.requiresAuth))" class="pt-4">
+          <div
+            v-if="isEditing || (form.baseUrl && (form.apiKey || !form.requiresAuth))"
+            class="pt-4"
+          >
             <button
               type="button"
               @click="testConnection"
@@ -283,7 +288,7 @@
               <Loader2 v-else :size="16" class="animate-spin" />
               <span>{{ isTestingConnection ? 'Testing...' : 'Test Connection' }}</span>
             </button>
-            
+
             <!-- Connection Result -->
             <div
               v-if="connectionResult"
@@ -294,7 +299,11 @@
               }"
             >
               <div class="flex items-start gap-2">
-                <Check v-if="connectionResult.success" :size="16" class="text-green-600 flex-shrink-0 mt-0.5" />
+                <Check
+                  v-if="connectionResult.success"
+                  :size="16"
+                  class="text-green-600 flex-shrink-0 mt-0.5"
+                />
                 <AlertCircle v-else :size="16" class="text-red-600 flex-shrink-0 mt-0.5" />
                 <div class="flex-1">
                   <p class="text-sm font-medium">
@@ -316,7 +325,7 @@
           <span v-if="isEditing">Editing: {{ form.displayName }}</span>
           <span v-else>Creating new provider</span>
         </div>
-        
+
         <div class="flex gap-3">
           <button
             type="button"
@@ -341,16 +350,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
-  X, 
-  Eye, 
-  EyeOff, 
-  ChevronDown, 
-  Zap, 
-  Loader2, 
-  Check, 
-  AlertCircle 
-} from 'lucide-vue-next'
+import { X, Eye, EyeOff, ChevronDown, Zap, Loader2, Check, AlertCircle } from 'lucide-vue-next'
 import type { LLMProvider, LLMModel, ProviderCapabilities } from '@renderer/src/types/api'
 import ModelConfiguration from './ModelConfiguration.vue'
 
@@ -363,8 +363,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'close': []
-  'save': [provider: LLMProvider]
+  close: []
+  save: [provider: LLMProvider]
 }>()
 
 // Form state
@@ -451,7 +451,7 @@ const isFormValid = computed(() => {
 const setProviderType = (type: any) => {
   form.value.type = type.id
   form.value.icon = type.icon
-  
+
   // Set default capabilities based on provider type
   if (type.id === 'openai') {
     form.value.capabilities = {
@@ -478,9 +478,9 @@ const handleClose = () => {
 
 const handleSubmit = async () => {
   if (!isFormValid.value || isSaving.value) return
-  
+
   isSaving.value = true
-  
+
   try {
     const provider: LLMProvider = {
       id: form.value.name,
@@ -500,7 +500,7 @@ const handleSubmit = async () => {
       status: 'disconnected',
       enabled: true
     }
-    
+
     emit('save', provider)
   } finally {
     isSaving.value = false
@@ -509,20 +509,20 @@ const handleSubmit = async () => {
 
 const testConnection = async () => {
   if (isTestingConnection.value) return
-  
+
   isTestingConnection.value = true
   connectionResult.value = null
-  
+
   try {
     // Simulate connection test
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     // For now, randomly succeed or fail
     const success = Math.random() > 0.3
-    
+
     connectionResult.value = {
       success,
-      message: success 
+      message: success
         ? 'Successfully connected to the API endpoint'
         : 'Failed to connect. Please check your URL and API key.'
     }
@@ -587,21 +587,24 @@ const initializeForm = () => {
       models: []
     }
   }
-  
+
   // Clear connection result
   connectionResult.value = null
 }
 
 // Generate provider name from display name
-watch(() => form.value.displayName, (newValue) => {
-  if (!isEditing.value && newValue) {
-    form.value.name = newValue
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
+watch(
+  () => form.value.displayName,
+  newValue => {
+    if (!isEditing.value && newValue) {
+      form.value.name = newValue
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+    }
   }
-})
+)
 
 // Watch for provider changes
 watch(() => props.provider, initializeForm, { immediate: true })
@@ -643,12 +646,14 @@ onMounted(() => {
 }
 
 /* Form styling */
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: none;
 }
 
 /* Custom checkbox styling */
-input[type="checkbox"]:checked {
+input[type='checkbox']:checked {
   background-color: rgb(var(--primary-rgb));
   border-color: rgb(var(--primary-rgb));
 }
@@ -683,15 +688,15 @@ details[open] summary {
     max-width: calc(100% - 2rem);
     max-height: calc(100% - 2rem);
   }
-  
+
   .grid.grid-cols-2 {
     grid-template-columns: 1fr;
   }
-  
+
   .grid.sm\\:grid-cols-3 {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .p-6 {
     padding: 1rem;
   }

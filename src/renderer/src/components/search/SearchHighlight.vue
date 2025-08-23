@@ -89,7 +89,9 @@ const findBestExcerpt = (text: string, queries: string[]): string => {
 
   if (bestPosition === -1) {
     // No match found, return beginning of text
-    return text.substring(0, props.maxLength) + (text.length > props.maxLength ? props.ellipsis : '')
+    return (
+      text.substring(0, props.maxLength) + (text.length > props.maxLength ? props.ellipsis : '')
+    )
   }
 
   // Calculate excerpt boundaries
@@ -150,7 +152,7 @@ const escapeHtml = (text: string): string => {
     "'": '&#039;'
   }
 
-  return text.replace(/[&<>"']/g, (m) => map[m])
+  return text.replace(/[&<>"']/g, m => map[m])
 }
 
 // Escape regex special characters

@@ -8,12 +8,12 @@
           <X :size="20" />
         </button>
       </div>
-      
+
       <!-- Install Methods -->
       <div class="dialog-content">
         <div class="install-methods">
           <!-- From URL -->
-          <div class="install-method" :class="{ 'active': installMethod === 'url' }">
+          <div class="install-method" :class="{ active: installMethod === 'url' }">
             <button @click="installMethod = 'url'" class="method-header">
               <Globe :size="20" />
               <div class="method-info">
@@ -21,7 +21,7 @@
                 <p>{{ $t('plugin.installFromUrlDescription') }}</p>
               </div>
             </button>
-            
+
             <div v-if="installMethod === 'url'" class="method-content">
               <div class="input-group">
                 <label class="input-label">{{ $t('plugin.pluginUrl') }}</label>
@@ -31,9 +31,9 @@
                   :placeholder="$t('plugin.pluginUrlPlaceholder')"
                   class="text-input"
                   @keydown.enter="installFromUrl"
-                >
+                />
               </div>
-              
+
               <div class="method-actions">
                 <button
                   @click="installFromUrl"
@@ -46,9 +46,9 @@
               </div>
             </div>
           </div>
-          
+
           <!-- From File -->
-          <div class="install-method" :class="{ 'active': installMethod === 'file' }">
+          <div class="install-method" :class="{ active: installMethod === 'file' }">
             <button @click="installMethod = 'file'" class="method-header">
               <FileUp :size="20" />
               <div class="method-info">
@@ -56,7 +56,7 @@
                 <p>{{ $t('plugin.installFromFileDescription') }}</p>
               </div>
             </button>
-            
+
             <div v-if="installMethod === 'file'" class="method-content">
               <div class="file-drop-zone" :class="{ 'drag-over': isDragOver }">
                 <input
@@ -65,8 +65,8 @@
                   accept=".zip,.tar.gz,.plugin"
                   @change="handleFileSelect"
                   class="file-input"
-                >
-                
+                />
+
                 <div
                   @drop="handleDrop"
                   @dragover.prevent="isDragOver = true"
@@ -80,28 +80,24 @@
                   <p class="drop-hint">
                     {{ $t('plugin.orClickToSelect') }}
                   </p>
-                  
+
                   <button @click="$refs.fileInputRef?.click()" class="select-file-btn">
                     {{ $t('plugin.selectFile') }}
                   </button>
                 </div>
               </div>
-              
+
               <div v-if="selectedFile" class="method-actions">
-                <button
-                  @click="installFromFile"
-                  :disabled="isInstalling"
-                  class="install-btn"
-                >
+                <button @click="installFromFile" :disabled="isInstalling" class="install-btn">
                   <FileUp :size="16" :class="{ 'animate-spin': isInstalling }" />
                   {{ isInstalling ? $t('plugin.installing') : $t('plugin.install') }}
                 </button>
               </div>
             </div>
           </div>
-          
+
           <!-- From Registry -->
-          <div class="install-method" :class="{ 'active': installMethod === 'registry' }">
+          <div class="install-method" :class="{ active: installMethod === 'registry' }">
             <button @click="installMethod = 'registry'" class="method-header">
               <Package :size="20" />
               <div class="method-info">
@@ -109,7 +105,7 @@
                 <p>{{ $t('plugin.browseRegistryDescription') }}</p>
               </div>
             </button>
-            
+
             <div v-if="installMethod === 'registry'" class="method-content">
               <div class="registry-search">
                 <div class="search-container">
@@ -120,34 +116,34 @@
                     :placeholder="$t('plugin.searchRegistry')"
                     class="search-input"
                     @input="searchRegistry"
-                  >
+                  />
                 </div>
-                
+
                 <div class="category-filters">
                   <button
                     v-for="category in categories"
                     :key="category.key"
                     @click="selectedCategory = category.key"
                     class="category-btn"
-                    :class="{ 'active': selectedCategory === category.key }"
+                    :class="{ active: selectedCategory === category.key }"
                   >
                     <component :is="category.icon" :size="16" />
                     {{ category.label }}
                   </button>
                 </div>
               </div>
-              
+
               <div class="registry-results">
                 <div v-if="isSearching" class="search-loading">
                   <Loader :size="24" class="animate-spin" />
                   <p>{{ $t('plugin.searchingRegistry') }}</p>
                 </div>
-                
+
                 <div v-else-if="registryPlugins.length === 0" class="no-results">
                   <Package :size="32" class="no-results-icon" />
                   <p>{{ $t('plugin.noPluginsFound') }}</p>
                 </div>
-                
+
                 <div v-else class="plugin-results">
                   <div
                     v-for="plugin in registryPlugins"
@@ -161,20 +157,22 @@
                         :src="plugin.icon"
                         :alt="plugin.name"
                         class="icon-image"
-                      >
+                      />
                       <Puzzle v-else :size="24" />
                     </div>
-                    
+
                     <div class="plugin-details">
                       <h4 class="plugin-name">{{ plugin.name }}</h4>
                       <p class="plugin-description">{{ plugin.description }}</p>
                       <div class="plugin-meta">
                         <span class="plugin-version">v{{ plugin.version }}</span>
                         <span class="plugin-author">{{ plugin.author }}</span>
-                        <span class="plugin-downloads">{{ formatDownloads(plugin.downloads) }}</span>
+                        <span class="plugin-downloads">{{
+                          formatDownloads(plugin.downloads)
+                        }}</span>
                       </div>
                     </div>
-                    
+
                     <div class="plugin-actions">
                       <button
                         @click.stop="installRegistryPlugin(plugin)"
@@ -192,24 +190,21 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Install Progress -->
       <div v-if="installProgress" class="install-progress">
         <div class="progress-header">
           <h3>{{ installProgress.title }}</h3>
           <span class="progress-percent">{{ Math.round(installProgress.progress * 100) }}%</span>
         </div>
-        
+
         <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: `${installProgress.progress * 100}%` }"
-          />
+          <div class="progress-fill" :style="{ width: `${installProgress.progress * 100}%` }" />
         </div>
-        
+
         <p class="progress-description">{{ installProgress.description }}</p>
       </div>
-      
+
       <!-- Error Display -->
       <div v-if="installError" class="install-error">
         <AlertTriangle :size="20" />
@@ -228,9 +223,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  X, Globe, FileUp, Package, Download, Upload, Search, Loader,
-  AlertTriangle, Puzzle, Code, Gamepad2, Wrench, BookOpen,
-  Users, Palette, Zap
+  X,
+  Globe,
+  FileUp,
+  Package,
+  Download,
+  Upload,
+  Search,
+  Loader,
+  AlertTriangle,
+  Puzzle,
+  Code,
+  Gamepad2,
+  Wrench,
+  BookOpen,
+  Users,
+  Palette,
+  Zap
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
@@ -321,32 +330,31 @@ const installFromUrl = async () => {
   try {
     isInstalling.value = true
     installError.value = null
-    
+
     installProgress.value = {
       title: t('plugin.downloadingPlugin'),
       description: t('plugin.fetchingFromUrl'),
       progress: 0.1
     }
-    
+
     // Simulate download progress
     const progressInterval = setInterval(() => {
       if (installProgress.value && installProgress.value.progress < 0.9) {
         installProgress.value.progress += 0.1
       }
     }, 200)
-    
+
     // TODO: Implement actual plugin download and installation
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     clearInterval(progressInterval)
     installProgress.value = {
       title: t('plugin.installingPlugin'),
       description: t('plugin.finalizing'),
       progress: 1.0
     }
-    
+
     emit('install', { type: 'url', data: pluginUrl.value })
-    
   } catch (error) {
     installError.value = error instanceof Error ? error.message : t('plugin.unknownError')
   } finally {
@@ -366,7 +374,7 @@ const handleFileSelect = (event: Event) => {
 const handleDrop = (event: DragEvent) => {
   event.preventDefault()
   isDragOver.value = false
-  
+
   const file = event.dataTransfer?.files[0]
   if (file) {
     selectedFile.value = file
@@ -379,32 +387,31 @@ const installFromFile = async () => {
   try {
     isInstalling.value = true
     installError.value = null
-    
+
     installProgress.value = {
       title: t('plugin.processingFile'),
       description: t('plugin.extractingPlugin'),
       progress: 0.2
     }
-    
+
     // Simulate file processing
     const progressInterval = setInterval(() => {
       if (installProgress.value && installProgress.value.progress < 0.9) {
         installProgress.value.progress += 0.15
       }
     }, 300)
-    
+
     // TODO: Implement actual file processing and installation
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     clearInterval(progressInterval)
     installProgress.value = {
       title: t('plugin.installingPlugin'),
       description: t('plugin.finalizing'),
       progress: 1.0
     }
-    
+
     emit('install', { type: 'file', data: selectedFile.value })
-    
   } catch (error) {
     installError.value = error instanceof Error ? error.message : t('plugin.unknownError')
   } finally {
@@ -421,10 +428,10 @@ const searchRegistry = async () => {
 
   try {
     isSearching.value = true
-    
+
     // TODO: Implement actual registry search
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // Mock registry results
     registryPlugins.value = [
       {
@@ -448,16 +455,16 @@ const searchRegistry = async () => {
         url: 'https://example.com/plugin2'
       }
     ].filter(plugin => {
-      const matchesQuery = !registryQuery.value || 
+      const matchesQuery =
+        !registryQuery.value ||
         plugin.name.toLowerCase().includes(registryQuery.value.toLowerCase()) ||
         plugin.description.toLowerCase().includes(registryQuery.value.toLowerCase())
-      
-      const matchesCategory = selectedCategory.value === 'all' || 
-        plugin.category === selectedCategory.value
-      
+
+      const matchesCategory =
+        selectedCategory.value === 'all' || plugin.category === selectedCategory.value
+
       return matchesQuery && matchesCategory
     })
-    
   } catch (error) {
     console.error('Registry search failed:', error)
     registryPlugins.value = []
@@ -475,32 +482,31 @@ const installRegistryPlugin = async (plugin: RegistryPlugin) => {
   try {
     isInstalling.value = true
     installError.value = null
-    
+
     installProgress.value = {
       title: t('plugin.downloadingPlugin'),
       description: plugin.name,
       progress: 0.1
     }
-    
+
     // Simulate installation progress
     const progressInterval = setInterval(() => {
       if (installProgress.value && installProgress.value.progress < 0.9) {
         installProgress.value.progress += 0.1
       }
     }, 200)
-    
+
     // TODO: Implement actual plugin installation from registry
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     clearInterval(progressInterval)
     installProgress.value = {
       title: t('plugin.installingPlugin'),
       description: t('plugin.finalizing'),
       progress: 1.0
     }
-    
+
     emit('install', { type: 'registry', data: plugin })
-    
   } catch (error) {
     installError.value = error instanceof Error ? error.message : t('plugin.unknownError')
   } finally {
@@ -756,8 +762,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Line clamp utility */
@@ -773,19 +783,19 @@ onMounted(() => {
   .install-dialog {
     @apply max-w-full mx-2;
   }
-  
+
   .method-header {
     @apply flex-col gap-2;
   }
-  
+
   .category-filters {
     @apply flex-col;
   }
-  
+
   .registry-plugin {
     @apply flex-col gap-3;
   }
-  
+
   .plugin-actions {
     @apply self-end;
   }
@@ -796,7 +806,7 @@ onMounted(() => {
   .install-dialog {
     @apply border-2;
   }
-  
+
   .install-method.active {
     @apply ring-2 ring-primary;
   }

@@ -5,7 +5,7 @@
       <div class="search-input-container">
         <div class="search-input-wrapper">
           <Search :size="18" class="search-icon" />
-          
+
           <input
             ref="searchInputRef"
             type="text"
@@ -16,8 +16,8 @@
             @focus="onSearchFocus"
             @blur="onSearchBlur"
             @input="onSearchInput"
-          >
-          
+          />
+
           <div class="search-actions">
             <button
               v-if="searchQuery"
@@ -27,18 +27,18 @@
             >
               <X :size="16" />
             </button>
-            
+
             <button
               @click="toggleAdvancedSearch"
               class="advanced-btn"
-              :class="{ 'active': showAdvanced }"
+              :class="{ active: showAdvanced }"
               :title="$t('search.advancedSearch')"
             >
               <SlidersHorizontal :size="16" />
             </button>
           </div>
         </div>
-        
+
         <!-- Search Suggestions -->
         <div
           v-if="showSuggestions && (recentSearches.length > 0 || searchSuggestions.length > 0)"
@@ -66,7 +66,7 @@
                 </button>
               </div>
             </div>
-            
+
             <!-- Search Suggestions -->
             <div v-if="searchSuggestions.length > 0" class="suggestion-section">
               <h4 class="suggestion-title">{{ $t('search.suggestions') }}</h4>
@@ -85,7 +85,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Quick Filters -->
       <div class="quick-filters">
         <button
@@ -93,14 +93,14 @@
           :key="filter.key"
           @click="toggleQuickFilter(filter)"
           class="quick-filter"
-          :class="{ 'active': isQuickFilterActive(filter) }"
+          :class="{ active: isQuickFilterActive(filter) }"
         >
           <component :is="filter.icon" :size="14" />
           <span>{{ filter.label }}</span>
         </button>
       </div>
     </div>
-    
+
     <!-- Advanced Search -->
     <div v-if="showAdvanced" class="advanced-search">
       <div class="advanced-content">
@@ -109,27 +109,27 @@
           <h4 class="section-title">{{ $t('search.searchOptions') }}</h4>
           <div class="options-grid">
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.caseSensitive">
+              <input type="checkbox" v-model="searchOptions.caseSensitive" />
               <span>{{ $t('search.caseSensitive') }}</span>
             </label>
-            
+
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.wholeWords">
+              <input type="checkbox" v-model="searchOptions.wholeWords" />
               <span>{{ $t('search.wholeWords') }}</span>
             </label>
-            
+
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.useRegex">
+              <input type="checkbox" v-model="searchOptions.useRegex" />
               <span>{{ $t('search.useRegex') }}</span>
             </label>
-            
+
             <label class="option-item">
-              <input type="checkbox" v-model="searchOptions.fuzzyMatch">
+              <input type="checkbox" v-model="searchOptions.fuzzyMatch" />
               <span>{{ $t('search.fuzzyMatch') }}</span>
             </label>
           </div>
         </div>
-        
+
         <!-- Filters -->
         <div class="filters-section">
           <h4 class="section-title">{{ $t('search.filters') }}</h4>
@@ -139,37 +139,25 @@
               <label class="filter-label">{{ $t('search.roles') }}</label>
               <div class="role-filters">
                 <label class="role-item">
-                  <input 
-                    type="checkbox" 
-                    :value="'user'" 
-                    v-model="searchFilters.roles"
-                  >
+                  <input type="checkbox" :value="'user'" v-model="searchFilters.roles" />
                   <User :size="14" />
                   <span>{{ $t('message.user') }}</span>
                 </label>
-                
+
                 <label class="role-item">
-                  <input 
-                    type="checkbox" 
-                    :value="'assistant'" 
-                    v-model="searchFilters.roles"
-                  >
+                  <input type="checkbox" :value="'assistant'" v-model="searchFilters.roles" />
                   <Bot :size="14" />
                   <span>{{ $t('message.assistant') }}</span>
                 </label>
-                
+
                 <label class="role-item">
-                  <input 
-                    type="checkbox" 
-                    :value="'system'" 
-                    v-model="searchFilters.roles"
-                  >
+                  <input type="checkbox" :value="'system'" v-model="searchFilters.roles" />
                   <Settings :size="14" />
                   <span>{{ $t('message.system') }}</span>
                 </label>
               </div>
             </div>
-            
+
             <!-- Date Range Filter -->
             <div class="filter-group">
               <label class="filter-label">{{ $t('search.dateRange') }}</label>
@@ -179,17 +167,17 @@
                   v-model="dateRangeStart"
                   class="date-input"
                   :max="dateRangeEnd"
-                >
+                />
                 <span class="date-separator">{{ $t('search.to') }}</span>
                 <input
                   type="date"
                   v-model="dateRangeEnd"
                   class="date-input"
                   :min="dateRangeStart"
-                >
+                />
               </div>
             </div>
-            
+
             <!-- Length Filter -->
             <div class="filter-group">
               <label class="filter-label">{{ $t('search.messageLength') }}</label>
@@ -200,7 +188,7 @@
                   :placeholder="$t('search.minLength')"
                   class="length-input"
                   min="0"
-                >
+                />
                 <span class="length-separator">-</span>
                 <input
                   type="number"
@@ -208,10 +196,10 @@
                   :placeholder="$t('search.maxLength')"
                   class="length-input"
                   min="0"
-                >
+                />
               </div>
             </div>
-            
+
             <!-- Tags Filter -->
             <div class="filter-group">
               <label class="filter-label">{{ $t('search.tags') }}</label>
@@ -222,14 +210,13 @@
                   :placeholder="$t('search.enterTags')"
                   class="tags-input"
                   @keydown="onTagKeydown"
+                />
+
+                <div
+                  v-if="searchFilters.tags && searchFilters.tags.length > 0"
+                  class="selected-tags"
                 >
-                
-                <div v-if="searchFilters.tags && searchFilters.tags.length > 0" class="selected-tags">
-                  <span
-                    v-for="tag in searchFilters.tags"
-                    :key="tag"
-                    class="tag-item"
-                  >
+                  <span v-for="tag in searchFilters.tags" :key="tag" class="tag-item">
                     {{ tag }}
                     <button @click="removeTag(tag)" class="tag-remove">
                       <X :size="12" />
@@ -240,7 +227,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Sort Options -->
         <div class="sort-section">
           <h4 class="section-title">{{ $t('search.sorting') }}</h4>
@@ -250,12 +237,12 @@
               <option value="date">{{ $t('search.sortByDate') }}</option>
               <option value="length">{{ $t('search.sortByLength') }}</option>
             </select>
-            
+
             <select v-model="searchOptions.sortOrder" class="sort-select">
               <option value="desc">{{ $t('search.descending') }}</option>
               <option value="asc">{{ $t('search.ascending') }}</option>
             </select>
-            
+
             <input
               type="number"
               v-model.number="searchOptions.maxResults"
@@ -263,19 +250,19 @@
               class="max-results-input"
               min="1"
               max="1000"
-            >
+            />
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Search Status -->
     <div v-if="isSearching || searchResults.length > 0 || searchError" class="search-status">
       <div v-if="isSearching" class="status-loading">
         <Loader :size="16" class="animate-spin" />
         <span>{{ $t('search.searching') }}</span>
       </div>
-      
+
       <div v-else-if="searchError" class="status-error">
         <AlertCircle :size="16" />
         <span>{{ searchError }}</span>
@@ -284,7 +271,7 @@
           {{ $t('common.retry') }}
         </button>
       </div>
-      
+
       <div v-else-if="searchResults.length > 0" class="status-success">
         <div class="results-info">
           <span class="results-count">
@@ -294,26 +281,26 @@
             {{ $t('search.searchTime', { time: searchStats.searchTime }) }}
           </span>
         </div>
-        
+
         <div class="results-actions">
           <button @click="exportResults" class="export-btn">
             <Download :size="14" />
             {{ $t('search.export') }}
           </button>
-          
+
           <button @click="clearResults" class="clear-results-btn">
             <X :size="14" />
             {{ $t('search.clearResults') }}
           </button>
         </div>
       </div>
-      
+
       <div v-else-if="hasSearched" class="status-empty">
         <Search :size="16" />
         <span>{{ $t('search.noResults') }}</span>
       </div>
     </div>
-    
+
     <!-- Search Results -->
     <div v-if="searchResults.length > 0" class="search-results">
       <div class="results-list">
@@ -326,27 +313,19 @@
           @chat-click="$emit('chat-click', result.message.chatId)"
         />
       </div>
-      
+
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="pagination">
-        <button
-          @click="previousPage"
-          :disabled="currentPage === 1"
-          class="page-btn"
-        >
+        <button @click="previousPage" :disabled="currentPage === 1" class="page-btn">
           <ChevronLeft :size="16" />
           {{ $t('common.previous') }}
         </button>
-        
+
         <div class="page-info">
           <span>{{ $t('search.pageInfo', { current: currentPage, total: totalPages }) }}</span>
         </div>
-        
-        <button
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-          class="page-btn"
-        >
+
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
           {{ $t('common.next') }}
           <ChevronRight :size="16" />
         </button>
@@ -358,12 +337,29 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import {
-  Search, X, SlidersHorizontal, Clock, User, Bot, Settings, Loader,
-  AlertCircle, RotateCcw, Download, ChevronLeft, ChevronRight
+  Search,
+  X,
+  SlidersHorizontal,
+  Clock,
+  User,
+  Bot,
+  Settings,
+  Loader,
+  AlertCircle,
+  RotateCcw,
+  Download,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
-import type { SearchQuery, SearchResult as SearchResultType, SearchFilters, SearchOptions, SearchStats } from '@main/db/searchTypes'
+import type {
+  SearchQuery,
+  SearchResult as SearchResultType,
+  SearchFilters,
+  SearchOptions,
+  SearchStats
+} from '@main/db/searchTypes'
 import SearchResult from './SearchResult.vue'
 
 // Props
@@ -483,11 +479,11 @@ const quickFilters = computed(() => [
     key: 'today',
     label: t('search.today'),
     icon: Clock,
-    filter: { 
-      dateRange: { 
-        start: new Date(new Date().setHours(0, 0, 0, 0)), 
-        end: new Date() 
-      } 
+    filter: {
+      dateRange: {
+        start: new Date(new Date().setHours(0, 0, 0, 0)),
+        end: new Date()
+      }
     }
   }
 ])
@@ -521,10 +517,10 @@ const performSearch = async () => {
     }
 
     currentQuery.value = query
-    
+
     // Use enhanced backend search
     const results = await backendSearchService.searchMessages(query)
-    
+
     searchResults.value = results
     searchStats.value = await backendSearchService.getSearchStats()
     hasSearched.value = true
@@ -553,7 +549,7 @@ const buildFilters = (): SearchFilters => {
 
 const hasActiveFilters = (): boolean => {
   const filters = buildFilters()
-  
+
   return !!(
     filters.roles?.length ||
     filters.dateRange ||
@@ -636,9 +632,8 @@ const toggleQuickFilter = (filter: any) => {
   if (isQuickFilterActive(filter)) {
     // Remove filter
     if (filter.filter.roles) {
-      searchFilters.value.roles = searchFilters.value.roles?.filter(
-        role => !filter.filter.roles.includes(role)
-      ) || []
+      searchFilters.value.roles =
+        searchFilters.value.roles?.filter(role => !filter.filter.roles.includes(role)) || []
     }
     if (filter.filter.dateRange) {
       searchFilters.value.dateRange = undefined
@@ -648,10 +643,7 @@ const toggleQuickFilter = (filter: any) => {
   } else {
     // Add filter
     if (filter.filter.roles) {
-      searchFilters.value.roles = [
-        ...(searchFilters.value.roles || []),
-        ...filter.filter.roles
-      ]
+      searchFilters.value.roles = [...(searchFilters.value.roles || []), ...filter.filter.roles]
     }
     if (filter.filter.dateRange) {
       searchFilters.value.dateRange = filter.filter.dateRange
@@ -665,9 +657,7 @@ const toggleQuickFilter = (filter: any) => {
 
 const isQuickFilterActive = (filter: any): boolean => {
   if (filter.filter.roles) {
-    return filter.filter.roles.every((role: string) => 
-      searchFilters.value.roles?.includes(role)
-    )
+    return filter.filter.roles.every((role: string) => searchFilters.value.roles?.includes(role))
   }
   if (filter.filter.dateRange) {
     return !!searchFilters.value.dateRange
@@ -687,7 +677,7 @@ const addTag = (tag: string) => {
   if (!searchFilters.value.tags) {
     searchFilters.value.tags = []
   }
-  
+
   if (!searchFilters.value.tags.includes(tag)) {
     searchFilters.value.tags.push(tag)
     tagInput.value = ''
@@ -732,7 +722,7 @@ const removeRecentSearch = (index: number) => {
 const updateSuggestions = () => {
   // Generate search suggestions based on current input
   const query = searchQuery.value.toLowerCase()
-  
+
   if (query.length >= 2) {
     // Simple suggestions - in a real app, these might come from an API
     searchSuggestions.value = [
@@ -740,10 +730,7 @@ const updateSuggestions = () => {
       'code example',
       'user question',
       'assistant response'
-    ].filter(suggestion => 
-      suggestion.toLowerCase().includes(query) && 
-      suggestion !== query
-    )
+    ].filter(suggestion => suggestion.toLowerCase().includes(query) && suggestion !== query)
   } else {
     searchSuggestions.value = []
   }
@@ -785,12 +772,12 @@ const exportResults = () => {
 
   const dataStr = JSON.stringify(exportData, null, 2)
   const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `search-results-${new Date().toISOString().split('T')[0]}.json`
   link.click()
-  
+
   URL.revokeObjectURL(link.href)
 }
 
@@ -801,11 +788,15 @@ watch([dateRangeStart, dateRangeEnd], () => {
   }
 })
 
-watch(() => searchFilters.value, () => {
-  if (hasActiveFilters()) {
-    debouncedSearch()
-  }
-}, { deep: true })
+watch(
+  () => searchFilters.value,
+  () => {
+    if (hasActiveFilters()) {
+      debouncedSearch()
+    }
+  },
+  { deep: true }
+)
 
 // Lifecycle
 onMounted(() => {
@@ -816,11 +807,14 @@ onMounted(() => {
   }
 
   loadRecentSearches()
-  backendSearchService.getSearchStats().then(stats => {
-    searchStats.value = stats
-  }).catch(error => {
-    console.error('Failed to load search stats:', error)
-  })
+  backendSearchService
+    .getSearchStats()
+    .then(stats => {
+      searchStats.value = stats
+    })
+    .catch(error => {
+      console.error('Failed to load search stats:', error)
+    })
 })
 
 onUnmounted(() => {
@@ -1069,8 +1063,12 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -1078,23 +1076,23 @@ onUnmounted(() => {
   .search-header {
     @apply p-3;
   }
-  
+
   .options-grid {
     @apply grid-cols-1;
   }
-  
+
   .filters-grid {
     @apply grid-cols-1;
   }
-  
+
   .quick-filters {
     @apply grid grid-cols-2 gap-2;
   }
-  
+
   .results-info {
     @apply flex-col items-start gap-1;
   }
-  
+
   .status-success {
     @apply flex-col items-start gap-3;
   }
@@ -1105,7 +1103,7 @@ onUnmounted(() => {
   .message-search {
     @apply border-2;
   }
-  
+
   .search-input:focus {
     @apply ring-2 ring-primary;
   }

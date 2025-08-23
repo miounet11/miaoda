@@ -78,11 +78,11 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'regenerate': [index: number]
-  'copy': [content: string]
-  'scroll': [position: any]
-  'item-measured': [data: { messageId: string, height: number, index: number }]
-  'visibility-change': [visibleRange: { start: number, end: number }]
+  regenerate: [index: number]
+  copy: [content: string]
+  scroll: [position: any]
+  'item-measured': [data: { messageId: string; height: number; index: number }]
+  'visibility-change': [visibleRange: { start: number; end: number }]
   'message-focus': [messageId: string]
 }>()
 
@@ -100,17 +100,17 @@ const messageHeights = ref(new Map<string, number>())
 // Optimized message processing with incremental updates
 const processedMessages = computed(() => {
   const markEnd = performanceMonitor.mark('process-messages')
-  
+
   const processed = props.messages.map((message, index) => {
     const prevMessage = index > 0 ? props.messages[index - 1] : null
-    
+
     return {
       ...message,
       showTimeSeparator: shouldShowTimeSeparator(message, prevMessage),
       index
     }
   })
-  
+
   markEnd()
   return processed
 })
@@ -119,11 +119,11 @@ const processedMessages = computed(() => {
 const estimateItemHeight = (message: any, index: number) => {
   // Try exact cache first
   const cacheKey = `${message.id}-${message.content?.length || 0}`
-  
+
   if (messageHeights.value.has(cacheKey)) {
     return messageHeights.value.get(cacheKey)!
   }
-  
+
   // Try content hash cache for similar messages
   if (message.content) {
     const contentHash = hashString(message.content)
@@ -134,66 +134,64 @@ const estimateItemHeight = (message: any, index: number) => {
       return cachedHeight
     }
   }
-  
+
   let height = 60 // Base height
-  
+
   // Time separator
   if (message.showTimeSeparator) {
     height += 32
   }
-  
+
   // Content-based height estimation
   if (message.content) {
     const contentLength = message.content.length
     const lines = Math.max(1, Math.ceil(contentLength / 85))
     height += Math.min((lines - 1) * 24, 200) // Max content height limit
-    
+
     // Code blocks
     if (message.content.includes('```')) {
       height += 40
     }
-    
+
     // Lists
     const listItems = (message.content.match(/^[-*+]\s/gm) || []).length
     height += listItems * 18
   }
-  
+
   // Attachments
   if (message.attachments?.length) {
     height += message.attachments.length * 80
   }
-  
+
   // Role-specific adjustments
   if (message.role === 'user') {
     height = Math.max(height * 0.9, 50) // User messages tend to be more compact
   }
-  
+
   // Cache the result
   messageHeights.value.set(cacheKey, height)
-  
+
   // Intelligent cache management with LRU-like behavior
   if (messageHeights.value.size > 1000) {
     // Keep most recent and frequently accessed items
     const entries = Array.from(messageHeights.value.entries())
-    const recentMessages = props.messages.slice(-200).map(m => 
-      `${m.id}-${m.content?.length || 0}`
-    )
-    
+    const recentMessages = props.messages.slice(-200).map(m => `${m.id}-${m.content?.length || 0}`)
+
     messageHeights.value.clear()
-    
+
     // Preserve recent messages and content hashes
     entries.forEach(([key, value]) => {
       if (recentMessages.includes(key) || key.startsWith('content-')) {
         messageHeights.value.set(key, value)
       }
     })
-    
+
     // Keep last 300 entries if not enough recent ones
     if (messageHeights.value.size < 300) {
       entries.slice(-300).forEach(([k, v]) => messageHeights.value.set(k, v))
     }
   }
-  
+
   return height
 }
 
@@ -202,15 +200,13 @@ const shouldShowTimeSeparator = (message: Message, prevMessage: Message | null) 
   if (!prevMessage || !message.timestamp || !prevMessage.timestamp) {
     return false
   }
-  
+
   // Convert to Date if it's a string
-  const messageTime = message.timestamp instanceof Date 
-    ? message.timestamp 
-    : new Date(message.timestamp)
-  const prevMessageTime = prevMessage.timestamp instanceof Date 
-    ? prevMessage.timestamp 
-    : new Date(prevMessage.timestamp)
-  
+  const messageTime =
+    message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp)
+  const prevMessageTime =
+    prevMessage.timestamp instanceof Date ? prevMessage.timestamp : new Date(prevMessage.timestamp)
+
   const timeDiff = messageTime.getTime() - prevMessageTime.getTime()
   return timeDiff > 30 * 60 * 1000 // 30 minutes
 }
@@ -219,14 +215,14 @@ const formatTime = (timestamp: Date | string) => {
   const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   if (diff < 24 * 60 * 60 * 1000) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   } else if (diff < 7 * 24 * 60 * 60 * 1000) {
-    return date.toLocaleDateString([], { 
-      weekday: 'short', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleDateString([], {
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
     })
   } else {
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
@@ -242,46 +238,48 @@ const getMessageClasses = (message: any) => ({
 })
 
 // Enhanced scroll handling with performance optimization
-const handleScroll = rafThrottle((scrollTop: number, scrollHeight: number, clientHeight: number) => {
-  const threshold = 100
-  const nearBottom = scrollTop + clientHeight >= scrollHeight - threshold
-  const nearTop = scrollTop < 100
-  
-  // Update scroll states only when necessary
-  if (isAtBottom.value !== nearBottom) {
-    isAtBottom.value = nearBottom
-    showScrollButton.value = !nearBottom && scrollTop > 300
-    
-    if (nearBottom) {
-      unreadCount.value = 0
-      lastReadIndex.value = props.messages.length - 1
+const handleScroll = rafThrottle(
+  (scrollTop: number, scrollHeight: number, clientHeight: number) => {
+    const threshold = 100
+    const nearBottom = scrollTop + clientHeight >= scrollHeight - threshold
+    const nearTop = scrollTop < 100
+
+    // Update scroll states only when necessary
+    if (isAtBottom.value !== nearBottom) {
+      isAtBottom.value = nearBottom
+      showScrollButton.value = !nearBottom && scrollTop > 300
+
+      if (nearBottom) {
+        unreadCount.value = 0
+        lastReadIndex.value = props.messages.length - 1
+      }
     }
+
+    // Calculate visible message range for performance insights
+    const visibleStartIndex = Math.floor(scrollTop / 80) // Approximate
+    const visibleEndIndex = Math.min(
+      props.messages.length - 1,
+      Math.ceil((scrollTop + clientHeight) / 80)
+    )
+
+    // Emit visibility change for external optimization
+    emit('visibility-change', {
+      start: visibleStartIndex,
+      end: visibleEndIndex
+    })
+
+    // Enhanced scroll event with more context
+    emit('scroll', {
+      scrollTop,
+      scrollHeight,
+      clientHeight,
+      isAtBottom: nearBottom,
+      isAtTop: nearTop,
+      scrollPercentage: (scrollTop / (scrollHeight - clientHeight)) * 100,
+      visibleRange: { start: visibleStartIndex, end: visibleEndIndex }
+    })
   }
-  
-  // Calculate visible message range for performance insights
-  const visibleStartIndex = Math.floor(scrollTop / 80) // Approximate
-  const visibleEndIndex = Math.min(
-    props.messages.length - 1,
-    Math.ceil((scrollTop + clientHeight) / 80)
-  )
-  
-  // Emit visibility change for external optimization
-  emit('visibility-change', {
-    start: visibleStartIndex,
-    end: visibleEndIndex
-  })
-  
-  // Enhanced scroll event with more context
-  emit('scroll', {
-    scrollTop,
-    scrollHeight,
-    clientHeight,
-    isAtBottom: nearBottom,
-    isAtTop: nearTop,
-    scrollPercentage: (scrollTop / (scrollHeight - clientHeight)) * 100,
-    visibleRange: { start: visibleStartIndex, end: visibleEndIndex }
-  })
-})
+)
 
 const handleItemRendered = (message: any, index: number) => {
   // Update actual height measurement with improved accuracy
@@ -292,13 +290,13 @@ const handleItemRendered = (message: any, index: number) => {
       if (rect.height > 0) {
         const cacheKey = `${message.id}-${message.content?.length || 0}`
         messageHeights.value.set(cacheKey, rect.height)
-        
+
         // Also cache by content hash for better reuse
         if (message.content) {
           const contentHash = hashString(message.content)
           messageHeights.value.set(`content-${contentHash}`, rect.height)
         }
-        
+
         // Emit for performance monitoring
         emit('item-measured', {
           messageId: message.id,
@@ -315,7 +313,7 @@ const hashString = (str: string): string => {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash = hash & hash // Convert to 32-bit integer
   }
   return hash.toString()
@@ -337,7 +335,7 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth', callback?: () => vo
     virtualScrollRef.value.scrollToBottom(behavior)
     isAtBottom.value = true
     showScrollButton.value = false
-    
+
     if (callback) {
       // Execute callback after scroll animation completes
       setTimeout(callback, behavior === 'smooth' ? 300 : 0)
@@ -348,7 +346,7 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth', callback?: () => vo
 const scrollToTop = (behavior: ScrollBehavior = 'smooth', callback?: () => void) => {
   if (virtualScrollRef.value) {
     virtualScrollRef.value.scrollToTop(behavior)
-    
+
     if (callback) {
       setTimeout(callback, behavior === 'smooth' ? 300 : 0)
     }
@@ -359,16 +357,16 @@ const scrollToMessage = (messageId: string, highlight: boolean = true, callback?
   const index = props.messages.findIndex(msg => msg.id === messageId)
   if (index >= 0 && virtualScrollRef.value) {
     virtualScrollRef.value.scrollToIndex(index, 'smooth')
-    
+
     if (highlight) {
       // Emit focus event for highlighting
       emit('message-focus', messageId)
     }
-    
+
     if (callback) {
       setTimeout(callback, 300)
     }
-    
+
     return true
   }
   return false
@@ -387,31 +385,35 @@ const scrollToPosition = (position: number, behavior: ScrollBehavior = 'smooth')
 // New method: Get current scroll information
 const getScrollInfo = () => {
   if (!virtualScrollRef.value?.containerRef) return null
-  
+
   const container = virtualScrollRef.value.containerRef
   return {
     scrollTop: container.scrollTop,
     scrollHeight: container.scrollHeight,
     clientHeight: container.clientHeight,
     isAtBottom: isAtBottom.value,
-    scrollPercentage: (container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100
+    scrollPercentage:
+      (container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100
   }
 }
 
 // Auto-scroll on new messages
-watch(() => props.messages.length, (newLength, oldLength) => {
-  if (newLength > oldLength) {
-    if (props.autoScroll && isAtBottom.value) {
-      nextTick(() => scrollToBottom())
-    } else if (!isAtBottom.value) {
-      unreadCount.value += newLength - oldLength
+watch(
+  () => props.messages.length,
+  (newLength, oldLength) => {
+    if (newLength > oldLength) {
+      if (props.autoScroll && isAtBottom.value) {
+        nextTick(() => scrollToBottom())
+      } else if (!isAtBottom.value) {
+        unreadCount.value += newLength - oldLength
+      }
     }
   }
-})
+)
 
 // Scrolling state management
 let scrollTimeout: NodeJS.Timeout
-watch(isAtBottom, (newValue) => {
+watch(isAtBottom, newValue => {
   if (newValue) {
     isScrolling.value = true
     clearTimeout(scrollTimeout)
@@ -569,11 +571,13 @@ defineExpose({
 
 /* Animations */
 @keyframes highlight-flash {
-  0%, 100% { 
-    background-color: transparent; 
+  0%,
+  100% {
+    background-color: transparent;
   }
-  25%, 75% { 
-    background-color: rgba(59, 130, 246, 0.1); 
+  25%,
+  75% {
+    background-color: rgba(59, 130, 246, 0.1);
   }
 }
 
@@ -608,11 +612,11 @@ defineExpose({
     bottom: 1rem;
     right: 1rem;
   }
-  
+
   .time-separator {
     margin: 1rem 0 0.75rem;
   }
-  
+
   .unread-badge {
     font-size: 0.625rem;
     padding: 0.0625rem 0.25rem;
@@ -626,7 +630,7 @@ defineExpose({
     border-color: var(--dark-border, #374151);
     color: var(--dark-muted, #9ca3af);
   }
-  
+
   .time-separator::before {
     background: var(--dark-border, #374151);
   }
@@ -637,11 +641,11 @@ defineExpose({
   .time-separator::before {
     height: 2px;
   }
-  
+
   .time-text {
     border-width: 2px;
   }
-  
+
   .scroll-to-bottom-btn {
     border: 2px solid white;
   }
@@ -653,25 +657,25 @@ defineExpose({
   .message-scroll-container {
     scroll-behavior: auto;
   }
-  
+
   .message-highlighted {
     animation: none;
     background-color: rgba(59, 130, 246, 0.1);
   }
-  
+
   .scroll-button-enter-active,
   .scroll-button-leave-active {
     transition: opacity 0.2s ease;
   }
-  
+
   .scroll-to-bottom-btn {
     transition: none;
   }
-  
+
   .scroll-to-bottom-btn:hover {
     transform: none;
   }
-  
+
   /* Disable transform animations */
   .message-item-container {
     will-change: auto;
@@ -694,7 +698,7 @@ defineExpose({
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
-  
+
   .scroll-to-bottom-btn {
     /* Larger touch target */
     min-width: 48px;
@@ -734,11 +738,11 @@ defineExpose({
   .message-scroll-container::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
   }
-  
+
   .message-scroll-container::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
   }
-  
+
   .message-scroll-container {
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }

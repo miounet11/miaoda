@@ -13,109 +13,109 @@ export class ThemePlugin implements PluginModule {
   async activate(context: PluginContext): Promise<void> {
     this.context = context
     console.log('Theme Plugin activated!')
-    
+
     // Load saved themes and preferences
     await this.loadThemePreferences()
     await this.loadCustomThemes()
-    
+
     // Set up system theme detection
     this.setupSystemThemeDetection()
-    
+
     // Apply current theme
     await this.applyTheme(this.currentTheme)
-    
+
     // Register CSS custom properties
     this.registerThemeVariables()
   }
 
   async deactivate(context: PluginContext): Promise<void> {
     console.log('Theme Plugin deactivated!')
-    
+
     // Clean up media query listener
     if (this.mediaQuery) {
       this.mediaQuery.removeListener(this.onSystemThemeChange.bind(this))
     }
-    
+
     this.context = null
   }
 
   // Hook: Called when theme changes
   async onThemeChange(data: any, context: PluginContext): Promise<any> {
     console.log('Theme Plugin: Theme changed', data)
-    
+
     // Apply theme-specific enhancements
     await this.enhanceTheme(data.theme)
-    
+
     // Save theme preference
     await context.storage.set('currentTheme', data.theme)
     this.currentTheme = data.theme
-    
+
     return data
   }
 
   // Hook: Called when settings change
   async onSettingsChange(data: any, context: PluginContext): Promise<any> {
     console.log('Theme Plugin: Settings changed', data)
-    
+
     // Check if theme-related settings changed
     if (data.theme) {
       await this.applyTheme(data.theme)
     }
-    
+
     return data
   }
 
   // Hook: Called on app initialization
   async onAppInit(data: any, context: PluginContext): Promise<any> {
     console.log('Theme Plugin: App initialized')
-    
+
     // Ensure theme is properly applied after app loads
     setTimeout(() => {
       this.applyTheme(this.currentTheme)
     }, 100)
-    
+
     return data
   }
 
   // Public methods for theme management
   async setTheme(themeName: string): Promise<void> {
     if (!this.context) return
-    
+
     await this.applyTheme(themeName)
     await this.context.storage.set('currentTheme', themeName)
     this.currentTheme = themeName
-    
+
     // Notify other components
     this.context.showNotification(`Theme changed to ${themeName}`, 'info')
   }
 
   async createCustomTheme(themeConfig: ThemeConfig): Promise<void> {
     if (!this.context) return
-    
+
     // Validate theme config
     if (!this.validateThemeConfig(themeConfig)) {
       throw new Error('Invalid theme configuration')
     }
-    
+
     // Save custom theme
     this.customThemes.set(themeConfig.id, themeConfig)
     await this.saveCustomThemes()
-    
+
     this.context.showNotification(`Custom theme "${themeConfig.name}" created!`, 'success')
   }
 
   async deleteCustomTheme(themeId: string): Promise<void> {
     if (!this.context) return
-    
+
     if (this.customThemes.has(themeId)) {
       // Switch to default theme if currently using the deleted theme
       if (this.currentTheme === themeId) {
         await this.setTheme('system')
       }
-      
+
       this.customThemes.delete(themeId)
       await this.saveCustomThemes()
-      
+
       this.context.showNotification('Custom theme deleted', 'info')
     }
   }
@@ -151,7 +151,7 @@ export class ThemePlugin implements PluginModule {
         preview: this.generateThemePreview('high-contrast')
       }
     ]
-    
+
     const customThemes: ThemeInfo[] = Array.from(this.customThemes.values()).map(theme => ({
       id: theme.id,
       name: theme.name,
@@ -159,7 +159,7 @@ export class ThemePlugin implements PluginModule {
       type: 'custom',
       preview: this.generateThemePreview(theme.id)
     }))
-    
+
     return [...builtinThemes, ...customThemes]
   }
 
@@ -170,13 +170,13 @@ export class ThemePlugin implements PluginModule {
   // Private methods
   private async loadThemePreferences(): Promise<void> {
     if (!this.context) return
-    
+
     this.currentTheme = await this.context.storage.get('currentTheme', 'system')
   }
 
   private async loadCustomThemes(): Promise<void> {
     if (!this.context) return
-    
+
     try {
       const saved = await this.context.storage.get('customThemes', {})
       for (const [id, config] of Object.entries(saved)) {
@@ -189,14 +189,14 @@ export class ThemePlugin implements PluginModule {
 
   private async saveCustomThemes(): Promise<void> {
     if (!this.context) return
-    
+
     const themesObject = Object.fromEntries(this.customThemes)
     await this.context.storage.set('customThemes', themesObject)
   }
 
   private setupSystemThemeDetection(): void {
     if (typeof window === 'undefined') return
-    
+
     this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     this.mediaQuery.addListener(this.onSystemThemeChange.bind(this))
   }
@@ -209,10 +209,10 @@ export class ThemePlugin implements PluginModule {
 
   private async applyTheme(themeName: string): Promise<void> {
     const root = document.documentElement
-    
+
     // Remove existing theme classes
     root.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast')
-    
+
     switch (themeName) {
       case 'system':
         this.applySystemTheme()
@@ -237,7 +237,7 @@ export class ThemePlugin implements PluginModule {
         }
         break
     }
-    
+
     // Emit theme change event
     if (this.context) {
       // Trigger hook for other plugins
@@ -250,7 +250,7 @@ export class ThemePlugin implements PluginModule {
     if (isDark === undefined) {
       isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     }
-    
+
     const root = document.documentElement
     if (isDark) {
       root.classList.add('theme-dark')
@@ -297,7 +297,7 @@ export class ThemePlugin implements PluginModule {
         '--color-accent-foreground': '#ffffff'
       }
     }
-    
+
     const themeVars = themes[theme]
     if (themeVars) {
       this.setCSSVariables(themeVars)
@@ -307,12 +307,12 @@ export class ThemePlugin implements PluginModule {
   private async applyCustomTheme(theme: ThemeConfig): Promise<void> {
     // Apply custom CSS variables
     this.setCSSVariables(theme.colors)
-    
+
     // Apply custom CSS if provided
     if (theme.customCSS) {
       this.injectCustomCSS(theme.id, theme.customCSS)
     }
-    
+
     // Apply custom fonts
     if (theme.fonts) {
       this.applyCustomFonts(theme.fonts)
@@ -332,7 +332,7 @@ export class ThemePlugin implements PluginModule {
     if (existingStyle) {
       existingStyle.remove()
     }
-    
+
     // Inject new custom CSS
     const style = document.createElement('style')
     style.id = `custom-theme-${themeId}`
@@ -342,7 +342,7 @@ export class ThemePlugin implements PluginModule {
 
   private applyCustomFonts(fonts: ThemeConfig['fonts']): void {
     if (!fonts) return
-    
+
     const root = document.documentElement
     if (fonts.primary) {
       root.style.setProperty('--font-primary', fonts.primary)
@@ -421,7 +421,7 @@ export class ThemePlugin implements PluginModule {
         accent: '#ced4da'
       }
     }
-    
+
     return colorMaps[themeId]?.[colorType] || '#cccccc'
   }
 

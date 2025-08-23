@@ -1,23 +1,23 @@
 <template>
-  <div class="semantic-search-panel" :class="{ 'expanded': isExpanded }">
+  <div class="semantic-search-panel" :class="{ expanded: isExpanded }">
     <!-- Search Header -->
     <div class="search-header">
       <div class="header-left">
-        <button 
+        <button
           @click="toggleExpanded"
           class="expand-button"
           :title="isExpanded ? 'Collapse Panel' : 'Expand Panel'"
         >
           <component :is="isExpanded ? ChevronDown : ChevronRight" :size="16" />
         </button>
-        
+
         <div class="search-type-selector">
           <button
             v-for="type in searchTypes"
             :key="type.id"
             @click="setSearchType(type.id)"
             class="search-type-btn"
-            :class="{ 'active': searchType === type.id }"
+            :class="{ active: searchType === type.id }"
             :title="type.description"
           >
             <component :is="type.icon" :size="16" />
@@ -36,7 +36,7 @@
             <Clock :size="12" />
             {{ lastSearchTime }}ms
           </span>
-          <div 
+          <div
             v-if="!searchStats.indexingComplete"
             class="indexing-indicator"
             title="Building semantic index..."
@@ -49,7 +49,7 @@
         <button
           @click="showSettings = !showSettings"
           class="settings-button"
-          :class="{ 'active': showSettings }"
+          :class="{ active: showSettings }"
           title="Search Settings"
         >
           <Settings :size="16" />
@@ -61,7 +61,7 @@
     <div class="search-input-section">
       <div class="search-input-wrapper">
         <Search :size="20" class="search-icon" />
-        
+
         <input
           ref="searchInputRef"
           v-model="searchQuery"
@@ -71,7 +71,7 @@
           type="text"
           :placeholder="getPlaceholder()"
           :disabled="isSearching"
-        >
+        />
 
         <div class="input-actions">
           <!-- Semantic Search Toggle -->
@@ -79,7 +79,7 @@
             v-if="searchType === 'hybrid' || searchType === 'semantic'"
             @click="toggleSemanticMode"
             class="action-button semantic-toggle"
-            :class="{ 'active': useSemanticSearch }"
+            :class="{ active: useSemanticSearch }"
             :title="useSemanticSearch ? 'Disable Semantic Search' : 'Enable Semantic Search'"
           >
             <Brain :size="16" />
@@ -90,7 +90,7 @@
             v-if="supportsVoiceInput"
             @click="startVoiceInput"
             class="action-button voice-button"
-            :class="{ 'active': isListening }"
+            :class="{ active: isListening }"
             :title="isListening ? 'Stop Listening' : 'Voice Input'"
           >
             <component :is="isListening ? MicOff : Mic" :size="16" />
@@ -120,9 +120,18 @@
           :key="index"
           @click="applySuggestion(suggestion)"
           class="suggestion-item"
-          :class="{ 'active': selectedSuggestionIndex === index }"
+          :class="{ active: selectedSuggestionIndex === index }"
         >
-          <component :is="suggestion.type === 'recent' ? History : suggestion.type === 'similar' ? Users : Lightbulb" :size="14" />
+          <component
+            :is="
+              suggestion.type === 'recent'
+                ? History
+                : suggestion.type === 'similar'
+                  ? Users
+                  : Lightbulb
+            "
+            :size="14"
+          />
           <span class="suggestion-text">{{ suggestion.text }}</span>
           <span class="suggestion-type">{{ suggestion.label }}</span>
         </div>
@@ -133,7 +142,7 @@
     <div v-if="showSettings" class="advanced-filters">
       <div class="filter-section">
         <h4>Search Filters</h4>
-        
+
         <div class="filter-grid">
           <!-- Date Range Filter -->
           <div class="filter-group">
@@ -143,13 +152,9 @@
                 v-model="filters.dateRange.start"
                 type="date"
                 class="filter-input date-input"
-              >
+              />
               <span class="date-separator">to</span>
-              <input
-                v-model="filters.dateRange.end"
-                type="date"
-                class="filter-input date-input"
-              >
+              <input v-model="filters.dateRange.end" type="date" class="filter-input date-input" />
             </div>
           </div>
 
@@ -158,27 +163,15 @@
             <label>Message Role</label>
             <div class="checkbox-group">
               <label class="checkbox-item">
-                <input
-                  v-model="filters.roles"
-                  type="checkbox"
-                  value="user"
-                >
+                <input v-model="filters.roles" type="checkbox" value="user" />
                 <span>User</span>
               </label>
               <label class="checkbox-item">
-                <input
-                  v-model="filters.roles"
-                  type="checkbox"
-                  value="assistant"
-                >
+                <input v-model="filters.roles" type="checkbox" value="assistant" />
                 <span>Assistant</span>
               </label>
               <label class="checkbox-item">
-                <input
-                  v-model="filters.roles"
-                  type="checkbox"
-                  value="system"
-                >
+                <input v-model="filters.roles" type="checkbox" value="system" />
                 <span>System</span>
               </label>
             </div>
@@ -195,7 +188,7 @@
                 max="1"
                 step="0.1"
                 class="threshold-slider"
-              >
+              />
               <span class="slider-value">{{ (semanticOptions.threshold * 100).toFixed(0) }}%</span>
             </div>
           </div>
@@ -216,29 +209,20 @@
       <!-- Semantic Search Options -->
       <div v-if="useSemanticSearch" class="semantic-options">
         <h4>Semantic Search Options</h4>
-        
+
         <div class="semantic-controls">
           <label class="checkbox-item">
-            <input
-              v-model="semanticOptions.includeContext"
-              type="checkbox"
-            >
+            <input v-model="semanticOptions.includeContext" type="checkbox" />
             <span>Include conversation context</span>
           </label>
-          
+
           <label class="checkbox-item">
-            <input
-              v-model="semanticOptions.expandQuery"
-              type="checkbox"
-            >
+            <input v-model="semanticOptions.expandQuery" type="checkbox" />
             <span>Expand query with synonyms</span>
           </label>
-          
+
           <label class="checkbox-item">
-            <input
-              v-model="semanticOptions.useCrossLingual"
-              type="checkbox"
-            >
+            <input v-model="semanticOptions.useCrossLingual" type="checkbox" />
             <span>Cross-lingual search</span>
           </label>
         </div>
@@ -247,21 +231,15 @@
       <!-- Performance Settings -->
       <div class="performance-settings">
         <h4>Performance</h4>
-        
+
         <div class="performance-controls">
           <label class="checkbox-item">
-            <input
-              v-model="options.useCache"
-              type="checkbox"
-            >
+            <input v-model="options.useCache" type="checkbox" />
             <span>Use search cache</span>
           </label>
-          
+
           <label class="checkbox-item">
-            <input
-              v-model="options.prefetchResults"
-              type="checkbox"
-            >
+            <input v-model="options.prefetchResults" type="checkbox" />
             <span>Prefetch related results</span>
           </label>
         </div>
@@ -276,7 +254,7 @@
           :key="filter.id"
           @click="applyQuickFilter(filter)"
           class="filter-tag"
-          :class="{ 'active': activeQuickFilters.includes(filter.id) }"
+          :class="{ active: activeQuickFilters.includes(filter.id) }"
         >
           <component :is="filter.icon" :size="14" />
           {{ filter.label }}
@@ -298,27 +276,17 @@
             Hybrid
           </span>
         </span>
-        
-        <span v-if="lastSearchTime" class="search-time">
-          in {{ lastSearchTime }}ms
-        </span>
+
+        <span v-if="lastSearchTime" class="search-time"> in {{ lastSearchTime }}ms </span>
       </div>
 
       <div class="result-actions">
-        <button
-          @click="exportResults"
-          class="action-button export-button"
-          title="Export Results"
-        >
+        <button @click="exportResults" class="action-button export-button" title="Export Results">
           <Download :size="14" />
           Export
         </button>
-        
-        <button
-          @click="saveSearch"
-          class="action-button save-button"
-          title="Save Search"
-        >
+
+        <button @click="saveSearch" class="action-button save-button" title="Save Search">
           <Bookmark :size="14" />
           Save
         </button>
@@ -345,7 +313,7 @@
       </div>
       <h3>No results found</h3>
       <p>Try adjusting your search terms or filters</p>
-      
+
       <div class="empty-suggestions">
         <button @click="suggestSimilar" class="suggestion-button">
           <Lightbulb :size="16" />
@@ -363,8 +331,23 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import {
-  Search, Brain, Settings, Database, Clock, Loader2, ChevronDown, ChevronRight,
-  Mic, MicOff, X, History, Users, Lightbulb, Zap, Download, Bookmark,
+  Search,
+  Brain,
+  Settings,
+  Database,
+  Clock,
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+  Mic,
+  MicOff,
+  X,
+  History,
+  Users,
+  Lightbulb,
+  Zap,
+  Download,
+  Bookmark,
   RefreshCw
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
@@ -477,11 +460,13 @@ const quickFilters = computed(() => [
 const activeQuickFilters = ref<string[]>([])
 
 // Search suggestions
-const suggestions = ref<Array<{
-  text: string
-  type: 'recent' | 'similar' | 'suggested'
-  label: string
-}>>([])
+const suggestions = ref<
+  Array<{
+    text: string
+    type: 'recent' | 'similar' | 'suggested'
+    label: string
+  }>
+>([])
 
 // Methods
 const getPlaceholder = () => {
@@ -500,7 +485,7 @@ const toggleExpanded = () => {
 const setSearchType = (type: 'lexical' | 'semantic' | 'hybrid') => {
   searchType.value = type
   useSemanticSearch.value = type === 'semantic' || type === 'hybrid'
-  
+
   if (searchQuery.value) {
     performSearch()
   }
@@ -515,7 +500,7 @@ const toggleSemanticMode = () => {
 
 const onSearchInput = debounce((event: Event) => {
   const query = (event.target as HTMLInputElement).value
-  
+
   if (query.trim()) {
     updateSuggestions(query)
     performSearch()
@@ -529,32 +514,32 @@ const performSearch = async () => {
 
   const query = buildSearchQuery()
   const startTime = Date.now()
-  
+
   try {
     isSearching.value = true
     hasSearched.value = true
-    
+
     let results: SearchResult[]
-    
+
     // Choose search method based on type and options
     if (searchType.value === 'semantic' && useSemanticSearch.value) {
-      results = await backendSearchService.semanticSearch?.(query) || []
+      results = (await backendSearchService.semanticSearch?.(query)) || []
     } else if (searchType.value === 'hybrid') {
-      results = await backendSearchService.hybridSearch?.(query) || 
-               await backendSearchService.searchMessages(query)
+      results =
+        (await backendSearchService.hybridSearch?.(query)) ||
+        (await backendSearchService.searchMessages(query))
     } else {
       results = await backendSearchService.searchMessages(query)
     }
-    
+
     const searchTime = Date.now() - startTime
     lastSearchTime.value = searchTime
     searchResults.value = results
-    
+
     emit('search-complete', results, searchQuery.value, searchTime)
-    
+
     // Update suggestions based on results
     updateSearchSuggestions(results)
-    
   } catch (error) {
     console.error('Search failed:', error)
     searchResults.value = []
@@ -569,10 +554,13 @@ const buildSearchQuery = (): SearchQuery => {
     filters: {
       ...filters,
       roles: filters.roles as Array<'user' | 'assistant' | 'system'>,
-      dateRange: filters.dateRange.start && filters.dateRange.end ? {
-        start: filters.dateRange.start,
-        end: filters.dateRange.end
-      } : undefined
+      dateRange:
+        filters.dateRange.start && filters.dateRange.end
+          ? {
+              start: filters.dateRange.start,
+              end: filters.dateRange.end
+            }
+          : undefined
     },
     options: {
       ...options,
@@ -594,7 +582,7 @@ const clearSearch = () => {
 const updateSuggestions = async (query: string) => {
   // Implementation would fetch suggestions from backend
   showSuggestions.value = true
-  
+
   // Mock suggestions for demo
   suggestions.value = [
     { text: query, type: 'recent', label: 'Recent' },
@@ -674,7 +662,7 @@ const clearAllFilters = () => {
   filters.roles = []
   filters.chatIds = []
   activeQuickFilters.value = []
-  
+
   if (searchQuery.value) {
     performSearch()
   }
@@ -718,26 +706,29 @@ const updateStats = async () => {
 onMounted(async () => {
   // Check for voice input support
   supportsVoiceInput.value = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
-  
+
   // Auto focus if requested
   if (props.autoFocus) {
     nextTick(() => {
       searchInputRef.value?.focus()
     })
   }
-  
+
   // Update initial stats
   await updateStats()
 })
 
 // Watchers
-watch(() => searchType.value, (newType) => {
-  if (newType === 'semantic') {
-    useSemanticSearch.value = true
-  } else if (newType === 'lexical') {
-    useSemanticSearch.value = false
+watch(
+  () => searchType.value,
+  newType => {
+    if (newType === 'semantic') {
+      useSemanticSearch.value = true
+    } else if (newType === 'lexical') {
+      useSemanticSearch.value = false
+    }
   }
-})
+)
 
 // Clean up on unmount
 onUnmounted(() => {

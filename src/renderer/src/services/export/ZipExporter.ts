@@ -6,9 +6,9 @@ import { PDFExporter } from './PDFExporter'
 
 export class ZipExporter {
   private static instance: ZipExporter
-  
+
   private constructor() {}
-  
+
   static getInstance(): ZipExporter {
     if (!ZipExporter.instance) {
       ZipExporter.instance = new ZipExporter()
@@ -32,17 +32,17 @@ export class ZipExporter {
 
       // Track archive size
       let totalSize = 0
-      
+
       // Collect data for streaming
       const chunks: Buffer[] = []
-      
+
       // Set up archive events
       archive.on('data', (chunk: Buffer) => {
         chunks.push(chunk)
         totalSize += chunk.length
       })
 
-      archive.on('error', (err) => {
+      archive.on('error', err => {
         throw new Error(`Archive creation failed: ${err.message}`)
       })
 
@@ -53,13 +53,13 @@ export class ZipExporter {
       await archive.finalize()
 
       // Wait for all data to be collected
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         archive.on('end', () => resolve())
       })
 
       // Combine all chunks
       const zipBuffer = Buffer.concat(chunks)
-      
+
       // Convert to base64 for consistent handling
       const base64String = zipBuffer.toString('base64')
       const dataUri = `data:application/zip;base64,${base64String}`
@@ -88,18 +88,18 @@ export class ZipExporter {
     zipOptions: ZipExportOptions
   ): Promise<void> {
     const baseOptions = { ...options }
-    
+
     // Create folder structure if requested
     const getPath = (format: string, chatId?: string, chatTitle?: string): string => {
       if (!zipOptions.createFolderStructure) {
         return ''
       }
-      
+
       if (zipOptions.separateFilePerChat && chatId) {
         const safeChatTitle = this.sanitizeFileName(chatTitle || chatId)
         return `chats/${safeChatTitle}/`
       }
-      
+
       return `formats/${format}/`
     }
 
@@ -114,11 +114,11 @@ export class ZipExporter {
             chatId: chat.id,
             chatIds: undefined
           }
-          
+
           await this.addFormatToArchive(
-            archive, 
-            [chat], 
-            chatOptions, 
+            archive,
+            [chat],
+            chatOptions,
             getPath(format, chat.id, chat.title)
           )
         }
@@ -128,26 +128,21 @@ export class ZipExporter {
           ...baseOptions,
           format: format as any
         }
-        
-        await this.addFormatToArchive(
-          archive, 
-          chats, 
-          formatOptions, 
-          getPath(format)
-        )
+
+        await this.addFormatToArchive(archive, chats, formatOptions, getPath(format))
       }
     }
 
     // Add metadata file
     const metadata = this.createMetadata(chats, options, zipOptions)
-    archive.append(JSON.stringify(metadata, null, 2), { 
-      name: `${getPath('metadata')}export-metadata.json` 
+    archive.append(JSON.stringify(metadata, null, 2), {
+      name: `${getPath('metadata')}export-metadata.json`
     })
 
     // Add README file
     const readme = this.createReadme(chats, options, zipOptions)
-    archive.append(readme, { 
-      name: `${getPath('documentation')}README.txt` 
+    archive.append(readme, {
+      name: `${getPath('documentation')}README.txt`
     })
   }
 
@@ -162,7 +157,7 @@ export class ZipExporter {
   ): Promise<void> {
     try {
       let result: ExportResult
-      
+
       switch (options.format) {
         case 'markdown':
           result = this.exportToMarkdown(chats, options)
@@ -204,10 +199,9 @@ export class ZipExporter {
     } catch (error) {
       console.warn(`Failed to add ${options.format} format:`, error)
       // Add error file instead
-      archive.append(
-        `Error generating ${options.format} export: ${error.message}`,
-        { name: `${folderPath}ERROR-${options.format}.txt` }
-      )
+      archive.append(`Error generating ${options.format} export: ${error.message}`, {
+        name: `${folderPath}ERROR-${options.format}.txt`
+      })
     }
   }
 
@@ -217,52 +211,53 @@ export class ZipExporter {
   private exportToMarkdown(chats: ExportChatData[], options: ExportOptions): ExportResult {
     let content = ''
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    
+
     const title = options.title || 'Chat Export'
     content += `# ${title}\n\n`
-    
+
     if (options.includeTimestamps) {
       content += `**Export Time**: ${new Date().toLocaleString()}\n`
       content += `**Chat Count**: ${chats.length}\n`
       const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
       content += `**Total Messages**: ${messageCount}\n\n`
     }
-    
+
     content += '---\n\n'
-    
+
     for (const [index, chat] of chats.entries()) {
       content += `## ${index + 1}. ${chat.title}\n\n`
-      
+
       if (options.includeTimestamps) {
         content += `**Created**: ${new Date(chat.createdAt).toLocaleString()}\n`
         content += `**Updated**: ${new Date(chat.updatedAt).toLocaleString()}\n`
         content += `**Messages**: ${chat.messages.length}\n\n`
       }
-      
+
       for (const message of chat.messages) {
         if (!options.includeSystemMessages && message.role === 'system') continue
-        
+
         const roleIcon = message.role === 'user' ? '👤' : '🤖'
         const roleName = message.role === 'user' ? 'User' : 'Assistant'
         content += `### ${roleIcon} ${roleName}\n\n`
-        
+
         if (options.includeTimestamps) {
           content += `*${new Date(message.created_at).toLocaleString()}*\n\n`
         }
-        
+
         content += `${message.content}\n\n`
       }
-      
+
       content += '---\n\n'
     }
-    
+
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     return {
       content,
-      filename: chats.length === 1 ? 
-        `${this.sanitizeFileName(chats[0].title)}-${timestamp}.md` :
-        `chat-export-${timestamp}.md`,
+      filename:
+        chats.length === 1
+          ? `${this.sanitizeFileName(chats[0].title)}-${timestamp}.md`
+          : `chat-export-${timestamp}.md`,
       mimeType: 'text/markdown',
       size: new Blob([content]).size,
       messageCount,
@@ -277,7 +272,7 @@ export class ZipExporter {
   private exportToJSON(chats: ExportChatData[], options: ExportOptions): ExportResult {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     const exportData = {
       exportInfo: {
         timestamp: new Date().toISOString(),
@@ -311,14 +306,15 @@ export class ZipExporter {
           }))
       }))
     }
-    
+
     const content = JSON.stringify(exportData, null, 2)
-    
+
     return {
       content,
-      filename: chats.length === 1 ? 
-        `${this.sanitizeFileName(chats[0].title)}-${timestamp}.json` :
-        `chat-export-${timestamp}.json`,
+      filename:
+        chats.length === 1
+          ? `${this.sanitizeFileName(chats[0].title)}-${timestamp}.json`
+          : `chat-export-${timestamp}.json`,
       mimeType: 'application/json',
       size: new Blob([content]).size,
       messageCount,
@@ -334,7 +330,7 @@ export class ZipExporter {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const title = options.title || 'Chat Export'
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -358,32 +354,33 @@ export class ZipExporter {
         <p>Export Time: ${new Date().toLocaleString()}</p>
         <p>Chat Count: ${chats.length} | Total Messages: ${messageCount}</p>
     </div>`
-    
+
     for (const [index, chat] of chats.entries()) {
       html += `<div class="chat"><h2>${index + 1}. ${this.escapeHtml(chat.title)}</h2>`
-      
+
       for (const message of chat.messages) {
         if (!options.includeSystemMessages && message.role === 'system') continue
-        
+
         const messageClass = `${message.role}-message`
         const roleName = message.role.charAt(0).toUpperCase() + message.role.slice(1)
-        
+
         html += `<div class="message ${messageClass}">
             <div class="message-role">${roleName}</div>
             <div class="message-content">${this.escapeHtml(message.content)}</div>
         </div>`
       }
-      
+
       html += '</div>'
     }
-    
+
     html += '</body></html>'
-    
+
     return {
       content: html,
-      filename: chats.length === 1 ? 
-        `${this.sanitizeFileName(chats[0].title)}-${timestamp}.html` :
-        `chat-export-${timestamp}.html`,
+      filename:
+        chats.length === 1
+          ? `${this.sanitizeFileName(chats[0].title)}-${timestamp}.html`
+          : `chat-export-${timestamp}.html`,
       mimeType: 'text/html',
       size: new Blob([html]).size,
       messageCount,
@@ -399,28 +396,29 @@ export class ZipExporter {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     let content = ''
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     const title = options.title || 'Chat Export'
     content += `${title}\n${'='.repeat(title.length)}\n\n`
-    
+
     for (const [index, chat] of chats.entries()) {
       content += `${index + 1}. ${chat.title}\n\n`
-      
+
       for (const message of chat.messages) {
         if (!options.includeSystemMessages && message.role === 'system') continue
-        
+
         const roleLabel = `[${message.role.charAt(0).toUpperCase() + message.role.slice(1)}]`
         content += `${roleLabel} ${message.content}\n\n`
       }
-      
+
       content += `${'-'.repeat(50)}\n\n`
     }
-    
+
     return {
       content,
-      filename: chats.length === 1 ? 
-        `${this.sanitizeFileName(chats[0].title)}-${timestamp}.txt` :
-        `chat-export-${timestamp}.txt`,
+      filename:
+        chats.length === 1
+          ? `${this.sanitizeFileName(chats[0].title)}-${timestamp}.txt`
+          : `chat-export-${timestamp}.txt`,
       mimeType: 'text/plain',
       size: new Blob([content]).size,
       messageCount,
@@ -459,12 +457,16 @@ export class ZipExporter {
         totalMessages: chats.reduce((sum, chat) => sum + chat.messages.length, 0),
         chatTitles: chats.map(chat => chat.title),
         dateRange: {
-          earliest: chats.reduce((earliest, chat) => 
-            !earliest || new Date(chat.createdAt) < new Date(earliest) ? chat.createdAt : earliest, 
+          earliest: chats.reduce(
+            (earliest, chat) =>
+              !earliest || new Date(chat.createdAt) < new Date(earliest)
+                ? chat.createdAt
+                : earliest,
             null as string | null
           ),
-          latest: chats.reduce((latest, chat) => 
-            !latest || new Date(chat.updatedAt) > new Date(latest) ? chat.updatedAt : latest, 
+          latest: chats.reduce(
+            (latest, chat) =>
+              !latest || new Date(chat.updatedAt) > new Date(latest) ? chat.updatedAt : latest,
             null as string | null
           )
         }
@@ -481,7 +483,7 @@ export class ZipExporter {
     zipOptions: ZipExportOptions
   ): string {
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     return `MiaoDa Chat Export Archive
 ========================
 
@@ -494,25 +496,37 @@ Export Information:
 - Export Formats: ${zipOptions.includeFormats.join(', ')}
 
 Archive Structure:
-${zipOptions.createFolderStructure ? (
-  zipOptions.separateFilePerChat 
-    ? '- chats/[chat-name]/[files] - Individual chat files organized by conversation'
-    : '- formats/[format-name]/[files] - Files organized by export format'
-) : '- All files in root directory'}
+${
+  zipOptions.createFolderStructure
+    ? zipOptions.separateFilePerChat
+      ? '- chats/[chat-name]/[files] - Individual chat files organized by conversation'
+      : '- formats/[format-name]/[files] - Files organized by export format'
+    : '- All files in root directory'
+}
 
 File Formats:
-${zipOptions.includeFormats.map(format => {
-  switch (format) {
-    case 'markdown': return '- .md files: Markdown format with formatting preserved'
-    case 'json': return '- .json files: Structured data format for programmatic access'
-    case 'html': return '- .html files: Web format viewable in browsers'
-    case 'txt': return '- .txt files: Plain text format'
-    case 'pdf': return '- .pdf files: Portable Document Format for printing'
-    case 'csv': return '- .csv files: Comma-separated values for spreadsheet applications'
-    case 'docx': return '- .docx files: Microsoft Word format'
-    default: return `- ${format} files: ${format.toUpperCase()} format`
-  }
-}).join('\n')}
+${zipOptions.includeFormats
+  .map(format => {
+    switch (format) {
+      case 'markdown':
+        return '- .md files: Markdown format with formatting preserved'
+      case 'json':
+        return '- .json files: Structured data format for programmatic access'
+      case 'html':
+        return '- .html files: Web format viewable in browsers'
+      case 'txt':
+        return '- .txt files: Plain text format'
+      case 'pdf':
+        return '- .pdf files: Portable Document Format for printing'
+      case 'csv':
+        return '- .csv files: Comma-separated values for spreadsheet applications'
+      case 'docx':
+        return '- .docx files: Microsoft Word format'
+      default:
+        return `- ${format} files: ${format.toUpperCase()} format`
+    }
+  })
+  .join('\n')}
 
 Additional Files:
 - export-metadata.json: Detailed information about the export
@@ -534,10 +548,14 @@ Version: 2.0.0
    */
   private getCompressionLevel(level: string): number {
     switch (level) {
-      case 'none': return 0
-      case 'fast': return 1
-      case 'best': return 9
-      default: return 6
+      case 'none':
+        return 0
+      case 'fast':
+        return 1
+      case 'best':
+        return 9
+      default:
+        return 6
     }
   }
 
@@ -576,7 +594,7 @@ Version: 2.0.0
       '"': '&quot;',
       "'": '&#039;'
     }
-    return text.replace(/[&<>"']/g, (m) => map[m])
+    return text.replace(/[&<>"']/g, m => map[m])
   }
 
   /**
@@ -589,22 +607,22 @@ Version: 2.0.0
     const bstr = atob(arr[1])
     const n = bstr.length
     const u8arr = new Uint8Array(n)
-    
+
     for (let i = 0; i < n; i++) {
       u8arr[i] = bstr.charCodeAt(i)
     }
-    
+
     const blob = new Blob([u8arr], { type: mime })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = result.filename
     a.style.display = 'none'
-    
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    
+
     URL.revokeObjectURL(url)
   }
 }

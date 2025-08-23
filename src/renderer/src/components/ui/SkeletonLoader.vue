@@ -5,13 +5,13 @@
       <div v-for="i in count" :key="i" class="message-skeleton flex items-start gap-3">
         <!-- Avatar -->
         <div class="w-8 h-8 bg-muted/40 rounded-full animate-pulse" />
-        
+
         <!-- Message Content -->
         <div class="flex-1 space-y-2">
           <div class="skeleton-line h-4 bg-muted/40 rounded w-3/4 animate-pulse" />
           <div class="skeleton-line h-4 bg-muted/30 rounded w-full animate-pulse" />
           <div class="skeleton-line h-4 bg-muted/20 rounded w-5/6 animate-pulse" />
-          
+
           <!-- Code block simulation -->
           <div v-if="i % 3 === 0" class="mt-3 p-3 bg-muted/20 rounded-lg space-y-2 animate-pulse">
             <div class="skeleton-line h-3 bg-muted/40 rounded w-1/2" />
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Chat List Skeleton -->
     <div v-else-if="variant === 'chat-list'" class="space-y-2">
       <div v-for="i in count" :key="i" class="chat-skeleton p-3 rounded-xl border border-border/20">
@@ -35,7 +35,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Input Skeleton -->
     <div v-else-if="variant === 'input'" class="input-skeleton">
       <div class="flex items-end gap-3 p-4 bg-secondary/20 rounded-2xl border border-border/20">
@@ -47,7 +47,7 @@
         <div class="w-10 h-10 bg-primary/20 rounded-xl animate-pulse" />
       </div>
     </div>
-    
+
     <!-- Header Skeleton -->
     <div v-else-if="variant === 'header'" class="header-skeleton">
       <div class="flex items-center justify-between p-4 border-b border-border/20">
@@ -62,10 +62,15 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Generic Skeleton -->
     <div v-else class="generic-skeleton space-y-2">
-      <div v-for="i in count" :key="i" class="skeleton-line bg-muted/40 animate-pulse" :class="getRandomWidth()" />
+      <div
+        v-for="i in count"
+        :key="i"
+        class="skeleton-line bg-muted/40 animate-pulse"
+        :class="getRandomWidth()"
+      />
     </div>
   </div>
 </template>
@@ -132,7 +137,8 @@ const getRandomWidth = () => {
 
 /* Pulse animation for circular elements */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
   }
   50% {
@@ -150,11 +156,21 @@ const getRandomWidth = () => {
   animation-fill-mode: both;
 }
 
-.message-skeleton:nth-child(1) { animation-delay: 0ms; }
-.message-skeleton:nth-child(2) { animation-delay: 100ms; }
-.message-skeleton:nth-child(3) { animation-delay: 200ms; }
-.message-skeleton:nth-child(4) { animation-delay: 300ms; }
-.message-skeleton:nth-child(5) { animation-delay: 400ms; }
+.message-skeleton:nth-child(1) {
+  animation-delay: 0ms;
+}
+.message-skeleton:nth-child(2) {
+  animation-delay: 100ms;
+}
+.message-skeleton:nth-child(3) {
+  animation-delay: 200ms;
+}
+.message-skeleton:nth-child(4) {
+  animation-delay: 300ms;
+}
+.message-skeleton:nth-child(5) {
+  animation-delay: 400ms;
+}
 
 @keyframes slideInUp {
   from {
@@ -173,11 +189,21 @@ const getRandomWidth = () => {
   animation-fill-mode: both;
 }
 
-.chat-skeleton:nth-child(1) { animation-delay: 0ms; }
-.chat-skeleton:nth-child(2) { animation-delay: 150ms; }
-.chat-skeleton:nth-child(3) { animation-delay: 300ms; }
-.chat-skeleton:nth-child(4) { animation-delay: 450ms; }
-.chat-skeleton:nth-child(5) { animation-delay: 600ms; }
+.chat-skeleton:nth-child(1) {
+  animation-delay: 0ms;
+}
+.chat-skeleton:nth-child(2) {
+  animation-delay: 150ms;
+}
+.chat-skeleton:nth-child(3) {
+  animation-delay: 300ms;
+}
+.chat-skeleton:nth-child(4) {
+  animation-delay: 450ms;
+}
+.chat-skeleton:nth-child(5) {
+  animation-delay: 600ms;
+}
 
 @keyframes slideInRight {
   from {
@@ -196,7 +222,7 @@ const getRandomWidth = () => {
     width: 1.5rem;
     height: 1.5rem;
   }
-  
+
   .skeleton-line {
     height: 0.875rem;
   }
@@ -208,12 +234,12 @@ const getRandomWidth = () => {
     animation: none;
     background: hsl(var(--muted) / 0.4);
   }
-  
+
   .animate-pulse {
     animation: none;
     opacity: 0.5;
   }
-  
+
   .message-skeleton,
   .chat-skeleton {
     animation: none;

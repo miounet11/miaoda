@@ -1,7 +1,7 @@
 /**
  * GDPR/CCPA 合规性管理器
  * 实现数据保护法规的合规要求
- * 
+ *
  * GDPR 合规特性：
  * - 数据主体权利实施
  * - 同意管理
@@ -9,7 +9,7 @@
  * - 数据泄露通知
  * - 隐私影响评估
  * - 数据保护官指定
- * 
+ *
  * CCPA 合规特性：
  * - 消费者权利实施
  * - 选择退出机制
@@ -21,24 +21,24 @@ import { EventEmitter } from 'events'
 import { ZeroKnowledgeManager } from '../privacy/ZeroKnowledgeManager'
 
 // 数据主体权利类型
-export type DataSubjectRight = 
-  | 'access'           // 访问权 (GDPR Art. 15)
-  | 'rectification'    // 更正权 (GDPR Art. 16)
-  | 'erasure'          // 删除权/"被遗忘权" (GDPR Art. 17)
-  | 'restrict'         // 限制处理权 (GDPR Art. 18)
-  | 'portability'      // 数据可携权 (GDPR Art. 20)
-  | 'object'           // 反对权 (GDPR Art. 21)
+export type DataSubjectRight =
+  | 'access' // 访问权 (GDPR Art. 15)
+  | 'rectification' // 更正权 (GDPR Art. 16)
+  | 'erasure' // 删除权/"被遗忘权" (GDPR Art. 17)
+  | 'restrict' // 限制处理权 (GDPR Art. 18)
+  | 'portability' // 数据可携权 (GDPR Art. 20)
+  | 'object' // 反对权 (GDPR Art. 21)
   | 'withdraw_consent' // 撤回同意权
-  | 'know'            // 知情权 (CCPA)
-  | 'delete_ccpa'     // 删除权 (CCPA)
-  | 'opt_out'         // 选择退出权 (CCPA)
+  | 'know' // 知情权 (CCPA)
+  | 'delete_ccpa' // 删除权 (CCPA)
+  | 'opt_out' // 选择退出权 (CCPA)
   | 'non_discrimination' // 非歧视权 (CCPA)
 
 // 同意状态
 export type ConsentStatus = 'given' | 'withdrawn' | 'expired' | 'pending'
 
 // 处理目的
-export type ProcessingPurpose = 
+export type ProcessingPurpose =
   | 'contract_performance'
   | 'legal_obligation'
   | 'vital_interests'
@@ -50,12 +50,12 @@ export type ProcessingPurpose =
   | 'security'
 
 // 法律基础
-export type LegalBasis = 
-  | 'consent'              // 同意 (GDPR Art. 6(1)(a))
-  | 'contract'             // 合同 (GDPR Art. 6(1)(b))
-  | 'legal_obligation'     // 法律义务 (GDPR Art. 6(1)(c))
-  | 'vital_interests'      // 重要利益 (GDPR Art. 6(1)(d))
-  | 'public_task'          // 公共任务 (GDPR Art. 6(1)(e))
+export type LegalBasis =
+  | 'consent' // 同意 (GDPR Art. 6(1)(a))
+  | 'contract' // 合同 (GDPR Art. 6(1)(b))
+  | 'legal_obligation' // 法律义务 (GDPR Art. 6(1)(c))
+  | 'vital_interests' // 重要利益 (GDPR Art. 6(1)(d))
+  | 'public_task' // 公共任务 (GDPR Art. 6(1)(e))
   | 'legitimate_interests' // 合法利益 (GDPR Art. 6(1)(f))
 
 // 同意记录
@@ -210,7 +210,7 @@ export class GDPRComplianceManager extends EventEmitter {
       legalBasis: legalBasis[0], // 简化为单一法律基础
       status: 'given',
       givenAt: now,
-      expiresAt: now + (365 * 24 * 60 * 60 * 1000), // 1年后过期
+      expiresAt: now + 365 * 24 * 60 * 60 * 1000, // 1年后过期
       ipAddress: consentDetails.ipAddress,
       userAgent: consentDetails.userAgent,
       consentString: this.generateConsentString(purposes, legalBasis),
@@ -272,10 +272,12 @@ export class GDPRComplianceManager extends EventEmitter {
     const now = Date.now()
 
     for (const consent of this.consentRecords.values()) {
-      if (consent.userId === userId && 
-          consent.purpose === purpose && 
-          consent.status === 'given' &&
-          (!consent.expiresAt || consent.expiresAt > now)) {
+      if (
+        consent.userId === userId &&
+        consent.purpose === purpose &&
+        consent.status === 'given' &&
+        (!consent.expiresAt || consent.expiresAt > now)
+      ) {
         return true
       }
     }
@@ -339,7 +341,7 @@ export class GDPRComplianceManager extends EventEmitter {
     try {
       // 收集用户数据
       const userData = await this.collectUserData(request.userId)
-      
+
       // 准备响应数据
       const responseData = {
         personalData: userData,
@@ -356,7 +358,6 @@ export class GDPRComplianceManager extends EventEmitter {
       request.completedAt = Date.now()
 
       this.emit('accessRequestCompleted', { requestId, userId: request.userId })
-
     } catch (error) {
       request.status = 'rejected'
       request.reason = `Processing failed: ${error}`
@@ -377,11 +378,11 @@ export class GDPRComplianceManager extends EventEmitter {
     try {
       // 检查是否可以删除
       const canErase = await this.canEraseUserData(request.userId)
-      
+
       if (canErase) {
         // 执行数据删除
         await this.eraseUserData(request.userId)
-        
+
         request.status = 'completed'
         request.completedAt = Date.now()
 
@@ -392,7 +393,6 @@ export class GDPRComplianceManager extends EventEmitter {
 
         this.emit('erasureRequestRejected', { requestId, userId: request.userId })
       }
-
     } catch (error) {
       request.status = 'rejected'
       request.reason = `Erasure failed: ${error}`
@@ -413,16 +413,15 @@ export class GDPRComplianceManager extends EventEmitter {
     try {
       // 导出可携带的数据
       const portableData = await this.exportPortableData(request.userId)
-      
+
       // 格式化数据
       const formattedData = await this.formatPortableData(portableData, request.responseFormat)
-      
+
       request.responseData = formattedData
       request.status = 'completed'
       request.completedAt = Date.now()
 
       this.emit('portabilityRequestCompleted', { requestId, userId: request.userId })
-
     } catch (error) {
       request.status = 'rejected'
       request.reason = `Portability export failed: ${error}`
@@ -474,7 +473,11 @@ export class GDPRComplianceManager extends EventEmitter {
       this.scheduleDataSubjectNotification(breachId)
     }
 
-    this.emit('dataBreachReported', { breachId, severity: breach.severity, affectedUsers: breach.affectedUsers })
+    this.emit('dataBreachReported', {
+      breachId,
+      severity: breach.severity,
+      affectedUsers: breach.affectedUsers
+    })
 
     return breachId
   }
@@ -510,15 +513,22 @@ export class GDPRComplianceManager extends EventEmitter {
         identifiedRisks: assessmentDetails.identifiedRisks,
         riskLevel: this.calculateRiskLevel(assessmentDetails.identifiedRisks),
         mitigationMeasures: assessmentDetails.mitigationMeasures,
-        residualRisk: this.calculateResidualRisk(assessmentDetails.identifiedRisks, assessmentDetails.mitigationMeasures)
+        residualRisk: this.calculateResidualRisk(
+          assessmentDetails.identifiedRisks,
+          assessmentDetails.mitigationMeasures
+        )
       },
       decision: 'approved', // 简化决策
-      reviewDate: now + (365 * 24 * 60 * 60 * 1000) // 1年后复审
+      reviewDate: now + 365 * 24 * 60 * 60 * 1000 // 1年后复审
     }
 
     this.privacyAssessments.set(piaId, pia)
 
-    this.emit('privacyImpactAssessmentCompleted', { piaId, processingActivityId, riskLevel: pia.riskAssessment.riskLevel })
+    this.emit('privacyImpactAssessmentCompleted', {
+      piaId,
+      processingActivityId,
+      riskLevel: pia.riskAssessment.riskLevel
+    })
 
     return piaId
   }
@@ -562,7 +572,7 @@ export class GDPRComplianceManager extends EventEmitter {
     const purposeFlags = purposes.map(p => this.purposeToFlag(p)).join('')
     const basisFlags = legalBasis.map(b => this.basisToFlag(b)).join('')
     const timestamp = Math.floor(Date.now() / 1000).toString(16)
-    
+
     return `${purposeFlags}${basisFlags}${timestamp}`
   }
 
@@ -571,15 +581,15 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private purposeToFlag(purpose: ProcessingPurpose): string {
     const flagMap: Record<ProcessingPurpose, string> = {
-      'contract_performance': '1',
-      'legal_obligation': '2',
-      'vital_interests': '3',
-      'public_task': '4',
-      'legitimate_interests': '5',
-      'consent': '6',
-      'marketing': '7',
-      'analytics': '8',
-      'security': '9'
+      contract_performance: '1',
+      legal_obligation: '2',
+      vital_interests: '3',
+      public_task: '4',
+      legitimate_interests: '5',
+      consent: '6',
+      marketing: '7',
+      analytics: '8',
+      security: '9'
     }
     return flagMap[purpose] || '0'
   }
@@ -589,12 +599,12 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private basisToFlag(basis: LegalBasis): string {
     const flagMap: Record<LegalBasis, string> = {
-      'consent': 'A',
-      'contract': 'B',
-      'legal_obligation': 'C',
-      'vital_interests': 'D',
-      'public_task': 'E',
-      'legitimate_interests': 'F'
+      consent: 'A',
+      contract: 'B',
+      legal_obligation: 'C',
+      vital_interests: 'D',
+      public_task: 'E',
+      legitimate_interests: 'F'
     }
     return flagMap[basis] || '0'
   }
@@ -602,10 +612,13 @@ export class GDPRComplianceManager extends EventEmitter {
   /**
    * 停止基于同意的数据处理
    */
-  private async stopConsentBasedProcessing(userId: string, purpose: ProcessingPurpose): Promise<void> {
+  private async stopConsentBasedProcessing(
+    userId: string,
+    purpose: ProcessingPurpose
+  ): Promise<void> {
     // 标记相关数据包为受限处理
     console.log(`Stopping consent-based processing for user ${userId} and purpose ${purpose}`)
-    
+
     // 在实际应用中，需要:
     // 1. 停止相关的自动化处理
     // 2. 限制数据访问
@@ -618,9 +631,9 @@ export class GDPRComplianceManager extends EventEmitter {
   private async collectUserData(userId: string): Promise<any> {
     // 收集用户的所有个人数据
     return {
-      profile: { id: userId, /* 其他个人资料数据 */ },
+      profile: { id: userId /* 其他个人资料数据 */ },
       chatHistory: [], // 从聊天数据库获取
-      settings: {}, // 从设置获取
+      settings: {} // 从设置获取
       // 其他数据类别
     }
   }
@@ -645,9 +658,9 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private getDataRetentionPeriods(): Record<string, number> {
     return {
-      'chat_messages': 365 * 24 * 60 * 60 * 1000, // 1年
-      'user_preferences': 2 * 365 * 24 * 60 * 60 * 1000, // 2年
-      'audit_logs': 7 * 365 * 24 * 60 * 60 * 1000 // 7年
+      chat_messages: 365 * 24 * 60 * 60 * 1000, // 1年
+      user_preferences: 2 * 365 * 24 * 60 * 60 * 1000, // 2年
+      audit_logs: 7 * 365 * 24 * 60 * 60 * 1000 // 7年
     }
   }
 
@@ -669,8 +682,7 @@ export class GDPRComplianceManager extends EventEmitter {
    * 获取同意历史
    */
   private getConsentHistory(userId: string): ConsentRecord[] {
-    return Array.from(this.consentRecords.values())
-      .filter(consent => consent.userId === userId)
+    return Array.from(this.consentRecords.values()).filter(consent => consent.userId === userId)
   }
 
   /**
@@ -688,7 +700,7 @@ export class GDPRComplianceManager extends EventEmitter {
   private async eraseUserData(userId: string): Promise<void> {
     // 删除所有用户相关数据
     console.log(`Erasing all data for user: ${userId}`)
-    
+
     // 在实际应用中需要:
     // 1. 删除数据库中的用户记录
     // 2. 删除文件系统中的用户文件
@@ -707,7 +719,10 @@ export class GDPRComplianceManager extends EventEmitter {
   /**
    * 格式化可携带数据
    */
-  private async formatPortableData(data: any, format: 'json' | 'pdf' | 'csv' | 'xml'): Promise<any> {
+  private async formatPortableData(
+    data: any,
+    format: 'json' | 'pdf' | 'csv' | 'xml'
+  ): Promise<any> {
     switch (format) {
       case 'json':
         return JSON.stringify(data, null, 2)
@@ -727,8 +742,10 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private assessNotificationRequirement(breachDetails: any): boolean {
     // 根据GDPR第33条评估是否需要通知监管机构
-    return breachDetails.affectedUsers > 100 || 
-           breachDetails.affectedDataTypes.includes('sensitive_data')
+    return (
+      breachDetails.affectedUsers > 100 ||
+      breachDetails.affectedDataTypes.includes('sensitive_data')
+    )
   }
 
   /**
@@ -767,7 +784,7 @@ export class GDPRComplianceManager extends EventEmitter {
     if (!breach) return
 
     console.log(`Notifying supervisory authority about breach: ${breachId}`)
-    
+
     breach.supervisoryAuthorityNotified = true
     this.emit('supervisoryAuthorityNotified', { breachId })
   }
@@ -780,7 +797,7 @@ export class GDPRComplianceManager extends EventEmitter {
     if (!breach) return
 
     console.log(`Notifying ${breach.affectedUsers} data subjects about breach: ${breachId}`)
-    
+
     breach.dataSubjectsNotified = true
     this.emit('dataSubjectsNotified', { breachId, affectedUsers: breach.affectedUsers })
   }
@@ -801,7 +818,7 @@ export class GDPRComplianceManager extends EventEmitter {
     const riskScore = risks.length
     const mitigationScore = mitigations.length
     const residualScore = Math.max(0, riskScore - mitigationScore)
-    
+
     if (residualScore >= 3) return 'high'
     if (residualScore >= 2) return 'medium'
     return 'low'
@@ -860,14 +877,18 @@ export class GDPRComplianceManager extends EventEmitter {
     dataBreaches: number
     privacyAssessments: number
   } {
-    const activeConsents = Array.from(this.consentRecords.values())
-      .filter(c => c.status === 'given').length
-    const withdrawnConsents = Array.from(this.consentRecords.values())
-      .filter(c => c.status === 'withdrawn').length
-    const pendingRequests = Array.from(this.subjectRequests.values())
-      .filter(r => r.status === 'pending').length
-    const completedRequests = Array.from(this.subjectRequests.values())
-      .filter(r => r.status === 'completed').length
+    const activeConsents = Array.from(this.consentRecords.values()).filter(
+      c => c.status === 'given'
+    ).length
+    const withdrawnConsents = Array.from(this.consentRecords.values()).filter(
+      c => c.status === 'withdrawn'
+    ).length
+    const pendingRequests = Array.from(this.subjectRequests.values()).filter(
+      r => r.status === 'pending'
+    ).length
+    const completedRequests = Array.from(this.subjectRequests.values()).filter(
+      r => r.status === 'completed'
+    ).length
 
     return {
       consentRecords: this.consentRecords.size,

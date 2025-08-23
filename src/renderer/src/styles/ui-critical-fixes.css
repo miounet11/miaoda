@@ -15,10 +15,10 @@
   /* 重新定义顶部区域的安全间距 */
   padding: 12px 24px !important;
   min-height: 64px !important;
-  
+
   /* 确保与操作系统边框的合理距离 */
   margin-top: 0 !important;
-  
+
   /* macOS 特殊处理 */
   &.macos {
     padding-top: 20px !important; /* 为 macOS 红绿灯按钮预留空间 */
@@ -27,16 +27,16 @@
 
 /* 修复顶部标题文字的边距 */
 .chat-title {
-  font-size: 18px !important;      /* 标准化字体大小 */
-  font-weight: 600 !important;     /* 增强视觉层级 */
-  line-height: 1.2 !important;     /* 优化行高 */
-  margin: 0 !important;             /* 移除默认边距 */
-  padding: 0 !important;            /* 移除默认内边距 */
-  
+  font-size: 18px !important; /* 标准化字体大小 */
+  font-weight: 600 !important; /* 增强视觉层级 */
+  line-height: 1.2 !important; /* 优化行高 */
+  margin: 0 !important; /* 移除默认边距 */
+  padding: 0 !important; /* 移除默认内边距 */
+
   /* 确保文字垂直居中 */
   display: flex;
   align-items: center;
-  
+
   /* 防止文字溢出 */
   max-width: 400px;
   overflow: hidden;
@@ -55,7 +55,8 @@
 /* ============== 2. 字体系统标准化 ============== */
 
 /* 主要标题 */
-h1, .heading-1 {
+h1,
+.heading-1 {
   font-size: 28px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -63,7 +64,8 @@ h1, .heading-1 {
 }
 
 /* 次级标题 */
-h2, .heading-2 {
+h2,
+.heading-2 {
   font-size: 22px !important;
   font-weight: 600 !important;
   line-height: 1.3 !important;
@@ -71,7 +73,8 @@ h2, .heading-2 {
 }
 
 /* 小标题 */
-h3, .heading-3 {
+h3,
+.heading-3 {
   font-size: 18px !important;
   font-weight: 600 !important;
   line-height: 1.4 !important;
@@ -81,10 +84,10 @@ h3, .heading-3 {
 .message-content,
 .text-body,
 p {
-  font-size: 15px !important;      /* 标准化为15px，提升可读性 */
-  line-height: 1.6 !important;     /* 优化行高比例 */
-  font-weight: 400 !important;     /* 正常字重 */
-  letter-spacing: 0 !important;    /* 正常字符间距 */
+  font-size: 15px !important; /* 标准化为15px，提升可读性 */
+  line-height: 1.6 !important; /* 优化行高比例 */
+  font-weight: 400 !important; /* 正常字重 */
+  letter-spacing: 0 !important; /* 正常字符间距 */
 }
 
 /* 小字文本 */
@@ -108,19 +111,19 @@ small {
 /* 主消息容器 */
 .messages-container,
 .chat-content {
-  max-width: 768px !important;           /* 标准化最大宽度 */
-  margin: 0 auto !important;             /* 水平居中 */
-  padding: 0 24px !important;            /* 统一左右边距 */
+  max-width: 768px !important; /* 标准化最大宽度 */
+  margin: 0 auto !important; /* 水平居中 */
+  padding: 0 24px !important; /* 统一左右边距 */
   box-sizing: border-box !important;
 }
 
 /* 消息气泡容器 */
 .message-item,
 .message-bubble {
-  margin-bottom: 16px !important;        /* 统一消息间距 */
-  padding: 16px 20px !important;         /* 统一内边距 */
-  border-radius: 12px !important;        /* 标准化圆角 */
-  
+  margin-bottom: 16px !important; /* 统一消息间距 */
+  padding: 16px 20px !important; /* 统一内边距 */
+  border-radius: 12px !important; /* 标准化圆角 */
+
   /* 确保边距一致性 */
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -144,13 +147,13 @@ small {
 
 /* 侧边栏主容器 */
 .sidebar {
-  padding: 0 !important;                 /* 重置默认内边距 */
+  padding: 0 !important; /* 重置默认内边距 */
   border-right: 1px solid hsl(var(--border)) !important;
 }
 
 /* 侧边栏头部 */
 .sidebar-header {
-  padding: 20px 20px 16px 20px !important;  /* 标准化头部内边距 */
+  padding: 20px 20px 16px 20px !important; /* 标准化头部内边距 */
   border-bottom: 1px solid hsl(var(--border) / 0.1) !important;
 }
 
@@ -163,31 +166,31 @@ small {
 
 /* 搜索容器 */
 .search-container {
-  padding: 16px 20px !important;         /* 统一搜索框边距 */
+  padding: 16px 20px !important; /* 统一搜索框边距 */
 }
 
 /* 聊天列表容器 */
 .chat-list,
 .sidebar .overflow-y-auto {
-  padding: 8px 12px !important;          /* 优化列表容器边距 */
+  padding: 8px 12px !important; /* 优化列表容器边距 */
 }
 
 /* 聊天项目 */
 .chat-item {
-  padding: 12px 16px !important;         /* 统一聊天项内边距 */
-  margin-bottom: 4px !important;         /* 减小项目间距 */
-  border-radius: 8px !important;         /* 统一圆角 */
+  padding: 12px 16px !important; /* 统一聊天项内边距 */
+  margin-bottom: 4px !important; /* 减小项目间距 */
+  border-radius: 8px !important; /* 统一圆角 */
 }
 
 .chat-item h3 {
-  font-size: 14px !important;            /* 标准化聊天标题字体 */
+  font-size: 14px !important; /* 标准化聊天标题字体 */
   font-weight: 500 !important;
   line-height: 1.3 !important;
   margin: 0 0 4px 0 !important;
 }
 
 .chat-item p {
-  font-size: 12px !important;            /* 标准化时间戳字体 */
+  font-size: 12px !important; /* 标准化时间戳字体 */
   line-height: 1.3 !important;
   margin: 0 !important;
   color: hsl(var(--muted-foreground)) !important;
@@ -195,7 +198,7 @@ small {
 
 /* 侧边栏底部 */
 .sidebar-footer {
-  padding: 16px 20px 20px 20px !important;  /* 标准化底部边距 */
+  padding: 16px 20px 20px 20px !important; /* 标准化底部边距 */
   border-top: 1px solid hsl(var(--border) / 0.1) !important;
 }
 
@@ -203,17 +206,17 @@ small {
 
 /* 输入区域容器 */
 .input-area {
-  padding: 20px 24px 24px 24px !important;   /* 统一输入区边距 */
+  padding: 20px 24px 24px 24px !important; /* 统一输入区边距 */
   border-top: 1px solid hsl(var(--border) / 0.2) !important;
 }
 
 /* 输入框容器 */
 .input-container {
-  max-width: 768px !important;           /* 与消息容器宽度一致 */
-  margin: 0 auto !important;             /* 水平居中 */
-  padding: 12px 16px !important;         /* 标准化内边距 */
-  border-radius: 24px !important;        /* 现代化圆角 */
-  
+  max-width: 768px !important; /* 与消息容器宽度一致 */
+  margin: 0 auto !important; /* 水平居中 */
+  padding: 12px 16px !important; /* 标准化内边距 */
+  border-radius: 24px !important; /* 现代化圆角 */
+
   /* 优化边框和背景 */
   border: 1px solid hsl(var(--border)) !important;
   background: hsl(var(--background)) !important;
@@ -221,21 +224,21 @@ small {
 
 /* 文本输入框 */
 .input-container textarea {
-  font-size: 15px !important;            /* 与消息文字大小一致 */
-  line-height: 1.5 !important;           /* 优化行高 */
-  padding: 8px 0 !important;             /* 垂直内边距 */
-  border: none !important;               /* 移除边框 */
-  background: transparent !important;    /* 透明背景 */
-  resize: none !important;               /* 禁用手动调整大小 */
-  outline: none !important;              /* 移除默认外框 */
+  font-size: 15px !important; /* 与消息文字大小一致 */
+  line-height: 1.5 !important; /* 优化行高 */
+  padding: 8px 0 !important; /* 垂直内边距 */
+  border: none !important; /* 移除边框 */
+  background: transparent !important; /* 透明背景 */
+  resize: none !important; /* 禁用手动调整大小 */
+  outline: none !important; /* 移除默认外框 */
 }
 
 /* 按钮间距优化 */
 .input-container button {
-  padding: 8px !important;               /* 统一按钮内边距 */
-  border-radius: 16px !important;        /* 圆形按钮 */
-  min-width: 36px !important;            /* 最小点击区域 */
-  min-height: 36px !important;           /* 最小点击区域 */
+  padding: 8px !important; /* 统一按钮内边距 */
+  border-radius: 16px !important; /* 圆形按钮 */
+  min-width: 36px !important; /* 最小点击区域 */
+  min-height: 36px !important; /* 最小点击区域 */
 }
 
 /* ============== 6. 响应式间距调整 ============== */
@@ -246,11 +249,11 @@ small {
   .chat-content {
     padding: 0 20px !important;
   }
-  
+
   .input-area {
     padding: 16px 20px 20px 20px !important;
   }
-  
+
   .chat-header {
     padding: 12px 20px !important;
   }
@@ -260,37 +263,37 @@ small {
 @media (max-width: 768px) {
   .messages-container,
   .chat-content {
-    padding: 0 16px !important;          /* 移动端减小边距 */
+    padding: 0 16px !important; /* 移动端减小边距 */
   }
-  
+
   .input-area {
     padding: 12px 16px 16px 16px !important;
   }
-  
+
   .chat-header {
     padding: 8px 16px !important;
-    min-height: 56px !important;         /* 移动端减小高度 */
+    min-height: 56px !important; /* 移动端减小高度 */
   }
-  
+
   .chat-title {
-    font-size: 16px !important;          /* 移动端减小字体 */
+    font-size: 16px !important; /* 移动端减小字体 */
   }
-  
+
   .message-content,
   .text-body,
   p {
-    font-size: 15px !important;          /* 保持可读性 */
+    font-size: 15px !important; /* 保持可读性 */
   }
-  
+
   .message-item,
   .message-bubble {
-    padding: 12px 16px !important;       /* 移动端减小内边距 */
+    padding: 12px 16px !important; /* 移动端减小内边距 */
   }
-  
+
   .sidebar-header {
     padding: 16px !important;
   }
-  
+
   .chat-list,
   .sidebar .overflow-y-auto {
     padding: 8px !important;
@@ -303,15 +306,15 @@ small {
   .chat-content {
     padding: 0 12px !important;
   }
-  
+
   .input-area {
     padding: 12px !important;
   }
-  
+
   .chat-header {
     padding: 8px 12px !important;
   }
-  
+
   .message-item,
   .message-bubble {
     padding: 10px 14px !important;

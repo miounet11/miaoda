@@ -3,15 +3,15 @@ export interface Message {
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp: Date
-  createdAt?: Date  // Add createdAt for compatibility
+  createdAt?: Date // Add createdAt for compatibility
   error?: string
   errorDetails?: string
   attachments?: Attachment[]
   metadata?: MessageMetadata
   parentId?: string
   children?: string[]
-  pending?: boolean  // Add pending for streaming messages
-  chatId?: string    // Add chatId for reference
+  pending?: boolean // Add pending for streaming messages
+  chatId?: string // Add chatId for reference
 }
 
 export interface Attachment {

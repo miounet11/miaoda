@@ -1,10 +1,10 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
 
 export interface LoadingPriority {
-  critical: number    // Load immediately
-  high: number       // Load within 100ms
-  normal: number     // Load within 500ms
-  low: number        // Load when idle
+  critical: number // Load immediately
+  high: number // Load within 100ms
+  normal: number // Load within 500ms
+  low: number // Load when idle
   background: number // Load in background
 }
 
@@ -54,7 +54,7 @@ export class SmartResourceLoader {
   private idleCallback?: number
   private loadingScheduler?: ResourceLoadingScheduler
   private predictiveLoader?: PredictiveLoader
-  
+
   constructor(config: Partial<SmartLoadConfig> = {}) {
     this.config = {
       enablePreloading: true,
@@ -72,30 +72,30 @@ export class SmartResourceLoader {
       enablePredictiveLoading: true,
       ...config
     }
-    
+
     this.metrics = this.initializeMetrics()
     this.initialize()
   }
 
   private initialize(): void {
     console.log('Initializing smart resource loader', this.config)
-    
+
     // Setup intersection observer for lazy loading
     if (this.config.enableLazyLoading && 'IntersectionObserver' in window) {
       this.setupIntersectionObserver()
     }
-    
+
     // Setup loading scheduler
     this.loadingScheduler = new ResourceLoadingScheduler(
       this.config.maxConcurrentLoads,
       this.config.loadingPriorities
     )
-    
+
     // Setup predictive loader
     if (this.config.enablePredictiveLoading) {
       this.predictiveLoader = new PredictiveLoader()
     }
-    
+
     // Setup idle loading
     this.setupIdleLoading()
   }
@@ -105,17 +105,17 @@ export class SmartResourceLoader {
    */
   registerResource(resource: LoadableResource): void {
     this.resources.set(resource.id, resource)
-    
+
     // Immediate load for critical resources
     if (resource.priority === 'critical') {
       this.loadResource(resource.id)
     }
-    
+
     // Schedule based on priority
     else if (this.config.enablePreloading) {
       this.scheduleResourceLoad(resource)
     }
-    
+
     console.debug('Registered resource', {
       id: resource.id,
       type: resource.type,
@@ -131,32 +131,32 @@ export class SmartResourceLoader {
     if (!resource) {
       throw new Error(`Resource not found: ${resourceId}`)
     }
-    
+
     // Return from cache if available
     const cached = this.loadedResources.get(resourceId)
     if (cached) {
       this.metrics.cacheHits++
       return cached
     }
-    
+
     // Return existing loading promise
     const existingLoad = this.loadingQueue.get(resourceId)
     if (existingLoad) {
       return existingLoad
     }
-    
+
     // Create new loading promise
     const loadPromise = this.executeLoad(resource)
     this.loadingQueue.set(resourceId, loadPromise)
-    
+
     try {
       const result = await loadPromise
       this.loadedResources.set(resourceId, result)
       this.metrics.successful++
-      
+
       // Track predictive patterns
       this.predictiveLoader?.recordAccess(resourceId)
-      
+
       return result
     } catch (error) {
       this.metrics.failed++
@@ -172,27 +172,27 @@ export class SmartResourceLoader {
    */
   async preloadResources(resourceIds: string[]): Promise<void> {
     if (!this.config.enablePreloading) return
-    
+
     const validIds = resourceIds.filter(id => this.resources.has(id))
     const batchSize = Math.min(this.config.maxConcurrentLoads, validIds.length)
-    
-    console.info('Starting resource preload', { 
+
+    console.info('Starting resource preload', {
       requested: resourceIds.length,
       valid: validIds.length,
       batchSize
     })
-    
+
     // Load in batches to avoid overwhelming the system
     for (let i = 0; i < validIds.length; i += batchSize) {
       const batch = validIds.slice(i, i + batchSize)
-      const batchPromises = batch.map(id => 
+      const batchPromises = batch.map(id =>
         this.loadResource(id).catch(error => {
           console.warn('Preload failed', { resourceId: id, error })
         })
       )
-      
+
       await Promise.all(batchPromises)
-      
+
       // Brief pause between batches
       if (i + batchSize < validIds.length) {
         await new Promise(resolve => setTimeout(resolve, 50))
@@ -205,25 +205,25 @@ export class SmartResourceLoader {
    */
   setupLazyElement(element: Element, resourceId: string): () => void {
     if (!this.intersectionObserver) return () => {}
-    
+
     const resource = this.resources.get(resourceId)
     if (!resource) return () => {}
-    
+
     const callback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           this.loadResource(resourceId).catch(error => {
             console.warn('Lazy load failed', { resourceId, error })
           })
-          
+
           // Stop observing once loaded
           this.intersectionObserver?.unobserve(element)
         }
       })
     }
-    
+
     this.intersectionObserver.observe(element)
-    
+
     // Return cleanup function
     return () => {
       this.intersectionObserver?.unobserve(element)
@@ -252,17 +252,17 @@ export class SmartResourceLoader {
    */
   async prefetchPredictiveResources(): Promise<void> {
     if (!this.predictiveLoader || !this.config.enablePredictiveLoading) return
-    
+
     const predictions = await this.predictiveLoader.getPredictions()
     const resourcesToPrefetch = predictions
       .filter(p => p.confidence > 0.7 && this.resources.has(p.resourceId))
       .map(p => p.resourceId)
-    
+
     if (resourcesToPrefetch.length > 0) {
       console.info('Prefetching predictive resources', {
         count: resourcesToPrefetch.length
       })
-      
+
       await this.preloadResources(resourcesToPrefetch)
     }
   }
@@ -277,7 +277,7 @@ export class SmartResourceLoader {
     loadedCount: number
   } {
     const total = this.metrics.successful + this.metrics.failed
-    
+
     return {
       ...this.metrics,
       cacheHitRate: total > 0 ? (this.metrics.cacheHits / total) * 100 : 0,
@@ -294,7 +294,7 @@ export class SmartResourceLoader {
     this.loadedResources.clear()
     this.loadingQueue.clear()
     this.metrics = this.initializeMetrics()
-    
+
     console.info('Smart loader cache cleared')
   }
 
@@ -302,27 +302,26 @@ export class SmartResourceLoader {
 
   private async executeLoad(resource: LoadableResource): Promise<any> {
     const startTime = performance.now()
-    
+
     try {
       // Check dependencies first
       if (resource.dependencies) {
         await this.loadDependencies(resource.dependencies)
       }
-      
+
       // Execute the actual loading
       const result = await resource.loader()
-      
+
       const duration = performance.now() - startTime
       this.updateMetrics(resource, duration, true)
-      
+
       console.debug('Resource loaded successfully', {
         id: resource.id,
         type: resource.type,
         duration: Math.round(duration)
       })
-      
+
       return result
-      
     } catch (error) {
       const duration = performance.now() - startTime
       this.updateMetrics(resource, duration, false)
@@ -337,22 +336,27 @@ export class SmartResourceLoader {
 
   private scheduleResourceLoad(resource: LoadableResource): void {
     if (!this.loadingScheduler) return
-    
+
     const delay = this.config.loadingPriorities[resource.priority]
-    
-    this.loadingScheduler.schedule(resource.id, () => {
-      // Check preload conditions if any
-      if (resource.preloadConditions && !resource.preloadConditions()) {
-        return Promise.resolve(null)
-      }
-      
-      return this.loadResource(resource.id)
-    }, delay, resource.priority)
+
+    this.loadingScheduler.schedule(
+      resource.id,
+      () => {
+        // Check preload conditions if any
+        if (resource.preloadConditions && !resource.preloadConditions()) {
+          return Promise.resolve(null)
+        }
+
+        return this.loadResource(resource.id)
+      },
+      delay,
+      resource.priority
+    )
   }
 
   private setupIntersectionObserver(): void {
     this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
+      entries => {
         // Handled by individual lazy elements
       },
       {
@@ -364,15 +368,17 @@ export class SmartResourceLoader {
 
   private setupIdleLoading(): void {
     if (!('requestIdleCallback' in window)) return
-    
+
     const scheduleIdleLoading = () => {
-      this.idleCallback = requestIdleCallback((deadline) => {
+      this.idleCallback = requestIdleCallback(deadline => {
         // Load low priority resources during idle time
-        const lowPriorityResources = Array.from(this.resources.values())
-          .filter(r => (r.priority === 'low' || r.priority === 'background') && 
-                      !this.loadedResources.has(r.id) && 
-                      !this.loadingQueue.has(r.id))
-        
+        const lowPriorityResources = Array.from(this.resources.values()).filter(
+          r =>
+            (r.priority === 'low' || r.priority === 'background') &&
+            !this.loadedResources.has(r.id) &&
+            !this.loadingQueue.has(r.id)
+        )
+
         for (const resource of lowPriorityResources) {
           if (deadline.timeRemaining() > 10) {
             this.loadResource(resource.id).catch(() => {})
@@ -380,20 +386,21 @@ export class SmartResourceLoader {
             break
           }
         }
-        
+
         // Schedule next idle callback
         scheduleIdleLoading()
       })
     }
-    
+
     scheduleIdleLoading()
   }
 
   private updateMetrics(resource: LoadableResource, duration: number, success: boolean): void {
     this.metrics.totalRequests++
-    this.metrics.averageLoadTime = 
-      (this.metrics.averageLoadTime * (this.metrics.totalRequests - 1) + duration) / this.metrics.totalRequests
-    
+    this.metrics.averageLoadTime =
+      (this.metrics.averageLoadTime * (this.metrics.totalRequests - 1) + duration) /
+      this.metrics.totalRequests
+
     if (resource.size) {
       this.metrics.bytesLoaded += resource.size
     }
@@ -416,16 +423,16 @@ export class SmartResourceLoader {
    */
   destroy(): void {
     this.intersectionObserver?.disconnect()
-    
+
     if (this.idleCallback) {
       cancelIdleCallback(this.idleCallback)
     }
-    
+
     this.loadingScheduler?.destroy()
     this.predictiveLoader?.destroy()
-    
+
     this.clearCache()
-    
+
     console.info('Smart resource loader destroyed')
   }
 }
@@ -436,12 +443,12 @@ export class SmartResourceLoader {
 class ResourceLoadingScheduler {
   private scheduledTasks = new Map<string, NodeJS.Timeout>()
   private activeTasks = new Set<string>()
-  
+
   constructor(
     private maxConcurrent: number,
     private priorities: LoadingPriority
   ) {}
-  
+
   schedule(
     id: string,
     loader: () => Promise<any>,
@@ -453,7 +460,7 @@ class ResourceLoadingScheduler {
     if (existingTimer) {
       clearTimeout(existingTimer)
     }
-    
+
     const timer = setTimeout(() => {
       if (this.activeTasks.size < this.maxConcurrent) {
         this.executeTask(id, loader)
@@ -462,14 +469,14 @@ class ResourceLoadingScheduler {
         this.schedule(id, loader, Math.min(delay, 100), priority)
       }
     }, delay)
-    
+
     this.scheduledTasks.set(id, timer)
   }
-  
+
   private async executeTask(id: string, loader: () => Promise<any>): Promise<void> {
     this.activeTasks.add(id)
     this.scheduledTasks.delete(id)
-    
+
     try {
       await loader()
     } catch (error) {
@@ -478,7 +485,7 @@ class ResourceLoadingScheduler {
       this.activeTasks.delete(id)
     }
   }
-  
+
   destroy(): void {
     for (const timer of this.scheduledTasks.values()) {
       clearTimeout(timer)
@@ -492,46 +499,49 @@ class ResourceLoadingScheduler {
  * Predictive loader based on user behavior patterns
  */
 class PredictiveLoader {
-  private accessPatterns = new Map<string, { count: number; lastAccess: number; contexts: string[] }>()
+  private accessPatterns = new Map<
+    string,
+    { count: number; lastAccess: number; contexts: string[] }
+  >()
   private sequencePatterns = new Map<string, Map<string, number>>()
-  
+
   recordAccess(resourceId: string, context?: string): void {
     const now = Date.now()
-    
+
     // Update access patterns
     const pattern = this.accessPatterns.get(resourceId) || {
       count: 0,
       lastAccess: 0,
       contexts: []
     }
-    
+
     pattern.count++
     pattern.lastAccess = now
-    
+
     if (context && !pattern.contexts.includes(context)) {
       pattern.contexts.push(context)
     }
-    
+
     this.accessPatterns.set(resourceId, pattern)
-    
+
     // Update sequence patterns (what comes after what)
     this.updateSequencePatterns(resourceId)
   }
-  
+
   async getPredictions(): Promise<Array<{ resourceId: string; confidence: number }>> {
     const predictions: Array<{ resourceId: string; confidence: number }> = []
     const now = Date.now()
-    
+
     // Analyze patterns and predict next likely resources
     for (const [resourceId, pattern] of this.accessPatterns.entries()) {
       const recentAccess = now - pattern.lastAccess < 5 * 60 * 1000 // 5 minutes
       const frequentAccess = pattern.count > 5
-      
+
       let confidence = 0
-      
+
       if (recentAccess) confidence += 0.3
       if (frequentAccess) confidence += 0.4
-      
+
       // Check sequence patterns
       const sequences = this.sequencePatterns.get(resourceId)
       if (sequences) {
@@ -541,15 +551,15 @@ class PredictiveLoader {
           confidence += 0.3 * (maxSequenceCount / totalSequences)
         }
       }
-      
+
       if (confidence > 0.5) {
         predictions.push({ resourceId, confidence })
       }
     }
-    
+
     return predictions.sort((a, b) => b.confidence - a.confidence)
   }
-  
+
   private updateSequencePatterns(currentResourceId: string): void {
     // Simple implementation - could be more sophisticated
     if (this.lastAccessedResource) {
@@ -558,12 +568,12 @@ class PredictiveLoader {
       sequences.set(currentResourceId, count + 1)
       this.sequencePatterns.set(this.lastAccessedResource, sequences)
     }
-    
+
     this.lastAccessedResource = currentResourceId
   }
-  
+
   private lastAccessedResource?: string
-  
+
   destroy(): void {
     this.accessPatterns.clear()
     this.sequencePatterns.clear()
@@ -577,15 +587,15 @@ export function useSmartLoader(config?: Partial<SmartLoadConfig>) {
   const loader = new SmartResourceLoader(config)
   const isLoading = ref(false)
   const loadingProgress = ref(0)
-  
+
   onUnmounted(() => {
     loader.destroy()
   })
-  
+
   const registerResource = (resource: LoadableResource) => {
     loader.registerResource(resource)
   }
-  
+
   const loadResource = async (resourceId: string) => {
     isLoading.value = true
     try {
@@ -595,7 +605,7 @@ export function useSmartLoader(config?: Partial<SmartLoadConfig>) {
       isLoading.value = false
     }
   }
-  
+
   const preloadResources = async (resourceIds: string[]) => {
     isLoading.value = true
     try {
@@ -604,13 +614,13 @@ export function useSmartLoader(config?: Partial<SmartLoadConfig>) {
       isLoading.value = false
     }
   }
-  
+
   const setupLazyElement = (element: Element, resourceId: string) => {
     return loader.setupLazyElement(element, resourceId)
   }
-  
+
   const metrics = computed(() => loader.getMetrics())
-  
+
   return {
     isLoading: readonly(isLoading),
     loadingProgress: readonly(loadingProgress),

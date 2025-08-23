@@ -2,15 +2,15 @@
   <div class="export-dialog-overlay" @click="handleOverlayClick">
     <div class="export-dialog" @click.stop>
       <div class="dialog-header">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Export Analytics
-        </h3>
-        <button
-          @click="$emit('close')"
-          class="close-btn"
-        >
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Export Analytics</h3>
+        <button @click="$emit('close')" class="close-btn">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -24,9 +24,9 @@
               v-for="format in formatOptions"
               :key="format.value"
               class="format-option"
-              :class="{ 
-                'selected': exportConfig.format === format.value,
-                'disabled': format.disabled 
+              :class="{
+                selected: exportConfig.format === format.value,
+                disabled: format.disabled
               }"
               @click="selectFormat(format.value)"
             >
@@ -40,7 +40,11 @@
               </div>
               <div class="format-check" v-if="exportConfig.format === format.value">
                 <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </div>
             </div>
@@ -51,11 +55,7 @@
         <div class="form-group">
           <label class="form-label">Time Range</label>
           <select v-model="exportConfig.timeRange" class="form-select">
-            <option
-              v-for="option in timeRangeOptions"
-              :key="option.value"
-              :value="option.value"
-            >
+            <option v-for="option in timeRangeOptions" :key="option.value" :value="option.value">
               {{ option.label }} - {{ option.description }}
             </option>
           </select>
@@ -69,7 +69,7 @@
               v-model="exportConfig.includeCharts"
               :disabled="!supportsCharts"
               class="checkbox"
-            >
+            />
             <span class="checkbox-text">
               Include Charts
               <span v-if="!supportsCharts" class="text-xs text-gray-500">
@@ -83,17 +83,13 @@
         <div class="form-group">
           <label class="form-label">Sections to Include</label>
           <div class="sections-list">
-            <label
-              v-for="section in availableSections"
-              :key="section.id"
-              class="section-checkbox"
-            >
+            <label v-for="section in availableSections" :key="section.id" class="section-checkbox">
               <input
                 type="checkbox"
                 :value="section.id"
                 v-model="exportConfig.sections"
                 class="checkbox"
-              >
+              />
               <span class="checkbox-text">
                 {{ section.name }}
                 <span class="text-xs text-gray-500">{{ section.description }}</span>
@@ -120,27 +116,31 @@
             </div>
             <div class="preview-item" v-if="supportsCharts">
               <span class="preview-label">Charts:</span>
-              <span class="preview-value">{{ exportConfig.includeCharts ? 'Included' : 'Excluded' }}</span>
+              <span class="preview-value">{{
+                exportConfig.includeCharts ? 'Included' : 'Excluded'
+              }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="dialog-footer">
-        <button
-          @click="$emit('close')"
-          class="cancel-btn"
-        >
-          Cancel
-        </button>
-        <button
-          @click="handleExport"
-          :disabled="!canExport || exporting"
-          class="export-btn"
-        >
+        <button @click="$emit('close')" class="cancel-btn">Cancel</button>
+        <button @click="handleExport" :disabled="!canExport || exporting" class="export-btn">
           <svg v-if="exporting" class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
           </svg>
           {{ exporting ? 'Exporting...' : 'Export Analytics' }}
         </button>
@@ -246,8 +246,10 @@ const supportsCharts = computed(() => {
 })
 
 const canExport = computed(() => {
-  return exportConfig.value.sections.length > 0 && 
-         !formatOptions.find(f => f.value === exportConfig.value.format)?.disabled
+  return (
+    exportConfig.value.sections.length > 0 &&
+    !formatOptions.find(f => f.value === exportConfig.value.format)?.disabled
+  )
 })
 
 // Methods
@@ -263,64 +265,84 @@ function selectFormat(format: string) {
 
 function getFormatIcon(format: string) {
   const icons = {
-    json: () => h('svg', {
-      fill: 'none',
-      stroke: 'currentColor',
-      viewBox: '0 0 24 24',
-      class: 'w-6 h-6'
-    }, [
-      h('path', {
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        d: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4'
-      })
-    ]),
-    csv: () => h('svg', {
-      fill: 'none',
-      stroke: 'currentColor',
-      viewBox: '0 0 24 24',
-      class: 'w-6 h-6'
-    }, [
-      h('path', {
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        d: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z'
-      }),
-      h('path', {
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        d: 'M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2'
-      })
-    ]),
-    pdf: () => h('svg', {
-      fill: 'none',
-      stroke: 'currentColor',
-      viewBox: '0 0 24 24',
-      class: 'w-6 h-6'
-    }, [
-      h('path', {
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        d: 'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707L13.293 3.293A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
-      })
-    ]),
-    xlsx: () => h('svg', {
-      fill: 'none',
-      stroke: 'currentColor',
-      viewBox: '0 0 24 24',
-      class: 'w-6 h-6'
-    }, [
-      h('path', {
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        d: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-      })
-    ])
+    json: () =>
+      h(
+        'svg',
+        {
+          fill: 'none',
+          stroke: 'currentColor',
+          viewBox: '0 0 24 24',
+          class: 'w-6 h-6'
+        },
+        [
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4'
+          })
+        ]
+      ),
+    csv: () =>
+      h(
+        'svg',
+        {
+          fill: 'none',
+          stroke: 'currentColor',
+          viewBox: '0 0 24 24',
+          class: 'w-6 h-6'
+        },
+        [
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z'
+          }),
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2'
+          })
+        ]
+      ),
+    pdf: () =>
+      h(
+        'svg',
+        {
+          fill: 'none',
+          stroke: 'currentColor',
+          viewBox: '0 0 24 24',
+          class: 'w-6 h-6'
+        },
+        [
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707L13.293 3.293A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
+          })
+        ]
+      ),
+    xlsx: () =>
+      h(
+        'svg',
+        {
+          fill: 'none',
+          stroke: 'currentColor',
+          viewBox: '0 0 24 24',
+          class: 'w-6 h-6'
+        },
+        [
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+          })
+        ]
+      )
   }
   return icons[format] || icons.json
 }

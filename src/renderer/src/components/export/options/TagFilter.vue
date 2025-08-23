@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4 mt-6">
     <h4 class="text-md font-semibold text-gray-900 dark:text-white">Tag Filter</h4>
-    
+
     <div class="space-y-3">
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -14,7 +14,7 @@
             @keydown.enter="addTag"
             placeholder="Enter tag name..."
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-          >
+          />
           <button
             @click="addTag"
             :disabled="!newTag.trim()"
@@ -24,14 +24,11 @@
           </button>
         </div>
       </div>
-      
+
       <div v-if="tags.length > 0" class="space-y-2">
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Selected Tags:</span>
-          <button
-            @click="clearTags"
-            class="text-xs text-red-600 dark:text-red-400 hover:underline"
-          >
+          <button @click="clearTags" class="text-xs text-red-600 dark:text-red-400 hover:underline">
             Clear All
           </button>
         </div>
@@ -51,7 +48,7 @@
           </span>
         </div>
       </div>
-      
+
       <div class="text-xs text-gray-500 dark:text-gray-400">
         Only conversations with these tags will be included in the export.
       </div>
@@ -77,7 +74,7 @@ const newTag = ref('')
 
 const tags = computed({
   get: () => props.tags || [],
-  set: (value) => emit('update:tags', value)
+  set: value => emit('update:tags', value)
 })
 
 const addTag = () => {

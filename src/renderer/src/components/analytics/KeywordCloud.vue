@@ -19,9 +19,7 @@
 
     <div class="mt-4">
       <div class="keyword-list">
-        <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">
-          Keyword Rankings
-        </h4>
+        <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">Keyword Rankings</h4>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           <div
             v-for="(keyword, index) in displayKeywords"
@@ -34,9 +32,7 @@
                 {{ keyword.keyword }}
               </span>
               <div class="flex items-center gap-1 ml-2">
-                <span class="text-xs text-gray-500">
-                  #{{ index + 1 }}
-                </span>
+                <span class="text-xs text-gray-500"> #{{ index + 1 }} </span>
                 <span class="text-sm font-semibold">
                   {{ keyword.count }}
                 </span>
@@ -47,8 +43,8 @@
                 <div
                   class="h-1 rounded-full transition-all duration-300"
                   :class="getKeywordBarColor(index)"
-                  :style="{ 
-                    width: `${(keyword.count / maxKeywordCount) * 100}%` 
+                  :style="{
+                    width: `${(keyword.count / maxKeywordCount) * 100}%`
                   }"
                 />
               </div>
@@ -98,9 +94,7 @@ const showAll = ref(false)
 
 const keywords = computed(() => {
   if (!props.data?.topKeywords) return []
-  return props.data.topKeywords.filter(keyword => 
-    keyword.keyword && keyword.keyword.length > 0
-  )
+  return props.data.topKeywords.filter(keyword => keyword.keyword && keyword.keyword.length > 0)
 })
 
 const displayKeywords = computed(() => {
@@ -161,43 +155,59 @@ const chartOption = computed((): EChartsOption => {
         return `${params.name}<br/>Count: ${params.value}`
       }
     },
-    series: [{
-      type: 'wordCloud',
-      gridSize: 8,
-      sizeRange: [12, 40],
-      rotationRange: [-45, 45],
-      rotationStep: 45,
-      shape: 'circle',
-      width: '100%',
-      height: '80%',
-      top: '15%',
-      data: wordCloudData,
-      textStyle: {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontWeight: 'normal'
-      },
-      emphasis: {
+    series: [
+      {
+        type: 'wordCloud',
+        gridSize: 8,
+        sizeRange: [12, 40],
+        rotationRange: [-45, 45],
+        rotationStep: 45,
+        shape: 'circle',
+        width: '100%',
+        height: '80%',
+        top: '15%',
+        data: wordCloudData,
         textStyle: {
-          shadowBlur: 10,
-          shadowColor: '#333'
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 'normal'
+        },
+        emphasis: {
+          textStyle: {
+            shadowBlur: 10,
+            shadowColor: '#333'
+          }
         }
       }
-    }]
+    ]
   }
 })
 
 function getRandomColor(): string {
   const colors = [
-    '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444',
-    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1',
-    '#14B8A6', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'
+    '#3B82F6',
+    '#10B981',
+    '#8B5CF6',
+    '#F59E0B',
+    '#EF4444',
+    '#06B6D4',
+    '#84CC16',
+    '#F97316',
+    '#EC4899',
+    '#6366F1',
+    '#14B8A6',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#06B6D4'
   ]
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
 function getKeywordRankClass(index: number): string {
-  if (index < 3) return 'bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 border border-yellow-200 dark:border-yellow-700'
-  if (index < 8) return 'bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border border-blue-200 dark:border-blue-700'
+  if (index < 3)
+    return 'bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 border border-yellow-200 dark:border-yellow-700'
+  if (index < 8)
+    return 'bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border border-blue-200 dark:border-blue-700'
   return 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600'
 }
 

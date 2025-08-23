@@ -1,23 +1,25 @@
 <template>
-  <div class="typing-indicator flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm">
+  <div
+    class="typing-indicator flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm"
+  >
     <!-- Enhanced typing animation container -->
     <div class="typing-animation-container relative">
       <!-- Outer pulse ring -->
       <div class="pulse-ring" />
-      
+
       <!-- Main dots -->
       <div class="flex items-center gap-1.5">
         <span class="typing-dot" />
         <span class="typing-dot" />
         <span class="typing-dot" />
       </div>
-      
+
       <!-- Floating particles -->
       <div class="particle particle-1" />
       <div class="particle particle-2" />
       <div class="particle particle-3" />
     </div>
-    
+
     <!-- Message with typewriter effect -->
     <div class="typing-message">
       <span class="text-sm text-muted-foreground font-medium">{{ displayMessage }}</span>
@@ -52,10 +54,10 @@ const startTypewriter = () => {
     displayMessage.value = props.message
     return
   }
-  
+
   displayMessage.value = ''
   typewriterIndex.value = 0
-  
+
   const typeNextChar = () => {
     if (typewriterIndex.value < props.message.length) {
       displayMessage.value += props.message[typewriterIndex.value]
@@ -63,7 +65,7 @@ const startTypewriter = () => {
       typewriterTimer.value = setTimeout(typeNextChar, 50 + Math.random() * 50)
     }
   }
-  
+
   typeNextChar()
 }
 
@@ -196,7 +198,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulseRing {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 0.8;
   }
@@ -207,7 +210,9 @@ onUnmounted(() => {
 }
 
 @keyframes typingBounce {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     transform: translateY(0) scale(1);
     opacity: 0.7;
   }
@@ -218,7 +223,8 @@ onUnmounted(() => {
 }
 
 @keyframes dotGlow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -229,7 +235,8 @@ onUnmounted(() => {
 }
 
 @keyframes float1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
     opacity: 0.4;
   }
@@ -240,7 +247,8 @@ onUnmounted(() => {
 }
 
 @keyframes float2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0px) rotate(0deg);
     opacity: 0.3;
   }
@@ -251,7 +259,8 @@ onUnmounted(() => {
 }
 
 @keyframes float3 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0px, 0px) rotate(0deg);
     opacity: 0.5;
   }
@@ -266,10 +275,12 @@ onUnmounted(() => {
 }
 
 @keyframes cursorBlink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }
@@ -282,7 +293,7 @@ onUnmounted(() => {
   --border-rgb: 229, 231, 235;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --primary: hsl(221, 83%, 65%);
   --primary-rgb: 96, 165, 250;
   --primary-dark: #3b82f6;
@@ -298,11 +309,11 @@ onUnmounted(() => {
   .typing-cursor {
     animation: none !important;
   }
-  
+
   .typing-dot {
     opacity: 0.7;
   }
-  
+
   .typing-cursor {
     opacity: 1;
   }
@@ -314,7 +325,7 @@ onUnmounted(() => {
     border-width: 2px;
     border-color: var(--primary);
   }
-  
+
   .typing-dot {
     background: var(--primary);
     box-shadow: none;

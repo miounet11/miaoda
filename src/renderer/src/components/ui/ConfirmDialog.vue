@@ -1,24 +1,23 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- Backdrop -->
-    <div 
-      class="fixed inset-0 bg-black/20 backdrop-blur-sm"
-      @click="handleCancel"
-    />
-    
+    <div class="fixed inset-0 bg-black/20 backdrop-blur-sm" @click="handleCancel" />
+
     <!-- Dialog -->
-    <div class="relative w-full max-w-md bg-background rounded-lg shadow-xl border border-border overflow-hidden">
+    <div
+      class="relative w-full max-w-md bg-background rounded-lg shadow-xl border border-border overflow-hidden"
+    >
       <!-- Header -->
       <div class="p-6 pb-4">
         <div class="flex items-start gap-4">
           <!-- Icon -->
-          <div 
+          <div
             class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
             :class="iconClasses"
           >
             <component :is="iconComponent" :size="20" />
           </div>
-          
+
           <!-- Content -->
           <div class="flex-1 min-w-0">
             <h3 class="text-lg font-semibold text-foreground mb-2">
@@ -79,8 +78,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'confirm': []
-  'cancel': []
+  confirm: []
+  cancel: []
 }>()
 
 // Variant configurations
@@ -174,18 +173,18 @@ button:focus-visible {
     margin: 1rem;
     max-width: calc(100% - 2rem);
   }
-  
+
   .p-6 {
     padding: 1rem;
   }
-  
+
   .gap-4 {
     gap: 0.75rem;
   }
 }
 
 /* Backdrop click prevention during loading */
-.fixed.inset-0[data-loading="true"] {
+.fixed.inset-0[data-loading='true'] {
   pointer-events: none;
 }
 </style>

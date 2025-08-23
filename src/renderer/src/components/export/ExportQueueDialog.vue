@@ -1,6 +1,13 @@
 <template>
-  <div v-if="open" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="handleBackdropClick">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" @click.stop>
+  <div
+    v-if="open"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    @click="handleBackdropClick"
+  >
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+      @click.stop
+    >
       <!-- Header -->
       <div class="p-6 border-b dark:border-gray-700">
         <div class="flex items-center justify-between">
@@ -15,7 +22,7 @@
             <X class="w-6 h-6" />
           </button>
         </div>
-        
+
         <!-- Queue Stats -->
         <div class="flex items-center justify-between mt-4">
           <div class="flex items-center space-x-6 text-sm">
@@ -25,22 +32,28 @@
             </div>
             <div class="flex items-center space-x-2">
               <div class="w-3 h-3 bg-yellow-400 rounded-full" />
-              <span class="text-gray-600 dark:text-gray-400">Pending: {{ queueStats.pending }}</span>
+              <span class="text-gray-600 dark:text-gray-400"
+                >Pending: {{ queueStats.pending }}</span
+              >
             </div>
             <div class="flex items-center space-x-2">
               <div class="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
-              <span class="text-gray-600 dark:text-gray-400">Running: {{ queueStats.running }}</span>
+              <span class="text-gray-600 dark:text-gray-400"
+                >Running: {{ queueStats.running }}</span
+              >
             </div>
             <div class="flex items-center space-x-2">
               <div class="w-3 h-3 bg-green-400 rounded-full" />
-              <span class="text-gray-600 dark:text-gray-400">Completed: {{ queueStats.completed }}</span>
+              <span class="text-gray-600 dark:text-gray-400"
+                >Completed: {{ queueStats.completed }}</span
+              >
             </div>
             <div class="flex items-center space-x-2">
               <div class="w-3 h-3 bg-red-400 rounded-full" />
               <span class="text-gray-600 dark:text-gray-400">Failed: {{ queueStats.failed }}</span>
             </div>
           </div>
-          
+
           <div class="flex items-center space-x-2">
             <button
               @click="clearCompleted"
@@ -62,12 +75,15 @@
 
       <!-- Task List -->
       <div class="flex-1 overflow-y-auto">
-        <div v-if="tasks.length === 0" class="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+        <div
+          v-if="tasks.length === 0"
+          class="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400"
+        >
           <ClipboardList class="w-16 h-16 mb-4 opacity-50" />
           <h3 class="text-lg font-medium mb-2">No Export Tasks</h3>
           <p class="text-sm">Export tasks will appear here when you add them to the queue</p>
         </div>
-        
+
         <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
           <div
             v-for="task in tasks"
@@ -99,8 +115,8 @@
                         v-if="task.priority !== 'normal'"
                         :class="[
                           'px-2 py-0.5 text-xs font-medium rounded-full',
-                          task.priority === 'high' 
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' 
+                          task.priority === 'high'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                             : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                         ]"
                       >
@@ -109,37 +125,49 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <!-- Progress Bar -->
                 <div v-if="task.status === 'running' && task.progress > 0" class="mt-3">
-                  <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  <div
+                    class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1"
+                  >
                     <span>Progress</span>
                     <span>{{ task.progress }}%</span>
                   </div>
                   <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    <div
+                      class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       :style="{ width: task.progress + '%' }"
                     />
                   </div>
                 </div>
-                
+
                 <!-- Error Message -->
-                <div v-if="task.error" class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <div
+                  v-if="task.error"
+                  class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                >
                   <div class="flex items-start space-x-2">
                     <AlertCircle class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h5 class="text-sm font-medium text-red-800 dark:text-red-200">Export Failed</h5>
+                      <h5 class="text-sm font-medium text-red-800 dark:text-red-200">
+                        Export Failed
+                      </h5>
                       <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ task.error }}</p>
                     </div>
                   </div>
                 </div>
-                
+
                 <!-- Completed Result -->
-                <div v-if="task.status === 'completed' && task.result" class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div
+                  v-if="task.status === 'completed' && task.result"
+                  class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                >
                   <div class="flex items-center justify-between">
                     <div>
-                      <h5 class="text-sm font-medium text-green-800 dark:text-green-200">Export Completed</h5>
+                      <h5 class="text-sm font-medium text-green-800 dark:text-green-200">
+                        Export Completed
+                      </h5>
                       <div class="text-sm text-green-700 dark:text-green-300 mt-1">
                         {{ task.result.filename }} • {{ formatFileSize(task.result.size) }}
                       </div>
@@ -153,7 +181,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Actions -->
               <div class="flex items-center space-x-2 ml-4">
                 <button
@@ -164,7 +192,7 @@
                 >
                   <RotateCw class="w-4 h-4" />
                 </button>
-                
+
                 <button
                   v-if="task.status === 'pending' || task.status === 'running'"
                   @click="cancelTask(task.id)"
@@ -173,7 +201,7 @@
                 >
                   <X class="w-4 h-4" />
                 </button>
-                
+
                 <button
                   @click="removeTask(task.id)"
                   class="p-2 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -217,7 +245,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { X, ClipboardList, AlertCircle, Download, RotateCw, Trash2 } from 'lucide-vue-next'
-import { exportQueue, type ExportTask, type QueueStats } from '@renderer/src/services/export/ExportQueue'
+import {
+  exportQueue,
+  type ExportTask,
+  type QueueStats
+} from '@renderer/src/services/export/ExportQueue'
 import { exportService } from '@renderer/src/services/export/ExportService'
 
 interface Props {
@@ -295,25 +327,39 @@ const downloadResult = (task: ExportTask) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-yellow-400'
-    case 'running': return 'bg-blue-400'
-    case 'completed': return 'bg-green-400'
-    case 'failed': return 'bg-red-400'
-    case 'cancelled': return 'bg-gray-400'
-    default: return 'bg-gray-400'
+    case 'pending':
+      return 'bg-yellow-400'
+    case 'running':
+      return 'bg-blue-400'
+    case 'completed':
+      return 'bg-green-400'
+    case 'failed':
+      return 'bg-red-400'
+    case 'cancelled':
+      return 'bg-gray-400'
+    default:
+      return 'bg-gray-400'
   }
 }
 
 const formatTaskStatus = (task: ExportTask) => {
   switch (task.status) {
-    case 'pending': return 'Waiting in queue'
-    case 'running': return 'Processing...'
-    case 'completed': return `Completed in ${task.completedAt && task.startedAt 
-      ? Math.round((task.completedAt.getTime() - task.startedAt.getTime()) / 1000) 
-      : 0}s`
-    case 'failed': return `Failed (${task.retryCount}/${task.maxRetries} retries)`
-    case 'cancelled': return 'Cancelled'
-    default: return task.status
+    case 'pending':
+      return 'Waiting in queue'
+    case 'running':
+      return 'Processing...'
+    case 'completed':
+      return `Completed in ${
+        task.completedAt && task.startedAt
+          ? Math.round((task.completedAt.getTime() - task.startedAt.getTime()) / 1000)
+          : 0
+      }s`
+    case 'failed':
+      return `Failed (${task.retryCount}/${task.maxRetries} retries)`
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return task.status
   }
 }
 
@@ -328,7 +374,7 @@ const formatDate = (date: Date) => {
   if (diffMinutes < 60) return `${diffMinutes}m ago`
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
-  
+
   return date.toLocaleDateString()
 }
 
@@ -336,7 +382,7 @@ const formatTime = (ms: number) => {
   const seconds = Math.floor(ms / 1000)
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes % 60}m`
   } else if (minutes > 0) {
@@ -360,12 +406,12 @@ const handleStatusUpdate = (task: ExportTask) => {
 // Lifecycle
 onMounted(() => {
   updateQueueData()
-  
+
   // Set up task execution callback
-  exportQueue.setTaskCallback(async (task) => {
+  exportQueue.setTaskCallback(async task => {
     return await exportService.exportChats(task.options)
   })
-  
+
   // Listen for status updates
   exportQueue.addStatusCallback(handleStatusUpdate)
 })

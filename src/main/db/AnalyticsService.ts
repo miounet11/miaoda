@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3'
-import type { 
-  AnalyticsData, 
+import type {
+  AnalyticsData,
   AnalyticsFilter,
   TimeRange,
   ChatAnalytics,
@@ -26,7 +26,7 @@ export class AnalyticsService {
    */
   generateAnalytics(filter: AnalyticsFilter): AnalyticsData {
     const timeConstraint = this.getTimeConstraint(filter.timeRange)
-    
+
     return {
       timeRange: filter.timeRange,
       generatedAt: new Date().toISOString(),
@@ -49,19 +49,29 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
     `
 
-    const totalChats = this.db.prepare(`
+    const totalChats = this.db
+      .prepare(
+        `
       SELECT COUNT(*) as count ${baseQuery}
-    `).get() as { count: number }
+    `
+      )
+      .get() as { count: number }
 
-    const totalMessages = this.db.prepare(`
+    const totalMessages = this.db
+      .prepare(
+        `
       SELECT COUNT(*) as count
       FROM messages m
       JOIN chats c ON m.chat_id = c.id
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
-    `).get() as { count: number }
+    `
+      )
+      .get() as { count: number }
 
-    const averageMessages = this.db.prepare(`
+    const averageMessages = this.db
+      .prepare(
+        `
       SELECT AVG(message_count) as avg
       FROM (
         SELECT COUNT(*) as message_count
@@ -71,13 +81,19 @@ export class AnalyticsService {
         ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
         GROUP BY m.chat_id
       )
-    `).get() as { avg: number }
+    `
+      )
+      .get() as { avg: number }
 
-    const archivedChats = this.db.prepare(`
+    const archivedChats = this.db
+      .prepare(
+        `
       SELECT COUNT(*) as count
       FROM chats c
       WHERE c.archived = 1 ${timeConstraint}
-    `).get() as { count: number }
+    `
+      )
+      .get() as { count: number }
 
     return {
       totalChats: totalChats.count,
@@ -100,7 +116,9 @@ export class AnalyticsService {
       ${filter.messageTypes ? `AND m.role IN (${filter.messageTypes.map(t => `'${t}'`).join(',')})` : ''}
     `
 
-    const messageStats = this.db.prepare(`
+    const messageStats = this.db
+      .prepare(
+        `
       SELECT 
         m.role,
         COUNT(*) as count,
@@ -108,7 +126,9 @@ export class AnalyticsService {
         SUM(LENGTH(m.content)) as total_length
       ${baseQuery}
       GROUP BY m.role
-    `).all() as Array<{ role: string; count: number; avg_length: number; total_length: number }>
+    `
+      )
+      .all() as Array<{ role: string; count: number; avg_length: number; total_length: number }>
 
     const userMessages = messageStats.find(s => s.role === 'user')?.count || 0
     const assistantMessages = messageStats.find(s => s.role === 'assistant')?.count || 0
@@ -132,7 +152,9 @@ export class AnalyticsService {
    */
   private getUsageAnalytics(timeConstraint: string, filter: AnalyticsFilter): UsageAnalytics {
     // Daily chat creation
-    const chatsByDay = this.db.prepare(`
+    const chatsByDay = this.db
+      .prepare(
+        `
       SELECT 
         DATE(c.created_at) as date,
         COUNT(*) as count
@@ -142,10 +164,14 @@ export class AnalyticsService {
       GROUP BY DATE(c.created_at)
       ORDER BY date DESC
       LIMIT 30
-    `).all() as Array<{ date: string; count: number }>
+    `
+      )
+      .all() as Array<{ date: string; count: number }>
 
     // Daily message creation
-    const messagesByDay = this.db.prepare(`
+    const messagesByDay = this.db
+      .prepare(
+        `
       SELECT 
         DATE(m.created_at) as date,
         COUNT(*) as count
@@ -156,10 +182,14 @@ export class AnalyticsService {
       GROUP BY DATE(m.created_at)
       ORDER BY date DESC
       LIMIT 30
-    `).all() as Array<{ date: string; count: number }>
+    `
+      )
+      .all() as Array<{ date: string; count: number }>
 
     // Active hours analysis
-    const activeHours = this.db.prepare(`
+    const activeHours = this.db
+      .prepare(
+        `
       SELECT 
         CAST(strftime('%H', m.created_at) AS INTEGER) as hour,
         COUNT(*) as count
@@ -169,22 +199,28 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY hour
       ORDER BY hour
-    `).all() as Array<{ hour: number; count: number }>
+    `
+      )
+      .all() as Array<{ hour: number; count: number }>
 
     // Calculate trends and averages
-    const dailyAverage = messagesByDay.length > 0 
-      ? Math.round((messagesByDay.reduce((sum, day) => sum + day.count, 0) / messagesByDay.length) * 100) / 100
-      : 0
+    const dailyAverage =
+      messagesByDay.length > 0
+        ? Math.round(
+            (messagesByDay.reduce((sum, day) => sum + day.count, 0) / messagesByDay.length) * 100
+          ) / 100
+        : 0
 
-    const peakHour = activeHours.reduce((max, hour) => 
-      hour.count > max.count ? hour : max, { hour: 0, count: 0 }
-    )
+    const peakHour = activeHours.reduce((max, hour) => (hour.count > max.count ? hour : max), {
+      hour: 0,
+      count: 0
+    })
 
     // Simple trend calculation
     const recentAvg = messagesByDay.slice(0, 7).reduce((sum, day) => sum + day.count, 0) / 7
     const olderAvg = messagesByDay.slice(7, 14).reduce((sum, day) => sum + day.count, 0) / 7
-    const weeklyTrend = recentAvg > olderAvg * 1.1 ? 'up' : 
-                       recentAvg < olderAvg * 0.9 ? 'down' : 'stable'
+    const weeklyTrend =
+      recentAvg > olderAvg * 1.1 ? 'up' : recentAvg < olderAvg * 0.9 ? 'down' : 'stable'
 
     return {
       chatsByDay: chatsByDay.reverse(),
@@ -201,19 +237,49 @@ export class AnalyticsService {
    */
   private getContentAnalytics(timeConstraint: string, filter: AnalyticsFilter): ContentAnalytics {
     // Extract keywords from message content (simple approach)
-    const messages = this.db.prepare(`
+    const messages = this.db
+      .prepare(
+        `
       SELECT m.content, m.role
       FROM messages m
       JOIN chats c ON m.chat_id = c.id
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       AND LENGTH(m.content) > 0
-    `).all() as Array<{ content: string; role: string }>
+    `
+      )
+      .all() as Array<{ content: string; role: string }>
 
     // Simple keyword extraction (could be enhanced with NLP)
     const keywordCounts = new Map<string, number>()
     const wordRegex = /\b[a-zA-Z]{3,}\b/g
-    const stopWords = new Set(['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'can', 'you', 'are', 'is', 'was', 'were', 'have', 'has', 'had', 'will', 'would', 'could', 'should'])
+    const stopWords = new Set([
+      'the',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'to',
+      'for',
+      'of',
+      'with',
+      'by',
+      'can',
+      'you',
+      'are',
+      'is',
+      'was',
+      'were',
+      'have',
+      'has',
+      'had',
+      'will',
+      'would',
+      'could',
+      'should'
+    ])
 
     messages.forEach(msg => {
       const words = msg.content.toLowerCase().match(wordRegex) || []
@@ -225,12 +291,14 @@ export class AnalyticsService {
     })
 
     const topKeywords = Array.from(keywordCounts.entries())
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 20)
       .map(([keyword, count]) => ({ keyword, count }))
 
     // Message length distribution
-    const messageLengthDistribution = this.db.prepare(`
+    const messageLengthDistribution = this.db
+      .prepare(
+        `
       SELECT 
         CASE 
           WHEN LENGTH(content) < 50 THEN 'Short (< 50)'
@@ -244,7 +312,9 @@ export class AnalyticsService {
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY range
-    `).all() as Array<{ range: string; count: number }>
+    `
+      )
+      .all() as Array<{ range: string; count: number }>
 
     return {
       topKeywords,
@@ -262,9 +332,14 @@ export class AnalyticsService {
   /**
    * Get performance analytics
    */
-  private getPerformanceAnalytics(timeConstraint: string, filter: AnalyticsFilter): PerformanceAnalytics {
+  private getPerformanceAnalytics(
+    timeConstraint: string,
+    filter: AnalyticsFilter
+  ): PerformanceAnalytics {
     // Error analysis
-    const errorStats = this.db.prepare(`
+    const errorStats = this.db
+      .prepare(
+        `
       SELECT 
         COUNT(*) as total_messages,
         SUM(CASE WHEN m.error IS NOT NULL THEN 1 ELSE 0 END) as error_count
@@ -272,16 +347,19 @@ export class AnalyticsService {
       JOIN chats c ON m.chat_id = c.id
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
-    `).get() as { total_messages: number; error_count: number }
+    `
+      )
+      .get() as { total_messages: number; error_count: number }
 
-    const errorRate = errorStats.total_messages > 0 
-      ? (errorStats.error_count / errorStats.total_messages) * 100 
-      : 0
+    const errorRate =
+      errorStats.total_messages > 0 ? (errorStats.error_count / errorStats.total_messages) * 100 : 0
 
     const successRate = 100 - errorRate
 
     // Error types
-    const errorsByType = this.db.prepare(`
+    const errorsByType = this.db
+      .prepare(
+        `
       SELECT 
         COALESCE(m.error, 'Unknown Error') as type,
         COUNT(*) as count
@@ -291,7 +369,9 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY m.error
       ORDER BY count DESC
-    `).all() as Array<{ type: string; count: number }>
+    `
+      )
+      .all() as Array<{ type: string; count: number }>
 
     return {
       averageResponseTime: 0, // Would need response time tracking
@@ -308,7 +388,9 @@ export class AnalyticsService {
    */
   private getModelAnalytics(timeConstraint: string, filter: AnalyticsFilter): ModelAnalytics {
     // Extract model info from metadata (if available)
-    const modelUsage = this.db.prepare(`
+    const modelUsage = this.db
+      .prepare(
+        `
       SELECT 
         COALESCE(
           json_extract(m.metadata, '$.model'), 
@@ -322,7 +404,9 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY 1
       ORDER BY count DESC
-    `).all() as Array<{ model: string; count: number }>
+    `
+      )
+      .all() as Array<{ model: string; count: number }>
 
     const totalModelUsage = modelUsage.reduce((sum, m) => sum + m.count, 0)
     const modelUsageWithPercentage = modelUsage.map(m => ({
@@ -373,21 +457,32 @@ export class AnalyticsService {
     averagePerDay: number
   } {
     const timeConstraint = this.getTimeConstraint(timeRange)
-    
-    const summary = this.db.prepare(`
+
+    const summary = this.db
+      .prepare(
+        `
       SELECT 
         (SELECT COUNT(*) FROM chats c WHERE 1=1 ${timeConstraint}) as total_chats,
         (SELECT COUNT(*) FROM messages m JOIN chats c ON m.chat_id = c.id 
          WHERE 1=1 ${timeConstraint.replace('c.created_at', 'm.created_at')}) as total_messages,
         (SELECT COUNT(*) FROM messages m JOIN chats c ON m.chat_id = c.id 
          WHERE DATE(m.created_at) = DATE('now')) as active_today
-    `).get() as { total_chats: number; total_messages: number; active_today: number }
+    `
+      )
+      .get() as { total_chats: number; total_messages: number; active_today: number }
 
-    const days = timeRange === '24h' ? 1 : 
-                 timeRange === '7d' ? 7 : 
-                 timeRange === '30d' ? 30 : 
-                 timeRange === '90d' ? 90 : 
-                 timeRange === '1y' ? 365 : 30
+    const days =
+      timeRange === '24h'
+        ? 1
+        : timeRange === '7d'
+          ? 7
+          : timeRange === '30d'
+            ? 30
+            : timeRange === '90d'
+              ? 90
+              : timeRange === '1y'
+                ? 365
+                : 30
 
     return {
       totalChats: summary.total_chats,

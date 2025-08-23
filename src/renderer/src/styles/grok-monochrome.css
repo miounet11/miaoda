@@ -1,0 +1,249 @@
+/*
+ * Grok-Inspired Monochromatic Color System
+ * Pure black and white aesthetic with strategic grayscale hierarchy
+ */
+
+:root {
+  /* Primary Monochromatic Palette */
+  --mono-black: #000000;
+  --mono-white: #ffffff;
+  
+  /* Grayscale Hierarchy (Light Mode) */
+  --mono-100: #f8f9fa;    /* Lightest background */
+  --mono-200: #e9ecef;    /* Light background */
+  --mono-300: #dee2e6;    /* Light border */
+  --mono-400: #ced4da;    /* Medium light */
+  --mono-500: #adb5bd;    /* Medium */
+  --mono-600: #6c757d;    /* Medium dark */
+  --mono-700: #495057;    /* Dark */
+  --mono-800: #343a40;    /* Darker */
+  --mono-900: #212529;    /* Darkest */
+  
+  /* Semantic Color Overrides - All Monochromatic */
+  --background: var(--mono-white);
+  --foreground: var(--mono-black);
+  --card: var(--mono-white);
+  --card-foreground: var(--mono-black);
+  --popover: var(--mono-white);
+  --popover-foreground: var(--mono-black);
+  
+  /* Primary - Pure Black */
+  --primary: var(--mono-black);
+  --primary-foreground: var(--mono-white);
+  --primary-rgb: 0, 0, 0;
+  
+  /* Secondary - Light Gray */
+  --secondary: var(--mono-200);
+  --secondary-foreground: var(--mono-black);
+  
+  /* Muted - Medium Gray */
+  --muted: var(--mono-100);
+  --muted-foreground: var(--mono-600);
+  
+  /* Accent - Dark Gray */
+  --accent: var(--mono-900);
+  --accent-foreground: var(--mono-white);
+  
+  /* Destructive - Using High Contrast */
+  --destructive: var(--mono-black);
+  --destructive-foreground: var(--mono-white);
+  
+  /* Border - Light Gray */
+  --border: var(--mono-300);
+  --input: var(--mono-300);
+  --ring: var(--mono-black);
+  
+  /* Chart colors - All monochromatic */
+  --chart-1: var(--mono-black);
+  --chart-2: var(--mono-700);
+  --chart-3: var(--mono-500);
+  --chart-4: var(--mono-300);
+  --chart-5: var(--mono-200);
+  
+  /* Sidebar specific */
+  --sidebar-background: var(--mono-white);
+  --sidebar-foreground: var(--mono-black);
+  --sidebar-border: var(--mono-300);
+  --sidebar-primary: var(--mono-black);
+  --sidebar-primary-foreground: var(--mono-white);
+  --sidebar-accent: var(--mono-200);
+  --sidebar-accent-foreground: var(--mono-black);
+  --sidebar-ring: var(--mono-black);
+  
+  /* Chat specific colors */
+  --chat-primary: var(--mono-black);
+  --chat-secondary: var(--mono-600);
+  --chat-background: var(--mono-white);
+  --chat-bubble-user: var(--mono-black);
+  --chat-bubble-user-text: var(--mono-white);
+  --chat-bubble-assistant: var(--mono-200);
+  --chat-bubble-assistant-text: var(--mono-black);
+}
+
+/* Dark Mode - Inverted Monochromatic */
+[data-theme="dark"] {
+  /* Grayscale Hierarchy (Dark Mode) */
+  --mono-100: #1a1a1a;    /* Darkest background */
+  --mono-200: #2d2d2d;    /* Dark background */
+  --mono-300: #404040;    /* Dark border */
+  --mono-400: #525252;    /* Medium dark */
+  --mono-500: #737373;    /* Medium */
+  --mono-600: #a3a3a3;    /* Medium light */
+  --mono-700: #d4d4d4;    /* Light */
+  --mono-800: #e5e5e5;    /* Lighter */
+  --mono-900: #f5f5f5;    /* Lightest */
+  
+  /* Semantic Colors for Dark Mode */
+  --background: var(--mono-black);
+  --foreground: var(--mono-white);
+  --card: var(--mono-100);
+  --card-foreground: var(--mono-white);
+  --popover: var(--mono-100);
+  --popover-foreground: var(--mono-white);
+  
+  /* Primary - Pure White */
+  --primary: var(--mono-white);
+  --primary-foreground: var(--mono-black);
+  --primary-rgb: 255, 255, 255;
+  
+  /* Secondary - Dark Gray */
+  --secondary: var(--mono-200);
+  --secondary-foreground: var(--mono-white);
+  
+  /* Muted - Dark Background */
+  --muted: var(--mono-100);
+  --muted-foreground: var(--mono-600);
+  
+  /* Accent - Light Gray */
+  --accent: var(--mono-900);
+  --accent-foreground: var(--mono-black);
+  
+  /* Destructive - High Contrast */
+  --destructive: var(--mono-white);
+  --destructive-foreground: var(--mono-black);
+  
+  /* Border - Dark Gray */
+  --border: var(--mono-300);
+  --input: var(--mono-300);
+  --ring: var(--mono-white);
+  
+  /* Sidebar for dark mode */
+  --sidebar-background: var(--mono-black);
+  --sidebar-foreground: var(--mono-white);
+  --sidebar-border: var(--mono-300);
+  --sidebar-primary: var(--mono-white);
+  --sidebar-primary-foreground: var(--mono-black);
+  --sidebar-accent: var(--mono-200);
+  --sidebar-accent-foreground: var(--mono-white);
+  --sidebar-ring: var(--mono-white);
+  
+  /* Chat for dark mode */
+  --chat-primary: var(--mono-white);
+  --chat-secondary: var(--mono-600);
+  --chat-background: var(--mono-black);
+  --chat-bubble-user: var(--mono-white);
+  --chat-bubble-user-text: var(--mono-black);
+  --chat-bubble-assistant: var(--mono-200);
+  --chat-bubble-assistant-text: var(--mono-white);
+}
+
+/* Force Override All Colorful Elements */
+* {
+  /* Remove all blue gradients and colors */
+  --tw-gradient-from: var(--mono-black) !important;
+  --tw-gradient-to: var(--mono-700) !important;
+}
+
+/* Button Overrides */
+.btn-interactive,
+button[class*="bg-blue"],
+button[class*="bg-gradient"],
+.btn-primary {
+  background: var(--mono-black) !important;
+  color: var(--mono-white) !important;
+  border-color: var(--mono-black) !important;
+}
+
+.btn-interactive:hover,
+button[class*="bg-blue"]:hover,
+button[class*="bg-gradient"]:hover,
+.btn-primary:hover {
+  background: var(--mono-700) !important;
+  border-color: var(--mono-700) !important;
+}
+
+/* Gradient Overrides */
+.bg-gradient-to-r,
+.bg-gradient-to-l,
+.bg-gradient-to-t,
+.bg-gradient-to-b,
+.bg-gradient-radial {
+  background: var(--mono-black) !important;
+}
+
+/* Color Class Overrides */
+.text-blue-600,
+.text-blue-700,
+.text-primary,
+.text-accent {
+  color: var(--mono-black) !important;
+}
+
+[data-theme="dark"] .text-blue-600,
+[data-theme="dark"] .text-blue-700,
+[data-theme="dark"] .text-primary,
+[data-theme="dark"] .text-accent {
+  color: var(--mono-white) !important;
+}
+
+/* Shadow Overrides */
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Focus States - High Contrast */
+*:focus-visible {
+  outline: 3px solid var(--mono-black) !important;
+  outline-offset: 2px !important;
+}
+
+[data-theme="dark"] *:focus-visible {
+  outline: 3px solid var(--mono-white) !important;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: var(--mono-black);
+    --input: var(--mono-black);
+  }
+  
+  [data-theme="dark"] {
+    --border: var(--mono-white);
+    --input: var(--mono-white);
+  }
+  
+  * {
+    border-width: 2px !important;
+  }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}

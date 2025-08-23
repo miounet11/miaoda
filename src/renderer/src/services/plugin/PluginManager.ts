@@ -2,9 +2,9 @@ import { EventEmitter } from '@renderer/src/utils/performance'
 import type { Message, Chat } from '@renderer/src/types'
 
 // Plugin System Types
-export type PluginHook = 
+export type PluginHook =
   | 'beforeMessageSend'
-  | 'afterMessageSend' 
+  | 'afterMessageSend'
   | 'beforeMessageReceive'
   | 'afterMessageReceive'
   | 'onChatCreate'
@@ -21,12 +21,12 @@ export interface PluginContext {
   searchService: any
   voiceService: any
   mcpService: any
-  
+
   // UI utilities
   showNotification: (message: string, type?: 'info' | 'success' | 'warning' | 'error') => void
   showDialog: (options: DialogOptions) => Promise<any>
   showToast: (message: string, duration?: number) => void
-  
+
   // System utilities
   storage: PluginStorage
   http: PluginHttpClient
@@ -79,29 +79,29 @@ export interface PluginManifest {
   homepage?: string
   repository?: string
   license?: string
-  
+
   // Runtime requirements
   minAppVersion: string
   maxAppVersion?: string
   requiredPermissions: PluginPermission[]
-  
+
   // Entry points
   main?: string
   ui?: PluginUIConfig[]
-  
+
   // Metadata
   icon?: string
   keywords?: string[]
   category: PluginCategory
-  
+
   // Configuration
   settings?: PluginSettingSchema[]
-  
+
   // Dependencies
   dependencies?: Record<string, string>
 }
 
-export type PluginPermission = 
+export type PluginPermission =
   | 'storage'
   | 'network'
   | 'filesystem'
@@ -116,7 +116,7 @@ export type PluginPermission =
   | 'voice.use'
   | 'mcp.use'
 
-export type PluginCategory = 
+export type PluginCategory =
   | 'productivity'
   | 'entertainment'
   | 'utility'
@@ -164,7 +164,7 @@ export interface PluginInstance {
 export interface PluginModule {
   activate?(context: PluginContext): Promise<void> | void
   deactivate?(context: PluginContext): Promise<void> | void
-  
+
   // Hook handlers
   [key: string]: any
 }
@@ -205,13 +205,13 @@ export class PluginManager extends EventEmitter<{
     try {
       // Load built-in plugins
       await this.loadBuiltinPlugins()
-      
+
       // Load user-installed plugins
       await this.loadUserPlugins()
-      
+
       // Enable previously enabled plugins
       await this.restoreEnabledPlugins()
-      
+
       this.initialized = true
       console.log(`Plugin system initialized with ${this.plugins.size} plugins`)
     } catch (error) {
@@ -245,7 +245,7 @@ export class PluginManager extends EventEmitter<{
     try {
       // Load plugin module
       const module = await this.loadPluginModule(modulePath)
-      
+
       // Create plugin instance
       const plugin: PluginInstance = {
         manifest,
@@ -258,13 +258,13 @@ export class PluginManager extends EventEmitter<{
 
       // Register plugin
       this.plugins.set(manifest.id, plugin)
-      
+
       // Register hooks
       this.registerPluginHooks(manifest.id, module)
-      
+
       this.emit('plugin-loaded', plugin)
       console.log(`Plugin loaded: ${manifest.name} v${manifest.version}`)
-      
+
       return plugin
     } catch (error) {
       const pluginError = new Error(`Failed to load plugin ${manifest.id}: ${error}`)
@@ -287,10 +287,10 @@ export class PluginManager extends EventEmitter<{
 
       // Unregister hooks
       this.unregisterPluginHooks(pluginId)
-      
+
       // Remove plugin
       this.plugins.delete(pluginId)
-      
+
       this.emit('plugin-unloaded', pluginId)
       console.log(`Plugin unloaded: ${pluginId}`)
     } catch (error) {
@@ -311,7 +311,7 @@ export class PluginManager extends EventEmitter<{
     try {
       // Check permissions
       await this.checkPluginPermissions(plugin)
-      
+
       // Activate plugin
       if (plugin.module.activate) {
         await plugin.module.activate(plugin.context)
@@ -319,10 +319,10 @@ export class PluginManager extends EventEmitter<{
 
       plugin.enabled = true
       plugin.error = undefined
-      
+
       // Save enabled state
       await this.savePluginState(pluginId, true)
-      
+
       this.emit('plugin-enabled', pluginId)
       console.log(`Plugin enabled: ${pluginId}`)
     } catch (error) {
@@ -348,10 +348,10 @@ export class PluginManager extends EventEmitter<{
       }
 
       plugin.enabled = false
-      
+
       // Save disabled state
       await this.savePluginState(pluginId, false)
-      
+
       this.emit('plugin-disabled', pluginId)
       console.log(`Plugin disabled: ${pluginId}`)
     } catch (error) {
@@ -414,13 +414,13 @@ export class PluginManager extends EventEmitter<{
 
     // Validate settings
     this.validatePluginSettings(plugin.manifest, settings)
-    
+
     // Update settings
     plugin.settings = { ...plugin.settings, ...settings }
-    
+
     // Save settings
     await this.savePluginSettings(pluginId, plugin.settings)
-    
+
     console.log(`Plugin settings updated: ${pluginId}`)
   }
 
@@ -431,22 +431,22 @@ export class PluginManager extends EventEmitter<{
       searchService: null, // Will be injected
       voiceService: null, // Will be injected
       mcpService: null, // Will be injected
-      
+
       showNotification: (message: string, type = 'info') => {
         // Implementation will be injected
         console.log(`[${type.toUpperCase()}] ${message}`)
       },
-      
+
       showDialog: async (options: DialogOptions) => {
         // Implementation will be injected
         return confirm(`${options.title}\n\n${options.message}`)
       },
-      
+
       showToast: (message: string, duration = 3000) => {
         // Implementation will be injected
         console.log(`Toast: ${message}`)
       },
-      
+
       storage: this.createPluginStorage(),
       http: this.createPluginHttpClient(),
       utils: this.createPluginUtils()
@@ -463,20 +463,20 @@ export class PluginManager extends EventEmitter<{
           return defaultValue as T
         }
       },
-      
+
       async set(key: string, value: any): Promise<void> {
         localStorage.setItem(`plugin-storage:${key}`, JSON.stringify(value))
       },
-      
+
       async remove(key: string): Promise<void> {
         localStorage.removeItem(`plugin-storage:${key}`)
       },
-      
+
       async clear(): Promise<void> {
         const keys = Object.keys(localStorage).filter(k => k.startsWith('plugin-storage:'))
         keys.forEach(key => localStorage.removeItem(key))
       },
-      
+
       async keys(): Promise<string[]> {
         return Object.keys(localStorage)
           .filter(k => k.startsWith('plugin-storage:'))
@@ -494,27 +494,31 @@ export class PluginManager extends EventEmitter<{
           ...options.headers
         }
       })
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
-      
+
       return response.json()
     }
 
     return {
-      get: <T>(url: string, options?: RequestInit) => request<T>(url, { ...options, method: 'GET' }),
-      post: <T>(url: string, data?: any, options?: RequestInit) => request<T>(url, {
-        ...options,
-        method: 'POST',
-        body: data ? JSON.stringify(data) : undefined
-      }),
-      put: <T>(url: string, data?: any, options?: RequestInit) => request<T>(url, {
-        ...options,
-        method: 'PUT',
-        body: data ? JSON.stringify(data) : undefined
-      }),
-      delete: <T>(url: string, options?: RequestInit) => request<T>(url, { ...options, method: 'DELETE' })
+      get: <T>(url: string, options?: RequestInit) =>
+        request<T>(url, { ...options, method: 'GET' }),
+      post: <T>(url: string, data?: any, options?: RequestInit) =>
+        request<T>(url, {
+          ...options,
+          method: 'POST',
+          body: data ? JSON.stringify(data) : undefined
+        }),
+      put: <T>(url: string, data?: any, options?: RequestInit) =>
+        request<T>(url, {
+          ...options,
+          method: 'PUT',
+          body: data ? JSON.stringify(data) : undefined
+        }),
+      delete: <T>(url: string, options?: RequestInit) =>
+        request<T>(url, { ...options, method: 'DELETE' })
     }
   }
 
@@ -527,25 +531,25 @@ export class PluginManager extends EventEmitter<{
           timeoutId = setTimeout(() => func.apply(null, args), delay)
         }) as T
       },
-      
+
       throttle: <T extends (...args: any[]) => any>(func: T, limit: number): T => {
         let inThrottle: boolean
         return ((...args: any[]) => {
           if (!inThrottle) {
             func.apply(null, args)
             inThrottle = true
-            setTimeout(() => inThrottle = false, limit)
+            setTimeout(() => (inThrottle = false), limit)
           }
         }) as T
       },
-      
+
       nanoid: () => Math.random().toString(36).substr(2, 9),
-      
+
       formatDate: (date: Date, format = 'YYYY-MM-DD HH:mm:ss') => {
         // Simple date formatting
         return date.toLocaleString()
       },
-      
+
       formatBytes: (bytes: number) => {
         if (bytes === 0) return '0 B'
         const k = 1024
@@ -553,7 +557,7 @@ export class PluginManager extends EventEmitter<{
         const i = Math.floor(Math.log(bytes) / Math.log(k))
         return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`
       },
-      
+
       isValidUrl: (url: string) => {
         try {
           new URL(url)
@@ -562,12 +566,12 @@ export class PluginManager extends EventEmitter<{
           return false
         }
       },
-      
+
       sanitizeHtml: (html: string) => {
         // Basic HTML sanitization
         return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       },
-      
+
       escapeRegex: (text: string) => {
         return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       }
@@ -583,7 +587,9 @@ export class PluginManager extends EventEmitter<{
     }
 
     if (!/^[a-z0-9-_]+$/.test(manifest.id)) {
-      throw new Error('Plugin ID must contain only lowercase letters, numbers, hyphens, and underscores')
+      throw new Error(
+        'Plugin ID must contain only lowercase letters, numbers, hyphens, and underscores'
+      )
     }
 
     if (!/^\d+\.\d+\.\d+/.test(manifest.version)) {
@@ -604,9 +610,17 @@ export class PluginManager extends EventEmitter<{
 
   private registerPluginHooks(pluginId: string, module: PluginModule): void {
     const hookNames: PluginHook[] = [
-      'beforeMessageSend', 'afterMessageSend', 'beforeMessageReceive', 'afterMessageReceive',
-      'onChatCreate', 'onChatSelect', 'onChatDelete',
-      'onAppInit', 'onAppDestroy', 'onThemeChange', 'onSettingsChange'
+      'beforeMessageSend',
+      'afterMessageSend',
+      'beforeMessageReceive',
+      'afterMessageReceive',
+      'onChatCreate',
+      'onChatSelect',
+      'onChatDelete',
+      'onAppInit',
+      'onAppDestroy',
+      'onThemeChange',
+      'onSettingsChange'
     ]
 
     for (const hookName of hookNames) {
@@ -674,13 +688,13 @@ export class PluginManager extends EventEmitter<{
     try {
       const enabledPlugins = JSON.parse(localStorage.getItem('enabled-plugins') || '[]')
       const index = enabledPlugins.indexOf(pluginId)
-      
+
       if (enabled && index === -1) {
         enabledPlugins.push(pluginId)
       } else if (!enabled && index !== -1) {
         enabledPlugins.splice(index, 1)
       }
-      
+
       localStorage.setItem('enabled-plugins', JSON.stringify(enabledPlugins))
     } catch (error) {
       console.warn('Failed to save plugin state:', error)
@@ -692,11 +706,11 @@ export class PluginManager extends EventEmitter<{
 
     for (const schema of manifest.settings) {
       const value = settings[schema.key]
-      
+
       if (schema.required && (value === undefined || value === null)) {
         throw new Error(`Required setting missing: ${schema.key}`)
       }
-      
+
       if (value !== undefined && schema.validation) {
         // Perform validation based on schema
         if (schema.type === 'number') {
@@ -707,7 +721,7 @@ export class PluginManager extends EventEmitter<{
             throw new Error(`${schema.key} must be at most ${schema.validation.max}`)
           }
         }
-        
+
         if (schema.type === 'string' && schema.validation.pattern) {
           const regex = new RegExp(schema.validation.pattern)
           if (!regex.test(value)) {
@@ -732,7 +746,7 @@ export class PluginManager extends EventEmitter<{
     const wasEnabled = plugin.enabled
     await this.unloadPlugin(pluginId)
     const newPlugin = await this.loadPlugin(plugin.manifest)
-    
+
     if (wasEnabled) {
       await this.enablePlugin(pluginId)
     }

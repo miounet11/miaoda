@@ -116,9 +116,9 @@ export class ExportService {
   private static instance: ExportService
   private readonly BATCH_SIZE = 100 // Process messages in batches to avoid memory issues
   private readonly MAX_CONTENT_SIZE = 50 * 1024 * 1024 // 50MB limit for single export
-  
+
   private constructor() {}
-  
+
   static getInstance(): ExportService {
     if (!ExportService.instance) {
       ExportService.instance = new ExportService()
@@ -129,26 +129,29 @@ export class ExportService {
   /**
    * 导出聊天记录
    */
-  async exportChats(options: ExportOptions, progressCallback?: ProgressCallback): Promise<ExportResult> {
+  async exportChats(
+    options: ExportOptions,
+    progressCallback?: ProgressCallback
+  ): Promise<ExportResult> {
     const startTime = performance.now()
-    
+
     try {
       // Validate input
       this.validateExportOptions(options)
-      
+
       const chatData = await this.getChatData(options, progressCallback)
-      
+
       // Validate chat data and size
       const dataValidation = ExportValidator.validateChatData(chatData)
       if (!dataValidation.isValid) {
         throw new Error(`Invalid chat data: ${dataValidation.errors.join(', ')}`)
       }
-      
+
       const sizeValidation = ExportValidator.validateExportSize(chatData, options.format)
       if (!sizeValidation.isValid) {
         throw new Error(`Export size validation failed: ${sizeValidation.errors.join(', ')}`)
       }
-      
+
       progressCallback?.({
         chatId: '',
         progress: 80,
@@ -158,7 +161,7 @@ export class ExportService {
         processedMessages: chatData.reduce((sum, chat) => sum + chat.messages.length, 0),
         stage: 'generating'
       })
-      
+
       let result: ExportResult
       switch (options.format) {
         case 'markdown':
@@ -188,9 +191,9 @@ export class ExportService {
         default:
           throw new Error(`Unsupported export format: ${options.format}`)
       }
-      
+
       result.processingTime = performance.now() - startTime
-      
+
       progressCallback?.({
         chatId: '',
         progress: 100,
@@ -200,7 +203,7 @@ export class ExportService {
         processedMessages: result.messageCount,
         stage: 'completed'
       })
-      
+
       return result
     } catch (error: any) {
       console.error('Export failed:', error)
@@ -217,33 +220,38 @@ export class ExportService {
       throw new Error(`Export failed: ${error.message}`)
     }
   }
-  
+
   /**
    * 验证导出选项
    */
   private validateExportOptions(options: ExportOptions): void {
     const validation = ExportValidator.validateOptions(options)
-    
+
     if (!validation.isValid) {
       throw new Error(`Invalid export options: ${validation.errors.join(', ')}`)
     }
   }
-  
+
   /**
    * 估算内容大小
    */
   private estimateContentSize(chats: ExportChatData[]): number {
-    return chats.reduce((total, chat) => {
-      return total + chat.messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0)
-    }, 0) * 2 // Multiply by 2 for formatting overhead
+    return (
+      chats.reduce((total, chat) => {
+        return total + chat.messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0)
+      }, 0) * 2
+    ) // Multiply by 2 for formatting overhead
   }
 
   /**
    * 获取聊天数据
    */
-  private async getChatData(options: ExportOptions, progressCallback?: ProgressCallback): Promise<ExportChatData[]> {
+  private async getChatData(
+    options: ExportOptions,
+    progressCallback?: ProgressCallback
+  ): Promise<ExportChatData[]> {
     const chatData: ExportChatData[] = []
-    
+
     progressCallback?.({
       chatId: '',
       progress: 10,
@@ -253,10 +261,10 @@ export class ExportService {
       processedMessages: 0,
       stage: 'fetching'
     })
-    
+
     // 根据选项获取聊天记录
     let chats: ChatRecord[] = []
-    
+
     try {
       if (options.chatId) {
         // 单个聊天
@@ -272,7 +280,7 @@ export class ExportService {
     } catch (error: any) {
       throw new Error(`Failed to load chats: ${error.message}`)
     }
-    
+
     // 应用时间过滤
     if (options.dateFrom || options.dateTo) {
       chats = chats.filter(chat => {
@@ -282,11 +290,11 @@ export class ExportService {
         return true
       })
     }
-    
+
     if (chats.length === 0) {
       throw new Error('No chats found matching the criteria')
     }
-    
+
     progressCallback?.({
       chatId: '',
       progress: 20,
@@ -296,14 +304,14 @@ export class ExportService {
       processedMessages: 0,
       stage: 'fetching'
     })
-    
+
     // 获取每个聊天的消息（分批处理）
     let totalMessages = 0
     let processedMessages = 0
-    
+
     for (let i = 0; i < chats.length; i++) {
       const chat = chats[i]
-      
+
       try {
         progressCallback?.({
           chatId: chat.id,
@@ -314,11 +322,11 @@ export class ExportService {
           processedMessages,
           stage: 'processing'
         })
-        
+
         const messages = await this.getMessagesFromMain(chat.id, options)
         totalMessages += messages.length
         processedMessages += messages.length
-        
+
         chatData.push({
           id: chat.id,
           title: chat.title,
@@ -326,7 +334,7 @@ export class ExportService {
           updatedAt: chat.updated_at,
           messages
         })
-        
+
         // Add small delay to prevent UI blocking
         if (i % 10 === 0) {
           await new Promise(resolve => setTimeout(resolve, 10))
@@ -343,7 +351,7 @@ export class ExportService {
         })
       }
     }
-    
+
     return chatData
   }
 
@@ -377,15 +385,18 @@ export class ExportService {
     }
   }
 
-  private async getMessagesFromMain(chatId: string, options: ExportOptions): Promise<MessageRecord[]> {
+  private async getMessagesFromMain(
+    chatId: string,
+    options: ExportOptions
+  ): Promise<MessageRecord[]> {
     try {
       let messages = await window.api.export.getMessages(chatId)
-      
+
       // 过滤系统消息
       if (!options.includeSystemMessages) {
         messages = messages.filter(msg => msg.role !== 'system')
       }
-      
+
       return messages
     } catch (error) {
       console.error('Failed to get messages:', error)
@@ -399,52 +410,52 @@ export class ExportService {
   private exportToMarkdown(chats: ExportChatData[], options: ExportOptions): ExportResult {
     let content = ''
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    
+
     // 添加标题和元信息
     const title = options.title || 'Chat Export'
     content += `# ${title}\n\n`
-    
+
     if (options.includeTimestamps) {
       content += `**Export Time**: ${new Date().toLocaleString()}\n`
       content += `**Chat Count**: ${chats.length}\n`
       const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
       content += `**Total Messages**: ${messageCount}\n\n`
     }
-    
+
     if (options.author) {
       content += `**Author**: ${options.author}\n\n`
     }
-    
+
     content += '---\n\n'
-    
+
     // 处理每个聊天
     for (const [index, chat] of chats.entries()) {
       content += `## ${index + 1}. ${chat.title}\n\n`
-      
+
       if (options.includeTimestamps) {
         content += `**Created**: ${new Date(chat.createdAt).toLocaleString()}\n`
         content += `**Updated**: ${new Date(chat.updatedAt).toLocaleString()}\n`
         content += `**Messages**: ${chat.messages.length}\n\n`
       }
-      
+
       // 处理消息
       for (const message of chat.messages) {
         const roleIcon = message.role === 'user' ? '👤' : '🤖'
         const roleName = message.role === 'user' ? 'User' : 'Assistant'
         content += `### ${roleIcon} ${roleName}\n\n`
-        
+
         if (options.includeTimestamps) {
           content += `*${new Date(message.created_at).toLocaleString()}*\n\n`
         }
-        
+
         content += `${message.content}\n\n`
       }
-      
+
       content += '---\n\n'
     }
-    
+
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     return {
       content,
       filename: `chat-export-${timestamp}.md`,
@@ -462,7 +473,7 @@ export class ExportService {
   private exportToJSON(chats: ExportChatData[], options: ExportOptions): ExportResult {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     const exportData = {
       exportInfo: {
         timestamp: new Date().toISOString(),
@@ -496,9 +507,9 @@ export class ExportService {
         }))
       }))
     }
-    
+
     const content = JSON.stringify(exportData, null, 2)
-    
+
     return {
       content,
       filename: `chat-export-${timestamp}.json`,
@@ -517,7 +528,7 @@ export class ExportService {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const title = options.title || 'Chat Export'
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -639,22 +650,26 @@ export class ExportService {
                 <span class="info-label">Total Messages:</span>
                 <span>${messageCount}</span>
             </div>
-            ${options.author ? `
+            ${
+              options.author
+                ? `
             <div class="info-item">
                 <span class="info-label">Author:</span>
                 <span>${this.escapeHtml(options.author)}</span>
             </div>
-            ` : ''}
+            `
+                : ''
+            }
         </div>
     </div>
 `
-    
+
     // 处理每个聊天
     for (const [index, chat] of chats.entries()) {
       html += `    <div class="chat">
         <h2 class="chat-title">${index + 1}. ${this.escapeHtml(chat.title)}</h2>
 `
-      
+
       if (options.includeTimestamps) {
         html += `        <div class="chat-meta">
             Created: ${new Date(chat.createdAt).toLocaleString()} | 
@@ -663,13 +678,13 @@ export class ExportService {
         </div>
 `
       }
-      
+
       // 处理消息
       for (const message of chat.messages) {
         const messageClass = `${message.role}-message`
         const roleIcon = message.role === 'user' ? '👤' : message.role === 'assistant' ? '🤖' : '⚙️'
         const roleName = message.role.charAt(0).toUpperCase() + message.role.slice(1)
-        
+
         html += `        <div class="message ${messageClass}">
             <div class="message-role">
                 <span>${roleIcon} ${roleName}</span>
@@ -679,14 +694,14 @@ export class ExportService {
         </div>
 `
       }
-      
+
       html += `    </div>
 `
     }
-    
+
     html += `</body>
 </html>`
-    
+
     return {
       content: html,
       filename: `chat-export-${timestamp}.html`,
@@ -705,47 +720,52 @@ export class ExportService {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     let content = ''
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
-    
+
     // 添加标题
     const title = options.title || 'Chat Export'
     content += `${title}\n${'='.repeat(title.length)}\n\n`
-    
+
     content += `Export Time: ${new Date().toLocaleString()}\n`
     content += `Chat Count: ${chats.length}\n`
     content += `Total Messages: ${messageCount}\n\n`
-    
+
     if (options.author) {
       content += `Author: ${options.author}\n\n`
     }
-    
+
     content += `${'-'.repeat(50)}\n\n`
-    
+
     // 处理每个聊天
     for (const [index, chat] of chats.entries()) {
       content += `${index + 1}. ${chat.title}\n`
-      
+
       if (options.includeTimestamps) {
         content += `   Created: ${new Date(chat.createdAt).toLocaleString()}\n`
         content += `   Updated: ${new Date(chat.updatedAt).toLocaleString()}\n`
       }
-      
+
       content += `\n`
-      
+
       // 处理消息
       for (const message of chat.messages) {
-        const roleLabel = message.role === 'user' ? '[User]' : message.role === 'assistant' ? '[Assistant]' : '[System]'
+        const roleLabel =
+          message.role === 'user'
+            ? '[User]'
+            : message.role === 'assistant'
+              ? '[Assistant]'
+              : '[System]'
         content += `${roleLabel} `
-        
+
         if (options.includeTimestamps) {
           content += `(${new Date(message.created_at).toLocaleString()}) `
         }
-        
+
         content += `\n${message.content}\n\n`
       }
-      
+
       content += `${'-'.repeat(50)}\n\n`
     }
-    
+
     return {
       content,
       filename: `chat-export-${timestamp}.txt`,
@@ -760,9 +780,12 @@ export class ExportService {
   /**
    * 导出为PDF格式
    */
-  private async exportToPDF(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+  private async exportToPDF(
+    chats: ExportChatData[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const pdfExporter = PDFExporter.getInstance()
-    
+
     if (options.pdfOptions?.method === 'html2canvas') {
       return await pdfExporter.exportToPDF(chats, options)
     } else {
@@ -774,7 +797,10 @@ export class ExportService {
   /**
    * 导出为CSV格式
    */
-  private async exportToCSV(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+  private async exportToCSV(
+    chats: ExportChatData[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const csvExporter = CSVExporter.getInstance()
     return await csvExporter.exportToCSV(chats, options)
   }
@@ -782,7 +808,10 @@ export class ExportService {
   /**
    * 导出为Excel格式
    */
-  private async exportToExcel(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+  private async exportToExcel(
+    chats: ExportChatData[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const csvExporter = CSVExporter.getInstance()
     return await csvExporter.exportToExcel(chats, options)
   }
@@ -790,7 +819,10 @@ export class ExportService {
   /**
    * 导出为DOCX格式
    */
-  private async exportToDOCX(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+  private async exportToDOCX(
+    chats: ExportChatData[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const docxExporter = DOCXExporter.getInstance()
     return await docxExporter.exportToDOCX(chats, options)
   }
@@ -798,7 +830,10 @@ export class ExportService {
   /**
    * 导出为ZIP格式
    */
-  private async exportToZip(chats: ExportChatData[], options: ExportOptions): Promise<ExportResult> {
+  private async exportToZip(
+    chats: ExportChatData[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const zipExporter = ZipExporter.getInstance()
     return await zipExporter.exportToZip(chats, options)
   }
@@ -814,7 +849,7 @@ export class ExportService {
       '"': '&quot;',
       "'": '&#039;'
     }
-    return text.replace(/[&<>"']/g, (m) => map[m])
+    return text.replace(/[&<>"']/g, m => map[m])
   }
 
   /**
@@ -823,7 +858,7 @@ export class ExportService {
   downloadFile(result: ExportResult): void {
     // Handle different file types with specialized downloaders
     const format = result.filename.split('.').pop()?.toLowerCase() || ''
-    
+
     // Special handling for binary formats with data URI
     if (result.content.startsWith('data:')) {
       switch (format) {
@@ -846,28 +881,28 @@ export class ExportService {
           return
       }
     }
-    
+
     // Validate MIME type matches format
     if (!ExportValidator.validateMimeType(format, result.mimeType)) {
       console.warn(`MIME type ${result.mimeType} doesn't match file format ${format}`)
     }
-    
+
     // Sanitize filename for security
     const sanitizedFilename = ExportValidator.sanitizeFilename(result.filename)
-    
+
     // Default handling for text-based formats
     const blob = new Blob([result.content], { type: result.mimeType })
     const url = URL.createObjectURL(blob)
-    
+
     const a = document.createElement('a')
     a.href = url
     a.download = sanitizedFilename
     a.style.display = 'none'
-    
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    
+
     URL.revokeObjectURL(url)
   }
 }

@@ -6,7 +6,7 @@
         <div class="call-icon">
           <component :is="statusIcon" :size="16" :class="statusIconClass" />
         </div>
-        
+
         <div class="call-details">
           <div class="call-name">
             <Wrench :size="14" />
@@ -15,14 +15,14 @@
               ({{ formatDuration(call.duration) }})
             </span>
           </div>
-          
+
           <div class="call-meta">
             <span class="call-time">{{ formatTime(call.timestamp) }}</span>
             <span class="call-status">{{ statusText }}</span>
           </div>
         </div>
       </div>
-      
+
       <div class="call-actions">
         <button
           v-if="canAbort"
@@ -32,7 +32,7 @@
         >
           <Square :size="14" />
         </button>
-        
+
         <button
           v-if="canRetry"
           @click.stop="retryCall"
@@ -41,22 +41,22 @@
         >
           <RotateCcw :size="14" />
         </button>
-        
+
         <button
           class="expand-btn"
-          :class="{ 'expanded': isExpanded }"
+          :class="{ expanded: isExpanded }"
           :title="isExpanded ? $t('common.collapse') : $t('common.expand')"
         >
           <ChevronDown :size="14" />
         </button>
       </div>
     </div>
-    
+
     <!-- Progress Bar -->
     <div v-if="call.status === 'running'" class="progress-bar">
       <div class="progress-fill" :style="{ width: progressWidth + '%' }" />
     </div>
-    
+
     <!-- Call Details (Expandable) -->
     <Transition name="expand">
       <div v-if="isExpanded" class="call-details-expanded">
@@ -66,13 +66,9 @@
             <Settings :size="14" />
             {{ $t('mcp.arguments') }}
           </h4>
-          
+
           <div class="arguments-grid">
-            <div
-              v-for="(value, key) in call.arguments"
-              :key="key"
-              class="argument-item"
-            >
+            <div v-for="(value, key) in call.arguments" :key="key" class="argument-item">
               <div class="argument-key">{{ key }}</div>
               <div class="argument-value">
                 <CodeBlock
@@ -86,14 +82,14 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Result -->
         <div v-if="call.result" class="call-section">
           <h4 class="section-title">
             <CheckCircle :size="14" />
             {{ $t('mcp.result') }}
           </h4>
-          
+
           <div class="result-container">
             <CodeBlock
               v-if="isComplexResult"
@@ -101,89 +97,77 @@
               :language="resultLanguage"
               :max-height="400"
             />
-            
+
             <div v-else class="simple-result">
               {{ call.result }}
             </div>
-            
+
             <!-- Copy Result Button -->
-            <button
-              @click="copyResult"
-              class="copy-btn"
-              :title="$t('common.copy')"
-            >
+            <button @click="copyResult" class="copy-btn" :title="$t('common.copy')">
               <Copy :size="14" />
             </button>
           </div>
         </div>
-        
+
         <!-- Error -->
         <div v-if="call.error" class="call-section error-section">
           <h4 class="section-title">
             <AlertCircle :size="14" />
             {{ $t('mcp.error') }}
           </h4>
-          
+
           <div class="error-container">
             <div class="error-message">{{ call.error }}</div>
-            
+
             <div v-if="errorDetails" class="error-details">
-              <CodeBlock
-                :content="errorDetails"
-                language="json"
-                :max-height="200"
-              />
+              <CodeBlock :content="errorDetails" language="json" :max-height="200" />
             </div>
           </div>
         </div>
-        
+
         <!-- Tool Documentation -->
         <div v-if="toolInfo" class="call-section">
           <h4 class="section-title">
             <BookOpen :size="14" />
             {{ $t('mcp.toolInfo') }}
           </h4>
-          
+
           <div class="tool-info">
             <div class="tool-description">{{ toolInfo.description }}</div>
-            
+
             <div v-if="toolInfo.category" class="tool-category">
               <Tag :size="12" />
               {{ toolInfo.category }}
             </div>
-            
+
             <div v-if="toolInfo.tags?.length" class="tool-tags">
-              <span
-                v-for="tag in toolInfo.tags"
-                :key="tag"
-                class="tool-tag"
-              >
+              <span v-for="tag in toolInfo.tags" :key="tag" class="tool-tag">
                 {{ tag }}
               </span>
             </div>
           </div>
         </div>
-        
+
         <!-- Performance Metrics -->
         <div v-if="call.duration" class="call-section">
           <h4 class="section-title">
             <BarChart :size="14" />
             {{ $t('mcp.performance') }}
           </h4>
-          
+
           <div class="performance-metrics">
             <div class="metric">
               <Clock :size="12" />
               <span class="metric-label">{{ $t('mcp.duration') }}</span>
               <span class="metric-value">{{ formatDuration(call.duration) }}</span>
             </div>
-            
+
             <div v-if="call.result" class="metric">
               <Database :size="12" />
               <span class="metric-label">{{ $t('mcp.resultSize') }}</span>
               <span class="metric-value">{{ formatBytes(getResultSize()) }}</span>
             </div>
-            
+
             <div class="metric">
               <Activity :size="12" />
               <span class="metric-label">{{ $t('mcp.status') }}</span>
@@ -201,9 +185,24 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Wrench, Settings, CheckCircle, AlertCircle, BookOpen, Tag,
-  BarChart, Clock, Database, Activity, Copy, Square, RotateCcw,
-  ChevronDown, Play, Pause, XCircle, Loader
+  Wrench,
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  BookOpen,
+  Tag,
+  BarChart,
+  Clock,
+  Database,
+  Activity,
+  Copy,
+  Square,
+  RotateCcw,
+  ChevronDown,
+  Play,
+  Pause,
+  XCircle,
+  Loader
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { mcpService, type MCPToolCall } from '@renderer/src/services/mcp/MCPService'
@@ -272,8 +271,7 @@ const statusText = computed(() => {
 })
 
 const canAbort = computed(() => {
-  return props.showActions && 
-         (props.call.status === 'pending' || props.call.status === 'running')
+  return props.showActions && (props.call.status === 'pending' || props.call.status === 'running')
 })
 
 const canRetry = computed(() => {
@@ -290,21 +288,21 @@ const isComplexResult = computed(() => {
 
 const formattedResult = computed(() => {
   if (!props.call.result) return ''
-  
+
   if (typeof props.call.result === 'object') {
     return JSON.stringify(props.call.result, null, 2)
   }
-  
+
   return String(props.call.result)
 })
 
 const resultLanguage = computed(() => {
   if (!props.call.result) return 'text'
-  
+
   if (typeof props.call.result === 'object') {
     return 'json'
   }
-  
+
   // Try to detect language from content
   const content = String(props.call.result)
   if (content.includes('<!DOCTYPE html') || content.includes('<html')) {
@@ -316,13 +314,13 @@ const resultLanguage = computed(() => {
   if (content.startsWith('{') || content.startsWith('[')) {
     return 'json'
   }
-  
+
   return 'text'
 })
 
 const errorDetails = computed(() => {
   if (!props.call.error) return null
-  
+
   try {
     // Try to parse error as JSON for better display
     return JSON.parse(props.call.error)
@@ -352,7 +350,7 @@ const retryCall = () => {
 
 const copyResult = async () => {
   if (!props.call.result) return
-  
+
   try {
     await navigator.clipboard.writeText(formattedResult.value)
     // Show success toast
@@ -368,7 +366,7 @@ const isComplexValue = (value: any): boolean => {
 const formatTime = (timestamp: Date): string => {
   const now = new Date()
   const diff = now.getTime() - timestamp.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -392,33 +390,33 @@ const formatDuration = (duration: number): string => {
 
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 B'
-  
+
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 const getResultSize = (): number => {
   if (!props.call.result) return 0
-  
+
   const content = formattedResult.value
   return new Blob([content]).size
 }
 
 const startProgressAnimation = () => {
   if (props.call.status !== 'running') return
-  
+
   progressWidth.value = 0
   const startTime = Date.now()
-  
+
   progressTimer = setInterval(() => {
     const elapsed = Date.now() - startTime
     const progress = Math.min(90, (elapsed / 30000) * 100) // Cap at 90% until completion
-    
+
     progressWidth.value = progress
-    
+
     if (props.call.status !== 'running') {
       progressWidth.value = 100
       if (progressTimer) {
@@ -689,8 +687,12 @@ onUnmounted(() => {
 
 /* Animations */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-spin {
@@ -702,11 +704,11 @@ onUnmounted(() => {
   .call-header {
     @apply p-3;
   }
-  
+
   .call-section {
     @apply p-3;
   }
-  
+
   .performance-metrics {
     @apply grid-cols-1;
   }
@@ -717,7 +719,7 @@ onUnmounted(() => {
   .mcp-tool-call {
     @apply border-2;
   }
-  
+
   .action-btn:focus {
     @apply ring-2 ring-primary;
   }
@@ -729,11 +731,11 @@ onUnmounted(() => {
   .expand-leave-active {
     transition: none;
   }
-  
+
   .animate-spin {
     animation: none;
   }
-  
+
   .progress-fill {
     transition: none;
   }

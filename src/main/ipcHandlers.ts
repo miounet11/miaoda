@@ -15,10 +15,10 @@ import { registerAuthHandlers } from './security/authHandlers'
 // Simple window manager for multi-window support
 class WindowManager {
   private windows = new Map<string, BrowserWindow>()
-  
+
   createWindow(options: any = {}): { id: string; [key: string]: any } {
     const windowId = `window-${Date.now()}`
-    
+
     const window = new BrowserWindow({
       width: options.width || 1200,
       height: options.height || 800,
@@ -29,17 +29,17 @@ class WindowManager {
         contextIsolation: true
       }
     })
-    
+
     this.windows.set(windowId, window)
-    
+
     // Clean up when window is closed
     window.on('closed', () => {
       this.windows.delete(windowId)
     })
-    
+
     return { id: windowId, ...options }
   }
-  
+
   closeWindow(windowId: string): boolean {
     const window = this.windows.get(windowId)
     if (window) {
@@ -49,7 +49,7 @@ class WindowManager {
     }
     return false
   }
-  
+
   focusWindow(windowId: string): boolean {
     const window = this.windows.get(windowId)
     if (window) {
@@ -58,7 +58,7 @@ class WindowManager {
     }
     return false
   }
-  
+
   minimizeWindow(windowId: string): boolean {
     const window = this.windows.get(windowId)
     if (window) {
@@ -67,7 +67,7 @@ class WindowManager {
     }
     return false
   }
-  
+
   maximizeWindow(windowId: string): boolean {
     const window = this.windows.get(windowId)
     if (window) {
@@ -80,7 +80,7 @@ class WindowManager {
     }
     return false
   }
-  
+
   restoreWindow(windowId: string): boolean {
     const window = this.windows.get(windowId)
     if (window) {
@@ -89,7 +89,7 @@ class WindowManager {
     }
     return false
   }
-  
+
   getWindowState(windowId: string): any {
     const window = this.windows.get(windowId)
     if (window) {
@@ -104,7 +104,7 @@ class WindowManager {
     }
     return null
   }
-  
+
   getAllWindows(): any[] {
     return Array.from(this.windows.entries()).map(([id, window]) => ({
       id,
@@ -124,12 +124,12 @@ export function registerIPCHandlers(
   pluginManager: PluginManager
 ) {
   logger.info('Registering IPC handlers', 'IPC', { dbInitialized: !!db })
-  
+
   // TODO: Re-enable authentication system after fixing initialization order
   // Initialize authentication system
   // const userService = new UserService((db as any).db) // Access the underlying SQLite database
   // registerAuthHandlers(userService)
-  
+
   // App version handler
   ipcMain.handle('get-app-version', () => app.getVersion())
 
@@ -148,7 +148,7 @@ export function registerIPCHandlers(
     try {
       // Validate and sanitize input
       const validatedPrompt = InputValidator.validateLLMPrompt(prompt)
-      
+
       // Check if LLM is configured
       if (!llmManager.isConfigured()) {
         throw new Error('No LLM provider configured')
@@ -158,17 +158,17 @@ export function registerIPCHandlers(
       // Create a temporary chat ID for summary generation
       const tempChatId = `summary-${Date.now()}`
       let fullResponse = ''
-      
+
       // Send message through llmManager
       await llmManager.sendMessage(
         validatedPrompt,
         tempChatId,
         '', // Empty provider ID instead of undefined
-        (chunk) => {
+        chunk => {
           fullResponse += chunk
         }
       )
-      
+
       if (!fullResponse.trim()) {
         throw new Error('Empty response from LLM provider')
       }
@@ -186,7 +186,7 @@ export function registerIPCHandlers(
   ipcMain.handle('mcp:get-servers', () => {
     return getAllServers()
   })
-  
+
   ipcMain.handle('mcp:discover-servers', () => {
     return getAllServers() // Return same as get-servers for compatibility
   })
@@ -267,7 +267,14 @@ export function registerIPCHandlers(
   ipcMain.handle('window:get-state', async (_, windowId) => {
     try {
       const state = windowManager.getWindowState(windowId)
-      return state || { id: windowId, title: 'MiaoDa Chat', isMaximized: false, error: 'Window not found' }
+      return (
+        state || {
+          id: windowId,
+          title: 'MiaoDa Chat',
+          isMaximized: false,
+          error: 'Window not found'
+        }
+      )
     } catch (error: any) {
       logger.error('Failed to get window state', 'WindowManager', error)
       return { id: windowId, title: 'MiaoDa Chat', isMaximized: false, error: error.message }
@@ -319,8 +326,17 @@ export function registerIPCHandlers(
   })
 
   ipcMain.handle('db:update-chat', async (_, id, title, updated_at) => {
-    const validatedUpdate = InputValidator.validateChatInput({ id, title, updated_at, created_at: Date.now() })
-    db.updateChat(validatedUpdate.id, validatedUpdate.title, updated_at?.toString() || new Date().toISOString())
+    const validatedUpdate = InputValidator.validateChatInput({
+      id,
+      title,
+      updated_at,
+      created_at: Date.now()
+    })
+    db.updateChat(
+      validatedUpdate.id,
+      validatedUpdate.title,
+      updated_at?.toString() || new Date().toISOString()
+    )
   })
 
   ipcMain.handle('db:delete-chat', async (_, id) => {
@@ -343,18 +359,20 @@ export function registerIPCHandlers(
     const messageRecord = {
       ...validatedMessage,
       created_at: validatedMessage.created_at?.toString() || new Date().toISOString(),
-      attachments: validatedMessage.attachments ? JSON.stringify(validatedMessage.attachments) : undefined
+      attachments: validatedMessage.attachments
+        ? JSON.stringify(validatedMessage.attachments)
+        : undefined
     }
     db.createMessage(messageRecord)
   })
 
   ipcMain.handle('db:update-message', async (_, messageId, content) => {
-    const validatedUpdate = InputValidator.validateMessageInput({ 
-      id: messageId, 
-      chat_id: 'temp-chat-id', 
-      role: 'user', 
-      content, 
-      created_at: Date.now() 
+    const validatedUpdate = InputValidator.validateMessageInput({
+      id: messageId,
+      chat_id: 'temp-chat-id',
+      role: 'user',
+      content,
+      created_at: Date.now()
     })
     db.updateMessage(validatedUpdate.id, validatedUpdate.content)
   })
@@ -440,10 +458,10 @@ export function registerIPCHandlers(
     try {
       logger.debug('Generating analytics', 'IPC', { filter })
       const result = db.generateAnalytics(filter)
-      logger.debug('Analytics generated successfully', 'IPC', { 
+      logger.debug('Analytics generated successfully', 'IPC', {
         timeRange: result.timeRange,
         totalChats: result.chat.totalChats,
-        totalMessages: result.chat.totalMessages 
+        totalMessages: result.chat.totalMessages
       })
       return result
     } catch (error: any) {
@@ -519,7 +537,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:build-semantic-index', async () => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.buildSemanticIndex?.() || { success: false, message: 'Not implemented' }
+      return (await db.buildSemanticIndex?.()) || { success: false, message: 'Not implemented' }
     } catch (error: any) {
       logger.error('Failed to build semantic index', 'IPCHandlers', error)
       throw new Error(`Failed to build semantic index: ${error.message}`)
@@ -529,7 +547,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:semantic', async (_, searchQuery) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.semanticSearch?.(searchQuery) || []
+      return (await db.semanticSearch?.(searchQuery)) || []
     } catch (error: any) {
       logger.error('Failed to perform semantic search', 'IPCHandlers', error)
       throw new Error(`Failed to perform semantic search: ${error.message}`)
@@ -539,7 +557,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:hybrid', async (_, searchQuery) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.hybridSearch?.(searchQuery) || []
+      return (await db.hybridSearch?.(searchQuery)) || []
     } catch (error: any) {
       logger.error('Failed to perform hybrid search', 'IPCHandlers', error)
       throw new Error(`Failed to perform hybrid search: ${error.message}`)
@@ -549,7 +567,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:find-similar', async (_, messageId, limit = 5) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.findSimilarMessages?.(messageId, limit) || []
+      return (await db.findSimilarMessages?.(messageId, limit)) || []
     } catch (error: any) {
       logger.error('Failed to find similar messages', 'IPCHandlers', error)
       throw new Error(`Failed to find similar messages: ${error.message}`)
@@ -570,7 +588,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:build-vector-index', async () => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.buildVectorIndex?.() || { success: false, message: 'Not implemented' }
+      return (await db.buildVectorIndex?.()) || { success: false, message: 'Not implemented' }
     } catch (error: any) {
       logger.error('Failed to build vector index', 'IPCHandlers', error)
       throw new Error(`Failed to build vector index: ${error.message}`)
@@ -580,7 +598,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:optimize-vector-index', async () => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.optimizeVectorIndex?.() || { success: false, message: 'Not implemented' }
+      return (await db.optimizeVectorIndex?.()) || { success: false, message: 'Not implemented' }
     } catch (error: any) {
       logger.error('Failed to optimize vector index', 'IPCHandlers', error)
       throw new Error(`Failed to optimize vector index: ${error.message}`)
@@ -601,7 +619,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:multimodal', async (_, searchQuery) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.multimodalSearch?.(searchQuery) || []
+      return (await db.multimodalSearch?.(searchQuery)) || []
     } catch (error: any) {
       logger.error('Failed to perform multimodal search', 'IPCHandlers', error)
       throw new Error(`Failed to perform multimodal search: ${error.message}`)
@@ -611,7 +629,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:images', async (_, query, options) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.searchImages?.(query, options) || []
+      return (await db.searchImages?.(query, options)) || []
     } catch (error: any) {
       logger.error('Failed to search images', 'IPCHandlers', error)
       throw new Error(`Failed to search images: ${error.message}`)
@@ -621,7 +639,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:documents', async (_, query) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.searchDocuments?.(query) || []
+      return (await db.searchDocuments?.(query)) || []
     } catch (error: any) {
       logger.error('Failed to search documents', 'IPCHandlers', error)
       throw new Error(`Failed to search documents: ${error.message}`)
@@ -631,7 +649,7 @@ export function registerIPCHandlers(
   ipcMain.handle('search:audio', async (_, query) => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.searchAudio?.(query) || []
+      return (await db.searchAudio?.(query)) || []
     } catch (error: any) {
       logger.error('Failed to search audio', 'IPCHandlers', error)
       throw new Error(`Failed to search audio: ${error.message}`)
@@ -672,7 +690,12 @@ export function registerIPCHandlers(
   ipcMain.handle('search:optimize-performance', async () => {
     try {
       // @ts-ignore - Method may not exist on all database implementations
-      return await db.optimizeSearchPerformance?.() || { optimizationsApplied: [], estimatedImprovement: 'No optimizations available' }
+      return (
+        (await db.optimizeSearchPerformance?.()) || {
+          optimizationsApplied: [],
+          estimatedImprovement: 'No optimizations available'
+        }
+      )
     } catch (error: any) {
       logger.error('Failed to optimize search performance', 'IPCHandlers', error)
       throw new Error(`Failed to optimize search performance: ${error.message}`)
@@ -718,16 +741,14 @@ export function registerIPCHandlers(
     try {
       const result = await dialog.showSaveDialog({
         defaultPath: fileName,
-        filters: filters || [
-          { name: 'All Files', extensions: ['*'] }
-        ]
+        filters: filters || [{ name: 'All Files', extensions: ['*'] }]
       })
-      
+
       if (!result.canceled && result.filePath) {
         await writeFile(result.filePath, content, 'utf-8')
         return { success: true, filePath: result.filePath }
       }
-      
+
       return { success: false, canceled: true }
     } catch (error: any) {
       logger.error('Failed to save export file', 'IPCHandlers', error)
@@ -735,27 +756,30 @@ export function registerIPCHandlers(
     }
   })
 
-  ipcMain.handle('export:get-messages-stream', async (event, chatId: string, offset: number = 0, limit: number = 100) => {
-    try {
-      // This would need to be implemented in the database layer
-      // For now, return all messages but could be enhanced for pagination
-      const messages = db.getMessages(chatId)
-      
-      // Simulate streaming by chunking
-      const chunk = messages.slice(offset, offset + limit)
-      const hasMore = offset + limit < messages.length
-      
-      return {
-        messages: chunk,
-        hasMore,
-        total: messages.length,
-        offset: offset + chunk.length
+  ipcMain.handle(
+    'export:get-messages-stream',
+    async (event, chatId: string, offset: number = 0, limit: number = 100) => {
+      try {
+        // This would need to be implemented in the database layer
+        // For now, return all messages but could be enhanced for pagination
+        const messages = db.getMessages(chatId)
+
+        // Simulate streaming by chunking
+        const chunk = messages.slice(offset, offset + limit)
+        const hasMore = offset + limit < messages.length
+
+        return {
+          messages: chunk,
+          hasMore,
+          total: messages.length,
+          offset: offset + chunk.length
+        }
+      } catch (error: any) {
+        logger.error('Failed to stream messages for chat', 'IPCHandlers', error)
+        throw new Error(`Failed to stream messages: ${error.message}`)
       }
-    } catch (error: any) {
-      logger.error('Failed to stream messages for chat', 'IPCHandlers', error)
-      throw new Error(`Failed to stream messages: ${error.message}`)
     }
-  })
+  )
 
   ipcMain.handle('export:get-all-chats', async () => {
     try {
@@ -766,37 +790,40 @@ export function registerIPCHandlers(
     }
   })
 
-  ipcMain.handle('export:get-chats-stream', async (event, chatIds: string[], batchSize: number = 10) => {
-    try {
-      const batches: ChatRecord[][] = []
-      for (let i = 0; i < chatIds.length; i += batchSize) {
-        const batch = chatIds.slice(i, i + batchSize)
-        const chats: ChatRecord[] = []
-        
-        for (const id of batch) {
-          const chat = db.getChat(id)
-          if (chat) chats.push(chat)
+  ipcMain.handle(
+    'export:get-chats-stream',
+    async (event, chatIds: string[], batchSize: number = 10) => {
+      try {
+        const batches: ChatRecord[][] = []
+        for (let i = 0; i < chatIds.length; i += batchSize) {
+          const batch = chatIds.slice(i, i + batchSize)
+          const chats: ChatRecord[] = []
+
+          for (const id of batch) {
+            const chat = db.getChat(id)
+            if (chat) chats.push(chat)
+          }
+
+          batches.push(chats)
+
+          // Send progress update
+          event.sender.send('export:progress', {
+            processed: Math.min(i + batchSize, chatIds.length),
+            total: chatIds.length,
+            stage: 'loading-chats'
+          })
+
+          // Small delay to prevent blocking
+          await new Promise(resolve => setTimeout(resolve, 10))
         }
-        
-        batches.push(chats)
-        
-        // Send progress update
-        event.sender.send('export:progress', {
-          processed: Math.min(i + batchSize, chatIds.length),
-          total: chatIds.length,
-          stage: 'loading-chats'
-        })
-        
-        // Small delay to prevent blocking
-        await new Promise(resolve => setTimeout(resolve, 10))
+
+        return batches.flat()
+      } catch (error: any) {
+        logger.error('Failed to stream chats', 'IPCHandlers', error)
+        throw new Error(`Failed to stream chats: ${error.message}`)
       }
-      
-      return batches.flat()
-    } catch (error: any) {
-      logger.error('Failed to stream chats', 'IPCHandlers', error)
-      throw new Error(`Failed to stream chats: ${error.message}`)
     }
-  })
+  )
 
   logger.info('IPC handlers registered successfully', 'IPCHandlers')
 }

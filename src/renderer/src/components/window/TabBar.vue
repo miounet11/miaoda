@@ -1,11 +1,7 @@
 <template>
   <div class="tab-bar" :class="tabBarClasses">
     <!-- Tab List -->
-    <div 
-      ref="tabListRef"
-      class="tab-list"
-      @wheel="handleWheel"
-    >
+    <div ref="tabListRef" class="tab-list" @wheel="handleWheel">
       <div
         v-for="(tab, index) in tabs"
         :key="tab.id"
@@ -21,31 +17,23 @@
       >
         <!-- Tab Icon -->
         <div v-if="tab.icon || getTabIcon(tab)" class="tab-icon">
-          <component 
-            v-if="tab.icon"
-            :is="tab.icon" 
-            :size="14" 
-          />
-          <component 
-            v-else
-            :is="getTabIcon(tab)" 
-            :size="14" 
-          />
+          <component v-if="tab.icon" :is="tab.icon" :size="14" />
+          <component v-else :is="getTabIcon(tab)" :size="14" />
         </div>
-        
+
         <!-- Tab Title -->
         <div class="tab-title" :title="tab.title">
           {{ tab.title }}
           <span v-if="tab.modified" class="modified-indicator">•</span>
         </div>
-        
+
         <!-- Tab Actions -->
         <div class="tab-actions">
           <!-- Loading indicator -->
           <div v-if="isTabLoading(tab)" class="tab-loading">
             <Loader :size="12" class="animate-spin" />
           </div>
-          
+
           <!-- Close button -->
           <button
             v-if="tab.closable"
@@ -57,18 +45,13 @@
           </button>
         </div>
       </div>
-      
+
       <!-- Add Tab Button -->
-      <button
-        v-if="showAddButton"
-        @click="addTab"
-        class="add-tab-btn"
-        :title="$t('tab.addNew')"
-      >
+      <button v-if="showAddButton" @click="addTab" class="add-tab-btn" :title="$t('tab.addNew')">
         <Plus :size="14" />
       </button>
     </div>
-    
+
     <!-- Tab Navigation Buttons -->
     <div v-if="showNavigation" class="tab-navigation">
       <button
@@ -79,7 +62,7 @@
       >
         <ChevronLeft :size="16" />
       </button>
-      
+
       <button
         @click="scrollRight"
         class="nav-btn"
@@ -89,18 +72,14 @@
         <ChevronRight :size="16" />
       </button>
     </div>
-    
+
     <!-- Tab Menu -->
     <div v-if="showTabMenu" class="tab-menu">
-      <button
-        @click="showAllTabsMenu"
-        class="tab-menu-btn"
-        :title="$t('tab.showAll')"
-      >
+      <button @click="showAllTabsMenu" class="tab-menu-btn" :title="$t('tab.showAll')">
         <MoreHorizontal :size="16" />
       </button>
     </div>
-    
+
     <!-- Context Menu -->
     <ContextMenu
       v-if="contextMenu.visible"
@@ -110,13 +89,9 @@
       @close="hideContextMenu"
       @action="handleContextAction"
     />
-    
+
     <!-- All Tabs Menu -->
-    <div 
-      v-if="allTabsMenuVisible"
-      class="all-tabs-menu"
-      @click.self="allTabsMenuVisible = false"
-    >
+    <div v-if="allTabsMenuVisible" class="all-tabs-menu" @click.self="allTabsMenuVisible = false">
       <div class="all-tabs-menu-content">
         <div class="menu-header">
           <h3>{{ $t('tab.allTabs') }}</h3>
@@ -124,13 +99,13 @@
             <X :size="16" />
           </button>
         </div>
-        
+
         <div class="menu-tabs">
           <div
             v-for="tab in tabs"
             :key="tab.id"
             class="menu-tab"
-            :class="{ 'active': tab.id === activeTabId }"
+            :class="{ active: tab.id === activeTabId }"
             @click="selectTabAndCloseMenu(tab.id)"
           >
             <component :is="getTabIcon(tab)" :size="14" />
@@ -146,8 +121,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import {
-  Plus, X, ChevronLeft, ChevronRight, MoreHorizontal, Loader,
-  MessageSquare, Settings, Wrench, Puzzle, FileText
+  Plus,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Loader,
+  MessageSquare,
+  Settings,
+  Wrench,
+  Puzzle,
+  FileText
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { windowManager, type WindowTab } from '@renderer/src/services/window/WindowManager'
@@ -276,7 +260,7 @@ const setTabLoading = (tabId: string, loading: boolean) => {
 // Scrolling
 const handleWheel = (event: WheelEvent) => {
   if (!tabListRef.value) return
-  
+
   event.preventDefault()
   const delta = event.deltaY || event.deltaX
   tabListRef.value.scrollLeft += delta
@@ -285,10 +269,10 @@ const handleWheel = (event: WheelEvent) => {
 
 const scrollLeft = () => {
   if (!tabListRef.value) return
-  
+
   const scrollAmount = 150
   tabListRef.value.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
-  
+
   setTimeout(() => {
     scrollPosition.value = tabListRef.value!.scrollLeft
   }, 300)
@@ -296,10 +280,10 @@ const scrollLeft = () => {
 
 const scrollRight = () => {
   if (!tabListRef.value) return
-  
+
   const scrollAmount = 150
   tabListRef.value.scrollBy({ left: scrollAmount, behavior: 'smooth' })
-  
+
   setTimeout(() => {
     scrollPosition.value = tabListRef.value!.scrollLeft
   }, 300)
@@ -308,7 +292,7 @@ const scrollRight = () => {
 // Context Menu
 const showTabContextMenu = (tab: WindowTab, event: MouseEvent) => {
   event.preventDefault()
-  
+
   const items: ContextMenuItem[] = [
     {
       id: 'duplicate',
@@ -352,7 +336,7 @@ const showTabContextMenu = (tab: WindowTab, event: MouseEvent) => {
       action: () => moveTabToNewWindow(tab.id)
     }
   ]
-  
+
   contextMenu.value = {
     visible: true,
     x: event.clientX,
@@ -360,7 +344,7 @@ const showTabContextMenu = (tab: WindowTab, event: MouseEvent) => {
     items,
     tab
   }
-  
+
   emit('tab-context', tab, event)
 }
 
@@ -386,7 +370,7 @@ const duplicateTab = async (tab: WindowTab) => {
 
 const closeOtherTabs = async (keepTabId: string) => {
   const tabsToClose = props.tabs.filter(tab => tab.id !== keepTabId && tab.closable)
-  
+
   for (const tab of tabsToClose) {
     await closeTab(tab.id)
   }
@@ -395,9 +379,9 @@ const closeOtherTabs = async (keepTabId: string) => {
 const closeTabsToRight = async (fromTabId: string) => {
   const fromIndex = props.tabs.findIndex(tab => tab.id === fromTabId)
   if (fromIndex === -1) return
-  
+
   const tabsToClose = props.tabs.slice(fromIndex + 1).filter(tab => tab.closable)
-  
+
   for (const tab of tabsToClose) {
     await closeTab(tab.id)
   }
@@ -406,13 +390,13 @@ const closeTabsToRight = async (fromTabId: string) => {
 const moveTabToNewWindow = async (tabId: string) => {
   const tab = props.tabs.find(t => t.id === tabId)
   if (!tab) return
-  
+
   // Create new window
   const newWindowId = await windowManager.createWindow({
     title: tab.title,
     tabs: []
   })
-  
+
   // Move tab to new window
   windowManager.moveTabToWindow(props.windowId, tabId, newWindowId)
 }
@@ -431,9 +415,9 @@ const handleDragStart = (tab: WindowTab, event: DragEvent) => {
     event.preventDefault()
     return
   }
-  
+
   draggedTab.value = tab
-  
+
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('text/plain', tab.id)
@@ -442,19 +426,20 @@ const handleDragStart = (tab: WindowTab, event: DragEvent) => {
 
 const handleDragOver = (event: DragEvent) => {
   if (!draggedTab.value) return
-  
+
   event.preventDefault()
   event.dataTransfer!.dropEffect = 'move'
-  
+
   // Calculate drop position
   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
   const midpoint = rect.left + rect.width / 2
   const isAfter = event.clientX > midpoint
-  
-  const targetTab = props.tabs.find(tab => 
-    tab.id === (event.currentTarget as HTMLElement).closest('.tab')?.getAttribute('data-tab-id')
+
+  const targetTab = props.tabs.find(
+    tab =>
+      tab.id === (event.currentTarget as HTMLElement).closest('.tab')?.getAttribute('data-tab-id')
   )
-  
+
   if (targetTab) {
     const targetIndex = props.tabs.indexOf(targetTab)
     dragOverIndex.value = isAfter ? targetIndex + 1 : targetIndex
@@ -463,27 +448,27 @@ const handleDragOver = (event: DragEvent) => {
 
 const handleDrop = (targetTab: WindowTab, event: DragEvent) => {
   event.preventDefault()
-  
+
   if (!draggedTab.value || draggedTab.value.id === targetTab.id) {
     draggedTab.value = null
     dragOverIndex.value = -1
     return
   }
-  
+
   const sourceIndex = props.tabs.findIndex(tab => tab.id === draggedTab.value!.id)
   const targetIndex = props.tabs.findIndex(tab => tab.id === targetTab.id)
-  
+
   if (sourceIndex !== -1 && targetIndex !== -1) {
     // Calculate new index based on drop position
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
     const midpoint = rect.left + rect.width / 2
     const isAfter = event.clientX > midpoint
     const newIndex = isAfter ? targetIndex + 1 : targetIndex
-    
+
     windowManager.moveTab(props.windowId, draggedTab.value.id, newIndex)
     emit('tab-move', draggedTab.value.id, newIndex)
   }
-  
+
   draggedTab.value = null
   dragOverIndex.value = -1
 }
@@ -497,14 +482,14 @@ const showAllTabsMenu = () => {
 const handleKeyDown = (event: KeyboardEvent) => {
   const { key, ctrlKey, metaKey, shiftKey } = event
   const cmd = ctrlKey || metaKey
-  
+
   // Ctrl/Cmd + T: New tab
   if (cmd && key === 't') {
     event.preventDefault()
     addTab()
     return
   }
-  
+
   // Ctrl/Cmd + W: Close tab
   if (cmd && key === 'w') {
     event.preventDefault()
@@ -513,14 +498,14 @@ const handleKeyDown = (event: KeyboardEvent) => {
     }
     return
   }
-  
+
   // Ctrl/Cmd + Shift + T: Reopen closed tab
   if (cmd && shiftKey && key === 'T') {
     event.preventDefault()
     // TODO: Implement reopen closed tab
     return
   }
-  
+
   // Ctrl/Cmd + 1-9: Switch to tab by index
   if (cmd && key >= '1' && key <= '9') {
     event.preventDefault()
@@ -530,7 +515,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
     }
     return
   }
-  
+
   // Ctrl/Cmd + Tab: Next tab
   if (cmd && key === 'Tab' && !shiftKey) {
     event.preventDefault()
@@ -539,7 +524,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
     selectTab(props.tabs[nextIndex].id)
     return
   }
-  
+
   // Ctrl/Cmd + Shift + Tab: Previous tab
   if (cmd && key === 'Tab' && shiftKey) {
     event.preventDefault()
@@ -553,15 +538,17 @@ const handleKeyDown = (event: KeyboardEvent) => {
 // Auto-scroll to active tab
 const scrollToActiveTab = async () => {
   if (!tabListRef.value || !props.activeTabId) return
-  
+
   await nextTick()
-  
-  const activeTabElement = tabListRef.value.querySelector(`[data-tab-id="${props.activeTabId}"]`) as HTMLElement
+
+  const activeTabElement = tabListRef.value.querySelector(
+    `[data-tab-id="${props.activeTabId}"]`
+  ) as HTMLElement
   if (!activeTabElement) return
-  
+
   const containerRect = tabListRef.value.getBoundingClientRect()
   const tabRect = activeTabElement.getBoundingClientRect()
-  
+
   if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
     activeTabElement.scrollIntoView({
       behavior: 'smooth',
@@ -746,7 +733,7 @@ defineExpose({
     min-width: 100px;
     max-width: 150px;
   }
-  
+
   .tab-title {
     @apply text-xs;
   }
@@ -757,7 +744,7 @@ defineExpose({
   .tab-active {
     @apply border-b-4;
   }
-  
+
   .tab:focus {
     @apply ring-2 ring-primary;
   }
@@ -768,7 +755,7 @@ defineExpose({
   .tab {
     @apply transition-none;
   }
-  
+
   .tab-actions {
     @apply opacity-100;
   }

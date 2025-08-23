@@ -8,17 +8,14 @@
         </div>
         <span class="text-xs text-muted-foreground">{{ status.action }}</span>
       </div>
-      
+
       <div v-if="status.progress !== undefined" class="tool-progress">
         <div class="progress-track">
-          <div 
-            class="progress-fill" 
-            :style="{ width: `${status.progress}%` }"
-          />
+          <div class="progress-fill" :style="{ width: `${status.progress}%` }" />
         </div>
         <span class="progress-text">{{ status.progress }}%</span>
       </div>
-      
+
       <div v-if="status.details" class="tool-details">
         <pre class="text-xs">{{ status.details }}</pre>
       </div>
@@ -145,7 +142,7 @@ defineProps<Props>()
   --text-secondary: hsl(215, 20%, 45%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --surface: hsl(222, 47%, 15%);
   --border: hsl(215, 20%, 25%);
   --muted: hsl(217, 33%, 17%);

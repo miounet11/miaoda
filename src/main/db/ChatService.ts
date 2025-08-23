@@ -34,9 +34,7 @@ export class ChatService extends BaseDatabaseService {
     this.validateId(id)
     this.validateText(title, 'title')
 
-    const stmt = this.db.prepare(
-      'UPDATE chats SET title = ?, updated_at = ? WHERE id = ?'
-    )
+    const stmt = this.db.prepare('UPDATE chats SET title = ?, updated_at = ? WHERE id = ?')
     stmt.run(title, updated_at, id)
   }
 
@@ -51,12 +49,12 @@ export class ChatService extends BaseDatabaseService {
       // Delete all messages associated with this chat
       const deleteMessagesStmt = this.db.prepare('DELETE FROM messages WHERE chat_id = ?')
       deleteMessagesStmt.run(id)
-      
+
       // Delete the chat record
       const deleteChatStmt = this.db.prepare('DELETE FROM chats WHERE id = ?')
       deleteChatStmt.run(id)
     })
-    
+
     transaction()
   }
 

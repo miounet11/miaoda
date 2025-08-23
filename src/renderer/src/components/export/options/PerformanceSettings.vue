@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4 mt-6">
     <h4 class="text-md font-semibold text-gray-900 dark:text-white">Performance Settings</h4>
-    
+
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -16,30 +16,38 @@
             max="5"
             step="1"
             class="flex-1"
-          >
-          <span class="text-sm font-medium text-gray-900 dark:text-white w-8">{{ concurrency }}</span>
+          />
+          <span class="text-sm font-medium text-gray-900 dark:text-white w-8">{{
+            concurrency
+          }}</span>
         </div>
         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
           Higher values process exports faster but use more system resources
         </div>
       </div>
-      
-      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+
+      <div
+        class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4"
+      >
         <div class="flex items-start space-x-3">
           <div class="text-amber-600 dark:text-amber-400">⚠️</div>
           <div>
-            <h5 class="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">Performance Note</h5>
+            <h5 class="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
+              Performance Note
+            </h5>
             <p class="text-sm text-amber-700 dark:text-amber-300">
-              Processing multiple large exports simultaneously may slow down your system. 
-              Consider lowering concurrency for very large datasets.
+              Processing multiple large exports simultaneously may slow down your system. Consider
+              lowering concurrency for very large datasets.
             </p>
           </div>
         </div>
       </div>
-      
+
       <div class="grid grid-cols-3 gap-4 text-center">
         <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ estimatedSpeed }}</div>
+          <div class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ estimatedSpeed }}
+          </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">Est. Speed</div>
         </div>
         <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -71,7 +79,7 @@ const emit = defineEmits<Emits>()
 
 const concurrency = computed({
   get: () => props.concurrency,
-  set: (value) => emit('update:concurrency', value)
+  set: value => emit('update:concurrency', value)
 })
 
 const estimatedSpeed = computed(() => {

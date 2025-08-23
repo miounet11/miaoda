@@ -25,10 +25,10 @@ export class LLMManager {
   constructor(mcpManager: MCPManager) {
     this.store = new Store()
     this.customProviderManager = new CustomProviderManager()
-    
+
     // Initialize custom provider manager with factory
     ProviderFactory.setCustomProviderManager(this.customProviderManager)
-    
+
     this.messageService = new MessageService(
       mcpManager,
       this.store.get('enableTools', false) as boolean
@@ -46,7 +46,7 @@ export class LLMManager {
   setProvider(config: LLMConfig) {
     try {
       const provider = ProviderFactory.createProvider(config)
-      
+
       this.providers.set(config.provider, provider)
       this.currentProvider = provider
       this.store.set('llmConfig', config)
@@ -67,12 +67,7 @@ export class LLMManager {
 
     try {
       const context: MessageContext = { chatId, messageId }
-      return await this.messageService.sendMessage(
-        this.currentProvider!,
-        message,
-        context,
-        onChunk
-      )
+      return await this.messageService.sendMessage(this.currentProvider!, message, context, onChunk)
     } catch (error: any) {
       throw new Error(`LLM Error: ${error.message}`)
     }
@@ -102,11 +97,16 @@ export class LLMManager {
   }
 
   // Custom Provider Management Methods
-  async addCustomProvider(config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id?: string; error?: string }> {
+  async addCustomProvider(
+    config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<{ success: boolean; id?: string; error?: string }> {
     return await this.customProviderManager.addProvider(config)
   }
 
-  async updateCustomProvider(id: string, updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>): Promise<{ success: boolean; error?: string }> {
+  async updateCustomProvider(
+    id: string,
+    updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<{ success: boolean; error?: string }> {
     return await this.customProviderManager.updateProvider(id, updates)
   }
 
@@ -142,14 +142,16 @@ export class LLMManager {
     return this.customProviderManager.exportProviders()
   }
 
-  async importCustomProviders(providers: CustomProviderConfig[]): Promise<{ success: number; failed: number; errors: string[] }> {
+  async importCustomProviders(
+    providers: CustomProviderConfig[]
+  ): Promise<{ success: number; failed: number; errors: string[] }> {
     return await this.customProviderManager.importProviders(providers)
   }
 
   /**
    * Get all available providers (built-in + custom)
    */
-  getAllProviders(): Array<{id: string; name: string; displayName: string; isCustom?: boolean}> {
+  getAllProviders(): Array<{ id: string; name: string; displayName: string; isCustom?: boolean }> {
     return ProviderFactory.getAllProviders()
   }
 
@@ -174,9 +176,12 @@ export function registerLLMHandlers(manager: LLMManager) {
     return manager.setProvider(config)
   })
 
-  ipcMain.handle('llm:sendMessage', async (_, message: string | any[], chatId: string, messageId: string) => {
-    return manager.sendMessage(message, chatId, messageId)
-  })
+  ipcMain.handle(
+    'llm:sendMessage',
+    async (_, message: string | any[], chatId: string, messageId: string) => {
+      return manager.sendMessage(message, chatId, messageId)
+    }
+  )
 
   ipcMain.handle('llm:getConfig', () => {
     return manager.getConfig()
@@ -199,23 +204,33 @@ export function registerLLMHandlers(manager: LLMManager) {
   })
 
   // Custom provider handlers
-  ipcMain.handle('llm:addCustomProvider', async (_, config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      return await manager.addCustomProvider(config)
-    } catch (error: any) {
-      logger.error('Failed to add custom provider', 'LLM-IPC', { error: error.message })
-      return { success: false, error: error.message }
+  ipcMain.handle(
+    'llm:addCustomProvider',
+    async (_, config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
+      try {
+        return await manager.addCustomProvider(config)
+      } catch (error: any) {
+        logger.error('Failed to add custom provider', 'LLM-IPC', { error: error.message })
+        return { success: false, error: error.message }
+      }
     }
-  })
+  )
 
-  ipcMain.handle('llm:updateCustomProvider', async (_, id: string, updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    try {
-      return await manager.updateCustomProvider(id, updates)
-    } catch (error: any) {
-      logger.error('Failed to update custom provider', 'LLM-IPC', { error: error.message, id })
-      return { success: false, error: error.message }
+  ipcMain.handle(
+    'llm:updateCustomProvider',
+    async (
+      _,
+      id: string,
+      updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>
+    ) => {
+      try {
+        return await manager.updateCustomProvider(id, updates)
+      } catch (error: any) {
+        logger.error('Failed to update custom provider', 'LLM-IPC', { error: error.message, id })
+        return { success: false, error: error.message }
+      }
     }
-  })
+  )
 
   ipcMain.handle('llm:removeCustomProvider', (_, id: string) => {
     try {
@@ -248,8 +263,16 @@ export function registerLLMHandlers(manager: LLMManager) {
     try {
       return await manager.checkCustomProviderHealth(id)
     } catch (error: any) {
-      logger.error('Failed to check custom provider health', 'LLM-IPC', { error: error.message, id })
-      return { providerName: 'Unknown', isHealthy: false, lastChecked: new Date().toISOString(), error: error.message }
+      logger.error('Failed to check custom provider health', 'LLM-IPC', {
+        error: error.message,
+        id
+      })
+      return {
+        providerName: 'Unknown',
+        isHealthy: false,
+        lastChecked: new Date().toISOString(),
+        error: error.message
+      }
     }
   })
 
@@ -257,7 +280,9 @@ export function registerLLMHandlers(manager: LLMManager) {
     try {
       return await manager.checkAllCustomProvidersHealth()
     } catch (error: any) {
-      logger.error('Failed to check all custom providers health', 'LLM-IPC', { error: error.message })
+      logger.error('Failed to check all custom providers health', 'LLM-IPC', {
+        error: error.message
+      })
       return []
     }
   })

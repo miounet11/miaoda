@@ -30,25 +30,28 @@ export class MCPManager {
       if (!server || !server.name || !server.command) {
         throw new Error(`Invalid server configuration: ${JSON.stringify(server)}`)
       }
-      
+
       console.log(`[MCP] Connecting to server: ${server.name}`)
       console.log(`[MCP] Command: ${server.command} ${server.args?.join(' ') || 'no args'}`)
-      
+
       const transport = new StdioClientTransport({
         command: server.command,
         args: server.args || [],
         env: server.env
       })
 
-      const client = new Client({
-        name: `miaoda-chat-${server.name}`,
-        version: '0.1.0'
-      }, {
-        capabilities: {
-          tools: {},
-          resources: {}
+      const client = new Client(
+        {
+          name: `miaoda-chat-${server.name}`,
+          version: '0.1.0'
+        },
+        {
+          capabilities: {
+            tools: {},
+            resources: {}
+          }
         }
-      })
+      )
 
       await client.connect(transport)
       this.clients.set(server.name, client)
@@ -57,7 +60,9 @@ export class MCPManager {
       // List available tools
       try {
         const toolsResponse = await client.listTools()
-        console.log(`[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`)
+        console.log(
+          `[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`
+        )
         if (toolsResponse?.tools) {
           toolsResponse.tools.forEach(tool => {
             if (tool && tool.name) {
@@ -72,7 +77,9 @@ export class MCPManager {
       console.log(`Connected to MCP server: ${server.name}`)
     } catch (error) {
       console.error(`Failed to connect to MCP server ${server?.name || 'unknown'}:`, error)
-      throw new Error(`MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(
+        `MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
@@ -81,7 +88,7 @@ export class MCPManager {
     if (client) {
       await client.close()
       this.clients.delete(name)
-      
+
       // Remove tools from this server
       for (const [toolKey] of this.tools) {
         if (toolKey.startsWith(`${name}:`)) {
@@ -93,13 +100,13 @@ export class MCPManager {
 
   getAvailableTools(): Tool[] {
     const tools = Array.from(this.tools.values())
-    
+
     // Add plugin tools if plugin manager is available
     if (this.pluginManager) {
       const pluginTools = this.pluginManager.getAllTools()
       tools.push(...pluginTools)
     }
-    
+
     return tools
   }
 

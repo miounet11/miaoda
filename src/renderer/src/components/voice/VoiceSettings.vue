@@ -8,7 +8,7 @@
           <X :size="20" />
         </button>
       </div>
-      
+
       <!-- Content -->
       <div class="modal-content">
         <!-- Recognition Settings -->
@@ -17,13 +17,13 @@
             <Mic :size="18" />
             <h3>{{ $t('voice.recognitionSettings') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Language -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.language') }}</label>
-              <select 
-                v-model="config.recognition.language" 
+              <select
+                v-model="config.recognition.language"
                 class="setting-select"
                 @change="onConfigChange"
               >
@@ -32,7 +32,7 @@
                 </option>
               </select>
             </div>
-            
+
             <!-- Continuous Mode -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.continuousMode') }}</label>
@@ -42,11 +42,11 @@
                   v-model="config.recognition.continuous"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Interim Results -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.interimResults') }}</label>
@@ -56,11 +56,11 @@
                   v-model="config.recognition.interimResults"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Max Alternatives -->
             <div class="setting-item">
               <label class="setting-label">
@@ -75,14 +75,16 @@
                 step="1"
                 class="setting-slider"
                 @input="onConfigChange"
-              >
+              />
             </div>
-            
+
             <!-- Noise Suppression -->
             <div class="setting-item">
               <label class="setting-label">
                 {{ $t('voice.noiseSuppression') }}
-                <span class="setting-value">{{ Math.round(config.recognition.noiseSuppressionLevel * 100) }}%</span>
+                <span class="setting-value"
+                  >{{ Math.round(config.recognition.noiseSuppressionLevel * 100) }}%</span
+                >
               </label>
               <input
                 type="range"
@@ -92,34 +94,30 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              >
+              />
             </div>
           </div>
         </div>
-        
+
         <!-- Synthesis Settings -->
         <div class="settings-section">
           <div class="section-header">
             <Volume2 :size="18" />
             <h3>{{ $t('voice.synthesisSettings') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Voice Selection -->
             <div class="setting-item full-width">
               <label class="setting-label">{{ $t('voice.selectedVoice') }}</label>
               <div class="voice-selector">
-                <select 
-                  v-model="selectedVoiceName" 
-                  class="setting-select"
-                  @change="onVoiceChange"
-                >
+                <select v-model="selectedVoiceName" class="setting-select" @change="onVoiceChange">
                   <option value="">{{ $t('voice.defaultVoice') }}</option>
                   <option v-for="voice in availableVoices" :key="voice.name" :value="voice.name">
                     {{ voice.name }} ({{ voice.lang }})
                   </option>
                 </select>
-                
+
                 <button
                   v-if="selectedVoiceName"
                   @click="testCurrentVoice"
@@ -131,7 +129,7 @@
                 </button>
               </div>
             </div>
-            
+
             <!-- Rate -->
             <div class="setting-item">
               <label class="setting-label">
@@ -146,9 +144,9 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              >
+              />
             </div>
-            
+
             <!-- Pitch -->
             <div class="setting-item">
               <label class="setting-label">
@@ -163,9 +161,9 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              >
+              />
             </div>
-            
+
             <!-- Volume -->
             <div class="setting-item">
               <label class="setting-label">
@@ -180,14 +178,14 @@
                 step="0.1"
                 class="setting-slider"
                 @input="onConfigChange"
-              >
+              />
             </div>
-            
+
             <!-- Language -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.synthesisLanguage') }}</label>
-              <select 
-                v-model="config.synthesis.language" 
+              <select
+                v-model="config.synthesis.language"
                 class="setting-select"
                 @change="onConfigChange"
               >
@@ -198,14 +196,14 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Permission Settings -->
         <div class="settings-section">
           <div class="section-header">
             <Shield :size="18" />
             <h3>{{ $t('voice.permissions') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Microphone Permission -->
             <div class="setting-item">
@@ -215,7 +213,7 @@
                   <component :is="microphoneStatusIcon" :size="16" />
                   <span>{{ microphoneStatusText }}</span>
                 </div>
-                
+
                 <button
                   v-if="!config.permissions.microphone"
                   @click="requestMicrophonePermission"
@@ -226,7 +224,7 @@
                 </button>
               </div>
             </div>
-            
+
             <!-- Auto Start -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.autoStartRecording') }}</label>
@@ -236,20 +234,20 @@
                   v-model="config.permissions.autoStart"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- UI Settings -->
         <div class="settings-section">
           <div class="section-header">
             <Monitor :size="18" />
             <h3>{{ $t('voice.uiSettings') }}</h3>
           </div>
-          
+
           <div class="settings-grid">
             <!-- Show Waveform -->
             <div class="setting-item">
@@ -260,11 +258,11 @@
                   v-model="config.ui.showWaveform"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Show Confidence -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.showConfidence') }}</label>
@@ -274,11 +272,11 @@
                   v-model="config.ui.showConfidence"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
-            
+
             <!-- Highlight Keywords -->
             <div class="setting-item">
               <label class="setting-label">{{ $t('voice.highlightKeywords') }}</label>
@@ -288,26 +286,26 @@
                   v-model="config.ui.highlightKeywords"
                   @change="onConfigChange"
                   class="toggle-input"
-                >
+                />
                 <span class="toggle-slider" />
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Advanced Settings -->
         <div class="settings-section">
           <div class="section-header">
             <Settings :size="18" />
             <h3>{{ $t('voice.advancedSettings') }}</h3>
           </div>
-          
+
           <div class="advanced-settings">
             <!-- Voice Browser -->
             <div class="advanced-item">
               <h4>{{ $t('voice.voiceBrowser') }}</h4>
               <p class="advanced-description">{{ $t('voice.voiceBrowserDescription') }}</p>
-              
+
               <div class="voice-browser">
                 <div class="voice-filters">
                   <input
@@ -315,8 +313,8 @@
                     v-model="voiceSearch"
                     :placeholder="$t('voice.searchVoices')"
                     class="voice-search"
-                  >
-                  
+                  />
+
                   <select v-model="voiceLanguageFilter" class="voice-language-filter">
                     <option value="">{{ $t('voice.allLanguages') }}</option>
                     <option v-for="lang in voiceLanguages" :key="lang" :value="lang">
@@ -324,13 +322,13 @@
                     </option>
                   </select>
                 </div>
-                
+
                 <div class="voice-list">
                   <div
                     v-for="voice in filteredVoices"
                     :key="voice.name"
                     class="voice-item"
-                    :class="{ 'selected': voice.name === selectedVoiceName }"
+                    :class="{ selected: voice.name === selectedVoiceName }"
                     @click="selectVoice(voice)"
                   >
                     <div class="voice-info">
@@ -341,7 +339,7 @@
                         <span v-if="voice.localService" class="voice-badge">Local</span>
                       </div>
                     </div>
-                    
+
                     <div class="voice-actions">
                       <button
                         @click.stop="testVoice(voice)"
@@ -355,60 +353,60 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Export/Import Settings -->
             <div class="advanced-item">
               <h4>{{ $t('voice.settingsManagement') }}</h4>
               <p class="advanced-description">{{ $t('voice.settingsManagementDescription') }}</p>
-              
+
               <div class="settings-actions">
                 <button @click="exportSettings" class="action-btn export-btn">
                   <Download :size="14" />
                   {{ $t('voice.exportSettings') }}
                 </button>
-                
+
                 <button @click="importSettings" class="action-btn import-btn">
                   <Upload :size="14" />
                   {{ $t('voice.importSettings') }}
                 </button>
-                
+
                 <button @click="resetToDefaults" class="action-btn reset-btn">
                   <RotateCcw :size="14" />
                   {{ $t('voice.resetToDefaults') }}
                 </button>
               </div>
-              
+
               <input
                 ref="importFileRef"
                 type="file"
                 accept=".json"
                 @change="handleImportFile"
                 style="display: none"
-              >
+              />
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Footer -->
       <div class="modal-footer">
         <div class="footer-info">
           <span class="support-status">
-            {{ $t('voice.recognitionSupport') }}: 
+            {{ $t('voice.recognitionSupport') }}:
             <span :class="recognitionSupportClass">{{ recognitionSupportText }}</span>
           </span>
-          
+
           <span class="support-status">
-            {{ $t('voice.synthesisSupport') }}: 
+            {{ $t('voice.synthesisSupport') }}:
             <span :class="synthesisSupportClass">{{ synthesisSupportText }}</span>
           </span>
         </div>
-        
+
         <div class="footer-actions">
           <button @click="saveAndClose" class="save-btn">
             {{ $t('common.save') }}
           </button>
-          
+
           <button @click="$emit('close')" class="cancel-btn">
             {{ $t('common.cancel') }}
           </button>
@@ -421,8 +419,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  X, Mic, Volume2, Shield, Monitor, Settings, Play, Download, Upload,
-  RotateCcw, CheckCircle, XCircle, AlertTriangle
+  X,
+  Mic,
+  Volume2,
+  Shield,
+  Monitor,
+  Settings,
+  Play,
+  Download,
+  Upload,
+  RotateCcw,
+  CheckCircle,
+  XCircle,
+  AlertTriangle
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { voiceService, type VoiceConfig } from '@renderer/src/services/voice/VoiceService'
@@ -464,17 +473,15 @@ const filteredVoices = computed(() => {
   // Filter by search term
   if (voiceSearch.value) {
     const search = voiceSearch.value.toLowerCase()
-    voices = voices.filter(voice =>
-      voice.name.toLowerCase().includes(search) ||
-      voice.lang.toLowerCase().includes(search)
+    voices = voices.filter(
+      voice =>
+        voice.name.toLowerCase().includes(search) || voice.lang.toLowerCase().includes(search)
     )
   }
 
   // Filter by language
   if (voiceLanguageFilter.value) {
-    voices = voices.filter(voice =>
-      voice.lang.startsWith(voiceLanguageFilter.value)
-    )
+    voices = voices.filter(voice => voice.lang.startsWith(voiceLanguageFilter.value))
   }
 
   return voices
@@ -490,9 +497,7 @@ const microphoneStatusIcon = computed(() => {
 })
 
 const microphoneStatusText = computed(() => {
-  return config.value.permissions.microphone 
-    ? t('voice.granted')
-    : t('voice.denied')
+  return config.value.permissions.microphone ? t('voice.granted') : t('voice.denied')
 })
 
 const recognitionSupportClass = computed(() => ({
@@ -501,9 +506,7 @@ const recognitionSupportClass = computed(() => ({
 }))
 
 const recognitionSupportText = computed(() => {
-  return voiceService.isRecognitionSupported() 
-    ? t('voice.supported')
-    : t('voice.notSupported')
+  return voiceService.isRecognitionSupported() ? t('voice.supported') : t('voice.notSupported')
 })
 
 const synthesisSupportClass = computed(() => ({
@@ -512,9 +515,7 @@ const synthesisSupportClass = computed(() => ({
 }))
 
 const synthesisSupportText = computed(() => {
-  return voiceService.isSynthesisSupported() 
-    ? t('voice.supported')
-    : t('voice.notSupported')
+  return voiceService.isSynthesisSupported() ? t('voice.supported') : t('voice.notSupported')
 })
 
 // Methods
@@ -545,7 +546,7 @@ const selectVoice = (voice: SpeechSynthesisVoice) => {
 
 const testCurrentVoice = async () => {
   if (!selectedVoiceName.value) return
-  
+
   const voice = availableVoices.value.find(v => v.name === selectedVoiceName.value)
   if (voice) {
     await testVoice(voice)
@@ -554,9 +555,9 @@ const testCurrentVoice = async () => {
 
 const testVoice = async (voice: SpeechSynthesisVoice) => {
   if (isTestingVoice.value) return
-  
+
   isTestingVoice.value = true
-  
+
   try {
     const testText = t('voice.testPhrase')
     await voiceService.synthesizeSpeech(testText, {
@@ -575,13 +576,13 @@ const testVoice = async (voice: SpeechSynthesisVoice) => {
 
 const requestMicrophonePermission = async () => {
   if (isRequestingPermission.value) return
-  
+
   isRequestingPermission.value = true
-  
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     stream.getTracks().forEach(track => track.stop())
-    
+
     config.value.permissions.microphone = true
     onConfigChange()
   } catch (error) {
@@ -598,15 +599,15 @@ const exportSettings = () => {
     timestamp: new Date().toISOString(),
     config: config.value
   }
-  
+
   const dataStr = JSON.stringify(settings, null, 2)
   const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `voice-settings-${new Date().toISOString().split('T')[0]}.json`
   link.click()
-  
+
   URL.revokeObjectURL(link.href)
 }
 
@@ -617,13 +618,13 @@ const importSettings = () => {
 const handleImportFile = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  
+
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       const result = e.target?.result as string
       const settings = JSON.parse(result)
-      
+
       if (settings.config) {
         config.value = { ...config.value, ...settings.config }
         selectedVoiceName.value = config.value.synthesis.voice
@@ -634,7 +635,7 @@ const handleImportFile = (event: Event) => {
       alert(t('voice.importError'))
     }
   }
-  
+
   reader.readAsText(file)
 }
 
@@ -665,7 +666,7 @@ const resetToDefaults = () => {
         highlightKeywords: true
       }
     }
-    
+
     selectedVoiceName.value = null
     onConfigChange()
   }
@@ -680,7 +681,7 @@ const saveAndClose = () => {
 onMounted(() => {
   // Load available voices
   availableVoices.value = voiceService.getAvailableVoices()
-  
+
   // If no voices loaded yet, wait for them
   if (availableVoices.value.length === 0) {
     const checkVoices = () => {
@@ -944,19 +945,19 @@ onMounted(() => {
   .voice-settings-modal {
     @apply max-w-full mx-2;
   }
-  
+
   .settings-grid {
     @apply grid-cols-1;
   }
-  
+
   .voice-filters {
     @apply flex-col;
   }
-  
+
   .settings-actions {
     @apply flex-col;
   }
-  
+
   .footer-info {
     @apply hidden;
   }
@@ -967,7 +968,7 @@ onMounted(() => {
   .voice-settings-modal {
     @apply border-2;
   }
-  
+
   .setting-slider:focus {
     @apply ring-2 ring-primary;
   }

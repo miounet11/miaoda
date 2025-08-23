@@ -1,13 +1,13 @@
 /**
  * OAuth 2.0/OIDC 提供商集成
  * 支持多种身份提供商的安全认证
- * 
+ *
  * 支持的提供商：
  * - Google OAuth 2.0
  * - Microsoft Azure AD
  * - GitHub OAuth
  * - 自定义OIDC提供商
- * 
+ *
  * 安全特性：
  * - PKCE (Proof Key for Code Exchange)
  * - 状态参数验证
@@ -111,7 +111,7 @@ export class OAuthProvider extends EventEmitter {
     config: Partial<OAuthConfig>
   ) {
     super()
-    
+
     // 合并预定义配置
     const baseConfig = OAUTH_PROVIDERS[providerId] || {}
     this.config = {
@@ -127,7 +127,7 @@ export class OAuthProvider extends EventEmitter {
    */
   private validateConfig(): void {
     const required = ['clientId', 'authUrl', 'tokenUrl', 'redirectUri', 'scopes']
-    
+
     for (const field of required) {
       if (!this.config[field as keyof OAuthConfig]) {
         throw new Error(`Missing required OAuth config: ${field}`)
@@ -147,9 +147,9 @@ export class OAuthProvider extends EventEmitter {
     try {
       const url = new URL(uri)
       // 允许HTTPS或localhost/127.0.0.1用于开发
-      return url.protocol === 'https:' || 
-             url.hostname === 'localhost' || 
-             url.hostname === '127.0.0.1'
+      return (
+        url.protocol === 'https:' || url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+      )
     } catch {
       return false
     }
@@ -162,31 +162,30 @@ export class OAuthProvider extends EventEmitter {
     try {
       // 生成安全参数
       const authState = this.generateAuthState()
-      
+
       // 构建认证URL
       const authUrl = this.buildAuthUrl(authState)
-      
+
       // 存储认证状态
       this.authStates.set(authState.state, authState)
-      
+
       // 打开认证窗口
       const authCode = await this.openAuthWindow(authUrl)
-      
+
       // 验证并交换令牌
       const tokens = await this.exchangeCodeForTokens(authCode, authState)
-      
+
       // 获取用户信息
       const userInfo = await this.getUserInfo(tokens.accessToken)
-      
+
       // 存储令牌
       this.currentTokens = tokens
-      
+
       // 清理认证状态
       this.authStates.delete(authState.state)
-      
+
       this.emit('authenticated', userInfo)
       return userInfo
-
     } catch (error) {
       this.emit('authError', error)
       throw error
@@ -199,7 +198,7 @@ export class OAuthProvider extends EventEmitter {
   private generateAuthState(): AuthState {
     const state = this.generateSecureRandom(32)
     const nonce = this.generateSecureRandom(32)
-    
+
     const authState: AuthState = {
       state,
       nonce,
@@ -219,10 +218,7 @@ export class OAuthProvider extends EventEmitter {
    */
   private generatePKCEParams(): PKCEParams {
     const codeVerifier = this.generateSecureRandom(128)
-    const codeChallenge = crypto
-      .createHash('sha256')
-      .update(codeVerifier)
-      .digest('base64url')
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
 
     return {
       codeVerifier,
@@ -334,7 +330,7 @@ export class OAuthProvider extends EventEmitter {
   ): void {
     try {
       const urlObj = new URL(url)
-      
+
       // 检查是否是重定向URI
       if (urlObj.origin + urlObj.pathname === this.config.redirectUri) {
         const code = urlObj.searchParams.get('code')
@@ -373,10 +369,7 @@ export class OAuthProvider extends EventEmitter {
   /**
    * 交换授权码为令牌
    */
-  private async exchangeCodeForTokens(
-    code: string,
-    authState: AuthState
-  ): Promise<TokenResponse> {
+  private async exchangeCodeForTokens(code: string, authState: AuthState): Promise<TokenResponse> {
     const tokenData = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: this.config.clientId,
@@ -399,7 +392,7 @@ export class OAuthProvider extends EventEmitter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'User-Agent': 'MiaoDa-Chat/1.0'
         },
         body: tokenData
@@ -411,7 +404,7 @@ export class OAuthProvider extends EventEmitter {
       }
 
       const tokens = await response.json()
-      
+
       return {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
@@ -420,7 +413,6 @@ export class OAuthProvider extends EventEmitter {
         expiresIn: tokens.expires_in,
         scope: tokens.scope
       }
-
     } catch (error) {
       throw new Error(`Failed to exchange code for tokens: ${error}`)
     }
@@ -437,8 +429,8 @@ export class OAuthProvider extends EventEmitter {
     try {
       const response = await fetch(this.config.userInfoUrl, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
           'User-Agent': 'MiaoDa-Chat/1.0'
         }
       })
@@ -448,9 +440,8 @@ export class OAuthProvider extends EventEmitter {
       }
 
       const userData = await response.json()
-      
-      return this.normalizeUserInfo(userData)
 
+      return this.normalizeUserInfo(userData)
     } catch (error) {
       throw new Error(`Failed to get user info: ${error}`)
     }
@@ -530,7 +521,7 @@ export class OAuthProvider extends EventEmitter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         body: tokenData
       })
@@ -540,7 +531,7 @@ export class OAuthProvider extends EventEmitter {
       }
 
       const tokens = await response.json()
-      
+
       const refreshedTokens: TokenResponse = {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token || this.currentTokens.refreshToken,
@@ -552,9 +543,8 @@ export class OAuthProvider extends EventEmitter {
 
       this.currentTokens = refreshedTokens
       this.emit('tokensRefreshed', refreshedTokens)
-      
-      return refreshedTokens
 
+      return refreshedTokens
     } catch (error) {
       this.emit('refreshError', error)
       throw error
@@ -586,7 +576,6 @@ export class OAuthProvider extends EventEmitter {
         },
         body: revokeData
       })
-
     } catch (error) {
       console.warn('Failed to revoke tokens:', error)
     } finally {
@@ -600,11 +589,11 @@ export class OAuthProvider extends EventEmitter {
    */
   isTokenExpiringSoon(bufferMinutes: number = 5): boolean {
     if (!this.currentTokens) return true
-    
-    const expirationTime = Date.now() + (this.currentTokens.expiresIn * 1000)
+
+    const expirationTime = Date.now() + this.currentTokens.expiresIn * 1000
     const bufferTime = bufferMinutes * 60 * 1000
-    
-    return (expirationTime - Date.now()) < bufferTime
+
+    return expirationTime - Date.now() < bufferTime
   }
 
   /**

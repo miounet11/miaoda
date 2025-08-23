@@ -20,16 +20,16 @@
           <span class="text-xs text-muted-foreground">{{ currentModelProvider }}</span>
         </div>
       </div>
-      
+
       <!-- Status Indicator -->
       <div class="flex items-center gap-1 flex-shrink-0">
-        <div 
+        <div
           class="w-2 h-2 rounded-full transition-colors"
           :class="statusIndicatorClass"
           :title="statusTooltip"
         />
-        <ChevronDown 
-          :size="16" 
+        <ChevronDown
+          :size="16"
           class="transition-transform duration-200"
           :class="{ 'rotate-180': isOpen }"
         />
@@ -46,7 +46,7 @@
         <!-- Available Models -->
         <div class="p-2">
           <div class="text-xs font-medium text-muted-foreground mb-2 px-2">Available Models</div>
-          
+
           <div
             v-for="model in availableModels"
             :key="model.id"
@@ -63,19 +63,19 @@
               <div class="flex flex-col min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium truncate">{{ model.name }}</span>
-                  <Check 
-                    v-if="model.id === currentModelId" 
-                    :size="14" 
-                    class="text-primary flex-shrink-0" 
+                  <Check
+                    v-if="model.id === currentModelId"
+                    :size="14"
+                    class="text-primary flex-shrink-0"
                   />
                 </div>
                 <span class="text-xs text-muted-foreground">{{ model.provider }}</span>
               </div>
             </div>
-            
+
             <!-- Status Indicator -->
             <div class="flex items-center gap-2 flex-shrink-0">
-              <div 
+              <div
                 class="w-2 h-2 rounded-full"
                 :class="{
                   'bg-green-500': model.status === 'connected',
@@ -83,11 +83,11 @@
                   'bg-red-500': model.status === 'disconnected'
                 }"
               />
-              <span 
+              <span
                 class="text-xs font-medium"
                 :class="{
                   'text-green-600': model.status === 'connected',
-                  'text-yellow-600': model.status === 'configured', 
+                  'text-yellow-600': model.status === 'configured',
                   'text-red-600': model.status === 'disconnected'
                 }"
               >
@@ -106,7 +106,7 @@
             <Settings :size="16" />
             <span>Model Settings</span>
           </button>
-          
+
           <button
             @click="testConnection"
             :disabled="!isConfigured || isTestingConnection"
@@ -121,11 +121,7 @@
     </Transition>
 
     <!-- Click Outside Handler -->
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-40"
-      @click="closeDropdown"
-    />
+    <div v-if="isOpen" class="fixed inset-0 z-40" @click="closeDropdown" />
   </div>
 </template>
 
@@ -178,7 +174,7 @@ const modelConfigs = {
   'openai-gpt35': {
     id: 'openai-gpt35',
     name: 'GPT-3.5',
-    provider: 'OpenAI', 
+    provider: 'OpenAI',
     icon: '🤖',
     models: ['gpt-3.5-turbo']
   },
@@ -209,7 +205,7 @@ const modelConfigs = {
 const currentModelId = computed(() => {
   const provider = settingsStore.llmProvider
   const model = settingsStore.modelName
-  
+
   // Map current provider/model to our model options
   if (provider === 'openai') {
     return model.includes('gpt-4') ? 'openai-gpt4' : 'openai-gpt35'
@@ -218,7 +214,7 @@ const currentModelId = computed(() => {
   } else if (provider === 'ollama') {
     return model === 'llama2' ? 'ollama-llama2' : 'ollama-mistral'
   }
-  
+
   return 'openai-gpt4' // fallback
 })
 
@@ -267,30 +263,42 @@ const loadAvailableModels = async () => {
     ...config,
     status: getModelStatus(config.id)
   }))
-  
+
   availableModels.value = models
 }
 
 const getModelStatus = (modelId: string): 'connected' | 'configured' | 'disconnected' => {
   const config = modelConfigs[modelId as keyof typeof modelConfigs]
-  
-  if (config.provider === 'OpenAI' && settingsStore.llmProvider === 'openai' && settingsStore.apiKey) {
+
+  if (
+    config.provider === 'OpenAI' &&
+    settingsStore.llmProvider === 'openai' &&
+    settingsStore.apiKey
+  ) {
     return 'connected' // Should verify actual connection
-  } else if (config.provider === 'Anthropic' && settingsStore.llmProvider === 'anthropic' && settingsStore.apiKey) {
+  } else if (
+    config.provider === 'Anthropic' &&
+    settingsStore.llmProvider === 'anthropic' &&
+    settingsStore.apiKey
+  ) {
     return 'connected'
   } else if (config.provider === 'Ollama' && settingsStore.llmProvider === 'ollama') {
     return 'configured' // Ollama doesn't need API key
   }
-  
+
   return 'disconnected'
 }
 
 const getStatusText = (status: string): string => {
   switch (status) {
-    case 'connected': return 'Ready'
-    case 'configured': return 'Setup'  
-    case 'disconnected': return 'Config'
-    default: return 'Unknown'
+    case 'connected':
+      return 'Ready'
+    case 'configured':
+      return 'Setup'
+    case 'disconnected':
+      return 'Config'
+    default:
+      return 'Unknown'
   }
 }
 
@@ -302,13 +310,13 @@ const selectModel = async (model: ModelOption) => {
 
   try {
     const config = modelConfigs[model.id as keyof typeof modelConfigs]
-    
+
     // Update settings based on selected model
     if (config.provider === 'OpenAI') {
       settingsStore.setLLMProvider('openai')
       settingsStore.setModelName(config.models[0])
     } else if (config.provider === 'Anthropic') {
-      settingsStore.setLLMProvider('anthropic')  
+      settingsStore.setLLMProvider('anthropic')
       settingsStore.setModelName(config.models[0])
     } else if (config.provider === 'Ollama') {
       settingsStore.setLLMProvider('ollama')
@@ -334,7 +342,7 @@ const selectModel = async (model: ModelOption) => {
   } catch (error) {
     console.error('Error switching model:', error)
   }
-  
+
   closeDropdown()
 }
 
@@ -346,7 +354,7 @@ const openSettings = () => {
 
 const testConnection = async () => {
   isTestingConnection.value = true
-  
+
   try {
     // Test with a simple message
     await window.api.llm.sendMessage('Hello', 'test', 'test-connection')
@@ -432,7 +440,7 @@ onUnmounted(() => {
   .model-button {
     min-width: 140px;
   }
-  
+
   .dropdown-menu {
     left: -8px;
     right: -8px;
@@ -446,7 +454,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

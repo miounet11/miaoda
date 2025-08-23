@@ -7,15 +7,15 @@
           <component :is="roleIcon" :size="16" :class="roleIconClass" />
           <span class="role-text">{{ roleDisplayName }}</span>
         </div>
-        
+
         <div class="message-info">
           <span class="message-time" :title="fullTimestamp">
             {{ formatTime(result.message.timestamp) }}
           </span>
-          
+
           <span v-if="result.message.chatId" class="chat-info">
             <MessageSquare :size="12" />
-            <button 
+            <button
               @click.stop="$emit('chat-click')"
               class="chat-link"
               :title="$t('search.goToChat')"
@@ -25,40 +25,39 @@
           </span>
         </div>
       </div>
-      
+
       <div class="result-actions">
         <div class="relevance-score" :title="$t('search.relevanceScore')">
           <Star :size="14" :class="scoreClasses" />
           <span class="score-text">{{ Math.round(result.score * 100) }}%</span>
         </div>
-        
-        <button
-          @click.stop="copyMessage"
-          class="action-btn"
-          :title="$t('common.copy')"
-        >
+
+        <button @click.stop="copyMessage" class="action-btn" :title="$t('common.copy')">
           <Copy :size="14" />
         </button>
-        
+
         <button
           @click.stop="toggleExpanded"
           class="action-btn expand-btn"
-          :class="{ 'expanded': isExpanded }"
+          :class="{ expanded: isExpanded }"
           :title="isExpanded ? $t('common.collapse') : $t('common.expand')"
         >
           <ChevronDown :size="14" />
         </button>
       </div>
     </div>
-    
+
     <!-- Message Preview -->
     <div class="message-preview">
-      <div class="preview-content" :class="{ 'expanded': isExpanded }">
+      <div class="preview-content" :class="{ expanded: isExpanded }">
         <div v-if="highlightedContent" class="highlighted-content" v-html="highlightedContent" />
         <div v-else class="raw-content">{{ result.message.content }}</div>
-        
+
         <!-- Message Metadata -->
-        <div v-if="result.message.metadata && Object.keys(result.message.metadata).length > 0" class="message-metadata">
+        <div
+          v-if="result.message.metadata && Object.keys(result.message.metadata).length > 0"
+          class="message-metadata"
+        >
           <div class="metadata-header">
             <Info :size="14" />
             <span>{{ $t('search.metadata') }}</span>
@@ -74,7 +73,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Message Tags -->
         <div v-if="result.message.tags && result.message.tags.length > 0" class="message-tags">
           <Tag :size="14" />
@@ -90,7 +89,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Truncation Indicator -->
       <div v-if="!isExpanded && isTruncated" class="truncation-indicator">
         <span class="truncation-text">{{ $t('search.messageTruncated') }}</span>
@@ -99,24 +98,20 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Search Matches -->
     <div v-if="result.matches.length > 0" class="search-matches">
       <div class="matches-header">
         <Search :size="14" />
         <span>{{ $t('search.matches', { count: result.matches.length }) }}</span>
       </div>
-      
+
       <div class="matches-list">
-        <div
-          v-for="(match, index) in displayedMatches"
-          :key="index"
-          class="match-item"
-        >
+        <div v-for="(match, index) in displayedMatches" :key="index" class="match-item">
           <div class="match-field">{{ match.field }}</div>
           <div class="match-text" v-html="match.highlighted" />
         </div>
-        
+
         <button
           v-if="result.matches.length > maxDisplayedMatches && !showAllMatches"
           @click="showAllMatches = true"
@@ -126,9 +121,12 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Context Messages -->
-    <div v-if="result.context && (result.context.before.length > 0 || result.context.after.length > 0)" class="context-messages">
+    <div
+      v-if="result.context && (result.context.before.length > 0 || result.context.after.length > 0)"
+      class="context-messages"
+    >
       <div class="context-header">
         <MessageCircle :size="14" />
         <span>{{ $t('search.context') }}</span>
@@ -136,17 +134,13 @@
           {{ showContext ? $t('common.hide') : $t('common.show') }}
         </button>
       </div>
-      
+
       <div v-if="showContext" class="context-content">
         <!-- Before Context -->
         <div v-if="result.context.before.length > 0" class="context-section">
           <div class="context-label">{{ $t('search.before') }}</div>
           <div class="context-messages-list">
-            <div
-              v-for="msg in result.context.before"
-              :key="msg.id"
-              class="context-message"
-            >
+            <div v-for="msg in result.context.before" :key="msg.id" class="context-message">
               <div class="context-message-role">
                 <component :is="getMessageRoleIcon(msg.role)" :size="12" />
               </div>
@@ -154,16 +148,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- After Context -->
         <div v-if="result.context.after.length > 0" class="context-section">
           <div class="context-label">{{ $t('search.after') }}</div>
           <div class="context-messages-list">
-            <div
-              v-for="msg in result.context.after"
-              :key="msg.id"
-              class="context-message"
-            >
+            <div v-for="msg in result.context.after" :key="msg.id" class="context-message">
               <div class="context-message-role">
                 <component :is="getMessageRoleIcon(msg.role)" :size="12" />
               </div>
@@ -173,7 +163,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Attachment Indicators -->
     <div v-if="hasAttachments" class="attachments-indicator">
       <Paperclip :size="14" />
@@ -185,8 +175,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import {
-  User, Bot, Settings, MessageSquare, Star, Copy, ChevronDown, Info, Tag,
-  Search, MessageCircle, Paperclip
+  User,
+  Bot,
+  Settings,
+  MessageSquare,
+  Star,
+  Copy,
+  ChevronDown,
+  Info,
+  Tag,
+  Search,
+  MessageCircle,
+  Paperclip
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { SearchResult, SearchQuery } from '@renderer/src/services/search/SearchService'
@@ -277,16 +277,17 @@ const highlightedContent = computed(() => {
   }
 
   let content = props.result.message.content || ''
-  
+
   // Apply highlights from matches
   const matches = [...props.result.matches]
     .filter(match => match.field === 'content')
     .sort((a, b) => b.startIndex - a.startIndex) // Sort in reverse order to maintain indices
-  
+
   for (const match of matches) {
-    content = content.slice(0, match.startIndex) +
-              `<mark class="search-highlight">${match.text}</mark>` +
-              content.slice(match.endIndex)
+    content =
+      content.slice(0, match.startIndex) +
+      `<mark class="search-highlight">${match.text}</mark>` +
+      content.slice(match.endIndex)
   }
 
   return content
@@ -311,10 +312,10 @@ const hasAttachments = computed(() => {
 // Methods
 const formatTime = (timestamp?: Date): string => {
   if (!timestamp) return ''
-  
+
   const now = new Date()
   const diff = now.getTime() - timestamp.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -369,7 +370,7 @@ const toggleContext = () => {
 
 const copyMessage = async () => {
   if (!props.result.message.content) return
-  
+
   try {
     await navigator.clipboard.writeText(props.result.message.content)
     // Show success toast
@@ -610,11 +611,11 @@ const copyMessage = async () => {
   .result-header {
     @apply flex-col gap-3;
   }
-  
+
   .result-actions {
     @apply self-end;
   }
-  
+
   .message-info {
     @apply flex-col items-start gap-1;
   }
@@ -625,7 +626,7 @@ const copyMessage = async () => {
   .search-result {
     @apply border-2;
   }
-  
+
   :deep(.search-highlight) {
     @apply border border-yellow-600;
   }
@@ -636,7 +637,7 @@ const copyMessage = async () => {
   .search-result {
     transition: none;
   }
-  
+
   .expand-btn.expanded {
     transform: none;
   }

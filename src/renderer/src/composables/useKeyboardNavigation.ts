@@ -58,12 +58,12 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     'ctrl+/': () => emit('toggle-search'),
     'ctrl+k': () => emit('command-palette'),
     'ctrl+,': () => emit('open-settings'),
-    
+
     // Message actions
     'ctrl+enter': () => emit('send-message'),
     'ctrl+shift+r': () => emit('regenerate-response'),
     'ctrl+d': () => emit('duplicate-message'),
-    
+
     // Navigation
     'ctrl+tab': () => navigateChat('next'),
     'ctrl+shift+tab': () => navigateChat('previous'),
@@ -72,18 +72,18 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     'ctrl+3': () => selectChat(2),
     'ctrl+4': () => selectChat(3),
     'ctrl+5': () => selectChat(4),
-    
+
     // UI controls
     'ctrl+b': () => emit('toggle-sidebar'),
     'ctrl+shift+d': () => emit('toggle-dark-mode'),
-    'f11': () => emit('toggle-fullscreen'),
-    'escape': () => handleEscape(),
-    
+    f11: () => emit('toggle-fullscreen'),
+    escape: () => handleEscape(),
+
     // Accessibility
     'alt+1': () => focusMainContent(),
     'alt+2': () => focusSidebar(),
     'alt+3': () => focusChatInput(),
-    
+
     // Voice and media
     'ctrl+shift+v': () => emit('toggle-voice-recording'),
     'ctrl+shift+i': () => emit('upload-image'),
@@ -93,10 +93,8 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
   // Focus management
   const updateFocusableElements = (container?: HTMLElement) => {
     const root = container || document.body
-    const elements = Array.from(
-      root.querySelectorAll(focusableSelectors)
-    ) as FocusableElement[]
-    
+    const elements = Array.from(root.querySelectorAll(focusableSelectors)) as FocusableElement[]
+
     focusableElements.value = elements.filter(el => {
       const style = window.getComputedStyle(el)
       return (
@@ -116,7 +114,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
 
   const focusElement = (index: number) => {
     if (!focusableElements.value[index]) return
-    
+
     focusableElements.value[index].focus()
     currentFocusIndex.value = index
   }
@@ -131,9 +129,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
   const focusPrevious = () => {
     updateFocusableElements()
     const currentIndex = getCurrentFocusIndex()
-    const prevIndex = currentIndex <= 0 
-      ? focusableElements.value.length - 1 
-      : currentIndex - 1
+    const prevIndex = currentIndex <= 0 ? focusableElements.value.length - 1 : currentIndex - 1
     focusElement(prevIndex)
   }
 
@@ -141,7 +137,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
   const pushModal = (modalElement: HTMLElement) => {
     lastFocusedElement.value = document.activeElement as HTMLElement
     modalStack.value.push(modalElement)
-    
+
     if (enableFocusTrap) {
       nextTick(() => {
         updateFocusableElements(modalElement)
@@ -154,7 +150,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
 
   const popModal = () => {
     modalStack.value.pop()
-    
+
     if (modalStack.value.length > 0) {
       // Focus the previous modal
       const previousModal = modalStack.value[modalStack.value.length - 1]
@@ -170,21 +166,19 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
 
   const trapFocus = (event: KeyboardEvent) => {
     if (!enableFocusTrap || modalStack.value.length === 0) return
-    
+
     if (event.key === 'Tab') {
       const currentModal = modalStack.value[modalStack.value.length - 1]
       updateFocusableElements(currentModal)
-      
+
       if (focusableElements.value.length === 0) return
-      
+
       const currentIndex = getCurrentFocusIndex()
-      
+
       if (event.shiftKey) {
         // Shift + Tab (previous)
         event.preventDefault()
-        const prevIndex = currentIndex <= 0 
-          ? focusableElements.value.length - 1 
-          : currentIndex - 1
+        const prevIndex = currentIndex <= 0 ? focusableElements.value.length - 1 : currentIndex - 1
         focusElement(prevIndex)
       } else {
         // Tab (next)
@@ -199,21 +193,23 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
   const focusMainContent = () => {
     const mainContent = document.querySelector('[role="main"], .chat-messages, #main-content')
     if (mainContent) {
-      (mainContent as HTMLElement).focus()
+      ;(mainContent as HTMLElement).focus()
     }
   }
 
   const focusSidebar = () => {
     const sidebar = document.querySelector('.sidebar, [role="navigation"], .chat-list')
     if (sidebar) {
-      (sidebar as HTMLElement).focus()
+      ;(sidebar as HTMLElement).focus()
     }
   }
 
   const focusChatInput = () => {
-    const chatInput = document.querySelector('.chat-input, [data-testid="chat-input"], textarea[placeholder*="消息"]')
+    const chatInput = document.querySelector(
+      '.chat-input, [data-testid="chat-input"], textarea[placeholder*="消息"]'
+    )
     if (chatInput) {
-      (chatInput as HTMLElement).focus()
+      ;(chatInput as HTMLElement).focus()
     }
   }
 
@@ -239,17 +235,23 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     const { key } = event
     if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) return
 
-    const root = container || document.activeElement?.closest('[role="listbox"], [role="grid"], [role="menu"], .navigation-container')
+    const root =
+      container ||
+      document.activeElement?.closest(
+        '[role="listbox"], [role="grid"], [role="menu"], .navigation-container'
+      )
     if (!root) return
 
-    const items = Array.from(root.querySelectorAll('[role="option"], [role="gridcell"], [role="menuitem"], .nav-item'))
+    const items = Array.from(
+      root.querySelectorAll('[role="option"], [role="gridcell"], [role="menuitem"], .nav-item')
+    )
     const currentIndex = items.indexOf(document.activeElement as Element)
-    
+
     if (currentIndex === -1) return
 
     let nextIndex = currentIndex
     const cols = parseInt(root.getAttribute('data-cols') || '1')
-    
+
     switch (key) {
       case 'ArrowUp':
         nextIndex = Math.max(0, currentIndex - cols)
@@ -276,16 +278,18 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     if (!isNavigationActive.value) return
 
     const { key, ctrlKey, shiftKey, altKey } = event
-    
+
     // Handle global shortcuts
     if (enableGlobalShortcuts) {
       const shortcutKey = [
         ctrlKey && 'ctrl',
-        shiftKey && 'shift', 
+        shiftKey && 'shift',
         altKey && 'alt',
         key.toLowerCase()
-      ].filter(Boolean).join('+')
-      
+      ]
+        .filter(Boolean)
+        .join('+')
+
       const shortcutHandler = globalShortcuts[shortcutKey as keyof typeof globalShortcuts]
       if (shortcutHandler) {
         event.preventDefault()
@@ -320,9 +324,9 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
-    
+
     document.body.appendChild(announcement)
-    
+
     setTimeout(() => {
       document.body.removeChild(announcement)
     }, 1000)
@@ -385,32 +389,36 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     isNavigationActive,
     currentFocusIndex,
     focusableElements: computed(() => focusableElements.value),
-    
+
     // Focus management
     updateFocusableElements,
     focusElement,
     focusNext,
     focusPrevious,
-    
+
     // Modal management
     pushModal,
     popModal,
-    
+
     // Specific navigation
     focusMainContent,
     focusSidebar,
     focusChatInput,
     navigateChat,
     selectChat,
-    
+
     // Arrow navigation
     handleArrowNavigation,
-    
+
     // Utilities
     announceNavigation,
-    
+
     // Control
-    enable: () => { isNavigationActive.value = true },
-    disable: () => { isNavigationActive.value = false }
+    enable: () => {
+      isNavigationActive.value = true
+    },
+    disable: () => {
+      isNavigationActive.value = false
+    }
   }
 }

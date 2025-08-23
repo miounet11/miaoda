@@ -5,14 +5,14 @@
       <div class="flex items-center gap-2">
         <Hash :size="16" class="text-muted-foreground" />
         <span class="text-sm font-medium text-muted-foreground">Topics</span>
-        <span 
+        <span
           v-if="selectedTags.length > 0"
           class="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full"
         >
           {{ selectedTags.length }}
         </span>
       </div>
-      
+
       <div class="flex items-center gap-1">
         <button
           v-if="selectedTags.length > 0"
@@ -62,7 +62,7 @@
             <span>{{ tag.name }}</span>
             <span v-if="showCounts" class="ml-1 text-xs opacity-75">({{ tag.count }})</span>
           </button>
-          
+
           <button
             v-if="tags.length > maxCollapsedTags"
             @click="toggleExpansion"
@@ -82,7 +82,7 @@
             type="text"
             placeholder="Filter tags..."
             class="w-full px-3 py-2 text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
+          />
         </div>
 
         <!-- Tag Categories -->
@@ -173,14 +173,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
-  Hash, 
-  ChevronDown, 
-  ChevronRight, 
-  TrendingUp, 
-  Clock, 
-  X 
-} from 'lucide-vue-next'
+import { Hash, ChevronDown, ChevronRight, TrendingUp, Clock, X } from 'lucide-vue-next'
 import { SummaryService } from '@renderer/src/services/summary/SummaryService'
 
 interface TagData {
@@ -224,9 +217,7 @@ const showTagCloud = computed(() => {
 })
 
 const popularTags = computed(() => {
-  return [...tags.value]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 20) // Top 20 most popular tags
+  return [...tags.value].sort((a, b) => b.count - a.count).slice(0, 20) // Top 20 most popular tags
 })
 
 const recentTags = computed(() => {
@@ -239,17 +230,13 @@ const recentTags = computed(() => {
 const filteredPopularTags = computed(() => {
   if (!searchQuery.value) return popularTags.value
   const query = searchQuery.value.toLowerCase()
-  return popularTags.value.filter(tag => 
-    tag.name.toLowerCase().includes(query)
-  )
+  return popularTags.value.filter(tag => tag.name.toLowerCase().includes(query))
 })
 
 const filteredRecentTags = computed(() => {
   if (!searchQuery.value) return recentTags.value
   const query = searchQuery.value.toLowerCase()
-  return recentTags.value.filter(tag => 
-    tag.name.toLowerCase().includes(query)
-  )
+  return recentTags.value.filter(tag => tag.name.toLowerCase().includes(query))
 })
 
 // Methods
@@ -264,7 +251,7 @@ const toggleTag = (tagName: string) => {
   } else {
     selectedTags.value.push(tagName)
   }
-  
+
   emit('tags-changed', [...selectedTags.value])
   emit('tag-clicked', tagName)
 }
@@ -280,7 +267,7 @@ const clearSelection = () => {
 
 const getTagStyle = (tag: TagData): string => {
   const intensity = Math.min(tag.count / Math.max(...tags.value.map(t => t.count)), 1)
-  
+
   if (intensity > 0.7) {
     return 'bg-primary/20 text-primary hover:bg-primary/30'
   } else if (intensity > 0.4) {
@@ -294,7 +281,7 @@ const loadTags = async () => {
   try {
     isLoading.value = true
     const allTags = await summaryService.getAllTags()
-    
+
     // Convert to TagData with mock counts (in real implementation, this would come from the backend)
     tags.value = allTags.map(tagName => ({
       name: tagName,
@@ -326,7 +313,7 @@ onMounted(() => {
 })
 
 // Watchers
-watch(searchQuery, (newQuery) => {
+watch(searchQuery, newQuery => {
   // Auto-expand when searching
   if (newQuery && !isExpanded.value) {
     isExpanded.value = true
@@ -394,7 +381,8 @@ watch(searchQuery, (newQuery) => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

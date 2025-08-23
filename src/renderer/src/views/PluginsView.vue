@@ -19,37 +19,31 @@
       <div v-show="activeTab === 'market'" class="tab-pane">
         <PluginMarketStore />
       </div>
-      
+
       <!-- Installed Plugins -->
       <div v-show="activeTab === 'installed'" class="tab-pane">
         <div class="installed-header">
           <h2>已安装的插件</h2>
           <p class="installed-description">管理您已安装的插件</p>
         </div>
-        
+
         <div class="installed-content">
           <div v-if="installedPlugins.length === 0" class="empty-state">
             <Package :size="48" class="empty-icon" />
             <h3>暂无已安装插件</h3>
             <p>去插件市场发现有用的插件</p>
-            <button @click="activeTab = 'market'" class="browse-btn">
-              浏览插件市场
-            </button>
+            <button @click="activeTab = 'market'" class="browse-btn">浏览插件市场</button>
           </div>
-          
+
           <div v-else class="installed-list">
-            <div
-              v-for="plugin in installedPlugins"
-              :key="plugin.id"
-              class="installed-plugin-card"
-            >
+            <div v-for="plugin in installedPlugins" :key="plugin.id" class="installed-plugin-card">
               <div class="plugin-info">
                 <div class="plugin-icon">
                   <img
                     v-if="plugin.manifest?.icon"
                     :src="plugin.manifest.icon"
                     :alt="plugin.manifest.name"
-                  >
+                  />
                   <Puzzle v-else :size="32" />
                 </div>
                 <div class="plugin-details">
@@ -61,7 +55,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="plugin-controls">
                 <div class="status-toggle">
                   <label class="toggle-switch">
@@ -69,14 +63,14 @@
                       type="checkbox"
                       :checked="plugin.enabled"
                       @change="togglePlugin(plugin)"
-                    >
+                    />
                     <span class="toggle-slider" />
                   </label>
                   <span class="status-text">
                     {{ plugin.enabled ? '已启用' : '已禁用' }}
                   </span>
                 </div>
-                
+
                 <div class="action-buttons">
                   <button @click="configurePlugin(plugin)" class="control-btn">
                     <Settings :size="16" />
@@ -92,14 +86,14 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Developer Tools -->
       <div v-show="activeTab === 'develop'" class="tab-pane">
         <div class="develop-header">
           <h2>插件开发</h2>
           <p class="develop-description">创建和测试您自己的插件</p>
         </div>
-        
+
         <div class="develop-content">
           <div class="develop-grid">
             <!-- Create New Plugin -->
@@ -109,11 +103,9 @@
               </div>
               <h3>创建新插件</h3>
               <p>使用内置模板快速创建插件项目</p>
-              <button @click="createNewPlugin" class="develop-btn">
-                开始创建
-              </button>
+              <button @click="createNewPlugin" class="develop-btn">开始创建</button>
             </div>
-            
+
             <!-- Import Plugin -->
             <div class="develop-card">
               <div class="card-icon">
@@ -121,11 +113,9 @@
               </div>
               <h3>导入插件</h3>
               <p>从本地文件或 GitHub 导入现有插件</p>
-              <button @click="importPlugin" class="develop-btn secondary">
-                导入插件
-              </button>
+              <button @click="importPlugin" class="develop-btn secondary">导入插件</button>
             </div>
-            
+
             <!-- Developer Docs -->
             <div class="develop-card">
               <div class="card-icon">
@@ -133,9 +123,7 @@
               </div>
               <h3>开发文档</h3>
               <p>学习插件 API 和最佳实践</p>
-              <button @click="openDocs" class="develop-btn secondary">
-                查看文档
-              </button>
+              <button @click="openDocs" class="develop-btn secondary">查看文档</button>
             </div>
           </div>
 
@@ -143,11 +131,7 @@
           <div v-if="devProjects.length > 0" class="dev-projects">
             <h3>开发中的项目</h3>
             <div class="projects-list">
-              <div
-                v-for="project in devProjects"
-                :key="project.id"
-                class="project-card"
-              >
+              <div v-for="project in devProjects" :key="project.id" class="project-card">
                 <div class="project-info">
                   <h4>{{ project.name }}</h4>
                   <p>{{ project.description }}</p>
@@ -181,8 +165,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  Store, Package, Code, Puzzle, Settings, Trash2, Plus, Upload,
-  FileText, Play
+  Store,
+  Package,
+  Code,
+  Puzzle,
+  Settings,
+  Trash2,
+  Plus,
+  Upload,
+  FileText,
+  Play
 } from 'lucide-vue-next'
 
 import PluginMarketStore from '../components/plugin/PluginMarketStore.vue'

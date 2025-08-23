@@ -1,18 +1,10 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="show"
-      class="modal-overlay"
-      @click.self="$emit('close')"
-    >
+    <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
       <div class="permissions-modal">
         <div class="modal-header">
           <h3>Plugin Permissions</h3>
-          <button
-            type="button"
-            class="close-button"
-            @click="$emit('close')"
-          >
+          <button type="button" class="close-button" @click="$emit('close')">
             <X :size="20" />
           </button>
         </div>
@@ -20,11 +12,7 @@
         <div class="modal-content">
           <div class="plugin-info">
             <div class="plugin-icon">
-              <img
-                v-if="plugin.icon"
-                :src="plugin.icon"
-                :alt="plugin.name"
-              >
+              <img v-if="plugin.icon" :src="plugin.icon" :alt="plugin.name" />
               <Package v-else :size="24" />
             </div>
             <div class="plugin-details">
@@ -36,11 +24,7 @@
           <div class="permissions-section">
             <h4>Required Permissions</h4>
             <div class="permissions-list">
-              <div
-                v-for="permission in permissions"
-                :key="permission.name"
-                class="permission-item"
-              >
+              <div v-for="permission in permissions" :key="permission.name" class="permission-item">
                 <div class="permission-icon">
                   <component :is="permission.icon" :size="16" />
                 </div>
@@ -49,10 +33,7 @@
                   <div class="permission-description">{{ permission.description }}</div>
                 </div>
                 <div class="permission-status">
-                  <span
-                    class="status-badge"
-                    :class="permission.granted ? 'granted' : 'denied'"
-                  >
+                  <span class="status-badge" :class="permission.granted ? 'granted' : 'denied'">
                     {{ permission.granted ? 'Granted' : 'Required' }}
                   </span>
                 </div>
@@ -73,13 +54,7 @@
         </div>
 
         <div class="modal-actions">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="$emit('close')"
-          >
-            Cancel
-          </button>
+          <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
           <button
             type="button"
             class="btn btn-primary"
@@ -96,7 +71,16 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { X, Package, AlertTriangle, Shield, FileText, Globe, HardDrive, Settings } from 'lucide-vue-next'
+import {
+  X,
+  Package,
+  AlertTriangle,
+  Shield,
+  FileText,
+  Globe,
+  HardDrive,
+  Settings
+} from 'lucide-vue-next'
 
 interface Plugin {
   name: string
@@ -168,7 +152,7 @@ const permissionTypes = {
 
 const permissions = computed((): Permission[] => {
   if (!props.plugin.permissions) return []
-  
+
   return props.plugin.permissions.map(perm => {
     const permType = permissionTypes[perm as keyof typeof permissionTypes]
     return {

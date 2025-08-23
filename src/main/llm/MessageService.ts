@@ -53,7 +53,10 @@ export class MessageService {
   ): Promise<string> {
     const tools = this.mcpManager.getAvailableTools()
 
-    this.notifyToolsAvailable(context, tools.map(t => t.name))
+    this.notifyToolsAvailable(
+      context,
+      tools.map(t => t.name)
+    )
 
     const response = await provider.sendMessageWithTools!(
       message,
@@ -74,14 +77,11 @@ export class MessageService {
     context: MessageContext,
     onChunk?: ChunkCallback
   ): Promise<string> {
-    const response = await provider.sendMessage(
-      message,
-      this.createChunkHandler(context, onChunk)
-    )
-    
+    const response = await provider.sendMessage(message, this.createChunkHandler(context, onChunk))
+
     // Notify that streaming is complete
     this.notifyStreamComplete(context, response)
-    
+
     return response
   }
 

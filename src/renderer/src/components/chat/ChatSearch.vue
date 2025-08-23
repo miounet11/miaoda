@@ -4,12 +4,12 @@
     <button
       @click="toggleSearch"
       class="search-toggle"
-      :class="{ 'active': isSearchMode }"
+      :class="{ active: isSearchMode }"
       :title="$t('search.toggleSearch')"
     >
       <Search :size="18" />
     </button>
-    
+
     <!-- Search Interface -->
     <div v-if="isSearchMode" class="search-interface">
       <div class="search-header">
@@ -24,8 +24,8 @@
             @keydown.enter="performSearch"
             @keydown.escape="closeSearch"
             @input="onSearchInput"
-          >
-          
+          />
+
           <div class="search-controls">
             <button
               v-if="searchQuery"
@@ -35,7 +35,7 @@
             >
               <X :size="14" />
             </button>
-            
+
             <button
               @click="toggleGlobalSearch"
               class="global-search-btn"
@@ -45,13 +45,13 @@
             </button>
           </div>
         </div>
-        
+
         <!-- Search Stats -->
         <div v-if="searchResults.length > 0" class="search-stats">
           <span class="results-count">
             {{ $t('search.resultsInChat', { count: searchResults.length }) }}
           </span>
-          
+
           <div class="navigation-controls">
             <button
               @click="previousResult"
@@ -61,11 +61,11 @@
             >
               <ChevronUp :size="14" />
             </button>
-            
+
             <span class="result-position">
               {{ currentResultIndex + 1 }} / {{ searchResults.length }}
             </span>
-            
+
             <button
               @click="nextResult"
               :disabled="currentResultIndex >= searchResults.length - 1"
@@ -77,14 +77,14 @@
           </div>
         </div>
       </div>
-      
+
       <!-- No Results -->
       <div v-if="hasSearched && searchResults.length === 0" class="no-results">
         <SearchX :size="16" />
         <span>{{ $t('search.noResultsInChat') }}</span>
       </div>
     </div>
-    
+
     <!-- Global Search Modal -->
     <GlobalSearch
       v-if="showGlobalSearch"
@@ -118,7 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'message-highlight': [messageId: string]
   'chat-select': [chatId: string]
-}>();
+}>()
 
 // Composables
 const { t } = useI18n()
@@ -142,7 +142,7 @@ const targetChatId = computed(() => props.chatId || chatStore.currentChatId || '
 // Methods
 const toggleSearch = () => {
   isSearchMode.value = !isSearchMode.value
-  
+
   if (isSearchMode.value) {
     nextTick(() => {
       searchInputRef.value?.focus()
@@ -162,7 +162,7 @@ const clearSearch = () => {
   searchResults.value = []
   currentResultIndex.value = 0
   hasSearched.value = false
-  
+
   // Clear any highlighting
   emit('message-highlight', '')
 }
@@ -171,7 +171,7 @@ const onSearchInput = () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout)
   }
-  
+
   if (searchQuery.value.trim().length >= 2) {
     searchTimeout = setTimeout(() => {
       performSearch()
@@ -186,7 +186,7 @@ const performSearch = async () => {
     clearSearch()
     return
   }
-  
+
   try {
     const results = await searchService.search({
       text: searchQuery.value.trim(),
@@ -199,11 +199,11 @@ const performSearch = async () => {
         highlightMatches: true
       }
     })
-    
+
     searchResults.value = results
     currentResultIndex.value = 0
     hasSearched.value = true
-    
+
     // Highlight first result if available
     if (results.length > 0) {
       highlightCurrentResult()
@@ -244,12 +244,12 @@ const onGlobalMessageSelect = (messageId: string, chatId: string) => {
   if (chatId !== targetChatId.value) {
     emit('chat-select', chatId)
   }
-  
+
   // Highlight the selected message
   nextTick(() => {
     emit('message-highlight', messageId)
   })
-  
+
   showGlobalSearch.value = false
 }
 
@@ -262,7 +262,7 @@ const onGlobalChatSelect = (chatId: string) => {
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   const { key, ctrlKey, metaKey } = event
   const cmdKey = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? metaKey : ctrlKey
-  
+
   // Ctrl/Cmd + F to toggle search
   if (cmdKey && key === 'f' && !showGlobalSearch.value) {
     event.preventDefault()
@@ -273,14 +273,14 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     }
     return
   }
-  
+
   // Ctrl/Cmd + K for global search
   if (cmdKey && key === 'k') {
     event.preventDefault()
     toggleGlobalSearch()
     return
   }
-  
+
   // Search navigation shortcuts (only when search is active)
   if (isSearchMode.value && searchResults.value.length > 0) {
     if (key === 'F3' || (cmdKey && key === 'g')) {
@@ -294,11 +294,14 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 }
 
 // Watch for chat changes
-watch(() => targetChatId.value, () => {
-  if (searchQuery.value) {
-    performSearch()
+watch(
+  () => targetChatId.value,
+  () => {
+    if (searchQuery.value) {
+      performSearch()
+    }
   }
-})
+)
 
 // Lifecycle
 onMounted(() => {
@@ -394,7 +397,7 @@ onUnmounted(() => {
     @apply fixed top-0 left-0 right-0 mt-0 rounded-none border-l-0 border-r-0 border-t-0;
     min-width: auto;
   }
-  
+
   .search-header {
     @apply p-4;
   }
@@ -405,7 +408,7 @@ onUnmounted(() => {
   .search-interface {
     @apply border-2;
   }
-  
+
   .search-input:focus {
     @apply ring-2 ring-primary;
   }

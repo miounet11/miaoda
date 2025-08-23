@@ -38,7 +38,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
-    
+
     // Open DevTools in development mode
     if (is.dev) {
       mainWindow?.webContents.openDevTools()
@@ -47,11 +47,11 @@ function createWindow(): void {
 
   // Make mainWindow globally accessible
   global.mainWindow = mainWindow
-  
+
   // Register shortcuts
   registerShortcuts(mainWindow)
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  mainWindow.webContents.setWindowOpenHandler(details => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
@@ -65,7 +65,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.miaoda.chat')
-  
+
   // Log application startup
   logger.logStartup()
 
@@ -89,19 +89,21 @@ app.whenReady().then(() => {
   })
 
   createWindow()
-  
+
   // Debug: Log when window is created
   logger.info('Window created with preload', 'Main', join(__dirname, '../preload/index.js'))
-  
+
   // Initialize plugin manager
-  pluginManager.initialize().catch(error => logger.error('Plugin manager initialization failed', 'Main', error))
-  
+  pluginManager
+    .initialize()
+    .catch(error => logger.error('Plugin manager initialization failed', 'Main', error))
+
   // Connect plugin manager to MCP
   mcpManager.setPluginManager(pluginManager)
-  
+
   // Initialize MCP after window is created
   initializeMCP().catch(error => logger.error('MCP initialization failed', 'Main', error))
-  
+
   // Start memory monitoring in production
   if (!is.dev) {
     memoryMonitor.startMonitoring()

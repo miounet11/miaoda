@@ -1,7 +1,7 @@
 /**
  * 云同步安全系统 - 加密管理器
  * 实现端到端加密、密钥管理、数据加密等核心安全功能
- * 
+ *
  * 安全架构设计：
  * 1. 端到端加密（E2EE）- 使用AES-256-GCM
  * 2. 密钥派生 - PBKDF2/scrypt/Argon2
@@ -22,28 +22,28 @@ export const CRYPTO_CONSTANTS = {
   ENCRYPTION_ALGORITHM: 'aes-256-gcm',
   KEY_DERIVATION_ALGORITHM: 'scrypt',
   HASH_ALGORITHM: 'sha256',
-  
+
   // 密钥长度
   AES_KEY_LENGTH: 32, // 256 bits
-  IV_LENGTH: 16,      // 128 bits
-  SALT_LENGTH: 32,    // 256 bits
+  IV_LENGTH: 16, // 128 bits
+  SALT_LENGTH: 32, // 256 bits
   AUTH_TAG_LENGTH: 16, // 128 bits
-  
+
   // 密钥派生参数 (scrypt)
-  SCRYPT_N: 32768,    // CPU/Memory cost parameter
-  SCRYPT_R: 8,        // Block size parameter
-  SCRYPT_P: 1,        // Parallelization parameter
-  
+  SCRYPT_N: 32768, // CPU/Memory cost parameter
+  SCRYPT_R: 8, // Block size parameter
+  SCRYPT_P: 1, // Parallelization parameter
+
   // PBKDF2参数（备选方案）
   PBKDF2_ITERATIONS: 100000,
-  
+
   // 非对称加密
   RSA_KEY_SIZE: 4096,
   ECDSA_CURVE: 'secp384r1',
-  
+
   // 密钥轮换
   KEY_ROTATION_INTERVAL: 30 * 24 * 60 * 60 * 1000, // 30天
-  
+
   // 版本标识
   CRYPTO_VERSION: 'v2.0'
 } as const
@@ -107,7 +107,6 @@ export class CryptoManager {
 
       // 初始化随机数生成器
       await this.seedRandomGenerator()
-      
     } catch (error) {
       throw new Error(`Crypto initialization failed: ${error}`)
     }
@@ -124,10 +123,10 @@ export class CryptoManager {
       Buffer.from(process.hrtime.bigint().toString()),
       crypto.randomBytes(32)
     ])
-    
+
     // 混合熵源
     const entropy = crypto.createHash('sha512').update(entropySource).digest()
-    
+
     // 验证随机性质量
     if (entropy.length < 64) {
       throw new Error('Insufficient entropy for secure random generation')
@@ -139,27 +138,23 @@ export class CryptoManager {
    * 使用强密码派生函数从用户密码生成主密钥
    */
   async generateMasterKey(
-    password: string, 
+    password: string,
     options: KeyDerivationOptions = {}
   ): Promise<{ key: Buffer; salt: Buffer; keyId: string }> {
     const salt = options.salt || randomBytes(CRYPTO_CONSTANTS.SALT_LENGTH)
     const algorithm = options.algorithm || 'scrypt'
-    
+
     let masterKey: Buffer
-    
+
     switch (algorithm) {
       case 'scrypt':
-        masterKey = await scryptAsync(
-          password, 
-          salt, 
-          CRYPTO_CONSTANTS.AES_KEY_LENGTH, {
-            N: CRYPTO_CONSTANTS.SCRYPT_N,
-            r: CRYPTO_CONSTANTS.SCRYPT_R,
-            p: CRYPTO_CONSTANTS.SCRYPT_P
-          }
-        ) as Buffer
+        masterKey = (await scryptAsync(password, salt, CRYPTO_CONSTANTS.AES_KEY_LENGTH, {
+          N: CRYPTO_CONSTANTS.SCRYPT_N,
+          r: CRYPTO_CONSTANTS.SCRYPT_R,
+          p: CRYPTO_CONSTANTS.SCRYPT_P
+        })) as Buffer
         break
-        
+
       case 'pbkdf2':
         masterKey = crypto.pbkdf2Sync(
           password,
@@ -169,14 +164,14 @@ export class CryptoManager {
           'sha512'
         )
         break
-        
+
       default:
         throw new Error(`Unsupported key derivation algorithm: ${algorithm}`)
     }
 
     // 生成密钥ID
     const keyId = this.generateKeyId(masterKey, salt)
-    
+
     // 存储密钥信息
     const keyInfo: KeyInfo = {
       id: keyId,
@@ -186,7 +181,7 @@ export class CryptoManager {
       usage: 'encryption',
       status: 'active'
     }
-    
+
     this.masterKey = masterKey
     this.keyStore.set(keyId, masterKey)
     this.keyInfo.set(keyId, keyInfo)
@@ -216,12 +211,12 @@ export class CryptoManager {
       'sha256',
       this.masterKey,
       randomBytes(16), // salt
-      contextData,      // info
+      contextData, // info
       CRYPTO_CONSTANTS.AES_KEY_LENGTH
     )
 
     const keyId = this.generateKeyId(derivedKey, contextData)
-    
+
     // 存储派生密钥信息
     const keyInfo: KeyInfo = {
       id: keyId,
@@ -256,13 +251,13 @@ export class CryptoManager {
 
     const plaintext = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8')
     const iv = randomBytes(CRYPTO_CONSTANTS.IV_LENGTH)
-    
+
     const cipher = crypto.createCipherGCM(CRYPTO_CONSTANTS.ENCRYPTION_ALGORITHM, encryptionKey)
     cipher.setAAD(Buffer.from(useKeyId, 'utf8')) // Additional Authenticated Data
-    
+
     let encrypted = cipher.update(plaintext)
     encrypted = Buffer.concat([encrypted, cipher.final()])
-    
+
     const authTag = cipher.getAuthTag()
 
     return {
@@ -281,7 +276,7 @@ export class CryptoManager {
    */
   async decryptData(encryptedData: EncryptedData): Promise<Buffer> {
     const { keyId, iv, authTag, data, algorithm, version } = encryptedData
-    
+
     if (!keyId) {
       throw new Error('No key ID in encrypted data')
     }
@@ -337,10 +332,7 @@ export class CryptoManager {
         throw new Error(`Unsupported key pair algorithm: ${algorithm}`)
     }
 
-    const keyId = crypto.createHash('sha256')
-      .update(keyPair.publicKey)
-      .digest('hex')
-      .slice(0, 16)
+    const keyId = crypto.createHash('sha256').update(keyPair.publicKey).digest('hex').slice(0, 16)
 
     // 存储密钥信息
     const keyInfo: KeyInfo = {
@@ -366,10 +358,10 @@ export class CryptoManager {
    */
   async signData(data: string | Buffer, privateKey: string): Promise<string> {
     const signData = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8')
-    
+
     const sign = crypto.createSign('RSA-SHA256')
     sign.update(signData)
-    
+
     return sign.sign(privateKey, 'base64')
   }
 
@@ -377,16 +369,16 @@ export class CryptoManager {
    * 验证数字签名
    */
   async verifySignature(
-    data: string | Buffer, 
-    signature: string, 
+    data: string | Buffer,
+    signature: string,
     publicKey: string
   ): Promise<boolean> {
     try {
       const verifyData = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8')
-      
+
       const verify = crypto.createVerify('RSA-SHA256')
       verify.update(verifyData)
-      
+
       return verify.verify(publicKey, signature, 'base64')
     } catch (error) {
       return false
@@ -406,7 +398,7 @@ export class CryptoManager {
   generateSecurePassword(length: number = 32): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
     const randomBytes = this.generateSecureRandom(length)
-    
+
     return Array.from(randomBytes)
       .map(byte => chars[byte % chars.length])
       .join('')
@@ -416,11 +408,7 @@ export class CryptoManager {
    * 生成密钥ID
    */
   private generateKeyId(key: Buffer, salt: Buffer): string {
-    return crypto.createHash('sha256')
-      .update(key)
-      .update(salt)
-      .digest('hex')
-      .slice(0, 16)
+    return crypto.createHash('sha256').update(key).update(salt).digest('hex').slice(0, 16)
   }
 
   /**
@@ -437,7 +425,7 @@ export class CryptoManager {
 
     // 生成新的数据加密密钥
     const { keyId: newKeyId } = await this.deriveDataKey('rotation', oldKeyId)
-    
+
     return newKeyId
   }
 
@@ -446,7 +434,7 @@ export class CryptoManager {
    */
   cleanupExpiredKeys(): void {
     const now = Date.now()
-    
+
     for (const [keyId, keyInfo] of this.keyInfo.entries()) {
       if (keyInfo.expiresAt && keyInfo.expiresAt < now) {
         keyInfo.status = 'revoked'
@@ -468,11 +456,11 @@ export class CryptoManager {
    */
   listKeys(status?: 'active' | 'inactive' | 'revoked'): KeyInfo[] {
     const keys = Array.from(this.keyInfo.values())
-    
+
     if (status) {
       return keys.filter(key => key.status === status)
     }
-    
+
     return keys
   }
 
@@ -555,13 +543,19 @@ export class PasswordStrengthValidator {
 
   private static isCommonPassword(password: string): boolean {
     const commonPasswords = [
-      'password', '123456', 'password123', 'admin', 'letmein',
-      'welcome', 'monkey', '1234567890', 'qwerty', 'abc123'
+      'password',
+      '123456',
+      'password123',
+      'admin',
+      'letmein',
+      'welcome',
+      'monkey',
+      '1234567890',
+      'qwerty',
+      'abc123'
     ]
-    
-    return commonPasswords.some(common => 
-      password.toLowerCase().includes(common)
-    )
+
+    return commonPasswords.some(common => password.toLowerCase().includes(common))
   }
 
   private static hasRepeatingChars(password: string): boolean {

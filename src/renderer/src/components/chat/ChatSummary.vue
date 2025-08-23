@@ -22,7 +22,7 @@
           <ChevronDown :size="14" class="text-muted-foreground" />
         </button>
       </div>
-      
+
       <div class="flex items-center gap-1">
         <button
           v-if="canGenerate && !isGenerating"
@@ -52,7 +52,10 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="isGenerating" class="summary-loading flex items-center gap-2 p-2 bg-accent/30 rounded-lg">
+    <div
+      v-if="isGenerating"
+      class="summary-loading flex items-center gap-2 p-2 bg-accent/30 rounded-lg"
+    >
       <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
       <span class="text-sm text-muted-foreground">Generating summary...</span>
     </div>
@@ -61,8 +64,13 @@
     <div v-if="summaryData && !isGenerating" class="summary-content">
       <!-- Collapsed View -->
       <div v-if="!isExpanded" class="summary-collapsed">
-        <p class="text-sm text-foreground line-clamp-2 leading-relaxed">{{ summaryData.summary }}</p>
-        <div v-if="summaryData.tags && summaryData.tags.length > 0" class="flex flex-wrap gap-1 mt-2">
+        <p class="text-sm text-foreground line-clamp-2 leading-relaxed">
+          {{ summaryData.summary }}
+        </p>
+        <div
+          v-if="summaryData.tags && summaryData.tags.length > 0"
+          class="flex flex-wrap gap-1 mt-2"
+        >
           <span
             v-for="tag in summaryData.tags.slice(0, 3)"
             :key="tag"
@@ -70,7 +78,7 @@
           >
             {{ tag }}
           </span>
-          <span 
+          <span
             v-if="summaryData.tags.length > 3"
             class="inline-flex items-center px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full"
           >
@@ -123,13 +131,13 @@
         </div>
 
         <!-- Summary Info -->
-        <div class="summary-info flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+        <div
+          class="summary-info flex items-center justify-between text-xs text-muted-foreground pt-2 border-t"
+        >
           <span v-if="summaryData.summaryUpdatedAt">
             Updated {{ formatRelativeTime(summaryData.summaryUpdatedAt) }}
           </span>
-          <span v-if="summaryData.summaryTokens">
-            {{ summaryData.summaryTokens }} tokens
-          </span>
+          <span v-if="summaryData.summaryTokens"> {{ summaryData.summaryTokens }} tokens </span>
         </div>
       </div>
     </div>
@@ -140,7 +148,9 @@
         @click="generateSummary"
         class="w-full p-2 border-2 border-dashed border-muted-foreground/30 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all group"
       >
-        <div class="flex items-center justify-center gap-2 text-muted-foreground group-hover:text-primary">
+        <div
+          class="flex items-center justify-center gap-2 text-muted-foreground group-hover:text-primary"
+        >
           <Sparkles :size="16" />
           <span class="text-sm">Generate Summary</span>
         </div>
@@ -148,8 +158,13 @@
     </div>
 
     <!-- Edit Summary Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-background border rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-background border rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden"
+      >
         <div class="p-4 border-b">
           <h3 class="text-lg font-medium">Edit Summary</h3>
         </div>
@@ -170,10 +185,12 @@
               type="text"
               class="w-full mt-1 p-2 border rounded-md"
               placeholder="technology, discussion, important"
-            >
+            />
           </div>
           <div>
-            <label class="text-sm font-medium text-muted-foreground">Key Points (one per line)</label>
+            <label class="text-sm font-medium text-muted-foreground"
+              >Key Points (one per line)</label
+            >
             <textarea
               v-model="keyPointsInput"
               class="w-full mt-1 p-2 border rounded-md resize-none"
@@ -204,16 +221,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
-  FileText, 
-  ChevronRight, 
-  ChevronDown, 
-  Sparkles, 
-  Edit2, 
-  X, 
-  List, 
-  Tag 
-} from 'lucide-vue-next'
+import { FileText, ChevronRight, ChevronDown, Sparkles, Edit2, X, List, Tag } from 'lucide-vue-next'
 import type { ChatSummary, Message } from '@renderer/src/types'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
 
@@ -264,7 +272,7 @@ const canGenerate = computed(() => {
 const toggleExpansion = () => {
   const wasExpanded = isExpanded.value
   isExpanded.value = !isExpanded.value
-  
+
   // Add micro-interaction feedback
   const summaryElement = document.querySelector('.chat-summary')
   if (summaryElement) {
@@ -287,12 +295,10 @@ const generateSummary = async () => {
 
   try {
     isGenerating.value = true
-    
+
     // Generate summary content using LLM
-    const messageText = props.messages
-      .map(m => `${m.role}: ${m.content}`)
-      .join('\n')
-    
+    const messageText = props.messages.map(m => `${m.role}: ${m.content}`).join('\n')
+
     const prompt = `Please generate a concise summary of this conversation. Include key points and relevant tags:
 
 ${messageText}
@@ -301,25 +307,33 @@ Format your response as:
 SUMMARY: [brief summary in 1-2 sentences]
 KEY_POINTS: [bullet points of main topics]
 TAGS: [comma-separated relevant tags]`
-    
+
     const summaryText = await window.api.llm.generateSummary(prompt)
-    
+
     // Parse the response (simplified)
     const lines = summaryText.split('\n')
     let summary = ''
     let keyPoints: string[] = []
     let tags: string[] = []
-    
+
     for (const line of lines) {
       if (line.startsWith('SUMMARY:')) {
         summary = line.replace('SUMMARY:', '').trim()
       } else if (line.startsWith('KEY_POINTS:')) {
-        keyPoints = line.replace('KEY_POINTS:', '').split('•').map(p => p.trim()).filter(p => p)
+        keyPoints = line
+          .replace('KEY_POINTS:', '')
+          .split('•')
+          .map(p => p.trim())
+          .filter(p => p)
       } else if (line.startsWith('TAGS:')) {
-        tags = line.replace('TAGS:', '').split(',').map(t => t.trim()).filter(t => t)
+        tags = line
+          .replace('TAGS:', '')
+          .split(',')
+          .map(t => t.trim())
+          .filter(t => t)
       }
     }
-    
+
     const chatSummary: ChatSummary = {
       id: `summary-${props.chatId}-${Date.now()}`,
       chatId: props.chatId,
@@ -331,19 +345,19 @@ TAGS: [comma-separated relevant tags]`
       generatedAt: new Date(),
       lastUpdated: new Date()
     }
-    
+
     // Save to database
     await window.api.db.updateChatSummary(
-      props.chatId, 
+      props.chatId,
       chatSummary.summary,
       chatSummary.tags,
       chatSummary.keyPoints,
       chatSummary.wordCount
     )
-    
+
     summaryData.value = chatSummary
     emit('summary-updated', chatSummary)
-    
+
     // Auto-expand after generation
     isExpanded.value = true
   } catch (error) {
@@ -375,26 +389,32 @@ const saveSummary = async () => {
 
   try {
     isSaving.value = true
-    
+
     const updatedSummary: Partial<ChatSummary> = {
       summary: editData.value.summary || '',
-      tags: tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag),
-      keyPoints: keyPointsInput.value.split('\n').map(point => point.trim()).filter(point => point)
+      tags: tagsInput.value
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag),
+      keyPoints: keyPointsInput.value
+        .split('\n')
+        .map(point => point.trim())
+        .filter(point => point)
     }
 
     await window.api.db.updateChatSummary(
-      props.chatId, 
+      props.chatId,
       updatedSummary.summary,
       updatedSummary.tags,
       updatedSummary.keyPoints
     )
-    
+
     summaryData.value = {
       ...summaryData.value!,
       ...updatedSummary,
       summaryUpdatedAt: new Date()
     }
-    
+
     emit('summary-updated', summaryData.value)
     showEditModal.value = false
   } catch (error) {
@@ -424,7 +444,7 @@ const handleTagClick = (tag: string) => {
   setTimeout(() => {
     tagAnimations.value[tag] = false
   }, 300)
-  
+
   emit('tag-clicked', tag)
 }
 
@@ -437,7 +457,7 @@ const loadSummary = async () => {
   try {
     const summary = await window.api.db.getChatSummary(props.chatId)
     summaryData.value = summary
-    
+
     if (summary) {
       emit('summary-updated', summary)
     }
@@ -462,18 +482,26 @@ const checkSummaryUpdate = async () => {
 }
 
 // Watchers
-watch(() => props.chatId, () => {
-  summaryData.value = null
-  isExpanded.value = false
-  loadSummary()
-}, { immediate: false })
+watch(
+  () => props.chatId,
+  () => {
+    summaryData.value = null
+    isExpanded.value = false
+    loadSummary()
+  },
+  { immediate: false }
+)
 
-watch(() => props.messages.length, async (newLength, oldLength) => {
-  if (newLength > oldLength && newLength >= 5) {
-    // New messages added, check if we need to update summary
-    await checkSummaryUpdate()
-  }
-}, { immediate: false })
+watch(
+  () => props.messages.length,
+  async (newLength, oldLength) => {
+    if (newLength > oldLength && newLength >= 5) {
+      // New messages added, check if we need to update summary
+      await checkSummaryUpdate()
+    }
+  },
+  { immediate: false }
+)
 
 // Lifecycle
 onMounted(() => {
@@ -562,7 +590,8 @@ onMounted(() => {
 }
 
 @keyframes generatePulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
   }
@@ -643,12 +672,12 @@ onMounted(() => {
     animation: none !important;
     transition: none !important;
   }
-  
+
   .chat-summary.expanding,
   .chat-summary.collapsing {
     transform: none !important;
   }
-  
+
   .summary-header button:hover {
     transform: none !important;
   }
@@ -682,13 +711,21 @@ onMounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Loading spinner */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

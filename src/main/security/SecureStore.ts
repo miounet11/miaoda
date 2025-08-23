@@ -50,7 +50,7 @@ export class SecureStore {
       const { keyId } = await cryptoManager.generateMasterKey(masterPassword)
       this.masterPasswordHash = keyId
       this.isInitialized = true
-      
+
       console.log('SecureStore initialized successfully')
     } catch (error) {
       throw new Error(`Failed to initialize SecureStore: ${error}`)
@@ -75,7 +75,7 @@ export class SecureStore {
     try {
       // Encrypt the value using crypto manager
       const encrypted = await cryptoManager.encryptData(value)
-      
+
       // Store encrypted data with metadata
       const storedValue: StoredValue = {
         encrypted,
@@ -83,7 +83,7 @@ export class SecureStore {
         createdAt: Date.now(),
         updatedAt: Date.now()
       }
-      
+
       this.store.set(key, storedValue)
     } catch (error) {
       throw new Error(`Failed to store encrypted value: ${error}`)
@@ -170,14 +170,14 @@ export class SecureStore {
 
     try {
       const encrypted = await cryptoManager.encryptData(value)
-      
+
       const storedValue: StoredValue = {
         encrypted,
         keyId: encrypted.keyId || this.masterPasswordHash!,
         createdAt,
         updatedAt: Date.now()
       }
-      
+
       this.store.set(key, storedValue)
     } catch (error) {
       throw new Error(`Failed to update encrypted value: ${error}`)
@@ -207,7 +207,7 @@ export class SecureStore {
     try {
       // Try to generate the same key as during initialization
       const { keyId } = await cryptoManager.generateMasterKey(password)
-      
+
       // Try to decrypt any existing data to validate
       const keys = this.keys()
       if (keys.length === 0) {
@@ -227,14 +227,14 @@ export class SecureStore {
    * Change master password (re-encrypts all data)
    */
   async changeMasterPassword(oldPassword: string, newPassword: string): Promise<void> {
-    if (!await this.validatePassword(oldPassword)) {
+    if (!(await this.validatePassword(oldPassword))) {
       throw new Error('Invalid old password')
     }
 
     // Backup all decrypted data
     const backup: Record<string, string> = {}
     const keys = this.keys()
-    
+
     for (const key of keys) {
       const value = await this.get(key)
       if (value !== null) {
@@ -267,7 +267,7 @@ export class SecureStore {
 export class APIKeyStore extends SecureStore {
   constructor() {
     super({
-      name: 'api-keys',
+      name: 'api-keys'
     })
   }
 

@@ -5,38 +5,27 @@
     :title="tooltip"
   >
     <!-- Status Dot -->
-    <div
-      class="rounded-full transition-all duration-300"
-      :class="dotClasses"
-    >
+    <div class="rounded-full transition-all duration-300" :class="dotClasses">
       <!-- Loading spinner for configuring state -->
-      <Loader2 
-        v-if="status === 'configuring'" 
-        :size="dotSize" 
-        class="animate-spin text-yellow-600" 
+      <Loader2
+        v-if="status === 'configuring'"
+        :size="dotSize"
+        class="animate-spin text-yellow-600"
       />
       <!-- Error icon for error state -->
-      <AlertCircle 
-        v-else-if="status === 'error'" 
-        :size="dotSize" 
-        class="text-red-600" 
-      />
+      <AlertCircle v-else-if="status === 'error'" :size="dotSize" class="text-red-600" />
       <!-- Success icon for connected state -->
-      <CheckCircle 
-        v-else-if="status === 'connected'" 
-        :size="dotSize" 
-        class="text-green-600" 
-      />
+      <CheckCircle v-else-if="status === 'connected'" :size="dotSize" class="text-green-600" />
       <!-- Default dot for disconnected state -->
-      <div v-else class="w-full h-full rounded-full" :class="statusColors[status]?.bg || 'bg-gray-400'" />
+      <div
+        v-else
+        class="w-full h-full rounded-full"
+        :class="statusColors[status]?.bg || 'bg-gray-400'"
+      />
     </div>
 
     <!-- Status Text -->
-    <span 
-      v-if="showText"
-      class="text-sm font-medium transition-colors"
-      :class="textClasses"
-    >
+    <span v-if="showText" class="text-sm font-medium transition-colors" :class="textClasses">
       {{ statusText }}
     </span>
 
@@ -123,10 +112,7 @@ const containerClasses = computed(() => [
 ])
 
 const dotClasses = computed(() => {
-  const baseClasses = [
-    'flex items-center justify-center',
-    sizeMap[props.size].dot
-  ]
+  const baseClasses = ['flex items-center justify-center', sizeMap[props.size].dot]
 
   // Add pulse animation for certain states
   if (props.pulse) {
@@ -142,9 +128,7 @@ const dotClasses = computed(() => {
   return baseClasses
 })
 
-const textClasses = computed(() => [
-  statusColors[props.status]?.text || 'text-gray-600'
-])
+const textClasses = computed(() => [statusColors[props.status]?.text || 'text-gray-600'])
 
 const badgeClasses = computed(() => [
   'border',
@@ -165,33 +149,36 @@ const tooltip = computed(() => {
 <style scoped>
 /* Custom pulse animations */
 @keyframes pulse-green {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
     opacity: 1;
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
     opacity: 0.8;
   }
 }
 
 @keyframes pulse-yellow {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4);
     opacity: 1;
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 4px rgba(234, 179, 8, 0);
     opacity: 0.8;
   }
 }
 
 @keyframes pulse-red {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
     opacity: 1;
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
     opacity: 0.8;
   }

@@ -1,5 +1,5 @@
 <template>
-  <aside 
+  <aside
     class="chat-sidebar w-64 bg-gradient-to-b from-background to-background/95 backdrop-blur-md border-r border-border/60 flex flex-col transition-all duration-300 ease-out z-50 shadow-sm"
     :class="sidebarClasses"
   >
@@ -7,56 +7,73 @@
     <div class="sidebar-header p-5 border-b border-border/40">
       <div class="flex flex-col gap-4">
         <!-- New Chat Button -->
-        <button 
+        <button
           @click="$emit('new-chat')"
           class="w-full px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] btn-interactive magnetic-hover ripple min-h-[48px]"
         >
           <Plus :size="20" class="animate-in" />
           <span class="tracking-wide text-base">新建聊天</span>
         </button>
-        
+
         <!-- Quick Search -->
         <div class="relative">
-          <Search :size="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            :size="18"
+            class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="搜索对话记录..."
             class="search-input w-full pl-10 pr-4 py-3 bg-secondary/40 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-background/80 focus:border-primary/20 transition-all duration-300 placeholder:text-muted-foreground input-enhanced focus-glow min-h-[44px]"
-            style="font-family: system-ui, -apple-system, 'PingFang SC', sans-serif; ime-mode: active;"
-          >
+            style="
+              font-family:
+                system-ui,
+                -apple-system,
+                'PingFang SC',
+                sans-serif;
+              ime-mode: active;
+            "
+          />
         </div>
       </div>
     </div>
-    
+
     <!-- Chat List -->
     <div class="sidebar-content flex-1 overflow-y-auto p-4 space-y-2">
       <!-- Empty State -->
       <div v-if="filteredChats.length === 0 && !searchQuery" class="empty-state text-center py-12">
-        <div class="inline-flex items-center justify-center w-12 h-12 mb-3 bg-primary/10 rounded-full">
+        <div
+          class="inline-flex items-center justify-center w-12 h-12 mb-3 bg-primary/10 rounded-full"
+        >
           <MessageSquare :size="20" class="text-primary/60" />
         </div>
-        <p class="text-sm text-muted-foreground font-medium">No conversations yet</p>
-        <p class="text-xs text-muted-foreground mt-1" style="opacity: 0.8;">Start chatting to see your conversations here</p>
+        <p class="text-sm text-muted-foreground font-medium">{{ t('chat.noChatsFound') }}</p>
+        <p class="text-xs text-muted-foreground mt-1" style="opacity: 0.8">
+          {{ t('chat.selectChat') }}
+        </p>
       </div>
-      
+
       <!-- No Search Results -->
-      <div v-else-if="filteredChats.length === 0 && searchQuery" class="empty-state text-center py-8">
+      <div
+        v-else-if="filteredChats.length === 0 && searchQuery"
+        class="empty-state text-center py-8"
+      >
         <Search :size="20" class="mx-auto mb-2 text-muted-foreground/40" />
-        <p class="text-sm text-muted-foreground/80">No conversations found</p>
-        <p class="text-xs text-muted-foreground/60 mt-1">Try adjusting your search terms</p>
+        <p class="text-sm text-muted-foreground/80">{{ t('search.noResults') }}</p>
+        <p class="text-xs text-muted-foreground/60 mt-1">尝试调整搜索关键词</p>
       </div>
-      
+
       <!-- Chat Items -->
       <TransitionGroup name="chat-list" tag="div" class="space-y-2">
-        <div 
-          v-for="chat in filteredChats" 
+        <div
+          v-for="chat in filteredChats"
           :key="chat.id"
           @click="$emit('select-chat', chat.id)"
           :class="[
             'chat-list-item sidebar-item px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300 relative group border transform hover:scale-[1.01] active:scale-[0.99]',
-            currentChatId === chat.id 
-              ? 'bg-primary/12 border-primary/25 shadow-md ring-1 ring-primary/20 active translate-x-1' 
+            currentChatId === chat.id
+              ? 'bg-primary/12 border-primary/25 shadow-md ring-1 ring-primary/20 active translate-x-1'
               : 'hover:bg-secondary/50 border-transparent hover:border-border/40 hover:shadow-sm hover:translate-x-2'
           ]"
         >
@@ -65,43 +82,60 @@
               <div
                 :class="[
                   'w-2 h-2 rounded-full transition-all duration-300',
-                  currentChatId === chat.id ? 'bg-primary scale-125 animate-pulse' : 'bg-muted-foreground/30'
+                  currentChatId === chat.id
+                    ? 'bg-primary scale-125 animate-pulse'
+                    : 'bg-muted-foreground/30'
                 ]"
               />
             </div>
-            
+
             <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm truncate leading-tight mb-1">{{ chat.title }}</div>
-              
+              <div class="font-semibold text-sm truncate leading-tight mb-1">
+                {{ getDisplayTitle(chat) }}
+              </div>
+
               <!-- Chat Preview -->
-              <div v-if="getLastMessage(chat)" class="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-1" style="color: hsl(var(--muted-foreground) / 0.9);">
+              <div
+                v-if="getLastMessage(chat)"
+                class="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-1"
+                style="color: hsl(var(--muted-foreground) / 0.9)"
+              >
                 {{ getLastMessage(chat) }}
               </div>
-              
+
               <div class="flex items-center justify-between">
-                <div class="text-xs font-medium" style="color: hsl(var(--muted-foreground) / 0.8);">
+                <div class="text-xs font-medium" style="color: hsl(var(--muted-foreground) / 0.8)">
                   {{ formatTime(chat.updatedAt) }}
                 </div>
-                
+
                 <!-- Message Count Badge -->
                 <div
-                  v-if="chat.messageCount && chat.messageCount > 0" 
+                  v-if="chat.messageCount && chat.messageCount > 0"
                   class="px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium"
                 >
                   {{ chat.messageCount }}
                 </div>
               </div>
             </div>
-            
+
             <!-- Context Menu Trigger -->
-            <div class="flex items-center" :class="activeContextMenuId === chat.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 transition-opacity duration-200'">
+            <div
+              class="flex items-center"
+              :class="
+                activeContextMenuId === chat.id
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+              "
+            >
               <button
                 @click.stop="toggleContextMenu(chat.id, $event)"
                 :class="[
                   'p-1.5 rounded-lg transition-all duration-200 btn-interactive',
-                  activeContextMenuId === chat.id ? 'bg-secondary text-foreground rotate-90' : 'hover:bg-background/70 hover:rotate-90'
+                  activeContextMenuId === chat.id
+                    ? 'bg-secondary text-foreground rotate-90'
+                    : 'hover:bg-background/70 hover:rotate-90'
                 ]"
-                title="More options"
+                title="更多选项"
               >
                 <MoreVertical :size="14" />
               </button>
@@ -110,31 +144,33 @@
         </div>
       </TransitionGroup>
     </div>
-    
+
     <!-- Footer with More Menu -->
     <div class="sidebar-footer p-3 border-t border-border/40 bg-background/80 backdrop-blur-sm">
       <div class="flex items-center justify-between">
-        <div class="text-xs font-medium" style="color: hsl(var(--muted-foreground) / 0.8);">
+        <div class="text-xs font-medium" style="color: hsl(var(--muted-foreground) / 0.8)">
           {{ filteredChats.length }} conversation{{ filteredChats.length !== 1 ? 's' : '' }}
         </div>
-        
+
         <!-- More Menu -->
         <div class="relative">
           <button
             @click="showMoreMenu = !showMoreMenu"
             :class="[
               'p-2 rounded-lg transition-colors duration-150 flex items-center gap-1',
-              showMoreMenu ? 'bg-secondary text-foreground' : 'hover:bg-secondary/60 text-muted-foreground'
+              showMoreMenu
+                ? 'bg-secondary text-foreground'
+                : 'hover:bg-secondary/60 text-muted-foreground'
             ]"
-            title="More options"
+            title="更多选项"
           >
             <MoreHorizontal :size="16" />
           </button>
-          
+
           <!-- Dropdown Menu -->
           <Transition name="menu-slide">
             <div
-              v-if="showMoreMenu" 
+              v-if="showMoreMenu"
               class="absolute bottom-full mb-2 right-0 w-48 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-xl z-50"
             >
               <div class="p-2">
@@ -143,21 +179,21 @@
                   class="w-full px-3 py-2 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
                 >
                   <Settings :size="16" />
-                  Settings
+                  {{ t('nav.settings') }}
                 </button>
                 <button
                   @click="handleMoreAction('analytics')"
                   class="w-full px-3 py-2 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
                 >
                   <BarChart3 :size="16" />
-                  Analytics
+                  分析统计
                 </button>
                 <button
                   @click="handleMoreAction('export')"
                   class="w-full px-3 py-2 text-left hover:bg-secondary/40 rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
                 >
                   <Download :size="16" />
-                  Export Chats
+                  {{ t('chat.exportChat') }}
                 </button>
                 <div class="h-px bg-border/40 my-2" />
                 <button
@@ -165,7 +201,7 @@
                   class="w-full px-3 py-2 text-left hover:bg-destructive/10 text-destructive rounded-lg transition-colors duration-150 flex items-center gap-3 text-sm"
                 >
                   <Trash2 :size="16" />
-                  Clear All Chats
+                  {{ t('chat.clearChat') }}
                 </button>
               </div>
             </div>
@@ -178,11 +214,21 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { 
-  Plus, Settings, MessageSquare, MoreVertical, MoreHorizontal, 
-  Search, BarChart3, Download, Trash2 
+import { useI18n } from 'vue-i18n'
+import {
+  Plus,
+  Settings,
+  MessageSquare,
+  MoreVertical,
+  MoreHorizontal,
+  Search,
+  BarChart3,
+  Download,
+  Trash2
 } from 'lucide-vue-next'
 import { formatDistanceToNow } from '@renderer/src/utils/time'
+
+const { t } = useI18n()
 
 interface Chat {
   id: string
@@ -225,33 +271,37 @@ const sidebarClasses = computed(() => ({
 
 const filteredChats = computed(() => {
   if (!searchQuery.value.trim()) return props.chats
-  
+
   const query = searchQuery.value.toLowerCase()
-  return props.chats.filter(chat => 
-    chat.title.toLowerCase().includes(query) ||
-    (chat.messages && chat.messages.some(msg => 
-      msg.content.toLowerCase().includes(query)
-    ))
+  return props.chats.filter(
+    chat =>
+      chat.title.toLowerCase().includes(query) ||
+      (chat.messages && chat.messages.some(msg => msg.content.toLowerCase().includes(query)))
   )
 })
 
+// Helper to translate chat titles
+const getDisplayTitle = (chat: Chat): string => {
+  return chat.title === 'New Chat' ? t('chat.newChat') : chat.title
+}
+
 // Methods
 const formatTime = (date: Date | string | number | undefined) => {
-  if (!date) return 'unknown'
+  if (!date) return '未知时间'
   return formatDistanceToNow(date)
 }
 
 const getLastMessage = (chat: Chat): string => {
   if (!chat.messages || chat.messages.length === 0) return ''
-  
+
   // Get the last user message for preview
   const lastMessage = chat.messages
     .slice()
     .reverse()
     .find(msg => msg.role === 'user' || msg.role === 'assistant')
-  
+
   if (!lastMessage) return ''
-  
+
   // Truncate long messages and remove markdown
   let content = lastMessage.content
     .replace(/```[\s\S]*?```/g, '[Code]') // Replace code blocks
@@ -259,7 +309,7 @@ const getLastMessage = (chat: Chat): string => {
     .replace(/\[.*?\]\(.*?\)/g, '') // Remove links but keep text
     .replace(/[*_`#]/g, '') // Remove markdown formatting
     .trim()
-  
+
   return content.length > 80 ? content.substring(0, 80) + '...' : content
 }
 
@@ -275,7 +325,7 @@ const toggleContextMenu = (chatId: string, event: MouseEvent) => {
 
 const handleMoreAction = (action: string) => {
   showMoreMenu.value = false
-  
+
   switch (action) {
     case 'settings':
       emit('open-settings')
@@ -355,11 +405,12 @@ if (typeof window !== 'undefined') {
 }
 
 @keyframes gentle-pulse {
-  0%, 100% { 
-    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.1); 
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.1);
   }
-  50% { 
-    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.15); 
+  50% {
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.15);
   }
 }
 
@@ -469,25 +520,29 @@ button:active {
 
 /* Loading states */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .loading-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    hsl(var(--muted) / 0.5) 50%,
-    transparent 75%
-  );
+  background: linear-gradient(90deg, transparent 25%, hsl(var(--muted) / 0.5) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
 }
 
 /* Icon animations */
 @keyframes icon-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 .animate-in {
@@ -499,7 +554,7 @@ button:active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar-footer .relative > button[class*="bg-secondary"] {
+.sidebar-footer .relative > button[class*='bg-secondary'] {
   transform: rotate(90deg);
 }
 
@@ -549,11 +604,11 @@ input:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .chat-item:hover {
     transform: none;
   }
-  
+
   button:hover {
     transform: none;
   }
@@ -567,12 +622,12 @@ input:focus-visible {
     min-height: 56px; /* 44px + padding for better touch targets */
     padding: 12px 16px;
   }
-  
+
   button {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   .sidebar-footer button {
     padding: 12px 16px;
   }

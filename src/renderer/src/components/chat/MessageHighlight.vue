@@ -1,9 +1,5 @@
 <template>
-  <div 
-    class="message-highlight"
-    :class="highlightClasses"
-    :data-message-id="messageId"
-  >
+  <div class="message-highlight" :class="highlightClasses" :data-message-id="messageId">
     <slot />
   </div>
 </template>
@@ -49,12 +45,15 @@ const scrollToMessage = () => {
 }
 
 // Watch for highlight changes
-watch(() => props.highlightedMessageId, () => {
-  if (isHighlighted.value) {
-    // Small delay to ensure DOM is updated
-    setTimeout(scrollToMessage, 100)
+watch(
+  () => props.highlightedMessageId,
+  () => {
+    if (isHighlighted.value) {
+      // Small delay to ensure DOM is updated
+      setTimeout(scrollToMessage, 100)
+    }
   }
-})
+)
 
 // Mount/unmount
 onMounted(() => {
@@ -99,7 +98,7 @@ onMounted(() => {
   .message-highlight {
     transition: none;
   }
-  
+
   .message-highlighted {
     animation: none;
   }

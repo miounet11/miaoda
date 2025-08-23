@@ -16,21 +16,27 @@
     >
       <!-- Provider Icon and Info -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
-        <span class="text-base flex-shrink-0 group-hover:scale-110 transition-transform">{{ currentProviderIcon }}</span>
+        <span class="text-base flex-shrink-0 group-hover:scale-110 transition-transform">{{
+          currentProviderIcon
+        }}</span>
         <div class="flex flex-col items-start min-w-0">
-          <span class="text-sm font-medium text-foreground truncate leading-tight">{{ currentProviderName }}</span>
-          <span class="text-xs text-muted-foreground truncate leading-tight">{{ currentModelName }}</span>
+          <span class="text-sm font-medium text-foreground truncate leading-tight">{{
+            currentProviderName
+          }}</span>
+          <span class="text-xs text-muted-foreground truncate leading-tight">{{
+            currentModelName
+          }}</span>
         </div>
       </div>
-      
+
       <!-- Status and Chevron -->
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <div 
+        <div
           class="w-1.5 h-1.5 rounded-full transition-all duration-300"
           :class="statusIndicatorClass"
         />
-        <ChevronDown 
-          :size="14" 
+        <ChevronDown
+          :size="14"
           class="transition-transform duration-200 text-muted-foreground group-hover:text-foreground"
           :class="{ 'rotate-180': isOpen }"
         />
@@ -40,11 +46,7 @@
     <!-- Dropdown Menu - Using Portal to avoid z-index conflicts -->
     <Teleport to="body">
       <Transition name="dropdown">
-        <div
-          v-if="isOpen"
-          class="fixed inset-0 z-[10000]" 
-          @click="closeDropdown"
-        >
+        <div v-if="isOpen" class="fixed inset-0 z-[10000]" @click="closeDropdown">
           <div
             ref="dropdownRef"
             class="dropdown-menu absolute bg-background border border-border rounded-xl shadow-xl overflow-hidden w-80"
@@ -54,7 +56,9 @@
             <!-- Header -->
             <div class="p-3 border-b border-muted-foreground/10 bg-muted/10">
               <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">LLM Provider & Model</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  LLM Provider & Model
+                </h3>
                 <button
                   @click="closeDropdown"
                   class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -67,7 +71,9 @@
             <!-- Provider Selection -->
             <div class="p-3">
               <!-- Built-in Providers -->
-              <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Built-in Providers</div>
+              <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">
+                Built-in Providers
+              </div>
               <div class="space-y-1 mb-3">
                 <div
                   v-for="provider in availableProviders.filter(p => !p.isCustom)"
@@ -80,21 +86,23 @@
                   }"
                 >
                   <!-- Provider Icon -->
-                  <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
-              
+                  <span class="text-lg group-hover:scale-110 transition-transform">{{
+                    provider.icon
+                  }}</span>
+
                   <!-- Provider Info -->
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="text-sm font-medium truncate">{{ provider.displayName }}</span>
-                      <Check 
-                        v-if="provider.id === currentProviderId" 
-                        :size="12" 
-                        class="text-primary flex-shrink-0" 
+                      <Check
+                        v-if="provider.id === currentProviderId"
+                        :size="12"
+                        class="text-primary flex-shrink-0"
                       />
                     </div>
                     <div class="flex items-center gap-2 mt-0.5">
                       <span class="text-xs text-muted-foreground">{{ provider.description }}</span>
-                      <div 
+                      <div
                         v-if="provider.isCustom"
                         class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 text-xs rounded-md border border-blue-500/20"
                       >
@@ -102,20 +110,19 @@
                       </div>
                     </div>
                   </div>
-              
+
                   <!-- Status Indicator -->
                   <div class="flex items-center gap-1 flex-shrink-0">
-                    <div 
-                      class="w-2 h-2 rounded-full"
-                      :class="getProviderStatusClass(provider)"
-                    />
+                    <div class="w-2 h-2 rounded-full" :class="getProviderStatusClass(provider)" />
                   </div>
                 </div>
               </div>
-          
+
               <!-- Custom Providers -->
               <div v-if="availableProviders.some(p => p.isCustom)">
-                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1 mt-3">Custom Providers</div>
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1 mt-3">
+                  Custom Providers
+                </div>
                 <div class="space-y-1">
                   <div
                     v-for="provider in availableProviders.filter(p => p.isCustom)"
@@ -123,40 +130,45 @@
                     @click="selectProvider(provider)"
                     class="provider-option flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-gray-700 group"
                     :class="{
-                      'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600': provider.id === currentProviderId,
+                      'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600':
+                        provider.id === currentProviderId,
                       'border border-transparent': provider.id !== currentProviderId,
                       'opacity-60': !provider.isHealthy && provider.id !== currentProviderId
                     }"
                   >
                     <!-- Provider Icon -->
-                    <span class="text-lg group-hover:scale-110 transition-transform">{{ provider.icon }}</span>
-                
+                    <span class="text-lg group-hover:scale-110 transition-transform">{{
+                      provider.icon
+                    }}</span>
+
                     <!-- Provider Info -->
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2">
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ provider.displayName }}</span>
-                        <Check 
-                          v-if="provider.id === currentProviderId" 
-                          :size="12" 
-                          class="text-primary flex-shrink-0" 
+                        <span
+                          class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
+                          >{{ provider.displayName }}</span
+                        >
+                        <Check
+                          v-if="provider.id === currentProviderId"
+                          :size="12"
+                          class="text-primary flex-shrink-0"
                         />
                       </div>
                       <div class="flex items-center gap-2 mt-0.5">
-                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ provider.description }}</span>
-                        <div 
+                        <span class="text-xs text-gray-500 dark:text-gray-400">{{
+                          provider.description
+                        }}</span>
+                        <div
                           class="px-1.5 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-md border border-blue-500/20"
                         >
                           Custom
                         </div>
                       </div>
                     </div>
-                
+
                     <!-- Status Indicator -->
                     <div class="flex items-center gap-1 flex-shrink-0">
-                      <div 
-                        class="w-2 h-2 rounded-full"
-                        :class="getProviderStatusClass(provider)"
-                      />
+                      <div class="w-2 h-2 rounded-full" :class="getProviderStatusClass(provider)" />
                     </div>
                   </div>
                 </div>
@@ -165,7 +177,9 @@
 
             <!-- Model Selection (if provider has multiple models) -->
             <div v-if="availableModels.length > 1" class="border-t border-muted-foreground/10 p-3">
-              <div class="text-xs font-medium text-muted-foreground mb-2 px-1">Available Models</div>
+              <div class="text-xs font-medium text-muted-foreground mb-2 px-1">
+                Available Models
+              </div>
               <div class="space-y-1 max-h-32 overflow-y-auto">
                 <div
                   v-for="model in availableModels"
@@ -177,11 +191,7 @@
                   }"
                 >
                   <span class="text-sm font-medium flex-1">{{ model.name }}</span>
-                  <Check 
-                    v-if="model.id === currentModelId" 
-                    :size="12" 
-                    class="text-primary" 
-                  />
+                  <Check v-if="model.id === currentModelId" :size="12" class="text-primary" />
                 </div>
               </div>
             </div>
@@ -196,7 +206,7 @@
                   <Settings :size="14" />
                   <span>Settings</span>
                 </button>
-            
+
                 <button
                   v-if="isConfigured"
                   @click="testConnection"
@@ -270,32 +280,30 @@ const buttonRef = ref<HTMLElement>()
 // Dropdown positioning
 const dropdownStyle = computed(() => {
   if (!isOpen.value || !buttonRef.value) return {}
-  
+
   const rect = buttonRef.value.getBoundingClientRect()
   const viewportHeight = window.innerHeight
   const dropdownHeight = 400 // estimated dropdown height
-  
+
   // Position dropdown below button by default, above if not enough space
   const spaceBelow = viewportHeight - rect.bottom
   const spaceAbove = rect.top
   const shouldPositionAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow
-  
+
   return {
     position: 'fixed',
     left: `${Math.max(8, rect.right - 320)}px`, // 320px = dropdown width
-    top: shouldPositionAbove 
+    top: shouldPositionAbove
       ? `${rect.top - Math.min(dropdownHeight, spaceAbove - 8)}px`
       : `${rect.bottom + 8}px`,
-    maxHeight: shouldPositionAbove 
-      ? `${spaceAbove - 16}px`
-      : `${spaceBelow - 16}px`,
+    maxHeight: shouldPositionAbove ? `${spaceAbove - 16}px` : `${spaceBelow - 16}px`,
     zIndex: 10001
   }
 })
 
 // Provider configurations with icons and descriptions
 const providerConfigs = {
-  'openai': {
+  openai: {
     icon: '🤖',
     description: 'OpenAI GPT Models',
     models: [
@@ -304,7 +312,7 @@ const providerConfigs = {
       { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' }
     ]
   },
-  'anthropic': {
+  anthropic: {
     icon: '🧠',
     description: 'Claude AI Models',
     models: [
@@ -313,7 +321,7 @@ const providerConfigs = {
       { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
     ]
   },
-  'google': {
+  google: {
     icon: '🌟',
     description: 'Google Gemini',
     models: [
@@ -321,7 +329,7 @@ const providerConfigs = {
       { id: 'gemini-pro-vision', name: 'Gemini Pro Vision' }
     ]
   },
-  'local': {
+  local: {
     icon: '🏠',
     description: 'Local Ollama',
     models: [
@@ -334,16 +342,19 @@ const providerConfigs = {
 
 // Computed properties
 const availableProviders = computed(() => {
-  const standardProviders: ProviderOption[] = Object.entries(providerConfigs).map(([id, config]) => ({
-    id,
-    name: id,
-    displayName: settingsStore.allProviders.find(p => p.id === id)?.displayName || config.description,
-    description: config.description,
-    icon: config.icon,
-    isHealthy: id === settingsStore.llmProvider && settingsStore.isConfigured,
-    isCustom: false,
-    models: config.models.map(model => ({ ...model, providerId: id }))
-  }))
+  const standardProviders: ProviderOption[] = Object.entries(providerConfigs).map(
+    ([id, config]) => ({
+      id,
+      name: id,
+      displayName:
+        settingsStore.allProviders.find(p => p.id === id)?.displayName || config.description,
+      description: config.description,
+      icon: config.icon,
+      isHealthy: id === settingsStore.llmProvider && settingsStore.isConfigured,
+      isCustom: false,
+      models: config.models.map(model => ({ ...model, providerId: id }))
+    })
+  )
 
   const customProviders: ProviderOption[] = customProvidersStore.providers.map(provider => ({
     id: provider.id,
@@ -353,12 +364,12 @@ const availableProviders = computed(() => {
     icon: '⚡',
     isHealthy: provider.isHealthy || false,
     isCustom: true,
-    models: provider.config.model 
+    models: provider.config.model
       ? [{ id: provider.config.model, name: provider.config.model, providerId: provider.id }]
-      : provider.config.models?.map(m => ({ 
-          id: m, 
-          name: m, 
-          providerId: provider.id 
+      : provider.config.models?.map(m => ({
+          id: m,
+          name: m,
+          providerId: provider.id
         })) || [{ id: 'default', name: 'Default Model', providerId: provider.id }]
   }))
 
@@ -366,8 +377,10 @@ const availableProviders = computed(() => {
 })
 
 const currentProviderId = computed(() => settingsStore.llmProvider)
-const currentProvider = computed(() => 
-  availableProviders.value.find(p => p.id === currentProviderId.value) || availableProviders.value[0]
+const currentProvider = computed(
+  () =>
+    availableProviders.value.find(p => p.id === currentProviderId.value) ||
+    availableProviders.value[0]
 )
 
 const currentProviderName = computed(() => currentProvider.value?.displayName || 'Select Provider')
@@ -376,12 +389,18 @@ const currentProviderIcon = computed(() => currentProvider.value?.icon || '🤖'
 const availableModels = computed(() => {
   const provider = currentProvider.value
   if (!provider) return []
-  
+
   // For custom providers, we might need to fetch models dynamically
   if (provider.isCustom) {
-    return [{ id: settingsStore.modelName, name: settingsStore.modelName || 'Default', providerId: provider.id }]
+    return [
+      {
+        id: settingsStore.modelName,
+        name: settingsStore.modelName || 'Default',
+        providerId: provider.id
+      }
+    ]
   }
-  
+
   return provider.models || []
 })
 
@@ -423,7 +442,7 @@ const selectProvider = async (provider: ProviderOption) => {
   try {
     // Update settings store
     settingsStore.setLLMProvider(provider.id as any)
-    
+
     // Set default model for the provider
     if (provider.models && provider.models.length > 0) {
       settingsStore.setModelName(provider.models[0].id)
@@ -433,7 +452,7 @@ const selectProvider = async (provider: ProviderOption) => {
     let apiKey = settingsStore.apiKey
     let baseURL = settingsStore.apiEndpoint
     let model = settingsStore.modelName
-    
+
     // For custom providers, get configuration from customProvidersStore
     if (provider.isCustom) {
       const customProvider = customProvidersStore.getProvider(provider.id)
@@ -471,7 +490,7 @@ const selectModel = async (model: ModelOption) => {
 
   try {
     settingsStore.setModelName(model.id)
-    
+
     // Apply configuration to backend
     const result = await window.api.llm.setProvider({
       provider: settingsStore.llmProvider,
@@ -488,7 +507,7 @@ const selectModel = async (model: ModelOption) => {
   } catch (error) {
     console.error('Error switching model:', error)
   }
-  
+
   closeDropdown()
 }
 
@@ -512,9 +531,9 @@ const openSettings = () => {
 
 const testConnection = async () => {
   if (!isConfigured.value) return
-  
+
   isTestingConnection.value = true
-  
+
   try {
     // Test with a simple message
     await window.api.llm.sendMessage('test', 'test', 'connection-test')
@@ -536,19 +555,22 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 // Watch for provider/model changes to refresh available models
-watch(() => currentProviderId.value, async () => {
-  // Refresh available models when provider changes
-  if (currentProvider.value?.isCustom) {
-    // For custom providers, you might want to fetch available models
-    await customProvidersStore.checkProviderHealth(currentProviderId.value)
+watch(
+  () => currentProviderId.value,
+  async () => {
+    // Refresh available models when provider changes
+    if (currentProvider.value?.isCustom) {
+      // For custom providers, you might want to fetch available models
+      await customProvidersStore.checkProviderHealth(currentProviderId.value)
+    }
   }
-})
+)
 
 onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   // Initialize custom providers if needed
   await customProvidersStore.initialize()
-  
+
   // Load current LLM configuration from backend
   const config = await window.api.llm.getConfig()
   if (config) {
@@ -590,7 +612,9 @@ onUnmounted(() => {
 
 .dropdown-menu {
   backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .provider-option:hover,
@@ -623,7 +647,8 @@ onUnmounted(() => {
 
 /* Status indicator animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -656,7 +681,7 @@ onUnmounted(() => {
     left: -4px;
     width: auto;
   }
-  
+
   .selector-button {
     min-width: 120px;
     max-width: 160px;

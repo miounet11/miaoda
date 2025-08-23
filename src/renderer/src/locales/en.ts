@@ -429,7 +429,8 @@ export default {
     enabledCount: 'Enabled',
     availableUpdates: 'Available Updates',
     noPluginsFound: 'No plugins found',
-    noPluginsDescription: 'You don\'t have any plugins installed yet. Browse the plugin registry to discover new features.',
+    noPluginsDescription:
+      "You don't have any plugins installed yet. Browse the plugin registry to discover new features.",
     searchPlugins: 'Search plugins...',
     loadingPlugins: 'Loading plugins...',
     allPlugins: 'All Plugins',

@@ -16,7 +16,7 @@
             <option value="txt">Plain Text</option>
             <option value="json">JSON</option>
           </select>
-          
+
           <!-- Refresh Button -->
           <button
             @click="updatePreview"
@@ -25,7 +25,7 @@
           >
             <RefreshCw :class="{ 'animate-spin': isLoading }" class="w-4 h-4" />
           </button>
-          
+
           <!-- Close Button -->
           <button
             @click="$emit('close')"
@@ -35,7 +35,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- Preview Stats -->
       <div class="flex items-center space-x-6 mt-3 text-sm text-gray-500 dark:text-gray-400">
         <span>{{ previewData?.chatCount || 0 }} conversation(s)</span>
@@ -50,14 +50,18 @@
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center h-64">
         <div class="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-          <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div
+            class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+          />
           <span>Generating preview...</span>
         </div>
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="p-6">
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+        >
           <div class="flex items-center space-x-2">
             <AlertCircle class="w-5 h-5 text-red-500" />
             <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Preview Error</h4>
@@ -76,10 +80,7 @@
       <div v-else-if="previewContent" class="h-full overflow-auto">
         <!-- Markdown Preview -->
         <div v-if="selectedFormat === 'markdown'" class="p-6">
-          <div 
-            class="prose dark:prose-invert max-w-none"
-            v-html="renderedMarkdown"
-          />
+          <div class="prose dark:prose-invert max-w-none" v-html="renderedMarkdown" />
         </div>
 
         <!-- HTML Preview -->
@@ -101,7 +102,10 @@
 
         <!-- Plain Text Preview -->
         <div v-else-if="selectedFormat === 'txt'" class="p-6">
-          <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-4">{{ previewContent }}</pre>
+          <pre
+            class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
+            >{{ previewContent }}</pre
+          >
         </div>
 
         <!-- Binary Format Info -->
@@ -110,14 +114,16 @@
             <FileText class="w-16 h-16 mx-auto mb-4 opacity-50" />
             <h4 class="text-lg font-medium mb-2">Binary Format Preview</h4>
             <p class="text-sm mb-4">
-              Preview is not available for {{ selectedFormat.toUpperCase() }} format.
-              The file will be generated during export.
+              Preview is not available for {{ selectedFormat.toUpperCase() }} format. The file will
+              be generated during export.
             </p>
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left max-w-md mx-auto">
               <h5 class="font-medium mb-2">Export Details:</h5>
               <div class="space-y-1 text-sm">
                 <div>Format: {{ selectedFormat.toUpperCase() }}</div>
-                <div v-if="previewData?.size">Estimated Size: {{ formatFileSize(previewData.size) }}</div>
+                <div v-if="previewData?.size">
+                  Estimated Size: {{ formatFileSize(previewData.size) }}
+                </div>
                 <div>Conversations: {{ previewData?.chatCount || 0 }}</div>
                 <div>Messages: {{ previewData?.messageCount || 0 }}</div>
               </div>
@@ -159,7 +165,11 @@ import { RefreshCw, X, AlertCircle, FileText, Eye } from 'lucide-vue-next'
 import { marked } from 'marked'
 import hljs from 'highlight.js/lib/core'
 import json from 'highlight.js/lib/languages/json'
-import { exportService, type ExportOptions, type ExportResult } from '@renderer/src/services/export/ExportService'
+import {
+  exportService,
+  type ExportOptions,
+  type ExportResult
+} from '@renderer/src/services/export/ExportService'
 import { renderMarkdownSafely } from '@renderer/src/utils/SafeMarkdownParser'
 import type { ExportChatData } from '@renderer/src/services/export/ExportService'
 
@@ -196,7 +206,7 @@ const renderedMarkdown = computed(() => {
   if (selectedFormat.value !== 'markdown' || !previewContent.value) {
     return ''
   }
-  
+
   try {
     return renderMarkdownSafely(previewContent.value)
   } catch (err) {
@@ -209,7 +219,7 @@ const highlightedJson = computed(() => {
   if (selectedFormat.value !== 'json' || !previewContent.value) {
     return ''
   }
-  
+
   try {
     const formatted = JSON.stringify(JSON.parse(previewContent.value), null, 2)
     return hljs.highlight(formatted, { language: 'json' }).value
@@ -245,7 +255,7 @@ const updatePreview = async (): Promise<void> => {
 
     // Generate preview
     const result = await exportService.exportChats(previewOptions)
-    
+
     previewContent.value = result.content
     previewData.value = result
     lastUpdated.value = new Date()
@@ -275,17 +285,21 @@ const formatFileSize = (bytes: number): string => {
 }
 
 const formatTime = (date: Date): string => {
-  return date.toLocaleTimeString([], { 
-    hour: '2-digit', 
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
     minute: '2-digit',
     second: '2-digit'
   })
 }
 
 // Watchers
-watch([() => props.chats, () => props.options], () => {
-  updatePreview()
-}, { deep: true })
+watch(
+  [() => props.chats, () => props.options],
+  () => {
+    updatePreview()
+  },
+  { deep: true }
+)
 
 watch(selectedFormat, () => {
   updatePreview()
@@ -297,7 +311,7 @@ onMounted(() => {
   if (['markdown', 'html', 'txt', 'json'].includes(props.options.format)) {
     selectedFormat.value = props.options.format as any
   }
-  
+
   updatePreview()
 })
 </script>

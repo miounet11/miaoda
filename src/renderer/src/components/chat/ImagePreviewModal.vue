@@ -8,14 +8,16 @@
       >
         <!-- Modal Backdrop -->
         <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" />
-        
+
         <!-- Modal Content -->
         <div
           class="modal-content relative max-w-5xl max-h-full w-full flex flex-col bg-background rounded-2xl shadow-2xl overflow-hidden"
           @click.stop
         >
           <!-- Header -->
-          <div class="modal-header flex items-center justify-between p-4 border-b border-border/50 bg-background/95 backdrop-blur">
+          <div
+            class="modal-header flex items-center justify-between p-4 border-b border-border/50 bg-background/95 backdrop-blur"
+          >
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                 <ImageIcon :size="20" class="text-primary" />
@@ -24,23 +26,25 @@
                 <h3 class="font-semibold text-lg">{{ image?.name }}</h3>
                 <p class="text-sm text-muted-foreground">
                   {{ formatFileSize(image?.size) }} • {{ imageFormat }}
-                  <span v-if="imageDimensions" class="ml-2">{{ imageDimensions.width }}×{{ imageDimensions.height }}</span>
+                  <span v-if="imageDimensions" class="ml-2"
+                    >{{ imageDimensions.width }}×{{ imageDimensions.height }}</span
+                  >
                 </p>
               </div>
             </div>
-            
+
             <div class="flex items-center gap-2">
               <!-- Vision Capability Badge -->
-              <div 
+              <div
                 v-if="isVisionCapable"
                 class="vision-badge px-3 py-1.5 bg-green-500 text-white text-sm rounded-full font-medium flex items-center gap-2"
               >
                 <Eye :size="14" />
                 AI可识别
               </div>
-              
+
               <!-- Provider Warning -->
-              <div 
+              <div
                 v-if="!isCurrentProviderVisionCapable && isVisionCapable"
                 class="provider-warning px-3 py-1.5 bg-yellow-500 text-white text-sm rounded-full font-medium flex items-center gap-2"
                 title="当前LLM提供商不支持图片分析"
@@ -48,7 +52,7 @@
                 <AlertTriangle :size="14" />
                 需切换模型
               </div>
-              
+
               <!-- Action Buttons -->
               <button
                 @click="downloadImage"
@@ -57,7 +61,7 @@
               >
                 <Download :size="18" />
               </button>
-              
+
               <button
                 @click="closeModal"
                 class="action-btn p-2 hover:bg-muted rounded-xl transition-colors"
@@ -67,7 +71,7 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Image Container -->
           <div class="modal-body flex-1 flex items-center justify-center p-4 min-h-0 bg-muted/20">
             <div class="image-container relative max-w-full max-h-full">
@@ -80,21 +84,23 @@
                 @load="onImageLoad"
                 @error="onImageError"
                 :style="imageStyles"
-              >
-              
+              />
+
               <!-- Loading State -->
-              <div 
+              <div
                 v-if="isLoading"
                 class="loading-overlay absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center"
               >
                 <div class="text-white text-center">
-                  <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <div
+                    class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"
+                  />
                   <p class="text-sm">加载中...</p>
                 </div>
               </div>
-              
+
               <!-- Error State -->
-              <div 
+              <div
                 v-if="hasError"
                 class="error-overlay absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center"
               >
@@ -103,9 +109,9 @@
                   <p class="text-red-700 dark:text-red-300">图片加载失败</p>
                 </div>
               </div>
-              
+
               <!-- Zoom Controls (if zoomable) -->
-              <div 
+              <div
                 v-if="isZoomable && !isLoading && !hasError"
                 class="zoom-controls absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur text-white rounded-full px-3 py-2"
               >
@@ -116,9 +122,11 @@
                 >
                   <ZoomOut :size="16" />
                 </button>
-                
-                <span class="text-sm font-medium min-w-[3rem] text-center">{{ Math.round(zoomLevel * 100) }}%</span>
-                
+
+                <span class="text-sm font-medium min-w-[3rem] text-center"
+                  >{{ Math.round(zoomLevel * 100) }}%</span
+                >
+
                 <button
                   @click="zoomIn"
                   :disabled="zoomLevel >= 3"
@@ -126,9 +134,9 @@
                 >
                   <ZoomIn :size="16" />
                 </button>
-                
+
                 <div class="w-px h-4 bg-white/30 mx-1" />
-                
+
                 <button
                   @click="resetZoom"
                   class="zoom-btn p-1 hover:bg-white/20 rounded-full transition-colors"
@@ -138,12 +146,9 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Footer with Additional Info -->
-          <div 
-            v-if="showInfo"
-            class="modal-footer p-4 border-t border-border/50 bg-muted/30"
-          >
+          <div v-if="showInfo" class="modal-footer p-4 border-t border-border/50 bg-muted/30">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <span class="text-muted-foreground">文件格式:</span>
@@ -151,21 +156,25 @@
               </div>
               <div v-if="imageDimensions">
                 <span class="text-muted-foreground">尺寸:</span>
-                <span class="ml-2 font-medium">{{ imageDimensions.width }}×{{ imageDimensions.height }}</span>
+                <span class="ml-2 font-medium"
+                  >{{ imageDimensions.width }}×{{ imageDimensions.height }}</span
+                >
               </div>
               <div>
                 <span class="text-muted-foreground">文件大小:</span>
                 <span class="ml-2 font-medium">{{ formatFileSize(image?.size) }}</span>
               </div>
             </div>
-            
-            <div 
+
+            <div
               v-if="!isCurrentProviderVisionCapable && isVisionCapable"
               class="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-start gap-3"
             >
               <AlertTriangle :size="16" class="text-yellow-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p class="text-sm font-medium text-yellow-700 dark:text-yellow-300">当前模型不支持图片分析</p>
+                <p class="text-sm font-medium text-yellow-700 dark:text-yellow-300">
+                  当前模型不支持图片分析
+                </p>
                 <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                   请切换到支持视觉能力的模型，如 GPT-4o、Claude 3.5 Sonnet 或 Gemini 1.5 Pro
                 </p>
@@ -181,8 +190,15 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import {
-  X, ImageIcon, Eye, AlertTriangle, Download, AlertCircle,
-  ZoomIn, ZoomOut, RotateCcw
+  X,
+  ImageIcon,
+  Eye,
+  AlertTriangle,
+  Download,
+  AlertCircle,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw
 } from 'lucide-vue-next'
 import { useSettingsStore } from '@renderer/src/stores/settings'
 
@@ -226,7 +242,12 @@ const imageDimensions = ref<{ width: number; height: number } | null>(null)
 const visionCapableProviders = ['openai', 'anthropic', 'google']
 const visionCapableModels = {
   openai: ['gpt-4o', 'gpt-4-vision-preview', 'gpt-4-turbo'],
-  anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'],
+  anthropic: [
+    'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229',
+    'claude-3-haiku-20240307',
+    'claude-3-5-sonnet-20241022'
+  ],
   google: ['gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash']
 }
 
@@ -239,27 +260,27 @@ const imageFormat = computed(() => {
 
 const isVisionCapable = computed(() => {
   if (!props.image || props.image.type !== 'image') return false
-  
+
   const supportedFormats = ['jpeg', 'jpg', 'png', 'webp', 'gif']
   const fileExtension = props.image.name.split('.').pop()?.toLowerCase()
-  
+
   return supportedFormats.includes(fileExtension || '')
 })
 
 const isCurrentProviderVisionCapable = computed(() => {
   const currentProvider = settingsStore.llmProvider
   const currentModel = settingsStore.modelName
-  
+
   if (!visionCapableProviders.includes(currentProvider)) {
     return false
   }
-  
+
   if (visionCapableModels[currentProvider as keyof typeof visionCapableModels]) {
-    return visionCapableModels[currentProvider as keyof typeof visionCapableModels].some(model => 
-      currentModel.includes(model) || model.includes(currentModel)
+    return visionCapableModels[currentProvider as keyof typeof visionCapableModels].some(
+      model => currentModel.includes(model) || model.includes(currentModel)
     )
   }
-  
+
   return false
 })
 
@@ -277,11 +298,11 @@ const imageStyles = computed(() => ({
 // Methods
 const formatFileSize = (bytes: number = 0): string => {
   if (bytes === 0) return '0 B'
-  
+
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
@@ -293,7 +314,7 @@ const closeModal = () => {
 const onImageLoad = () => {
   isLoading.value = false
   hasError.value = false
-  
+
   if (imageElement.value) {
     imageDimensions.value = {
       width: imageElement.value.naturalWidth,
@@ -309,7 +330,7 @@ const onImageError = () => {
 
 const downloadImage = () => {
   if (!props.image?.data) return
-  
+
   const link = document.createElement('a')
   link.href = props.image.data
   link.download = props.image.name
@@ -335,19 +356,22 @@ const resetZoom = () => {
 }
 
 // Handle image changes
-watch(() => props.image, (newImage) => {
-  if (newImage) {
-    isLoading.value = true
-    hasError.value = false
-    imageDimensions.value = null
-    resetZoom()
+watch(
+  () => props.image,
+  newImage => {
+    if (newImage) {
+      isLoading.value = true
+      hasError.value = false
+      imageDimensions.value = null
+      resetZoom()
+    }
   }
-})
+)
 
 // Handle keyboard shortcuts
 const handleKeydown = (e: KeyboardEvent) => {
   if (!props.isVisible) return
-  
+
   switch (e.key) {
     case 'Escape':
       closeModal()
@@ -375,24 +399,29 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 // Lifecycle
-watch(() => props.isVisible, (visible) => {
-  if (visible) {
-    document.addEventListener('keydown', handleKeydown)
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.removeEventListener('keydown', handleKeydown)
-    document.body.style.overflow = ''
+watch(
+  () => props.isVisible,
+  visible => {
+    if (visible) {
+      document.addEventListener('keydown', handleKeydown)
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.removeEventListener('keydown', handleKeydown)
+      document.body.style.overflow = ''
+    }
   }
-})
+)
 </script>
 
 <style scoped>
 /* Modal transitions */
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 
@@ -407,8 +436,12 @@ watch(() => props.isVisible, (visible) => {
 }
 
 @keyframes backdropFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Image styles */
@@ -417,7 +450,8 @@ watch(() => props.isVisible, (visible) => {
   transition: transform 0.3s ease;
 }
 
-.loading-overlay, .error-overlay {
+.loading-overlay,
+.error-overlay {
   backdrop-filter: blur(8px);
 }
 
@@ -450,7 +484,8 @@ watch(() => props.isVisible, (visible) => {
 }
 
 /* Status badges */
-.vision-badge, .provider-warning {
+.vision-badge,
+.provider-warning {
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -474,24 +509,24 @@ watch(() => props.isVisible, (visible) => {
     margin: 1rem;
     max-height: calc(100vh - 2rem);
   }
-  
+
   .modal-header {
     padding: 1rem;
   }
-  
+
   .modal-header h3 {
     font-size: 1rem;
   }
-  
+
   .modal-footer {
     padding: 1rem;
   }
-  
+
   .modal-footer .grid {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-  
+
   .zoom-controls {
     bottom: 1rem;
     transform: translateX(-50%) scale(0.9);
@@ -516,7 +551,7 @@ watch(() => props.isVisible, (visible) => {
   --primary-rgb: 59, 130, 246;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --background: hsl(222, 47%, 11%);
   --foreground: hsl(210, 20%, 98%);
   --muted: hsl(217, 33%, 17%);

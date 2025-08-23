@@ -129,15 +129,15 @@ export class UserService extends BaseDatabaseService {
 
       getUserByEmail: this.db.prepare('SELECT * FROM users WHERE email = ? AND is_active = 1'),
       getUserById: this.db.prepare('SELECT * FROM users WHERE id = ? AND is_active = 1'),
-      
+
       updateUser: this.db.prepare(`
         UPDATE users SET 
           name = ?, avatar_url = ?, preferences = ?, updated_at = ?
         WHERE id = ?
       `),
-      
+
       updateUserActivity: this.db.prepare('UPDATE users SET last_active_at = ? WHERE id = ?'),
-      
+
       deleteUser: this.db.prepare('UPDATE users SET is_active = 0, updated_at = ? WHERE id = ?'),
 
       // Session management
@@ -150,18 +150,22 @@ export class UserService extends BaseDatabaseService {
       `),
 
       getSession: this.db.prepare('SELECT * FROM user_sessions WHERE id = ? AND is_active = 1'),
-      
-      getSessionsByUser: this.db.prepare('SELECT * FROM user_sessions WHERE user_id = ? AND is_active = 1'),
-      
+
+      getSessionsByUser: this.db.prepare(
+        'SELECT * FROM user_sessions WHERE user_id = ? AND is_active = 1'
+      ),
+
       updateSession: this.db.prepare(`
         UPDATE user_sessions SET 
           last_used_at = ?, ip_address = ?, location = ?
         WHERE id = ?
       `),
-      
+
       deleteSession: this.db.prepare('UPDATE user_sessions SET is_active = 0 WHERE id = ?'),
-      
-      deleteUserSessions: this.db.prepare('UPDATE user_sessions SET is_active = 0 WHERE user_id = ?'),
+
+      deleteUserSessions: this.db.prepare(
+        'UPDATE user_sessions SET is_active = 0 WHERE user_id = ?'
+      ),
 
       // Authentication methods
       createAuthMethod: this.db.prepare(`
@@ -171,14 +175,16 @@ export class UserService extends BaseDatabaseService {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `),
 
-      getAuthMethods: this.db.prepare('SELECT * FROM auth_methods WHERE user_id = ? AND is_enabled = 1'),
-      
+      getAuthMethods: this.db.prepare(
+        'SELECT * FROM auth_methods WHERE user_id = ? AND is_enabled = 1'
+      ),
+
       updateAuthMethod: this.db.prepare(`
         UPDATE auth_methods SET 
           method_data = ?, last_used_at = ?, setup_completed = ?
         WHERE id = ?
       `),
-      
+
       deleteAuthMethod: this.db.prepare('UPDATE auth_methods SET is_enabled = 0 WHERE id = ?'),
 
       // Password reset
@@ -192,8 +198,10 @@ export class UserService extends BaseDatabaseService {
         SELECT * FROM password_reset_tokens 
         WHERE token_hash = ? AND expires_at > ? AND used_at IS NULL
       `),
-      
-      usePasswordResetToken: this.db.prepare('UPDATE password_reset_tokens SET used_at = ? WHERE id = ?'),
+
+      usePasswordResetToken: this.db.prepare(
+        'UPDATE password_reset_tokens SET used_at = ? WHERE id = ?'
+      ),
 
       // Security features
       logAuthAction: this.db.prepare(`
@@ -235,7 +243,7 @@ export class UserService extends BaseDatabaseService {
     preferences?: Record<string, any>
   }): Promise<UserRecord> {
     const now = Date.now()
-    
+
     // Generate password hash and salt
     const { key: masterKey, salt } = await cryptoManager.generateMasterKey(userData.password)
     const passwordHash = masterKey.toString('base64')
@@ -262,10 +270,21 @@ export class UserService extends BaseDatabaseService {
     }
 
     this.statements.createUser.run(
-      user.id, user.email, user.password_hash, user.salt, user.name,
-      user.avatar_url, user.created_at, user.updated_at, user.last_active_at,
-      user.is_active, user.email_verified, user.preferences, user.encryption_key_id,
-      user.failed_login_attempts, user.password_changed_at
+      user.id,
+      user.email,
+      user.password_hash,
+      user.salt,
+      user.name,
+      user.avatar_url,
+      user.created_at,
+      user.updated_at,
+      user.last_active_at,
+      user.is_active,
+      user.email_verified,
+      user.preferences,
+      user.encryption_key_id,
+      user.failed_login_attempts,
+      user.password_changed_at
     )
 
     // Log user registration
@@ -296,15 +315,20 @@ export class UserService extends BaseDatabaseService {
   /**
    * Update user information
    */
-  updateUser(id: string, updates: {
-    name?: string
-    avatar_url?: string
-    preferences?: Record<string, any>
-  }): void {
+  updateUser(
+    id: string,
+    updates: {
+      name?: string
+      avatar_url?: string
+      preferences?: Record<string, any>
+    }
+  ): void {
     const current = this.getUserById(id)
     if (!current) throw new Error('User not found')
 
-    const preferences = updates.preferences ? JSON.stringify(updates.preferences) : current.preferences
+    const preferences = updates.preferences
+      ? JSON.stringify(updates.preferences)
+      : current.preferences
 
     this.statements.updateUser.run(
       updates.name ?? current.name,
@@ -356,10 +380,20 @@ export class UserService extends BaseDatabaseService {
     }
 
     this.statements.createSession.run(
-      session.id, session.user_id, session.device_id, session.device_name,
-      session.device_type, session.ip_address, session.user_agent,
-      session.access_token_hash, session.refresh_token_hash, session.expires_at,
-      session.last_used_at, session.created_at, session.is_active, session.location
+      session.id,
+      session.user_id,
+      session.device_id,
+      session.device_name,
+      session.device_type,
+      session.ip_address,
+      session.user_agent,
+      session.access_token_hash,
+      session.refresh_token_hash,
+      session.expires_at,
+      session.last_used_at,
+      session.created_at,
+      session.is_active,
+      session.location
     )
 
     return session
@@ -382,16 +416,14 @@ export class UserService extends BaseDatabaseService {
   /**
    * Update session activity
    */
-  updateSession(id: string, updates: {
-    ip_address?: string
-    location?: string
-  }): void {
-    this.statements.updateSession.run(
-      Date.now(),
-      updates.ip_address,
-      updates.location,
-      id
-    )
+  updateSession(
+    id: string,
+    updates: {
+      ip_address?: string
+      location?: string
+    }
+  ): void {
+    this.statements.updateSession.run(Date.now(), updates.ip_address, updates.location, id)
   }
 
   /**
@@ -418,7 +450,7 @@ export class UserService extends BaseDatabaseService {
     method_data: string
   }): AuthMethodRecord {
     const now = Date.now()
-    
+
     const method: AuthMethodRecord = {
       ...methodData,
       is_enabled: 1,
@@ -428,8 +460,13 @@ export class UserService extends BaseDatabaseService {
     }
 
     this.statements.createAuthMethod.run(
-      method.id, method.user_id, method.method_type, method.method_data,
-      method.is_enabled, method.created_at, method.setup_completed,
+      method.id,
+      method.user_id,
+      method.method_type,
+      method.method_data,
+      method.is_enabled,
+      method.created_at,
+      method.setup_completed,
       method.backup_codes_generated
     )
 
@@ -446,12 +483,15 @@ export class UserService extends BaseDatabaseService {
   /**
    * Update authentication method
    */
-  updateAuthMethod(id: string, updates: {
-    method_data?: string
-    setup_completed?: boolean
-  }): void {
+  updateAuthMethod(
+    id: string,
+    updates: {
+      method_data?: string
+      setup_completed?: boolean
+    }
+  ): void {
     const current = this.statements.getAuthMethods.get() as AuthMethodRecord
-    
+
     this.statements.updateAuthMethod.run(
       updates.method_data ?? current.method_data,
       Date.now(),
@@ -484,8 +524,13 @@ export class UserService extends BaseDatabaseService {
     }
 
     this.statements.createPasswordResetToken.run(
-      token.id, token.user_id, token.token_hash, token.expires_at,
-      token.created_at, token.ip_address, token.user_agent
+      token.id,
+      token.user_id,
+      token.token_hash,
+      token.expires_at,
+      token.created_at,
+      token.ip_address,
+      token.user_agent
     )
 
     return token
@@ -495,10 +540,9 @@ export class UserService extends BaseDatabaseService {
    * Get valid password reset token
    */
   getPasswordResetToken(tokenHash: string): PasswordResetTokenRecord | undefined {
-    return this.statements.getPasswordResetToken.get(
-      tokenHash,
-      Date.now()
-    ) as PasswordResetTokenRecord | undefined
+    return this.statements.getPasswordResetToken.get(tokenHash, Date.now()) as
+      | PasswordResetTokenRecord
+      | undefined
   }
 
   /**
@@ -522,7 +566,7 @@ export class UserService extends BaseDatabaseService {
     risk_score?: number
   }): Promise<void> {
     const id = cryptoManager.generateSecureRandom(16).toString('hex')
-    
+
     this.statements.logAuthAction.run(
       id,
       logData.user_id,
@@ -585,11 +629,15 @@ export class UserService extends BaseDatabaseService {
     const { key: masterKey, salt } = await cryptoManager.generateMasterKey(newPassword)
     const passwordHash = masterKey.toString('base64')
 
-    this.db.prepare(`
+    this.db
+      .prepare(
+        `
       UPDATE users SET 
         password_hash = ?, salt = ?, password_changed_at = ?, updated_at = ?
       WHERE id = ?
-    `).run(passwordHash, salt.toString('base64'), Date.now(), Date.now(), userId)
+    `
+      )
+      .run(passwordHash, salt.toString('base64'), Date.now(), Date.now(), userId)
 
     // Log password change
     await this.logAuthAction({
@@ -605,7 +653,7 @@ export class UserService extends BaseDatabaseService {
   isUserLocked(userId: string): boolean {
     const user = this.getUserById(userId)
     if (!user || !user.locked_until) return false
-    
+
     return Date.now() < user.locked_until
   }
 
@@ -614,13 +662,13 @@ export class UserService extends BaseDatabaseService {
    */
   cleanupExpiredData(): void {
     const now = Date.now()
-    
+
     // Clean up expired password reset tokens
     this.db.prepare('DELETE FROM password_reset_tokens WHERE expires_at < ?').run(now)
-    
+
     // Clean up expired email verification tokens
     this.db.prepare('DELETE FROM email_verification_tokens WHERE expires_at < ?').run(now)
-    
+
     // Deactivate expired sessions
     this.db.prepare('UPDATE user_sessions SET is_active = 0 WHERE expires_at < ?').run(now)
   }

@@ -4,12 +4,12 @@ import type { Theme, ThemeColors, ThemeConfig } from '@renderer/src/types'
 export function useTheme() {
   const currentTheme = ref<Theme>('system')
   const systemPrefersDark = ref(false)
-  
+
   // Check system preference
   const updateSystemPreference = () => {
     systemPrefersDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
   }
-  
+
   // Computed actual theme
   const effectiveTheme = computed(() => {
     if (currentTheme.value === 'system') {
@@ -17,14 +17,14 @@ export function useTheme() {
     }
     return currentTheme.value
   })
-  
+
   const isDark = computed(() => effectiveTheme.value === 'dark')
   const isLight = computed(() => effectiveTheme.value === 'light')
-  
+
   // Theme colors
   const colors = computed<ThemeColors>(() => {
     const theme = effectiveTheme.value
-    
+
     const lightColors: ThemeColors = {
       primary: 'hsl(221, 83%, 53%)',
       secondary: 'hsl(210, 20%, 96%)',
@@ -40,7 +40,7 @@ export function useTheme() {
       border: 'hsl(214, 32%, 91%)',
       shadow: 'rgba(0, 0, 0, 0.1)'
     }
-    
+
     const darkColors: ThemeColors = {
       primary: 'hsl(221, 83%, 65%)',
       secondary: 'hsl(217, 33%, 17%)',
@@ -56,36 +56,36 @@ export function useTheme() {
       border: 'hsl(215, 20%, 25%)',
       shadow: 'rgba(0, 0, 0, 0.3)'
     }
-    
+
     return theme === 'dark' ? darkColors : lightColors
   })
-  
+
   // Apply theme to document
   const applyTheme = () => {
     const root = document.documentElement
     const theme = effectiveTheme.value
-    
+
     // Set theme attribute
     root.setAttribute('data-theme', theme)
-    
+
     // Apply CSS custom properties
     Object.entries(colors.value).forEach(([key, value]) => {
       root.style.setProperty(`--color-${key}`, value)
     })
-    
+
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', colors.value.background)
     }
   }
-  
+
   // Set theme
   const setTheme = (theme: Theme) => {
     currentTheme.value = theme
     localStorage.setItem('theme', theme)
   }
-  
+
   // Toggle between light and dark
   const toggleTheme = () => {
     if (currentTheme.value === 'system') {
@@ -94,29 +94,33 @@ export function useTheme() {
       setTheme(currentTheme.value === 'light' ? 'dark' : 'light')
     }
   }
-  
+
   // Get theme options
   const themeOptions = [
     { value: 'light', label: 'Light', icon: 'sun' },
     { value: 'dark', label: 'Dark', icon: 'moon' },
     { value: 'system', label: 'System', icon: 'monitor' }
   ] as const
-  
+
   // Theme animation
   const animateThemeChange = () => {
     const root = document.documentElement
-    
+
     // Add transition class
     root.classList.add('theme-transitioning')
-    
+
     // Remove after animation
     setTimeout(() => {
       root.classList.remove('theme-transitioning')
     }, 300)
   }
-  
+
   // Create custom theme
-  const createCustomTheme = (name: string, lightColors: Partial<ThemeColors>, darkColors: Partial<ThemeColors>): ThemeConfig => {
+  const createCustomTheme = (
+    name: string,
+    lightColors: Partial<ThemeColors>,
+    darkColors: Partial<ThemeColors>
+  ): ThemeConfig => {
     return {
       name,
       displayName: name,
@@ -157,27 +161,27 @@ export function useTheme() {
       }
     }
   }
-  
+
   // Get color with opacity
   const getColorWithOpacity = (colorKey: keyof ThemeColors, opacity: number) => {
     const color = colors.value[colorKey]
-    
+
     // If it's already an HSL color, we can modify the alpha
     if (color.startsWith('hsl(')) {
       return color.replace('hsl(', 'hsla(').replace(')', `, ${opacity})`)
     }
-    
+
     // For other formats, we'd need more complex parsing
     return color
   }
-  
+
   // Generate CSS variables
   const generateCSSVariables = () => {
     return Object.entries(colors.value)
       .map(([key, value]) => `--color-${key}: ${value};`)
       .join('\n')
   }
-  
+
   // Load saved theme
   const loadSavedTheme = () => {
     const saved = localStorage.getItem('theme') as Theme
@@ -185,34 +189,34 @@ export function useTheme() {
       currentTheme.value = saved
     }
   }
-  
+
   // Watch for theme changes
   watch(effectiveTheme, () => {
     applyTheme()
     animateThemeChange()
   })
-  
+
   // Setup
   onMounted(() => {
     // Load saved theme
     loadSavedTheme()
-    
+
     // Check system preference
     updateSystemPreference()
-    
+
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     mediaQuery.addEventListener('change', updateSystemPreference)
-    
+
     // Apply initial theme
     applyTheme()
-    
+
     // Cleanup
     return () => {
       mediaQuery.removeEventListener('change', updateSystemPreference)
     }
   })
-  
+
   return {
     // State
     currentTheme,
@@ -220,7 +224,7 @@ export function useTheme() {
     isDark,
     isLight,
     colors,
-    
+
     // Methods
     setTheme,
     toggleTheme,
@@ -228,7 +232,7 @@ export function useTheme() {
     createCustomTheme,
     getColorWithOpacity,
     generateCSSVariables,
-    
+
     // Constants
     themeOptions
   }

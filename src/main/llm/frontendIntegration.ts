@@ -15,7 +15,7 @@ import { logger } from '../utils/Logger'
  */
 export class FrontendIntegrationService {
   private validator: ProviderValidator
-  
+
   constructor(private customProviderManager: CustomProviderManager) {
     this.validator = new ProviderValidator()
     this.registerEnhancedHandlers()
@@ -27,7 +27,10 @@ export class FrontendIntegrationService {
   private registerEnhancedHandlers(): void {
     // Template management
     ipcMain.handle('llm:getProviderTemplates', this.getProviderTemplates.bind(this))
-    ipcMain.handle('llm:getProviderTemplatesByCategory', this.getProviderTemplatesByCategory.bind(this))
+    ipcMain.handle(
+      'llm:getProviderTemplatesByCategory',
+      this.getProviderTemplatesByCategory.bind(this)
+    )
     ipcMain.handle('llm:createProviderFromTemplate', this.createProviderFromTemplate.bind(this))
 
     // Enhanced validation
@@ -53,7 +56,9 @@ export class FrontendIntegrationService {
     try {
       return PROVIDER_TEMPLATES
     } catch (error: any) {
-      logger.error('Failed to get provider templates', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to get provider templates', 'FrontendIntegration', {
+        error: error.message
+      })
       return []
     }
   }
@@ -62,13 +67,15 @@ export class FrontendIntegrationService {
    * Get provider templates by category
    */
   async getProviderTemplatesByCategory(
-    _: any, 
+    _: any,
     category: ProviderTemplate['category']
   ): Promise<ProviderTemplate[]> {
     try {
       return PROVIDER_TEMPLATES.filter(template => template.category === category)
     } catch (error: any) {
-      logger.error('Failed to get templates by category', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to get templates by category', 'FrontendIntegration', {
+        error: error.message
+      })
       return []
     }
   }
@@ -94,7 +101,9 @@ export class FrontendIntegrationService {
 
       return await this.customProviderManager.addProvider(config)
     } catch (error: any) {
-      logger.error('Failed to create provider from template', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to create provider from template', 'FrontendIntegration', {
+        error: error.message
+      })
       return { success: false, error: error.message }
     }
   }
@@ -117,7 +126,9 @@ export class FrontendIntegrationService {
 
       return await this.validator.validateProvider(fullConfig, { detectFeatures: false })
     } catch (error: any) {
-      logger.error('Failed to validate provider config', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to validate provider config', 'FrontendIntegration', {
+        error: error.message
+      })
       return { success: false, error: error.message }
     }
   }
@@ -148,7 +159,9 @@ export class FrontendIntegrationService {
 
       return await this.validator.validateProvider(fullConfig, enhancedOptions)
     } catch (error: any) {
-      logger.error('Failed to validate provider enhanced', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to validate provider enhanced', 'FrontendIntegration', {
+        error: error.message
+      })
       return { success: false, error: error.message }
     }
   }
@@ -174,17 +187,19 @@ export class FrontendIntegrationService {
       if (features.includes('toolCalling')) options.testToolCalling = true
 
       const validation = await this.validator.validateProvider(config, options)
-      
+
       if (validation.success && validation.details?.supportedFeatures) {
         const supportedFeatures = validation.details.supportedFeatures
         results.streaming = supportedFeatures.streaming
-        results.toolCalling = supportedFeatures.toolCalling  
+        results.toolCalling = supportedFeatures.toolCalling
         results.multimodal = supportedFeatures.multimodal
       }
 
       return results
     } catch (error: any) {
-      logger.error('Failed to test provider features', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to test provider features', 'FrontendIntegration', {
+        error: error.message
+      })
       return {}
     }
   }
@@ -221,7 +236,10 @@ export class FrontendIntegrationService {
   /**
    * Get provider usage statistics (placeholder for future implementation)
    */
-  async getProviderUsageStats(_: any, providerId: string): Promise<{
+  async getProviderUsageStats(
+    _: any,
+    providerId: string
+  ): Promise<{
     messagesCount: number
     avgResponseTime: number
     successRate: number
@@ -237,7 +255,9 @@ export class FrontendIntegrationService {
         lastUsed: null
       }
     } catch (error: any) {
-      logger.error('Failed to get provider usage stats', 'FrontendIntegration', { error: error.message })
+      logger.error('Failed to get provider usage stats', 'FrontendIntegration', {
+        error: error.message
+      })
       return {
         messagesCount: 0,
         avgResponseTime: 0,
@@ -351,7 +371,9 @@ export class FrontendIntegrationService {
         suggestedModel: 'gpt-3.5-turbo'
       }
     } catch (error: any) {
-      logger.warn('Failed to get config suggestions', 'FrontendIntegration', { error: error.message })
+      logger.warn('Failed to get config suggestions', 'FrontendIntegration', {
+        error: error.message
+      })
       return {
         suggestedType: 'openai-compatible',
         suggestedHeaders: {},
@@ -363,7 +385,10 @@ export class FrontendIntegrationService {
   /**
    * Validate provider URL format and accessibility
    */
-  async validateProviderUrl(_: any, url: string): Promise<{
+  async validateProviderUrl(
+    _: any,
+    url: string
+  ): Promise<{
     valid: boolean
     accessible?: boolean
     error?: string
@@ -373,7 +398,7 @@ export class FrontendIntegrationService {
       new URL(url)
 
       // Test accessibility
-      const response = await fetch(url, { 
+      const response = await fetch(url, {
         method: 'HEAD',
         signal: AbortSignal.timeout(10000)
       })
@@ -394,7 +419,10 @@ export class FrontendIntegrationService {
   /**
    * Detect provider type based on URL and response
    */
-  async detectProviderType(_: any, baseURL: string): Promise<{
+  async detectProviderType(
+    _: any,
+    baseURL: string
+  ): Promise<{
     detectedType: CustomProviderConfig['type']
     confidence: number
     reasoning: string
@@ -482,7 +510,10 @@ export const FrontendHelpers = {
   /**
    * Format provider for display in UI
    */
-  formatProviderForUI: (config: CustomProviderConfig, health?: ProviderHealthStatus): FrontendProviderData => {
+  formatProviderForUI: (
+    config: CustomProviderConfig,
+    health?: ProviderHealthStatus
+  ): FrontendProviderData => {
     return {
       id: config.id,
       config,

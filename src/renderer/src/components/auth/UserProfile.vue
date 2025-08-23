@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+  >
     <!-- Header -->
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-        Profile Settings
-      </h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Profile Settings</h2>
       <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
         Manage your account information and preferences
       </p>
@@ -20,27 +20,25 @@
             :src="user.avatar"
             :alt="user.name"
             class="h-20 w-20 rounded-full object-cover"
-          >
+          />
           <div
             v-else
             class="h-20 w-20 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center"
           >
             <UserIcon class="h-10 w-10 text-gray-400" />
           </div>
-          
+
           <!-- Upload overlay -->
-          <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center">
+          <div
+            class="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center"
+          >
             <CameraIcon class="h-6 w-6 text-white" />
           </div>
         </div>
-        
+
         <div>
-          <h3 class="text-base font-medium text-gray-900 dark:text-white">
-            Profile Photo
-          </h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            Update your profile picture
-          </p>
+          <h3 class="text-base font-medium text-gray-900 dark:text-white">Profile Photo</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Update your profile picture</p>
           <div class="mt-2 flex space-x-2">
             <button
               @click="uploadPhoto"
@@ -70,7 +68,7 @@
             v-model="profileForm.name"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          >
+          />
         </div>
 
         <!-- Email -->
@@ -84,7 +82,7 @@
               type="email"
               disabled
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-            >
+            />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
               <CheckBadgeIcon v-if="user?.email_verified" class="h-5 w-5 text-green-500" />
               <ExclamationTriangleIcon v-else class="h-5 w-5 text-yellow-500" />
@@ -101,7 +99,7 @@
         <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
           Account Information
         </h3>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -111,7 +109,7 @@
               {{ formatDate(user?.createdAt) }}
             </p>
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Last Active
@@ -125,10 +123,8 @@
 
       <!-- Preferences -->
       <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
-          Preferences
-        </h3>
-        
+        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">Preferences</h3>
+
         <div class="space-y-4">
           <!-- Theme -->
           <div>
@@ -185,16 +181,24 @@
       </div>
 
       <!-- Error/Success Messages -->
-      <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+      <div
+        v-if="errorMessage"
+        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+      >
         <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
       </div>
 
-      <div v-if="successMessage" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+      <div
+        v-if="successMessage"
+        class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
+      >
         <p class="text-sm text-green-600 dark:text-green-400">{{ successMessage }}</p>
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div
+        class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700"
+      >
         <div class="flex space-x-3">
           <button
             @click="saveProfile"
@@ -207,7 +211,7 @@
             </div>
             <span v-else>Save Changes</span>
           </button>
-          
+
           <button
             @click="resetForm"
             :disabled="isLoading"
@@ -227,8 +231,8 @@
     </div>
 
     <!-- Change Password Modal -->
-    <ChangePasswordModal 
-      v-if="showChangePassword" 
+    <ChangePasswordModal
+      v-if="showChangePassword"
       @close="showChangePassword = false"
       @success="handlePasswordChangeSuccess"
     />
@@ -237,11 +241,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
-import { 
-  UserIcon, 
-  CameraIcon, 
-  CheckBadgeIcon, 
-  ExclamationTriangleIcon 
+import {
+  UserIcon,
+  CameraIcon,
+  CheckBadgeIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '../../stores/auth'
 import ChangePasswordModal from './ChangePasswordModal.vue'
@@ -264,16 +268,20 @@ const profileForm = reactive({
 })
 
 // Initialize form with user data
-watch(user, (newUser) => {
-  if (newUser) {
-    profileForm.name = newUser.name
-    profileForm.preferences = { ...newUser.preferences }
-  }
-}, { immediate: true })
+watch(
+  user,
+  newUser => {
+    if (newUser) {
+      profileForm.name = newUser.name
+      profileForm.preferences = { ...newUser.preferences }
+    }
+  },
+  { immediate: true }
+)
 
 const hasChanges = computed(() => {
   if (!user.value) return false
-  
+
   return (
     profileForm.name !== user.value.name ||
     profileForm.preferences.theme !== user.value.preferences.theme ||
@@ -293,19 +301,19 @@ const formatDate = (date: Date | undefined) => {
 
 const saveProfile = async () => {
   if (isLoading.value || !hasChanges.value) return
-  
+
   errorMessage.value = ''
   successMessage.value = ''
   isLoading.value = true
-  
+
   try {
     await authStore.updateProfile({
       name: profileForm.name,
       preferences: profileForm.preferences
     })
-    
+
     successMessage.value = 'Profile updated successfully!'
-    
+
     // Clear success message after 3 seconds
     setTimeout(() => {
       successMessage.value = ''

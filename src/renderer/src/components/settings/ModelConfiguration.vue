@@ -24,13 +24,18 @@
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
               <Bot :size="16" class="text-muted-foreground" />
-              <h4 class="font-medium">{{ model.displayName || model.name || `Model ${index + 1}` }}</h4>
+              <h4 class="font-medium">
+                {{ model.displayName || model.name || `Model ${index + 1}` }}
+              </h4>
             </div>
-            <div v-if="model.contextLength" class="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+            <div
+              v-if="model.contextLength"
+              class="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded"
+            >
               {{ formatContextLength(model.contextLength) }}
             </div>
           </div>
-          
+
           <div class="flex items-center gap-2">
             <!-- Expand/Collapse -->
             <button
@@ -39,13 +44,13 @@
               class="p-1 hover:bg-accent/50 rounded transition-colors"
               :title="expandedModels.has(index) ? 'Collapse' : 'Expand'"
             >
-              <ChevronDown 
-                :size="16" 
+              <ChevronDown
+                :size="16"
                 class="transition-transform"
                 :class="{ 'rotate-180': expandedModels.has(index) }"
               />
             </button>
-            
+
             <!-- Delete -->
             <button
               type="button"
@@ -72,9 +77,9 @@
                 placeholder="gpt-4, claude-3-sonnet, etc."
                 class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                 required
-              >
+              />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium mb-1">Display Name</label>
               <input
@@ -82,7 +87,7 @@
                 type="text"
                 placeholder="e.g., GPT-4 Turbo"
                 class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-              >
+              />
             </div>
           </div>
 
@@ -113,13 +118,15 @@
                   placeholder="8192"
                   class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                   required
+                />
+                <div
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
                 >
-                <div class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   tokens
                 </div>
               </div>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium mb-1">Max Output Tokens</label>
               <div class="relative">
@@ -131,8 +138,10 @@
                   step="100"
                   placeholder="4096"
                   class="w-full px-3 py-2 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                />
+                <div
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
                 >
-                <div class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   tokens
                 </div>
               </div>
@@ -141,11 +150,13 @@
 
           <!-- Pricing (Optional) -->
           <details class="group">
-            <summary class="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <summary
+              class="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               <ChevronRight :size="14" class="transition-transform group-open:rotate-90" />
               <span>Pricing Information (Optional)</span>
             </summary>
-            
+
             <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium mb-1">Input Cost (per 1K tokens)</label>
@@ -157,13 +168,15 @@
                     step="0.0001"
                     placeholder="0.0100"
                     class="w-full px-3 py-2 pl-6 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                  />
+                  <div
+                    class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
                   >
-                  <div class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                     $
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium mb-1">Output Cost (per 1K tokens)</label>
                 <div class="relative">
@@ -174,8 +187,10 @@
                     step="0.0001"
                     placeholder="0.0300"
                     class="w-full px-3 py-2 pl-6 bg-background border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                  />
+                  <div
+                    class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
                   >
-                  <div class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                     $
                   </div>
                 </div>
@@ -196,7 +211,7 @@
                   v-model="model.capabilities[key]"
                   type="checkbox"
                   class="w-4 h-4 text-primary bg-background border-muted rounded focus:ring-primary/20"
-                >
+                />
                 <span class="truncate">{{ capability.label }}</span>
               </label>
             </div>
@@ -207,15 +222,25 @@
         <div v-else class="px-4 pb-3">
           <div class="flex items-center gap-4 text-sm text-muted-foreground">
             <span v-if="model.id">ID: {{ model.id }}</span>
-            <span v-if="model.contextLength">{{ formatContextLength(model.contextLength) }} context</span>
-            <span>{{ Object.values(model.capabilities || {}).filter(Boolean).length }} capabilities</span>
+            <span v-if="model.contextLength"
+              >{{ formatContextLength(model.contextLength) }} context</span
+            >
+            <span
+              >{{
+                Object.values(model.capabilities || {}).filter(Boolean).length
+              }}
+              capabilities</span
+            >
           </div>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-8 bg-muted/20 rounded-lg border-2 border-dashed border-muted-foreground/20">
+    <div
+      v-else
+      class="text-center py-8 bg-muted/20 rounded-lg border-2 border-dashed border-muted-foreground/20"
+    >
       <Bot :size="32" class="mx-auto mb-3 text-muted-foreground" />
       <p class="text-muted-foreground mb-3">No models configured</p>
       <button
@@ -228,7 +253,10 @@
     </div>
 
     <!-- Quick Templates -->
-    <div v-if="providerType && providerTemplates[providerType]" class="pt-4 border-t border-muted-foreground/10">
+    <div
+      v-if="providerType && providerTemplates[providerType]"
+      class="pt-4 border-t border-muted-foreground/10"
+    >
       <div class="flex items-center justify-between mb-3">
         <h4 class="text-sm font-medium text-muted-foreground">Quick Templates</h4>
       </div>
@@ -394,7 +422,7 @@ const addModel = () => {
       frequencyPenalty: false
     } as ModelCapabilities
   }
-  
+
   models.value.push(newModel)
   expandedModels.value.add(models.value.length - 1)
 }
@@ -402,7 +430,7 @@ const addModel = () => {
 const removeModel = (index: number) => {
   models.value.splice(index, 1)
   expandedModels.value.delete(index)
-  
+
   // Adjust expanded indices
   const newExpanded = new Set<number>()
   expandedModels.value.forEach(i => {
@@ -428,7 +456,7 @@ const addModelFromTemplate = (template: any) => {
     ...template,
     capabilities: { ...template.capabilities }
   }
-  
+
   models.value.push(newModel)
   expandedModels.value.add(models.value.length - 1)
 }
@@ -443,19 +471,27 @@ const formatContextLength = (length: number): string => {
 }
 
 // Watch for changes and emit
-watch(() => models.value, (newModels) => {
-  emit('update:modelValue', newModels)
-}, { deep: true })
+watch(
+  () => models.value,
+  newModels => {
+    emit('update:modelValue', newModels)
+  },
+  { deep: true }
+)
 
 // Watch for prop changes
-watch(() => props.modelValue, (newValue) => {
-  models.value = [...newValue]
-  
-  // Expand first model if none are expanded and models exist
-  if (models.value.length > 0 && expandedModels.value.size === 0) {
-    expandedModels.value.add(0)
-  }
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  newValue => {
+    models.value = [...newValue]
+
+    // Expand first model if none are expanded and models exist
+    if (models.value.length > 0 && expandedModels.value.size === 0) {
+      expandedModels.value.add(0)
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -469,12 +505,13 @@ watch(() => props.modelValue, (newValue) => {
 }
 
 /* Form input focus states */
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   outline: none;
 }
 
 /* Custom checkbox styling */
-input[type="checkbox"]:checked {
+input[type='checkbox']:checked {
   background-color: rgb(var(--primary-rgb));
   border-color: rgb(var(--primary-rgb));
 }
@@ -494,11 +531,11 @@ details[open] summary {
   .grid.sm\\:grid-cols-2 {
     grid-template-columns: 1fr;
   }
-  
+
   .grid.sm\\:grid-cols-3 {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .flex.gap-2 {
     flex-wrap: wrap;
   }

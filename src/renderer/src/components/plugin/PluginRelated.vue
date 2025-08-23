@@ -4,7 +4,7 @@
       <div class="loading-spinner" />
       <p>正在加载相关插件...</p>
     </div>
-    
+
     <div v-else class="related-sections">
       <!-- Same Developer -->
       <div v-if="sameDeveloperPlugins.length" class="related-section">
@@ -66,9 +66,7 @@
           </div>
           <div class="bundle-actions">
             <div class="bundle-info">
-              <p class="bundle-description">
-                用户经常将这些插件与 {{ plugin.name }} 一起使用
-              </p>
+              <p class="bundle-description">用户经常将这些插件与 {{ plugin.name }} 一起使用</p>
               <div class="bundle-price">
                 <span class="original-price">${{ calculateOriginalPrice() }}</span>
                 <span class="bundle-price-value">${{ calculateBundlePrice() }}</span>
@@ -126,9 +124,7 @@
         <Search :size="48" class="empty-icon" />
         <h3>暂无相关推荐</h3>
         <p>浏览更多插件来发现有用的工具</p>
-        <button @click="$emit('browse-market')" class="browse-btn">
-          浏览插件市场
-        </button>
+        <button @click="$emit('browse-market')" class="browse-btn">浏览插件市场</button>
       </div>
     </div>
   </div>
@@ -136,9 +132,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import {
-  User, Lightbulb, Package, TrendingUp, Clock, Search, Download
-} from 'lucide-vue-next'
+import { User, Lightbulb, Package, TrendingUp, Clock, Search, Download } from 'lucide-vue-next'
 
 import PluginMarketCard from './PluginMarketCard.vue'
 import type { PluginMarketListing } from '../../types/plugins'
@@ -151,8 +145,8 @@ defineProps<Props>()
 
 const emit = defineEmits<{
   'select-plugin': [plugin: PluginMarketListing]
-  'install': [plugin: PluginMarketListing]
-  'uninstall': [plugin: PluginMarketListing]
+  install: [plugin: PluginMarketListing]
+  uninstall: [plugin: PluginMarketListing]
   'browse-market': []
 }>()
 
@@ -166,12 +160,13 @@ const bundlePlugins = ref<PluginMarketListing[]>([])
 const categoryPlugins = ref<PluginMarketListing[]>([])
 const recentlyViewed = ref<PluginMarketListing[]>([])
 
-const hasAnyRelated = computed(() => 
-  sameDeveloperPlugins.value.length > 0 ||
-  similarPlugins.value.length > 0 ||
-  bundlePlugins.value.length > 0 ||
-  categoryPlugins.value.length > 0 ||
-  recentlyViewed.value.length > 0
+const hasAnyRelated = computed(
+  () =>
+    sameDeveloperPlugins.value.length > 0 ||
+    similarPlugins.value.length > 0 ||
+    bundlePlugins.value.length > 0 ||
+    categoryPlugins.value.length > 0 ||
+    recentlyViewed.value.length > 0
 )
 
 // Methods
@@ -198,7 +193,7 @@ const installBundle = () => {
 
 const loadRelatedPlugins = async () => {
   loading.value = true
-  
+
   try {
     // Simulate API calls to load related plugins
     await Promise.all([

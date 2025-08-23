@@ -9,7 +9,7 @@ import hi from '@/locales/hi'
 
 // Supported locales
 export const SUPPORTED_LOCALES = {
-  'en': {
+  en: {
     name: 'English',
     nativeName: 'English',
     flag: '🇺🇸',
@@ -25,7 +25,7 @@ export const SUPPORTED_LOCALES = {
     dateFormat: 'yyyy年MM月dd日',
     timeFormat: 'HH:mm'
   },
-  'ja': {
+  ja: {
     name: 'Japanese',
     nativeName: '日本語',
     flag: '🇯🇵',
@@ -33,7 +33,7 @@ export const SUPPORTED_LOCALES = {
     dateFormat: 'yyyy年MM月dd日',
     timeFormat: 'HH:mm'
   },
-  'hi': {
+  hi: {
     name: 'Hindi',
     nativeName: 'हिन्दी',
     flag: '🇮🇳',
@@ -55,20 +55,22 @@ export function getDefaultLocale(): SupportedLocale {
 
   // Detect from browser
   const browserLang = navigator.language.toLowerCase()
-  
+
   // Direct match
   if (browserLang in SUPPORTED_LOCALES) {
     return browserLang as SupportedLocale
   }
-  
+
   // Partial match (e.g., 'zh-cn' matches 'zh-CN')
   for (const locale of Object.keys(SUPPORTED_LOCALES)) {
-    if (browserLang.startsWith(locale.toLowerCase()) || 
-        locale.toLowerCase().startsWith(browserLang)) {
+    if (
+      browserLang.startsWith(locale.toLowerCase()) ||
+      locale.toLowerCase().startsWith(browserLang)
+    ) {
       return locale as SupportedLocale
     }
   }
-  
+
   // Check for language family matches
   const langCode = browserLang.split('-')[0]
   for (const locale of Object.keys(SUPPORTED_LOCALES)) {
@@ -77,15 +79,15 @@ export function getDefaultLocale(): SupportedLocale {
     }
   }
 
-  // Default to English
-  return 'en'
+  // Default to Chinese (Simplified) for Chinese users
+  return 'zh-CN'
 }
 
 // I18n configuration
 const i18nOptions: I18nOptions = {
   legacy: false,
   locale: getDefaultLocale(),
-  fallbackLocale: 'en',
+  fallbackLocale: 'zh-CN', // 回退到中文而非英文
   messages: {
     en,
     'zh-CN': zhCN,
@@ -104,19 +106,21 @@ const i18nOptions: I18nOptions = {
     upper: (str: string) => str.toUpperCase(),
     lower: (str: string) => str.toLowerCase(),
     capitalize: (str: string) => str.charAt(0).toUpperCase() + str.slice(1),
-    title: (str: string) => str.split(' ').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ')
+    title: (str: string) =>
+      str
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
   },
   pluralizationRules: {
     // Chinese and Japanese don't have plural forms
     'zh-CN': (choice: number) => 0,
-    'ja': (choice: number) => 0,
-    'hi': (choice: number) => choice === 1 ? 0 : 1,
-    'en': (choice: number) => choice === 1 ? 0 : 1
+    ja: (choice: number) => 0,
+    hi: (choice: number) => (choice === 1 ? 0 : 1),
+    en: (choice: number) => (choice === 1 ? 0 : 1)
   },
   datetimeFormats: {
-    'en': {
+    en: {
       short: {
         year: 'numeric',
         month: 'short',
@@ -156,7 +160,7 @@ const i18nOptions: I18nOptions = {
         hour12: false
       }
     },
-    'ja': {
+    ja: {
       short: {
         year: 'numeric',
         month: 'short',
@@ -176,7 +180,7 @@ const i18nOptions: I18nOptions = {
         hour12: false
       }
     },
-    'hi': {
+    hi: {
       short: {
         year: 'numeric',
         month: 'short',
@@ -198,7 +202,7 @@ const i18nOptions: I18nOptions = {
     }
   },
   numberFormats: {
-    'en': {
+    en: {
       currency: {
         style: 'currency',
         currency: 'USD',
@@ -232,7 +236,7 @@ const i18nOptions: I18nOptions = {
         maximumFractionDigits: 1
       }
     },
-    'ja': {
+    ja: {
       currency: {
         style: 'currency',
         currency: 'JPY',
@@ -249,7 +253,7 @@ const i18nOptions: I18nOptions = {
         maximumFractionDigits: 1
       }
     },
-    'hi': {
+    hi: {
       currency: {
         style: 'currency',
         currency: 'INR',
@@ -284,10 +288,10 @@ export class I18nService {
   private init(): void {
     // Set document direction based on current locale
     this.updateDocumentDirection()
-    
+
     // Set document language
     this.updateDocumentLanguage()
-    
+
     // Watch for locale changes
     this.watchLocaleChanges()
   }
@@ -317,14 +321,14 @@ export class I18nService {
 
     // Set the locale
     this.i18nInstance.global.locale.value = locale
-    
+
     // Persist to localStorage
     localStorage.setItem('user-locale', locale)
-    
+
     // Update document attributes
     this.updateDocumentDirection()
     this.updateDocumentLanguage()
-    
+
     console.log(`Locale changed to: ${locale}`)
   }
 
@@ -337,7 +341,7 @@ export class I18nService {
     current: boolean
   }> {
     const currentLocale = this.getCurrentLocale()
-    
+
     return Object.entries(SUPPORTED_LOCALES).map(([code, info]) => ({
       code: code as SupportedLocale,
       name: info.name,
@@ -348,7 +352,7 @@ export class I18nService {
   }
 
   // Get locale info
-  getLocaleInfo(locale?: SupportedLocale): typeof SUPPORTED_LOCALES[SupportedLocale] {
+  getLocaleInfo(locale?: SupportedLocale): (typeof SUPPORTED_LOCALES)[SupportedLocale] {
     const targetLocale = locale || this.getCurrentLocale()
     return SUPPORTED_LOCALES[targetLocale]
   }
@@ -401,12 +405,12 @@ export class I18nService {
     const now = new Date()
     const date = value instanceof Date ? value : new Date(value)
     const diff = now.getTime() - date.getTime()
-    
-    const rtf = new Intl.RelativeTimeFormat(this.getCurrentLocale(), { 
+
+    const rtf = new Intl.RelativeTimeFormat(this.getCurrentLocale(), {
       numeric: 'auto',
       style: 'long'
     })
-    
+
     const seconds = Math.floor(diff / 1000)
     const minutes = Math.floor(seconds / 60)
     const hours = Math.floor(minutes / 60)
@@ -414,7 +418,7 @@ export class I18nService {
     const weeks = Math.floor(days / 7)
     const months = Math.floor(days / 30)
     const years = Math.floor(days / 365)
-    
+
     if (Math.abs(years) > 0) {
       return rtf.format(-years, 'year')
     } else if (Math.abs(months) > 0) {
@@ -435,11 +439,11 @@ export class I18nService {
   // Format file size with localization
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 B'
-    
+
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    
+
     const value = bytes / Math.pow(k, i)
     return `${this.n(value, 'decimal')} ${sizes[i]}`
   }
@@ -448,7 +452,7 @@ export class I18nService {
   formatCurrency(amount: number, currency?: string): string {
     const locale = this.getCurrentLocale()
     const localeInfo = this.getLocaleInfo()
-    
+
     let defaultCurrency = 'USD'
     switch (locale) {
       case 'zh-CN':
@@ -463,7 +467,7 @@ export class I18nService {
       default:
         defaultCurrency = 'USD'
     }
-    
+
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency || defaultCurrency
@@ -513,10 +517,10 @@ export const i18nService = new I18nService(i18n)
 // Vue plugin installation helper
 export function setupI18n(app: any): void {
   app.use(i18n)
-  
+
   // Provide i18n service globally
   app.provide('i18nService', i18nService)
-  
+
   // Add global properties
   app.config.globalProperties.$i18nService = i18nService
 }

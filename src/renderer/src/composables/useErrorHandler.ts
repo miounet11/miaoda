@@ -59,10 +59,10 @@ export function useErrorHandler() {
 
   const handleError = (error: unknown, context?: string) => {
     console.error(context ? `Error in ${context}:` : 'Error:', error)
-    
+
     let message = 'An unexpected error occurred'
     let details = ''
-    
+
     if (error instanceof Error) {
       message = error.message
       details = error.stack || ''
@@ -71,20 +71,17 @@ export function useErrorHandler() {
     } else if (error && typeof error === 'object' && 'message' in error) {
       message = String(error.message)
     }
-    
+
     showError({
       title: context || 'Error',
       message,
       severity: 'error'
     })
-    
+
     return { message, details }
   }
 
-  const withErrorHandler = async <T>(
-    fn: () => Promise<T>,
-    context?: string
-  ): Promise<T | null> => {
+  const withErrorHandler = async <T>(fn: () => Promise<T>, context?: string): Promise<T | null> => {
     try {
       return await fn()
     } catch (error) {
@@ -103,7 +100,7 @@ export function useErrorHandler() {
     } = {}
   ): Promise<T | null> => {
     const { maxAttempts = 3, delay = 1000, onRetry, context } = options
-    
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         isRetrying.value = attempt > 1
@@ -112,21 +109,21 @@ export function useErrorHandler() {
         return result
       } catch (error) {
         isRetrying.value = false
-        
+
         if (attempt === maxAttempts) {
           handleError(error, context)
           return null
         }
-        
+
         if (onRetry) {
           onRetry(attempt)
         }
-        
+
         // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay * attempt))
       }
     }
-    
+
     return null
   }
 

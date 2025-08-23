@@ -27,13 +27,13 @@
             type="button"
           >
             <!-- Selection Indicator -->
-            <div 
-              v-if="selectedProvider === provider.id" 
+            <div
+              v-if="selectedProvider === provider.id"
               class="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-lg z-10"
             >
               <Check :size="12" class="text-primary-foreground font-bold" />
             </div>
-            
+
             <div class="text-2xl mb-2">{{ provider.emoji }}</div>
             <div class="font-medium text-sm">{{ provider.name }}</div>
             <div class="text-xs text-muted-foreground mt-1">{{ provider.subtitle }}</div>
@@ -53,14 +53,17 @@
             Add Custom Provider
           </button>
         </div>
-        
-        <div v-if="customProviders.length === 0" class="text-center py-6 bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+
+        <div
+          v-if="customProviders.length === 0"
+          class="text-center py-6 bg-muted/20 rounded-lg border-2 border-dashed border-muted"
+        >
           <div class="text-muted-foreground">
             <Server :size="24" class="mx-auto mb-2 opacity-50" />
             <p class="text-sm">No custom providers configured</p>
           </div>
         </div>
-        
+
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <button
             v-for="provider in customProviders"
@@ -76,27 +79,32 @@
           >
             <!-- Selection and Status Indicators -->
             <div class="absolute top-2 right-2 flex items-center gap-2">
-              <div 
-                v-if="selectedProvider === provider.id" 
+              <div
+                v-if="selectedProvider === provider.id"
                 class="w-2 h-2 bg-primary rounded-full animate-pulse"
               />
-              <div 
+              <div
                 :class="[
                   'w-2 h-2 rounded-full',
-                  provider.status === 'connected' ? 'bg-green-500' :
-                  provider.status === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                  provider.status === 'connected'
+                    ? 'bg-green-500'
+                    : provider.status === 'error'
+                      ? 'bg-red-500'
+                      : 'bg-gray-400'
                 ]"
               />
             </div>
-            
+
             <div class="pr-6">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-lg">{{ provider.icon || '🔧' }}</span>
                 <div class="font-medium text-sm truncate">{{ provider.displayName }}</div>
               </div>
-              <div class="text-xs text-muted-foreground truncate">{{ getHostFromUrl(provider.configuration?.baseUrl || '') }}</div>
+              <div class="text-xs text-muted-foreground truncate">
+                {{ getHostFromUrl(provider.configuration?.baseUrl || '') }}
+              </div>
             </div>
-            
+
             <!-- Quick Actions -->
             <div class="mt-2 pt-2 border-t border-muted/30 flex gap-1">
               <button
@@ -129,7 +137,7 @@
     <!-- Configuration Section for Selected Provider -->
     <div v-if="selectedProvider" class="border-t pt-6">
       <h4 class="text-lg font-medium mb-4">Provider Configuration</h4>
-      
+
       <!-- Built-in Provider Configuration -->
       <div v-if="isBuiltInProvider(selectedProvider)" class="space-y-4">
         <!-- API Key -->
@@ -146,7 +154,7 @@
               placeholder="Enter your API key..."
               class="w-full px-3 py-2.5 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               required
-            >
+            />
             <button
               @click="showApiKey = !showApiKey"
               type="button"
@@ -160,12 +168,14 @@
             {{ getApiKeyHelpText(selectedProvider) }}
           </p>
         </div>
-        
+
         <!-- Base URL Override -->
         <div>
           <label class="block text-sm font-medium mb-2">
             Base URL
-            <span class="text-muted-foreground text-xs ml-1">(optional - for custom endpoints)</span>
+            <span class="text-muted-foreground text-xs ml-1"
+              >(optional - for custom endpoints)</span
+            >
           </label>
           <input
             :value="baseUrl"
@@ -173,10 +183,8 @@
             type="url"
             :placeholder="getDefaultBaseURL(selectedProvider)"
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          >
-          <p class="text-xs text-muted-foreground mt-1">
-            Leave empty to use the default endpoint
-          </p>
+          />
+          <p class="text-xs text-muted-foreground mt-1">Leave empty to use the default endpoint</p>
         </div>
 
         <!-- Model Selection -->
@@ -192,7 +200,7 @@
             placeholder="llama2, mistral, codellama, etc."
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             required
-          >
+          />
           <p class="text-xs text-muted-foreground mt-1">
             Make sure the model is downloaded in Ollama (e.g., `ollama pull llama2`)
           </p>
@@ -219,9 +227,12 @@
               placeholder="Enter custom model name (e.g., gpt-4-1106-preview)"
               class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               autofocus
-            >
+            />
             <button
-              @click="showCustomModelInput = false; $emit('update:model', 'gpt-4')"
+              @click="
+                showCustomModelInput = false
+                $emit('update:model', 'gpt-4')
+              "
               class="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Back to preset models
@@ -236,10 +247,12 @@
           <span class="text-2xl">{{ getCustomProvider(selectedProvider)?.icon || '🔧' }}</span>
           <div>
             <div class="font-medium">{{ getCustomProvider(selectedProvider)?.displayName }}</div>
-            <div class="text-sm text-muted-foreground">{{ getCustomProvider(selectedProvider)?.description || 'Custom provider' }}</div>
+            <div class="text-sm text-muted-foreground">
+              {{ getCustomProvider(selectedProvider)?.description || 'Custom provider' }}
+            </div>
           </div>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span class="text-muted-foreground">Base URL:</span>
@@ -275,9 +288,16 @@
     </div>
 
     <!-- Add Custom Provider Form (Modal Style) -->
-    <div v-if="showAddCustomProviderForm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div class="bg-background rounded-xl border shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-background/95 backdrop-blur-sm border-b p-4 flex items-center justify-between">
+    <div
+      v-if="showAddCustomProviderForm"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+    >
+      <div
+        class="bg-background rounded-xl border shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-background/95 backdrop-blur-sm border-b p-4 flex items-center justify-between"
+        >
           <h4 class="text-lg font-medium">
             {{ editingProvider ? 'Edit Provider' : 'Add Custom Provider' }}
           </h4>
@@ -288,7 +308,7 @@
             <X :size="16" />
           </button>
         </div>
-        
+
         <div class="p-4">
           <InlineProviderForm
             :provider="editingProvider"
@@ -303,17 +323,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { 
-  Plus, 
-  Check, 
-  Eye, 
-  EyeOff, 
-  Server,
-  Edit2,
-  Zap,
-  Trash2,
-  X
-} from 'lucide-vue-next'
+import { Plus, Check, Eye, EyeOff, Server, Edit2, Zap, Trash2, X } from 'lucide-vue-next'
 import InlineProviderForm from './InlineProviderForm.vue'
 import type { LLMProvider } from '../../types/api'
 
@@ -329,12 +339,12 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:provider': [value: string]
-  'update:apiKey': [value: string] 
+  'update:apiKey': [value: string]
   'update:baseUrl': [value: string]
   'update:model': [value: string]
   'provider-selected': [config: any]
   'custom-provider-added': [provider: LLMProvider]
-  'custom-provider-updated': [provider: LLMProvider] 
+  'custom-provider-updated': [provider: LLMProvider]
   'custom-provider-deleted': [providerId: string]
   'custom-provider-tested': [providerId: string]
 }>()
@@ -359,7 +369,7 @@ const selectedProvider = computed({
     console.log('Getting selectedProvider:', props.provider)
     return props.provider
   },
-  set: (value) => {
+  set: value => {
     console.log('Setting selectedProvider:', value)
     emit('update:provider', value)
   }
@@ -377,7 +387,7 @@ const getCustomProvider = (providerId: string): LLMProvider | undefined => {
 const getProviderDisplayName = (providerId: string): string => {
   const builtIn = builtInProviders.find(p => p.id === providerId)
   if (builtIn) return builtIn.name
-  
+
   const custom = getCustomProvider(providerId)
   return custom?.displayName || providerId
 }
@@ -411,10 +421,10 @@ const getApiKeyHelpText = (providerId: string): string => {
 
 const selectProvider = (providerId: string) => {
   console.log('Selecting provider:', providerId)
-  
+
   // First emit the provider update to parent
   emit('update:provider', providerId)
-  
+
   // Then emit provider configuration
   const config = isBuiltInProvider(providerId)
     ? {
@@ -426,7 +436,7 @@ const selectProvider = (providerId: string) => {
         model: props.model
       }
     : getCustomProvider(providerId)
-  
+
   console.log('Emitting provider config:', config)
   emit('provider-selected', config)
 }
@@ -445,7 +455,7 @@ const testCustomProvider = (providerId: string) => {
 const deleteCustomProvider = (providerId: string) => {
   if (confirm('Are you sure you want to delete this provider?')) {
     emit('custom-provider-deleted', providerId)
-    
+
     // If deleted provider was selected, clear selection
     if (selectedProvider.value === providerId) {
       selectedProvider.value = ''
@@ -459,9 +469,9 @@ const handleProviderSave = (providerData: LLMProvider) => {
   } else {
     emit('custom-provider-added', providerData)
   }
-  
+
   cancelAddCustomProvider()
-  
+
   // Auto-select the new/updated provider
   selectedProvider.value = providerData.id
 }
@@ -487,25 +497,33 @@ const handleCustomProviderSave = (provider: LLMProvider) => {
   } else {
     emit('custom-provider-added', provider)
   }
-  
+
   cancelAddCustomProvider()
 }
 
 // Watch for provider changes (removed selectProvider call to avoid circular updates)
-watch(() => props.provider, (newProvider) => {
-  console.log('Provider prop changed to:', newProvider)
-}, { immediate: true })
+watch(
+  () => props.provider,
+  newProvider => {
+    console.log('Provider prop changed to:', newProvider)
+  },
+  { immediate: true }
+)
 
 // Watch for model changes to detect custom model
-watch(() => props.model, (newModel) => {
-  if (newModel && selectedProvider.value === 'openai') {
-    // Check if the model is not one of the presets
-    const presetModels = ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo']
-    if (!presetModels.includes(newModel)) {
-      showCustomModelInput.value = true
+watch(
+  () => props.model,
+  newModel => {
+    if (newModel && selectedProvider.value === 'openai') {
+      // Check if the model is not one of the presets
+      const presetModels = ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo']
+      if (!presetModels.includes(newModel)) {
+        showCustomModelInput.value = true
+      }
     }
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -541,15 +559,15 @@ watch(() => props.model, (newModel) => {
     min-height: 70px;
     padding: 12px;
   }
-  
+
   .custom-provider {
     min-height: 90px;
   }
-  
+
   .grid.grid-cols-2 {
     grid-template-columns: 1fr;
   }
-  
+
   .grid.md\\:grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -561,8 +579,9 @@ watch(() => props.model, (newModel) => {
     min-height: 44px;
     padding: 12px 16px;
   }
-  
-  input, select {
+
+  input,
+  select {
     min-height: 44px;
     font-size: 16px; /* Prevents zoom on iOS */
   }
@@ -593,7 +612,9 @@ watch(() => props.model, (newModel) => {
 
 /* Status indicators */
 .provider-card.border-primary {
-  box-shadow: 0 0 0 1px hsl(var(--primary)), 0 4px 12px rgba(var(--primary-rgb, 0, 0, 0), 0.15);
+  box-shadow:
+    0 0 0 1px hsl(var(--primary)),
+    0 4px 12px rgba(var(--primary-rgb, 0, 0, 0), 0.15);
   z-index: 3;
 }
 
@@ -614,7 +635,7 @@ watch(() => props.model, (newModel) => {
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
-  
+
   .provider-card:active {
     background: hsl(var(--primary) / 0.2) !important;
     transform: scale(0.98);

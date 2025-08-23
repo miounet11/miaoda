@@ -13,6 +13,8 @@ export default {
     redo: '重做',
     refresh: '刷新',
     retry: '重试',
+    retrying: '重试中...',
+    details: '详情',
     loading: '加载中...',
     error: '错误',
     success: '成功',
@@ -182,7 +184,11 @@ export default {
     typing: '正在输入...',
     online: '在线',
     lastSeen: '最后在线',
-    never: '从未'
+    never: '从未',
+    // 输入区域控制
+    enterToSend: '发送',
+    shiftEnterToNewline: '换行',
+    searchShortcut: '搜索'
   },
 
   // 消息
@@ -622,6 +628,10 @@ export default {
     accentColor: '强调色',
     borderColor: '边框颜色',
     language: '语言',
+    selectLanguage: '选择语言',
+    languageChanged: '语言已切换为 {language}',
+    languageChangeError: '语言切换失败',
+    translationHelp: '帮助翻译',
     region: '地区',
     timezone: '时区',
     dateFormat: '日期格式',

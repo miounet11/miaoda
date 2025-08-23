@@ -12,12 +12,12 @@
           <AlertTriangle v-else-if="error.severity === 'warning'" :size="20" />
           <Info v-else :size="20" />
         </div>
-        
+
         <div class="toast-content">
           <h4 class="toast-title">{{ error.title }}</h4>
           <p v-if="error.message" class="toast-message">{{ error.message }}</p>
         </div>
-        
+
         <button
           @click="dismissError(error.id)"
           class="toast-close"
@@ -48,9 +48,9 @@ const timers = new Map<string, NodeJS.Timeout>()
 const showError = (error: Omit<ErrorInfo, 'id'>) => {
   const id = Date.now().toString()
   const errorWithId = { ...error, id }
-  
+
   errors.value.push(errorWithId)
-  
+
   // Auto dismiss after duration (default 5 seconds)
   const duration = error.duration ?? 5000
   if (duration > 0) {
@@ -59,7 +59,7 @@ const showError = (error: Omit<ErrorInfo, 'id'>) => {
     }, duration)
     timers.set(id, timer)
   }
-  
+
   return id
 }
 
@@ -68,7 +68,7 @@ const dismissError = (id: string) => {
   if (index > -1) {
     errors.value.splice(index, 1)
   }
-  
+
   // Clear timer if exists
   const timer = timers.get(id)
   if (timer) {
@@ -244,7 +244,7 @@ defineExpose({
   --info: hsl(199, 89%, 48%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --background: hsl(222, 47%, 11%);
   --border: hsl(215, 20%, 25%);
   --text: hsl(210, 20%, 98%);
@@ -259,7 +259,7 @@ defineExpose({
     right: 10px;
     left: 10px;
   }
-  
+
   .error-toast {
     min-width: auto;
     max-width: none;

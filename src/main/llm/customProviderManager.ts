@@ -20,7 +20,7 @@ export class CustomProviderManager {
         healthStatus: {}
       }
     })
-    
+
     this.loadProviders()
     this.startHealthMonitoring()
   }
@@ -28,11 +28,13 @@ export class CustomProviderManager {
   /**
    * Add a new custom provider
    */
-  async addProvider(config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id?: string; error?: string }> {
+  async addProvider(
+    config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       const id = this.generateProviderId(config.name)
       const now = new Date().toISOString()
-      
+
       const fullConfig: CustomProviderConfig = {
         ...config,
         id,
@@ -43,18 +45,18 @@ export class CustomProviderManager {
       // Validate connection before adding
       const provider = new CustomOpenAIProvider(fullConfig)
       const validationResult = await provider.validateConnection()
-      
+
       if (!validationResult.success) {
-        return { 
-          success: false, 
-          error: `Connection validation failed: ${validationResult.error}` 
+        return {
+          success: false,
+          error: `Connection validation failed: ${validationResult.error}`
         }
       }
 
       // Store provider
       this.providers.set(id, fullConfig)
       this.saveProviders()
-      
+
       // Initialize health status
       this.healthStatus.set(id, {
         providerName: config.displayName,
@@ -64,10 +66,12 @@ export class CustomProviderManager {
       this.saveHealthStatus()
 
       logger.info(`Custom provider added: ${config.displayName}`, 'CustomProviderManager', { id })
-      
+
       return { success: true, id }
     } catch (error: any) {
-      logger.error('Failed to add custom provider', 'CustomProviderManager', { error: error.message })
+      logger.error('Failed to add custom provider', 'CustomProviderManager', {
+        error: error.message
+      })
       return { success: false, error: error.message }
     }
   }
@@ -75,7 +79,10 @@ export class CustomProviderManager {
   /**
    * Update an existing custom provider
    */
-  async updateProvider(id: string, updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>): Promise<{ success: boolean; error?: string }> {
+  async updateProvider(
+    id: string,
+    updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const existingConfig = this.providers.get(id)
       if (!existingConfig) {
@@ -93,11 +100,11 @@ export class CustomProviderManager {
       if (needsValidation) {
         const provider = new CustomOpenAIProvider(updatedConfig)
         const validationResult = await provider.validateConnection()
-        
+
         if (!validationResult.success) {
-          return { 
-            success: false, 
-            error: `Connection validation failed: ${validationResult.error}` 
+          return {
+            success: false,
+            error: `Connection validation failed: ${validationResult.error}`
           }
         }
       }
@@ -105,11 +112,18 @@ export class CustomProviderManager {
       this.providers.set(id, updatedConfig)
       this.saveProviders()
 
-      logger.info(`Custom provider updated: ${updatedConfig.displayName}`, 'CustomProviderManager', { id })
-      
+      logger.info(
+        `Custom provider updated: ${updatedConfig.displayName}`,
+        'CustomProviderManager',
+        { id }
+      )
+
       return { success: true }
     } catch (error: any) {
-      logger.error('Failed to update custom provider', 'CustomProviderManager', { error: error.message, id })
+      logger.error('Failed to update custom provider', 'CustomProviderManager', {
+        error: error.message,
+        id
+      })
       return { success: false, error: error.message }
     }
   }
@@ -126,15 +140,18 @@ export class CustomProviderManager {
 
       this.providers.delete(id)
       this.healthStatus.delete(id)
-      
+
       this.saveProviders()
       this.saveHealthStatus()
 
       logger.info(`Custom provider removed: ${config.displayName}`, 'CustomProviderManager', { id })
-      
+
       return { success: true }
     } catch (error: any) {
-      logger.error('Failed to remove custom provider', 'CustomProviderManager', { error: error.message, id })
+      logger.error('Failed to remove custom provider', 'CustomProviderManager', {
+        error: error.message,
+        id
+      })
       return { success: false, error: error.message }
     }
   }
@@ -178,11 +195,11 @@ export class CustomProviderManager {
 
     const startTime = Date.now()
     const provider = new CustomOpenAIProvider(config)
-    
+
     try {
       const result = await provider.validateConnection()
       const responseTime = Date.now() - startTime
-      
+
       const healthStatus: ProviderHealthStatus = {
         providerName: config.displayName,
         isHealthy: result.success,
@@ -193,7 +210,7 @@ export class CustomProviderManager {
 
       this.healthStatus.set(id, healthStatus)
       this.saveHealthStatus()
-      
+
       return healthStatus
     } catch (error: any) {
       const healthStatus: ProviderHealthStatus = {
@@ -206,7 +223,7 @@ export class CustomProviderManager {
 
       this.healthStatus.set(id, healthStatus)
       this.saveHealthStatus()
-      
+
       return healthStatus
     }
   }
@@ -216,16 +233,18 @@ export class CustomProviderManager {
    */
   async checkAllProvidersHealth(): Promise<ProviderHealthStatus[]> {
     const results: ProviderHealthStatus[] = []
-    
+
     for (const [id] of this.providers) {
       try {
         const health = await this.checkProviderHealth(id)
         results.push(health)
       } catch (error: any) {
-        logger.error(`Health check failed for provider ${id}`, 'CustomProviderManager', { error: error.message })
+        logger.error(`Health check failed for provider ${id}`, 'CustomProviderManager', {
+          error: error.message
+        })
       }
     }
-    
+
     return results
   }
 
@@ -239,7 +258,9 @@ export class CustomProviderManager {
   /**
    * Import providers configuration
    */
-  async importProviders(providers: CustomProviderConfig[]): Promise<{ success: number; failed: number; errors: string[] }> {
+  async importProviders(
+    providers: CustomProviderConfig[]
+  ): Promise<{ success: number; failed: number; errors: string[] }> {
     let success = 0
     let failed = 0
     const errors: string[] = []
@@ -276,23 +297,31 @@ export class CustomProviderManager {
    */
   private loadProviders(): void {
     try {
-      const storedProviders = this.store.get('providers', {}) as Record<string, CustomProviderConfig>
-      const storedHealth = this.store.get('healthStatus', {}) as Record<string, ProviderHealthStatus>
-      
+      const storedProviders = this.store.get('providers', {}) as Record<
+        string,
+        CustomProviderConfig
+      >
+      const storedHealth = this.store.get('healthStatus', {}) as Record<
+        string,
+        ProviderHealthStatus
+      >
+
       console.log('[CustomProviderManager] Loading providers from store:', storedProviders)
-      
+
       for (const [id, config] of Object.entries(storedProviders)) {
         this.providers.set(id, config)
       }
-      
+
       for (const [id, health] of Object.entries(storedHealth)) {
         this.healthStatus.set(id, health)
       }
-      
+
       logger.info(`Loaded ${this.providers.size} custom providers`, 'CustomProviderManager')
       console.log('[CustomProviderManager] Loaded providers:', Array.from(this.providers.keys()))
     } catch (error: any) {
-      logger.error('Failed to load custom providers', 'CustomProviderManager', { error: error.message })
+      logger.error('Failed to load custom providers', 'CustomProviderManager', {
+        error: error.message
+      })
     }
   }
 
@@ -304,7 +333,9 @@ export class CustomProviderManager {
       const providersObj = Object.fromEntries(this.providers.entries())
       this.store.set('providers', providersObj)
     } catch (error: any) {
-      logger.error('Failed to save custom providers', 'CustomProviderManager', { error: error.message })
+      logger.error('Failed to save custom providers', 'CustomProviderManager', {
+        error: error.message
+      })
     }
   }
 
@@ -316,7 +347,9 @@ export class CustomProviderManager {
       const healthObj = Object.fromEntries(this.healthStatus.entries())
       this.store.set('healthStatus', healthObj)
     } catch (error: any) {
-      logger.error('Failed to save health status', 'CustomProviderManager', { error: error.message })
+      logger.error('Failed to save health status', 'CustomProviderManager', {
+        error: error.message
+      })
     }
   }
 
@@ -325,14 +358,19 @@ export class CustomProviderManager {
    */
   private startHealthMonitoring(): void {
     // Check health every 5 minutes
-    this.healthCheckInterval = setInterval(async () => {
-      try {
-        await this.checkAllProvidersHealth()
-      } catch (error: any) {
-        logger.error('Periodic health check failed', 'CustomProviderManager', { error: error.message })
-      }
-    }, 5 * 60 * 1000)
-    
+    this.healthCheckInterval = setInterval(
+      async () => {
+        try {
+          await this.checkAllProvidersHealth()
+        } catch (error: any) {
+          logger.error('Periodic health check failed', 'CustomProviderManager', {
+            error: error.message
+          })
+        }
+      },
+      5 * 60 * 1000
+    )
+
     logger.info('Started health monitoring for custom providers', 'CustomProviderManager')
   }
 

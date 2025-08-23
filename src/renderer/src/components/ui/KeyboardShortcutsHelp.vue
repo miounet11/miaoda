@@ -245,7 +245,9 @@
           </div>
 
           <!-- Footer -->
-          <div class="modal-footer flex items-center justify-between p-4 border-t border-border bg-muted/20">
+          <div
+            class="modal-footer flex items-center justify-between p-4 border-t border-border bg-muted/20"
+          >
             <div class="footer-info text-sm text-muted-foreground">
               按 <kbd class="inline-kbd">Ctrl + Shift + ?</kbd> 随时打开此帮助
             </div>
@@ -265,8 +267,15 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import {
-  Keyboard, X, MessageSquare, Send, Navigation, Settings,
-  Mic, Eye, Info
+  Keyboard,
+  X,
+  MessageSquare,
+  Send,
+  Navigation,
+  Settings,
+  Mic,
+  Eye,
+  Info
 } from 'lucide-vue-next'
 
 interface Props {
@@ -277,7 +286,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  triggerClass: 'p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground',
+  triggerClass:
+    'p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground',
   triggerTitle: '键盘快捷键 (Ctrl + Shift + ?)',
   showLabel: false,
   iconSize: 16
@@ -291,7 +301,7 @@ const handleGlobalShortcut = (event: KeyboardEvent) => {
     event.preventDefault()
     isOpen.value = true
   }
-  
+
   // Close on Escape
   if (event.key === 'Escape' && isOpen.value) {
     isOpen.value = false
@@ -313,12 +323,16 @@ onUnmounted(() => {
 }
 
 .shortcuts-modal {
-  animation: modal-slide-in 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  animation: modal-slide-in 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes backdrop-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modal-slide-in {
@@ -379,7 +393,7 @@ onUnmounted(() => {
   .shortcuts-grid {
     @apply grid-cols-1;
   }
-  
+
   .shortcuts-modal {
     @apply inset-2 transform-none;
     position: fixed !important;
@@ -389,11 +403,11 @@ onUnmounted(() => {
     bottom: 1rem !important;
     transform: none !important;
   }
-  
+
   .shortcut-item {
     @apply flex-col items-start gap-1;
   }
-  
+
   .shortcut-key {
     @apply self-start;
   }
@@ -415,7 +429,7 @@ onUnmounted(() => {
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
-  
+
   .inline-kbd {
     border-color: rgba(255, 255, 255, 0.1);
   }

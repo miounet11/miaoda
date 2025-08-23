@@ -9,27 +9,23 @@
     @mouseleave="isHovered = false"
   >
     <!-- Icon with dynamic loading -->
-    <component 
-      :is="iconComponent" 
-      :size="iconSize" 
-      :class="iconClasses"
-    />
-    
+    <component :is="iconComponent" :size="iconSize" :class="iconClasses" />
+
     <!-- Ripple effect -->
-    <div 
+    <div
       ref="rippleContainer"
       class="ripple-container absolute inset-0 rounded-inherit overflow-hidden pointer-events-none"
     >
-      <div 
+      <div
         v-for="ripple in ripples"
         :key="ripple.id"
         class="ripple absolute rounded-full bg-current opacity-20 animate-ping"
         :style="ripple.style"
       />
     </div>
-    
+
     <!-- Hover background -->
-    <div 
+    <div
       class="hover-bg absolute inset-0 rounded-inherit bg-current opacity-0 transition-opacity duration-200"
       :class="{ 'opacity-10': isHovered && !disabled }"
     />
@@ -39,9 +35,25 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import {
-  Copy, Edit3, RefreshCw, MoreHorizontal, Volume2, Reply,
-  Bookmark, Trash2, Heart, Share, Download, Maximize2,
-  Minimize2, Play, Pause, RotateCcw, Eye, EyeOff, Loader2
+  Copy,
+  Edit3,
+  RefreshCw,
+  MoreHorizontal,
+  Volume2,
+  Reply,
+  Bookmark,
+  Trash2,
+  Heart,
+  Share,
+  Download,
+  Maximize2,
+  Minimize2,
+  Play,
+  Pause,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Loader2
 } from 'lucide-vue-next'
 
 interface Ripple {
@@ -85,9 +97,25 @@ let rippleId = 0
 
 // Icon mapping
 const iconMap = {
-  Copy, Edit3, RefreshCw, MoreHorizontal, Volume2, Reply,
-  Bookmark, Trash2, Heart, Share, Download, Maximize2,
-  Minimize2, Play, Pause, RotateCcw, Eye, EyeOff, Loader2
+  Copy,
+  Edit3,
+  RefreshCw,
+  MoreHorizontal,
+  Volume2,
+  Reply,
+  Bookmark,
+  Trash2,
+  Heart,
+  Share,
+  Download,
+  Maximize2,
+  Minimize2,
+  Play,
+  Pause,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Loader2
 }
 
 // Computed properties
@@ -98,9 +126,12 @@ const iconComponent = computed(() => {
 
 const iconSize = computed(() => {
   switch (props.size) {
-    case 'sm': return 12
-    case 'lg': return 18
-    default: return 14
+    case 'sm':
+      return 12
+    case 'lg':
+      return 18
+    default:
+      return 14
   }
 })
 
@@ -283,11 +314,11 @@ defineExpose({
 }
 
 /* RTL support */
-[dir="rtl"] .action-button {
+[dir='rtl'] .action-button {
   transform: scaleX(-1);
 }
 
-[dir="rtl"] .action-button > * {
+[dir='rtl'] .action-button > * {
   transform: scaleX(-1);
 }
 </style>

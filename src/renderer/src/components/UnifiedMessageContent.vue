@@ -1,7 +1,10 @@
 <template>
   <div class="message-content" :class="contentClasses">
     <!-- Tool Status (Enhanced only) -->
-    <div v-if="toolStatus && (variant === 'enhanced' || variant === 'improved')" class="tool-status mb-2">
+    <div
+      v-if="toolStatus && (variant === 'enhanced' || variant === 'improved')"
+      class="tool-status mb-2"
+    >
       <div class="flex items-center gap-2 text-sm text-muted-foreground">
         <div class="loading-dot" />
         <span>{{ toolStatus.tool }}: {{ toolStatus.action }}</span>
@@ -15,7 +18,10 @@
     </div>
 
     <!-- Enhanced Attachments Display with Staggered Animation -->
-    <div v-if="showAttachments && attachments?.length > 0" class="attachments mb-4 animate-slide-in-up">
+    <div
+      v-if="showAttachments && attachments?.length > 0"
+      class="attachments mb-4 animate-slide-in-up"
+    >
       <AttachmentsPreview
         :attachments="attachments"
         :show-drop-zone="false"
@@ -26,23 +32,35 @@
 
     <!-- Thumbnail (thumbnail variant) -->
     <div v-if="variant === 'thumbnail' && thumbnail" class="message-thumbnail mb-3">
-      <img 
-        :src="thumbnail" 
+      <img
+        :src="thumbnail"
         :alt="thumbnailAlt"
         class="w-full h-32 object-cover rounded-lg cursor-pointer"
         @click="openImage(thumbnail)"
-      >
+      />
     </div>
-    
+
     <!-- Enhanced Loading States with Smooth Transitions -->
     <div v-if="isLoading" class="loading-container animate-fade-in">
       <!-- Enhanced loading with skeleton -->
-      <div v-if="variant === 'enhanced' || variant === 'improved'" class="message-skeleton animate-pulse-wave">
-        <div class="skeleton-line w-3/4 h-4 mb-2 animate-skeleton-shimmer" style="animation-delay: 0ms" />
-        <div class="skeleton-line w-1/2 h-4 mb-2 animate-skeleton-shimmer" style="animation-delay: 150ms" />
-        <div class="skeleton-line w-2/3 h-4 animate-skeleton-shimmer" style="animation-delay: 300ms" />
+      <div
+        v-if="variant === 'enhanced' || variant === 'improved'"
+        class="message-skeleton animate-pulse-wave"
+      >
+        <div
+          class="skeleton-line w-3/4 h-4 mb-2 animate-skeleton-shimmer"
+          style="animation-delay: 0ms"
+        />
+        <div
+          class="skeleton-line w-1/2 h-4 mb-2 animate-skeleton-shimmer"
+          style="animation-delay: 150ms"
+        />
+        <div
+          class="skeleton-line w-2/3 h-4 animate-skeleton-shimmer"
+          style="animation-delay: 300ms"
+        />
       </div>
-      
+
       <!-- Enhanced simple loading indicator -->
       <div v-else class="flex items-center gap-2 animate-bounce-subtle">
         <div class="typing-indicator enhanced-typing">
@@ -50,17 +68,30 @@
           <span class="typing-dot" />
           <span class="typing-dot" />
         </div>
-        <span v-if="loadingText" class="text-sm text-muted-foreground animate-text-appear">{{ loadingText }}</span>
+        <span v-if="loadingText" class="text-sm text-muted-foreground animate-text-appear">{{
+          loadingText
+        }}</span>
       </div>
     </div>
-    
+
     <!-- Enhanced Error State with Gentle Animation -->
-    <div v-else-if="error && (variant === 'enhanced' || variant === 'improved')" class="error-container animate-error-shake">
-      <div class="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg hover:bg-destructive/15 transition-all duration-300 group">
+    <div
+      v-else-if="error && (variant === 'enhanced' || variant === 'improved')"
+      class="error-container animate-error-shake"
+    >
+      <div
+        class="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg hover:bg-destructive/15 transition-all duration-300 group"
+      >
         <AlertCircle :size="16" class="text-destructive animate-error-pulse" />
         <div class="flex-1">
           <p class="text-sm font-medium text-destructive animate-slide-in-left">{{ error }}</p>
-          <p v-if="errorDetails" class="text-xs text-destructive/70 mt-1 animate-slide-in-left" style="animation-delay: 100ms">{{ errorDetails }}</p>
+          <p
+            v-if="errorDetails"
+            class="text-xs text-destructive/70 mt-1 animate-slide-in-left"
+            style="animation-delay: 100ms"
+          >
+            {{ errorDetails }}
+          </p>
         </div>
         <button
           v-if="showRetry"
@@ -69,14 +100,16 @@
           class="px-2 py-1 text-xs bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <span v-if="retrying" class="flex items-center gap-1">
-            <div class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            <div
+              class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"
+            />
             重试中...
           </span>
           <span v-else>重试</span>
         </button>
       </div>
     </div>
-    
+
     <!-- Enhanced Main Content with Reveal Animation -->
     <div v-else-if="content" ref="contentElement" class="content-wrapper animate-content-reveal">
       <!-- Enhanced Markdown for improved variants -->
@@ -89,13 +122,16 @@
         @image-click="handleImagePreview"
         class="animate-text-appear"
       />
-      
+
       <!-- Enhanced standard content rendering -->
       <div v-else :class="proseClasses" v-html="renderedContent" class="animate-text-appear" />
     </div>
 
     <!-- Enhanced Actions with Hover Effects -->
-    <div v-if="showActions && (variant === 'enhanced' || variant === 'improved')" class="message-actions mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-slide-in-up">
+    <div
+      v-if="showActions && (variant === 'enhanced' || variant === 'improved')"
+      class="message-actions mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-slide-in-up"
+    >
       <slot name="actions">
         <button @click="$emit('copy')" class="action-btn hover-lift" title="复制">
           <Copy :size="14" />
@@ -155,7 +191,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  
+
   // Display modes - supports all variants
   variant: {
     type: String as PropType<'simple' | 'standard' | 'enhanced' | 'improved' | 'thumbnail'>,
@@ -165,13 +201,13 @@ const props = defineProps({
     type: String as PropType<'markdown' | 'html' | 'text'>,
     default: 'markdown'
   },
-  
+
   // Enhanced features (backwards compatibility)
   enhanced: {
     type: Boolean,
     default: false
   },
-  
+
   // Thumbnail variant props
   withThumbnail: {
     type: Boolean,
@@ -179,7 +215,7 @@ const props = defineProps({
   },
   thumbnail: String,
   thumbnailAlt: String,
-  
+
   // Attachments
   attachments: {
     type: Array as PropType<Attachment[]>,
@@ -189,7 +225,7 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
-  
+
   // Error handling (improved variant)
   error: String,
   errorDetails: String,
@@ -201,13 +237,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  
+
   // Tool status (improved variant)
   toolStatus: {
     type: Object as PropType<ToolStatus>,
     default: null
   },
-  
+
   // UI options
   showActions: {
     type: Boolean,
@@ -221,7 +257,7 @@ const props = defineProps({
     type: String,
     default: 'AI is thinking...'
   },
-  
+
   // Styling
   prose: {
     type: Boolean,
@@ -251,7 +287,7 @@ const currentImageIndex = ref(0)
 const contentClasses = computed(() => ({
   'message-content-simple': props.variant === 'simple',
   'message-content-enhanced': props.variant === 'enhanced' || props.enhanced,
-  'message-content-improved': props.variant === 'improved', 
+  'message-content-improved': props.variant === 'improved',
   'message-content-thumbnail': props.variant === 'thumbnail' || props.withThumbnail,
   'message-content-compact': props.compact
 }))
@@ -269,7 +305,7 @@ const proseClasses = computed(() => {
 
 const imageClasses = computed(() => {
   const classes = ['rounded-lg', 'cursor-pointer', 'transition-all', 'duration-200']
-  
+
   // Different styling per variant
   if (props.variant === 'simple') {
     classes.push('max-w-full', 'hover:opacity-90')
@@ -278,7 +314,7 @@ const imageClasses = computed(() => {
   } else {
     classes.push('max-w-full', 'hover:scale-[1.02]', 'hover:shadow-lg')
   }
-  
+
   return classes.join(' ')
 })
 
@@ -289,29 +325,32 @@ const sanitizeContent = (rawContent: any): string => {
     if (rawContent === null || rawContent === undefined) {
       return ''
     }
-    
+
     // Handle string content
     if (typeof rawContent === 'string') {
       return rawContent.trim()
     }
-    
+
     // Handle numbers and booleans
     if (typeof rawContent === 'number' || typeof rawContent === 'boolean') {
       return String(rawContent)
     }
-    
+
     // Handle arrays
     if (Array.isArray(rawContent)) {
       return rawContent
         .filter(item => item !== null && item !== undefined)
-        .map(item => typeof item === 'string' ? item : String(item))
+        .map(item => (typeof item === 'string' ? item : String(item)))
         .join('\n')
         .trim()
     }
-    
+
     // Handle objects with toString method
     if (typeof rawContent === 'object' && rawContent !== null) {
-      if (typeof rawContent.toString === 'function' && rawContent.toString !== Object.prototype.toString) {
+      if (
+        typeof rawContent.toString === 'function' &&
+        rawContent.toString !== Object.prototype.toString
+      ) {
         return String(rawContent.toString()).trim()
       }
       // Safely stringify complex objects
@@ -321,7 +360,7 @@ const sanitizeContent = (rawContent: any): string => {
         return '[Complex Object]'
       }
     }
-    
+
     // Final fallback
     return String(rawContent || '').trim()
   } catch (error) {
@@ -336,7 +375,7 @@ const parseMarkdownSafely = (content: string): string => {
     // Use the bulletproof safe markdown parser instead of direct marked usage
     return renderMarkdownSafely(content)
   } catch (error) {
-    logger.error('Safe markdown parsing failed', 'UnifiedMessageContent', { 
+    logger.error('Safe markdown parsing failed', 'UnifiedMessageContent', {
       error: error instanceof Error ? error.message : String(error),
       contentLength: content?.length || 0,
       contentStart: content?.substring(0, 50) || ''
@@ -351,46 +390,45 @@ const renderedContent = computed(() => {
   try {
     // Sanitize and validate content first
     const sanitizedContent = sanitizeContent(props.content)
-    
+
     // Early return for empty content
     if (!sanitizedContent) {
       return ''
     }
-    
+
     // Handle simple variant
     if (props.variant === 'simple') {
       return escapeHtml(sanitizedContent)
     }
-    
+
     // Handle HTML mode
     if (props.renderMode === 'html') {
       return sanitizedContent
     }
-    
+
     // Handle text mode
     if (props.renderMode === 'text') {
       return escapeHtml(sanitizedContent)
     }
-    
+
     // Default to markdown parsing using the bulletproof safe parser
     return renderMarkdownSafely(props.content)
-    
   } catch (error) {
-    logger.error('Critical content rendering error', 'UnifiedMessageContent', { 
+    logger.error('Critical content rendering error', 'UnifiedMessageContent', {
       error: error instanceof Error ? error.message : String(error),
       contentType: typeof props.content,
       contentPreview: String(props.content || '').substring(0, 100)
     })
-    
+
     // Ultra-safe fallback
     const emergencyContent = String(props.content || 'Content rendering failed')
-    return `<div class="error-content p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
-      <p class="text-red-800 dark:text-red-200 font-medium">⚠️ Content rendering error</p>
+    return `<div class="error-content p-4 bg-subtle border border-strong rounded-lg">
+      <p class="text-primary font-medium">⚠️ Content rendering error</p>
       <details class="mt-2 cursor-pointer">
-        <summary class="text-sm text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 transition-colors">
+        <summary class="text-sm text-secondary hover:text-primary transition-colors">
           显示原始内容 (Click to expand)
         </summary>
-        <pre class="text-xs text-red-600 dark:text-red-400 mt-2 p-2 bg-red-100 dark:bg-red-900/30 rounded border overflow-auto max-h-40 whitespace-pre-wrap">${escapeHtml(emergencyContent)}</pre>
+        <pre class="text-xs text-muted mt-2 p-2 bg-muted rounded border overflow-auto max-h-40 whitespace-pre-wrap">${escapeHtml(emergencyContent)}</pre>
       </details>
     </div>`
   }
@@ -403,16 +441,16 @@ const escapeHtml = (unsafe: any): string => {
     if (unsafe === null || unsafe === undefined) {
       return ''
     }
-    
+
     const safeString = String(unsafe)
-    
+
     return safeString
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;")
-      .replace(/\n/g, "<br>")
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\n/g, '<br>')
   } catch (error) {
     logger.error('HTML escaping failed', 'UnifiedMessageContent', { error, unsafe })
     return '[Content could not be displayed safely]'
@@ -423,12 +461,12 @@ const escapeHtml = (unsafe: any): string => {
 const getAttachmentsGridClass = () => {
   const imageAttachments = props.attachments.filter(a => a.type === 'image')
   const count = imageAttachments.length
-  
+
   if (count === 0) return ''
   if (count === 1) return 'grid-cols-1'
   if (count === 2) return 'grid-cols-2 gap-2'
   if (count >= 3) return 'grid-cols-2 sm:grid-cols-3 gap-2'
-  
+
   return 'grid gap-2'
 }
 
@@ -436,12 +474,12 @@ const getDisplayName = (name: string) => {
   if (name.startsWith('pasted-')) {
     return '粘贴的图片'
   }
-  
+
   if (name.length > 30) {
     const ext = name.split('.').pop()
     return name.substring(0, 25) + '...' + (ext ? `.${ext}` : '')
   }
-  
+
   return name
 }
 
@@ -458,7 +496,7 @@ const allImages = computed(() => {
   const attachmentImages = props.attachments
     .filter(a => a.type === 'image')
     .map(a => ({ url: a.url, name: a.name }))
-  
+
   // Add any images found in content
   // This is a simplified approach - could be enhanced with content parsing
   return attachmentImages
@@ -489,9 +527,9 @@ const downloadAttachment = async (attachment: Attachment) => {
     link.click()
     document.body.removeChild(link)
   } catch (error) {
-    logger.error('Failed to download attachment', 'UnifiedMessageContent', { 
-      error, 
-      attachment: attachment.name 
+    logger.error('Failed to download attachment', 'UnifiedMessageContent', {
+      error,
+      attachment: attachment.name
     })
   }
 }
@@ -510,22 +548,22 @@ const downloadCurrentImage = () => {
 // Setup code copy functionality
 const setupCodeCopyButtons = () => {
   if (!contentElement.value) return
-  
+
   const copyButtons = contentElement.value.querySelectorAll('.copy-button')
-  
+
   copyButtons.forEach(button => {
-    button.addEventListener('click', async (e) => {
+    button.addEventListener('click', async e => {
       e.preventDefault()
       const btn = e.currentTarget as HTMLElement
       const codeId = btn.getAttribute('data-code-id')
       if (!codeId) return
-      
+
       const codeElement = document.getElementById(codeId)
       if (!codeElement) return
-      
+
       try {
         await navigator.clipboard.writeText(codeElement.textContent || '')
-        
+
         const copyText = btn.querySelector('.copy-text') as HTMLElement
         if (copyText) {
           const originalText = copyText.textContent
@@ -651,7 +689,8 @@ onUpdated(() => {
   overflow-y: auto;
   max-height: 12rem;
   line-height: 1.4;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
@@ -677,7 +716,8 @@ onUpdated(() => {
 }
 
 @keyframes loadingPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.8);
     opacity: 0.5;
   }
@@ -714,13 +754,24 @@ onUpdated(() => {
 }
 
 @keyframes progressShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes progressGlow {
-  0%, 100% { opacity: 0; transform: translateX(-10px); }
-  50% { opacity: 1; transform: translateX(10px); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(10px);
+  }
 }
 
 /* Enhanced Attachments with staggered animations */
@@ -733,11 +784,21 @@ onUpdated(() => {
   animation: attachmentAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-.attachment-item:nth-child(1) { animation-delay: 0ms; }
-.attachment-item:nth-child(2) { animation-delay: 100ms; }
-.attachment-item:nth-child(3) { animation-delay: 200ms; }
-.attachment-item:nth-child(4) { animation-delay: 300ms; }
-.attachment-item:nth-child(n+5) { animation-delay: 400ms; }
+.attachment-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.attachment-item:nth-child(2) {
+  animation-delay: 100ms;
+}
+.attachment-item:nth-child(3) {
+  animation-delay: 200ms;
+}
+.attachment-item:nth-child(4) {
+  animation-delay: 300ms;
+}
+.attachment-item:nth-child(n + 5) {
+  animation-delay: 400ms;
+}
 
 @keyframes attachmentAppear {
   0% {
@@ -808,18 +869,17 @@ onUpdated(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: skeletonShimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes skeletonShimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .enhanced-typing {
@@ -831,12 +891,20 @@ onUpdated(() => {
   animation: typingBounce 1.4s ease-in-out infinite;
 }
 
-.typing-dot:nth-child(1) { animation-delay: 0ms; }
-.typing-dot:nth-child(2) { animation-delay: 160ms; }
-.typing-dot:nth-child(3) { animation-delay: 320ms; }
+.typing-dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 160ms;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 320ms;
+}
 
 @keyframes typingBounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8) translateY(0);
   }
@@ -902,11 +970,11 @@ onUpdated(() => {
 
 /* Enhanced Animation Keyframes */
 @keyframes fadeIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(5px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -970,13 +1038,21 @@ onUpdated(() => {
 }
 
 @keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
 }
 
 @keyframes errorPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -987,7 +1063,8 @@ onUpdated(() => {
 }
 
 @keyframes bounceSubtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -1114,7 +1191,7 @@ onUpdated(() => {
   .attachments-grid {
     @apply grid-cols-1 gap-2;
   }
-  
+
   .overlay-btn {
     @apply scale-90;
   }
@@ -1226,16 +1303,16 @@ onUpdated(() => {
 
 .message-content .hljs-string,
 .message-content .hljs-number {
-  @apply text-green-600 dark:text-green-400;
+  @apply text-mono-700 dark:text-mono-300;
 }
 
 .message-content .hljs-title,
 .message-content .hljs-section {
-  @apply text-blue-600 dark:text-blue-400 font-medium;
+  @apply text-mono-black dark:text-mono-white font-bold;
 }
 
 .message-content .hljs-attribute,
 .message-content .hljs-variable {
-  @apply text-orange-600 dark:text-orange-400;
+  @apply text-mono-600 dark:text-mono-400;
 }
 </style>

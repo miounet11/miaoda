@@ -17,8 +17,19 @@
 .message-bubble *,
 .message-item,
 .message-item *,
-[class*="message"] *,
-p, span, div, pre, code, blockquote, h1, h2, h3, h4, h5, h6 {
+[class*='message'] *,
+p,
+span,
+div,
+pre,
+code,
+blockquote,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   transform: none !important;
   will-change: opacity, color, background-color !important;
 }
@@ -38,7 +49,9 @@ button:hover,
 .action-button:hover {
   transform: none !important;
   background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.1) !important;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease !important;
 }
 
 /* Safe active states - subtle color changes only */
@@ -51,7 +64,7 @@ button:active,
 
 /* Icon hover effects - use color instead of scale */
 .icon:hover,
-[class*="icon"]:hover,
+[class*='icon']:hover,
 svg:hover {
   transform: none !important;
   color: var(--primary) !important;
@@ -63,7 +76,9 @@ svg:hover {
 .sidebar-item:hover {
   transform: translateX(2px) !important; /* Only translation, no scale */
   background-color: rgba(var(--secondary-rgb, 0, 0, 0), 0.1) !important;
-  transition: transform 0.2s ease, background-color 0.2s ease !important;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease !important;
 }
 
 .chat-list-item:active,
@@ -77,13 +92,13 @@ svg:hover {
 /* Provider selector - remove icon scaling */
 .provider-icon,
 .provider-selector .icon,
-.provider-selector span[class*="scale"] {
+.provider-selector span[class*='scale'] {
   transform: none !important;
 }
 
 /* Chat summary tags - safe interaction */
 .tag:hover,
-[class*="tag"]:hover {
+[class*='tag']:hover {
   transform: none !important;
   background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.2) !important;
   box-shadow: 0 2px 4px rgba(var(--primary-rgb, 59, 130, 246), 0.1) !important;
@@ -91,35 +106,42 @@ svg:hover {
 
 /* Remove problematic keyframe animations */
 @keyframes summaryExpand {
-  0%, 100% { 
+  0%,
+  100% {
     opacity: 1;
     background-color: transparent;
   }
-  50% { 
+  50% {
     background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.05);
   }
 }
 
 @keyframes summaryCollapse {
-  0% { opacity: 1; }
-  100% { opacity: 0.9; }
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
 }
 
 @keyframes tagClick {
-  0%, 100% { 
+  0%,
+  100% {
     background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.1);
   }
-  50% { 
+  50% {
     background-color: rgba(var(--primary-rgb, 59, 130, 246), 0.2);
     box-shadow: 0 2px 8px rgba(var(--primary-rgb, 59, 130, 246), 0.2);
   }
 }
 
 @keyframes generatePulse {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(var(--primary-rgb, 59, 130, 246), 0.4);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 4px rgba(var(--primary-rgb, 59, 130, 246), 0.2);
   }
 }
@@ -158,24 +180,33 @@ svg:hover {
 /* Safe loading spinners - rotation only */
 .loading-spinner,
 .spin,
-[class*="spin"] {
+[class*='spin'] {
   animation: spin 1s linear infinite !important;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Safe pulse animation - opacity only */
 .pulse,
-[class*="pulse"] {
+[class*='pulse'] {
   animation: safe-pulse 2s ease-in-out infinite !important;
 }
 
 @keyframes safe-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ==== ACCESSIBILITY AND REDUCED MOTION ==== */
@@ -199,8 +230,8 @@ svg:hover {
   --scale-disabled: 1 !important;
 }
 
-[style*="scale"],
-[class*="scale"] {
+[style*='scale'],
+[class*='scale'] {
   transform: none !important;
 }
 
@@ -240,11 +271,21 @@ svg:hover {
 }
 
 @keyframes safe-success-flash {
-  0%, 100% { background-color: rgba(34, 197, 94, 0.1); }
-  50% { background-color: rgba(34, 197, 94, 0.2); }
+  0%,
+  100% {
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+  50% {
+    background-color: rgba(34, 197, 94, 0.2);
+  }
 }
 
 @keyframes safe-error-flash {
-  0%, 100% { background-color: rgba(239, 68, 68, 0.1); }
-  50% { background-color: rgba(239, 68, 68, 0.2); }
+  0%,
+  100% {
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.2);
+  }
 }

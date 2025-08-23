@@ -8,19 +8,19 @@
           <div class="avatar-pulse" />
         </div>
       </div>
-      
+
       <!-- Content area -->
       <div class="skeleton-content flex-1 min-w-0">
         <!-- Message bubble skeleton -->
         <div class="skeleton-bubble">
           <!-- Dynamic content lines -->
-          <div 
-            v-for="(width, index) in lineWidths" 
+          <div
+            v-for="(width, index) in lineWidths"
             :key="index"
             class="skeleton-line"
             :style="{ width, animationDelay: `${index * 100}ms` }"
           />
-          
+
           <!-- Typing dots simulation -->
           <div v-if="showTyping" class="skeleton-typing">
             <span class="typing-dot" />
@@ -28,14 +28,14 @@
             <span class="typing-dot" />
           </div>
         </div>
-        
+
         <!-- Metadata skeleton -->
         <div class="skeleton-metadata">
           <div class="skeleton-line skeleton-timestamp" />
         </div>
       </div>
     </div>
-    
+
     <!-- Floating particles for enhanced effect -->
     <div class="skeleton-particles">
       <div class="particle" v-for="n in 3" :key="n" />
@@ -93,7 +93,9 @@ const skeletonClasses = computed(() => ({
 }
 
 .skeleton-animated {
-  animation: skeletonSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), skeletonBreath 3s ease-in-out infinite 1s;
+  animation:
+    skeletonSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    skeletonBreath 3s ease-in-out infinite 1s;
 }
 
 /* Avatar container with enhanced styling */
@@ -106,10 +108,12 @@ const skeletonClasses = computed(() => ({
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(45deg, 
-    rgba(var(--primary-rgb), 0.1) 0%, 
-    rgba(var(--primary-rgb), 0.2) 50%, 
-    rgba(var(--primary-rgb), 0.1) 100%);
+  background: linear-gradient(
+    45deg,
+    rgba(var(--primary-rgb), 0.1) 0%,
+    rgba(var(--primary-rgb), 0.2) 50%,
+    rgba(var(--primary-rgb), 0.1) 100%
+  );
   background-size: 200% 200%;
   animation: shimmerRotate 2s ease-in-out infinite;
   position: relative;
@@ -145,10 +149,7 @@ const skeletonClasses = computed(() => ({
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(var(--primary-rgb), 0.1), 
-    transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb), 0.1), transparent);
   animation: sweepGlow 3s ease-in-out infinite;
 }
 
@@ -156,10 +157,12 @@ const skeletonClasses = computed(() => ({
   height: 18px;
   margin-bottom: 10px;
   border-radius: 6px;
-  background: linear-gradient(90deg, 
-    rgba(var(--muted-rgb), 0.3) 25%, 
-    rgba(var(--muted-rgb), 0.5) 50%, 
-    rgba(var(--muted-rgb), 0.3) 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(var(--muted-rgb), 0.3) 25%,
+    rgba(var(--muted-rgb), 0.5) 50%,
+    rgba(var(--muted-rgb), 0.3) 75%
+  );
   background-size: 200% 100%;
   animation: shimmerWave 2s ease-in-out infinite;
   position: relative;
@@ -185,9 +188,15 @@ const skeletonClasses = computed(() => ({
   animation: typingDotBounce 1.4s ease-in-out infinite;
 }
 
-.skeleton-typing .typing-dot:nth-child(1) { animation-delay: 0s; }
-.skeleton-typing .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.skeleton-typing .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+.skeleton-typing .typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.skeleton-typing .typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.skeleton-typing .typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 /* Metadata skeleton */
 .skeleton-metadata {
@@ -260,7 +269,11 @@ const skeletonClasses = computed(() => ({
 }
 
 .skeleton-user .skeleton-bubble {
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-rgb), 0.1),
+    rgba(var(--primary-rgb), 0.05)
+  );
 }
 
 .skeleton-assistant .skeleton-bubble {
@@ -280,7 +293,8 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes skeletonBreath {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.8;
   }
@@ -320,7 +334,8 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes avatarPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
     transform: scale(1);
   }
@@ -340,7 +355,9 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes typingDotBounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0) scale(1);
     opacity: 0.4;
   }
@@ -351,7 +368,8 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes floatParticle1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
     opacity: 0.3;
   }
@@ -362,7 +380,8 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes floatParticle2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
     opacity: 0.2;
   }
@@ -373,7 +392,8 @@ const skeletonClasses = computed(() => ({
 }
 
 @keyframes floatParticle3 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
     opacity: 0.4;
   }
@@ -397,7 +417,7 @@ const skeletonClasses = computed(() => ({
 }
 
 /* Dark theme support */
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --primary-rgb: 96, 165, 250;
   --muted-rgb: 75, 85, 99;
   --background-rgb: 17, 24, 39;
@@ -414,7 +434,7 @@ const skeletonClasses = computed(() => ({
   .particle {
     animation: none !important;
   }
-  
+
   .skeleton-line {
     opacity: 0.6;
   }
@@ -426,7 +446,7 @@ const skeletonClasses = computed(() => ({
     border-width: 2px;
     border-color: rgba(var(--primary-rgb), 0.5);
   }
-  
+
   .skeleton-line {
     background: rgba(var(--primary-rgb), 0.3);
   }

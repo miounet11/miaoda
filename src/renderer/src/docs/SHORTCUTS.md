@@ -24,16 +24,19 @@ This document outlines the global shortcut system implemented for MiaoDa Chat. T
 ## Available Shortcuts
 
 ### General
+
 - **Cmd/Ctrl + N**: Create new chat
 - **Cmd/Ctrl + K**: Open quick search
 - **Cmd/Ctrl + /**: Show shortcuts help
 - **Escape**: Close modal/cancel operation
 
 ### Chat
+
 - **Cmd/Ctrl + Enter**: Send message (when chat input is focused)
 - **Cmd/Ctrl + 1-9**: Switch to chat tab 1-9
 
 ### Legacy (Already implemented)
+
 - **Cmd/Ctrl + B**: Toggle sidebar
 - **Cmd/Ctrl + ,**: Open settings
 - **Cmd/Ctrl + Shift + T**: Toggle theme
@@ -41,12 +44,15 @@ This document outlines the global shortcut system implemented for MiaoDa Chat. T
 ## Implementation Details
 
 ### Platform Detection
+
 ```typescript
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 ```
 
 ### Key Matching Logic
+
 The system handles both meta (Cmd) and ctrl keys appropriately for each platform:
+
 ```typescript
 if (shortcut.modifiers?.meta && shortcut.modifiers?.ctrl) {
   const platformModifier = isMac ? event.metaKey : event.ctrlKey
@@ -55,11 +61,13 @@ if (shortcut.modifiers?.meta && shortcut.modifiers?.ctrl) {
 ```
 
 ### Input Prevention
+
 Shortcuts are prevented from firing when the user is typing in input elements:
+
 ```typescript
 if (
-  target.tagName === 'INPUT' || 
-  target.tagName === 'TEXTAREA' || 
+  target.tagName === 'INPUT' ||
+  target.tagName === 'TEXTAREA' ||
   target.isContentEditable ||
   target.closest('[contenteditable="true"]')
 ) {
@@ -74,6 +82,7 @@ if (
 ## Integration
 
 ### Adding the System to Views
+
 ```typescript
 import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 
@@ -82,6 +91,7 @@ const { shortcuts } = useGlobalShortcuts()
 ```
 
 ### Adding Shortcut Modals to App Root
+
 ```vue
 <!-- In App.vue -->
 <ShortcutsHelpModal />
@@ -96,6 +106,7 @@ The system uses custom DOM events for loose coupling:
 - `shortcuts:switch-chat`: Switches to chat by index
 
 Example implementation:
+
 ```typescript
 document.addEventListener('shortcuts:send-message', () => {
   // Handle sending current message
@@ -105,6 +116,7 @@ document.addEventListener('shortcuts:send-message', () => {
 ## Store Integration
 
 The shortcuts integrate with:
+
 - **UI Store**: Modal management, theme toggles
 - **Chat Store**: Chat creation, selection
 
@@ -127,6 +139,7 @@ To test shortcuts:
 ## Browser Compatibility
 
 The system works in all modern browsers that support:
+
 - KeyboardEvent with metaKey/ctrlKey
 - Custom DOM events
 - Vue 3 Composition API

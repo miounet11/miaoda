@@ -15,10 +15,10 @@ export class SummaryService {
    * Update chat summary data
    */
   updateChatSummary(
-    chatId: string, 
-    summary: string, 
-    tags: string[], 
-    keyPoints: string[], 
+    chatId: string,
+    summary: string,
+    tags: string[],
+    keyPoints: string[],
     tokens?: number
   ): void {
     const updateSummary = this.db.prepare(`
@@ -198,7 +198,7 @@ export class SummaryService {
     if (summaryUpdatedAt && lastMessageAt) {
       const ageHours = (Date.now() - summaryUpdatedAt.getTime()) / (1000 * 60 * 60)
       const hasNewMessages = lastMessageAt > summaryUpdatedAt
-      
+
       return ageHours > maxAgeHours && hasNewMessages
     }
 

@@ -1,12 +1,14 @@
 <template>
   <div class="space-y-4 mt-6">
     <h4 class="text-md font-semibold text-gray-900 dark:text-white">Style Customization</h4>
-    
+
     <div v-if="format === 'html' || format === 'pdf'" class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Font Family</label>
-          <select 
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Font Family</label
+          >
+          <select
             v-model="customStyles.fontFamily"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
           >
@@ -16,10 +18,12 @@
             <option value="monospace">Monospace</option>
           </select>
         </div>
-        
+
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Font Size</label>
-          <select 
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Font Size</label
+          >
+          <select
             v-model="customStyles.fontSize"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
           >
@@ -30,9 +34,11 @@
           </select>
         </div>
       </div>
-      
+
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Color Theme</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Color Theme</label
+        >
         <div class="grid grid-cols-3 gap-3">
           <div
             v-for="theme in colorThemes"
@@ -46,8 +52,8 @@
             ]"
           >
             <div class="flex space-x-1 mb-2">
-              <div 
-                v-for="color in theme.colors" 
+              <div
+                v-for="color in theme.colors"
                 :key="color"
                 :style="{ backgroundColor: color }"
                 class="w-4 h-4 rounded"
@@ -58,7 +64,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="text-xs text-gray-500 dark:text-gray-400">
       Custom styles will be applied to the exported content based on the selected format.
     </div>

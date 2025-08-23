@@ -12,29 +12,29 @@
         <component :is="synthesisIcon" :size="20" />
         <span class="synthesis-pulse" v-if="isSynthesizing" />
       </button>
-      
+
       <div class="synthesis-info">
         <div v-if="isSynthesizing" class="synthesis-status">
           <div class="status-indicator">
             <div class="pulse-dot" />
             <span class="status-text">{{ $t('voice.synthesizing') }}</span>
           </div>
-          
+
           <div class="synthesis-progress">
             <div class="progress-text">{{ synthesisProgress }}%</div>
           </div>
         </div>
-        
+
         <div v-else-if="text.trim()" class="text-preview">
           <span class="preview-text" :title="text">{{ textPreview }}</span>
           <span class="text-length">{{ text.length }} {{ $t('voice.characters') }}</span>
         </div>
-        
+
         <div v-else class="synthesis-hint">
           {{ $t('voice.enterTextToSynthesize') }}
         </div>
       </div>
-      
+
       <!-- Additional Controls -->
       <div class="additional-controls">
         <button
@@ -45,7 +45,7 @@
         >
           <component :is="isPaused ? Play : Pause" :size="16" />
         </button>
-        
+
         <button
           @click="stopSynthesis"
           class="control-btn stop-btn"
@@ -54,7 +54,7 @@
         >
           <Square :size="16" />
         </button>
-        
+
         <button
           @click="showVoiceSelector"
           class="control-btn voice-btn"
@@ -62,7 +62,7 @@
         >
           <User :size="16" />
         </button>
-        
+
         <button
           @click="showSettings"
           class="control-btn settings-btn"
@@ -72,14 +72,14 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Text Input -->
     <div class="text-input-section">
       <div class="input-header">
         <label for="synthesis-text" class="input-label">
           {{ $t('voice.textToSynthesize') }}
         </label>
-        
+
         <div class="input-actions">
           <button
             @click="clearText"
@@ -89,17 +89,13 @@
           >
             <X :size="14" />
           </button>
-          
-          <button
-            @click="pasteFromClipboard"
-            class="action-btn"
-            :title="$t('common.paste')"
-          >
+
+          <button @click="pasteFromClipboard" class="action-btn" :title="$t('common.paste')">
             <Clipboard :size="14" />
           </button>
         </div>
       </div>
-      
+
       <textarea
         id="synthesis-text"
         v-model="text"
@@ -109,18 +105,16 @@
         rows="4"
         @input="onTextInput"
       />
-      
+
       <div class="input-footer">
-        <div class="character-count">
-          {{ text.length }} / {{ maxTextLength }}
-        </div>
-        
+        <div class="character-count">{{ text.length }} / {{ maxTextLength }}</div>
+
         <div class="estimated-duration" v-if="text.trim()">
           {{ $t('voice.estimatedDuration') }}: {{ estimatedDuration }}
         </div>
       </div>
     </div>
-    
+
     <!-- Voice Parameters -->
     <div class="voice-parameters" v-if="showParameters">
       <div class="parameters-header">
@@ -130,7 +124,7 @@
           {{ $t('common.reset') }}
         </button>
       </div>
-      
+
       <div class="parameters-grid">
         <!-- Rate -->
         <div class="parameter-item">
@@ -145,9 +139,9 @@
             max="3.0"
             step="0.1"
             class="parameter-slider"
-          >
+          />
         </div>
-        
+
         <!-- Pitch -->
         <div class="parameter-item">
           <label class="parameter-label">
@@ -161,9 +155,9 @@
             max="2.0"
             step="0.1"
             class="parameter-slider"
-          >
+          />
         </div>
-        
+
         <!-- Volume -->
         <div class="parameter-item">
           <label class="parameter-label">
@@ -177,11 +171,11 @@
             max="1"
             step="0.1"
             class="parameter-slider"
-          >
+          />
         </div>
       </div>
     </div>
-    
+
     <!-- Voice Selector -->
     <div class="voice-selector" v-if="showVoices && availableVoices.length > 0">
       <div class="selector-header">
@@ -195,13 +189,13 @@
           </select>
         </div>
       </div>
-      
+
       <div class="voices-grid">
         <div
           v-for="voice in filteredVoices"
           :key="voice.name"
           class="voice-item"
-          :class="{ 'selected': selectedVoice?.name === voice.name }"
+          :class="{ selected: selectedVoice?.name === voice.name }"
           @click="selectVoice(voice)"
         >
           <div class="voice-info">
@@ -213,7 +207,7 @@
               <span class="voice-badge gender">{{ getVoiceGender(voice) }}</span>
             </div>
           </div>
-          
+
           <div class="voice-actions">
             <button
               @click.stop="testVoice(voice)"
@@ -227,7 +221,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Synthesis History -->
     <div class="synthesis-history" v-if="showHistory && synthesisHistory.length > 0">
       <div class="history-header">
@@ -236,13 +230,9 @@
           <Trash2 :size="14" />
         </button>
       </div>
-      
+
       <div class="history-list">
-        <div
-          v-for="(item, index) in synthesisHistory"
-          :key="index"
-          class="history-item"
-        >
+        <div v-for="(item, index) in synthesisHistory" :key="index" class="history-item">
           <div class="history-content">
             <div class="history-text">{{ truncateText(item.text, 100) }}</div>
             <div class="history-meta">
@@ -250,7 +240,7 @@
               <span class="history-time">{{ formatTime(item.timestamp) }}</span>
             </div>
           </div>
-          
+
           <div class="history-actions">
             <button
               @click="replaySynthesis(item)"
@@ -259,7 +249,7 @@
             >
               <Play :size="12" />
             </button>
-            
+
             <button
               @click="loadHistoryItem(item)"
               class="action-btn load-btn"
@@ -271,7 +261,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Error Display -->
     <div v-if="error" class="error-display">
       <AlertCircle :size="16" />
@@ -280,7 +270,7 @@
         <X :size="14" />
       </button>
     </div>
-    
+
     <!-- Settings Modal -->
     <VoiceSettings
       v-if="showSettingsModal"
@@ -293,8 +283,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import {
-  Play, Pause, Square, User, Settings, X, Clipboard, RotateCcw,
-  AlertCircle, Trash2, Download
+  Play,
+  Pause,
+  Square,
+  User,
+  Settings,
+  X,
+  Clipboard,
+  RotateCcw,
+  AlertCircle,
+  Trash2,
+  Download
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { voiceService, type VoiceSynthesisOptions } from '@renderer/src/services/voice/VoiceService'
@@ -350,23 +349,25 @@ const languageFilter = ref('')
 
 // Synthesis state
 const synthesisProgress = ref(0)
-const synthesisHistory = ref<Array<{
-  text: string
-  voice: SpeechSynthesisVoice | null
-  timestamp: Date
-  parameters: VoiceSynthesisOptions
-}>>([])
+const synthesisHistory = ref<
+  Array<{
+    text: string
+    voice: SpeechSynthesisVoice | null
+    timestamp: Date
+    parameters: VoiceSynthesisOptions
+  }>
+>([])
 
 // Computed properties
 const synthesisClasses = computed(() => ({
-  'synthesizing': isSynthesizing.value,
-  'paused': isPaused.value,
+  synthesizing: isSynthesizing.value,
+  paused: isPaused.value,
   'has-error': error.value !== null
 }))
 
 const synthesisButtonClasses = computed(() => ({
-  'synthesizing': isSynthesizing.value,
-  'disabled': !isSupported.value || !text.value.trim()
+  synthesizing: isSynthesizing.value,
+  disabled: !isSupported.value || !text.value.trim()
 }))
 
 const synthesisIcon = computed(() => {
@@ -393,11 +394,11 @@ const textPreview = computed(() => {
 
 const estimatedDuration = computed(() => {
   if (!text.value.trim()) return '0s'
-  
+
   // Rough estimation: ~3-5 characters per second at normal rate
   const charsPerSecond = 4 / rate.value
   const duration = text.value.length / charsPerSecond
-  
+
   if (duration < 60) {
     return `${Math.round(duration)}s`
   } else {
@@ -414,10 +415,8 @@ const availableLanguages = computed(() => {
 
 const filteredVoices = computed(() => {
   if (!languageFilter.value) return availableVoices.value
-  
-  return availableVoices.value.filter(voice => 
-    voice.lang.startsWith(languageFilter.value)
-  )
+
+  return availableVoices.value.filter(voice => voice.lang.startsWith(languageFilter.value))
 })
 
 const errorMessage = computed(() => {
@@ -440,10 +439,10 @@ const toggleSynthesis = async () => {
 
 const startSynthesis = async () => {
   if (!text.value.trim()) return
-  
+
   try {
     error.value = null
-    
+
     const options: Partial<VoiceSynthesisOptions> = {
       voice: selectedVoice.value || undefined,
       rate: rate.value,
@@ -451,9 +450,9 @@ const startSynthesis = async () => {
       volume: volume.value,
       language: selectedVoice.value?.lang || 'zh-CN'
     }
-    
+
     const success = await voiceService.synthesizeSpeech(text.value, options)
-    
+
     if (success) {
       // Add to history
       synthesisHistory.value.unshift({
@@ -462,12 +461,12 @@ const startSynthesis = async () => {
         timestamp: new Date(),
         parameters: options as VoiceSynthesisOptions
       })
-      
+
       // Limit history size
       if (synthesisHistory.value.length > 20) {
         synthesisHistory.value = synthesisHistory.value.slice(0, 20)
       }
-      
+
       saveHistory()
     }
   } catch (err) {
@@ -523,7 +522,7 @@ const onTextInput = () => {
 // Voice management
 const loadVoices = () => {
   availableVoices.value = voiceService.getAvailableVoices()
-  
+
   // Select default voice if none selected
   if (!selectedVoice.value && availableVoices.value.length > 0) {
     const config = voiceService.getConfig()
@@ -534,7 +533,7 @@ const loadVoices = () => {
 
 const selectVoice = (voice: SpeechSynthesisVoice) => {
   selectedVoice.value = voice
-  
+
   // Update voice service config
   voiceService.updateConfig({
     synthesis: {
@@ -547,7 +546,7 @@ const selectVoice = (voice: SpeechSynthesisVoice) => {
 
 const testVoice = async (voice: SpeechSynthesisVoice) => {
   const testText = t('voice.testPhrase')
-  
+
   try {
     await voiceService.synthesizeSpeech(testText, {
       voice,
@@ -612,7 +611,7 @@ const clearHistory = () => {
   saveHistory()
 }
 
-const replaySynthesis = async (item: typeof synthesisHistory.value[0]) => {
+const replaySynthesis = async (item: (typeof synthesisHistory.value)[0]) => {
   try {
     await voiceService.synthesizeSpeech(item.text, item.parameters)
   } catch (err) {
@@ -620,19 +619,19 @@ const replaySynthesis = async (item: typeof synthesisHistory.value[0]) => {
   }
 }
 
-const loadHistoryItem = (item: typeof synthesisHistory.value[0]) => {
+const loadHistoryItem = (item: (typeof synthesisHistory.value)[0]) => {
   text.value = item.text
-  
+
   if (item.voice) {
     selectedVoice.value = item.voice
   }
-  
+
   if (item.parameters) {
     rate.value = item.parameters.rate
     pitch.value = item.parameters.pitch
     volume.value = item.parameters.volume
   }
-  
+
   emit('text-change', text.value)
 }
 
@@ -644,7 +643,7 @@ const truncateText = (text: string, maxLength: number): string => {
 const formatTime = (date: Date): string => {
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -671,7 +670,7 @@ const onSettingsChanged = () => {
   rate.value = config.synthesis.rate
   pitch.value = config.synthesis.pitch
   volume.value = config.synthesis.volume
-  
+
   loadVoices()
 }
 
@@ -692,7 +691,7 @@ const onSynthesisEnd = (text: string) => {
   isPaused.value = false
   synthesisProgress.value = 100
   emit('synthesis-end', text)
-  
+
   setTimeout(() => {
     synthesisProgress.value = 0
   }, 2000)
@@ -701,7 +700,7 @@ const onSynthesisEnd = (text: string) => {
 const onSynthesisError = (err: Error) => {
   error.value = err
   emit('synthesis-error', err)
-  
+
   isSynthesizing.value = false
   isPaused.value = false
   synthesisProgress.value = 0
@@ -711,24 +710,24 @@ const onSynthesisError = (err: Error) => {
 onMounted(() => {
   // Check support
   isSupported.value = voiceService.isSynthesisSupported()
-  
+
   // Load voices
   loadVoices()
-  
+
   // Load configuration
   const config = voiceService.getConfig()
   rate.value = config.synthesis.rate
   pitch.value = config.synthesis.pitch
   volume.value = config.synthesis.volume
-  
+
   // Load history
   loadHistory()
-  
+
   // Setup event listeners
   voiceService.on('synthesis-start', onSynthesisStart)
   voiceService.on('synthesis-end', onSynthesisEnd)
   voiceService.on('synthesis-error', onSynthesisError)
-  
+
   // Auto-start if requested
   if (props.autoStart && text.value.trim() && isSupported.value) {
     startSynthesis()
@@ -738,7 +737,7 @@ onMounted(() => {
 onUnmounted(() => {
   // Clean up
   stopSynthesis()
-  
+
   // Remove event listeners
   voiceService.off('synthesis-start', onSynthesisStart)
   voiceService.off('synthesis-end', onSynthesisEnd)
@@ -758,11 +757,14 @@ watch([rate, pitch, volume], () => {
 })
 
 // Watch for text changes
-watch(() => props.initialText, (newText) => {
-  if (newText !== text.value) {
-    text.value = newText
+watch(
+  () => props.initialText,
+  newText => {
+    if (newText !== text.value) {
+      text.value = newText
+    }
   }
-})
+)
 </script>
 
 <style scoped>
@@ -1061,12 +1063,18 @@ watch(() => props.initialText, (newText) => {
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes ping {
-  75%, 100% {
+  75%,
+  100% {
     transform: scale(2);
     opacity: 0;
   }
@@ -1077,11 +1085,11 @@ watch(() => props.initialText, (newText) => {
   .synthesis-btn.synthesizing {
     animation: none;
   }
-  
+
   .synthesis-pulse {
     animation: none;
   }
-  
+
   .pulse-dot {
     animation: none;
   }
@@ -1092,7 +1100,7 @@ watch(() => props.initialText, (newText) => {
   .voice-synthesis {
     @apply border-2;
   }
-  
+
   .synthesis-btn:focus {
     @apply ring-2 ring-primary;
   }

@@ -7,18 +7,22 @@
           <Search :size="20" class="header-icon" />
           <h2 class="modal-title">{{ $t('search.globalSearch') }}</h2>
         </div>
-        
+
         <div class="header-actions">
-          <button @click="toggleFullscreen" class="action-btn" :title="$t('search.toggleFullscreen')">
+          <button
+            @click="toggleFullscreen"
+            class="action-btn"
+            :title="$t('search.toggleFullscreen')"
+          >
             <component :is="fullscreenIcon" :size="18" />
           </button>
-          
+
           <button @click="close" class="action-btn close-btn" :title="$t('common.close')">
             <X :size="18" />
           </button>
         </div>
       </div>
-      
+
       <!-- Search Interface -->
       <div class="search-content">
         <MessageSearch
@@ -32,56 +36,75 @@
           @search-clear="onSearchClear"
         />
       </div>
-      
+
       <!-- Search Stats -->
       <div v-if="showStats" class="search-stats">
         <div class="stats-content">
           <div class="stat-item">
             <Database :size="14" />
-            <span>{{ $t('search.indexedMessages') }}: {{ searchStats.indexedMessages }}/{{ searchStats.totalMessages }}</span>
-            <div v-if="indexStatus.needsRebuild" class="status-indicator warning" title="搜索索引需要重建">
+            <span
+              >{{ $t('search.indexedMessages') }}: {{ searchStats.indexedMessages }}/{{
+                searchStats.totalMessages
+              }}</span
+            >
+            <div
+              v-if="indexStatus.needsRebuild"
+              class="status-indicator warning"
+              title="搜索索引需要重建"
+            >
               !
             </div>
           </div>
-          
+
           <div class="stat-item">
             <Clock :size="14" />
             <span>{{ $t('search.lastUpdated') }}: {{ formatTime(searchStats.lastUpdated) }}</span>
           </div>
-          
+
           <div v-if="searchStats.performanceMetrics?.avgSearchTime" class="stat-item">
             <TrendingUp :size="14" />
-            <span>{{ $t('search.avgSearchTime') }}: {{ Math.round(searchStats.performanceMetrics.avgSearchTime) }}ms</span>
+            <span
+              >{{ $t('search.avgSearchTime') }}:
+              {{ Math.round(searchStats.performanceMetrics.avgSearchTime) }}ms</span
+            >
           </div>
-          
+
           <div class="stat-actions">
-            <button 
-              @click="rebuildIndex" 
+            <button
+              @click="rebuildIndex"
               :disabled="isIndexing"
               class="stat-action-btn"
               title="重建搜索索引"
             >
-              <component :is="isIndexing ? Clock : Database" :size="12" :class="{ 'animate-spin': isIndexing }" />
+              <component
+                :is="isIndexing ? Clock : Database"
+                :size="12"
+                :class="{ 'animate-spin': isIndexing }"
+              />
               {{ isIndexing ? '重建中...' : '重建索引' }}
             </button>
-            
-            <button 
-              @click="optimizeIndex" 
+
+            <button
+              @click="optimizeIndex"
               :disabled="isOptimizing"
               class="stat-action-btn"
               title="优化搜索性能"
             >
-              <component :is="isOptimizing ? Clock : TrendingUp" :size="12" :class="{ 'animate-spin': isOptimizing }" />
+              <component
+                :is="isOptimizing ? Clock : TrendingUp"
+                :size="12"
+                :class="{ 'animate-spin': isOptimizing }"
+              />
               {{ isOptimizing ? '优化中...' : '优化索引' }}
             </button>
           </div>
         </div>
-        
+
         <button @click="showStats = false" class="stats-close">
           <ChevronUp :size="14" />
         </button>
       </div>
-      
+
       <!-- Keyboard Shortcuts Help -->
       <div v-if="showKeyboardHelp" class="keyboard-shortcuts">
         <div class="shortcuts-header">
@@ -91,62 +114,58 @@
             <X :size="14" />
           </button>
         </div>
-        
+
         <div class="shortcuts-list">
           <div class="shortcut-item">
             <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + K</kbd>
             <span>{{ $t('search.openGlobalSearch') }}</span>
           </div>
-          
+
           <div class="shortcut-item">
             <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + F</kbd>
             <span>{{ $t('search.focusSearchInput') }}</span>
           </div>
-          
+
           <div class="shortcut-item">
             <kbd>Esc</kbd>
             <span>{{ $t('search.closeSearch') }}</span>
           </div>
-          
+
           <div class="shortcut-item">
             <kbd>↑ ↓</kbd>
             <span>{{ $t('search.navigateResults') }}</span>
           </div>
-          
+
           <div class="shortcut-item">
             <kbd>Enter</kbd>
             <span>{{ $t('search.openResult') }}</span>
           </div>
-          
+
           <div class="shortcut-item">
             <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + Enter</kbd>
             <span>{{ $t('search.openInNewTab') }}</span>
           </div>
         </div>
       </div>
-      
+
       <!-- Footer -->
       <div class="modal-footer">
         <div class="footer-left">
-          <button
-            @click="showStats = !showStats"
-            class="footer-btn"
-            :class="{ 'active': showStats }"
-          >
+          <button @click="showStats = !showStats" class="footer-btn" :class="{ active: showStats }">
             <BarChart3 :size="14" />
             {{ $t('search.statistics') }}
           </button>
-          
+
           <button
             @click="showKeyboardHelp = !showKeyboardHelp"
             class="footer-btn"
-            :class="{ 'active': showKeyboardHelp }"
+            :class="{ active: showKeyboardHelp }"
           >
             <Keyboard :size="14" />
             {{ $t('search.shortcuts') }}
           </button>
         </div>
-        
+
         <div class="footer-right">
           <span class="footer-text">
             {{ resultSummary }}
@@ -160,8 +179,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import {
-  Search, X, Database, Clock, TrendingUp, ChevronUp, Keyboard, BarChart3,
-  Maximize2, Minimize2
+  Search,
+  X,
+  Database,
+  Clock,
+  TrendingUp,
+  ChevronUp,
+  Keyboard,
+  BarChart3,
+  Maximize2,
+  Minimize2
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { debounce } from '@renderer/src/utils/performance'
@@ -185,7 +212,7 @@ const emit = defineEmits<{
   'update:visible': [visible: boolean]
   'message-select': [messageId: string, chatId: string]
   'chat-select': [chatId: string]
-  'close': []
+  close: []
 }>()
 
 // Composables
@@ -203,7 +230,7 @@ const searchResults = ref<SearchResult[]>([])
 const searchQuery = ref('')
 const isSearching = ref(false)
 const searchError = ref<string | null>(null)
-const searchCache = ref(new Map<string, { results: SearchResult[], timestamp: number }>())
+const searchCache = ref(new Map<string, { results: SearchResult[]; timestamp: number }>())
 const searchPerformance = ref({
   searchStartTime: 0,
   lastSearchTime: 0,
@@ -251,8 +278,8 @@ const resultSummary = computed(() => {
   if (searchResults.value.length === 0) {
     return t('search.noResultsSelected')
   }
-  
-  return t('search.resultsSelected', { 
+
+  return t('search.resultsSelected', {
     count: searchResults.value.length,
     indexed: searchStats.value.indexedMessages
   })
@@ -262,7 +289,7 @@ const resultSummary = computed(() => {
 const open = () => {
   isVisible.value = true
   emit('update:visible', true)
-  
+
   nextTick(() => {
     // Auto-focus is handled by the MessageSearch component
     updateStats()
@@ -283,7 +310,7 @@ const toggleFullscreen = () => {
 
 const onMessageClick = (message: any) => {
   emit('message-select', message.id, message.chatId)
-  
+
   // Optionally close modal after selection
   if (!isFullscreen.value) {
     close()
@@ -292,7 +319,7 @@ const onMessageClick = (message: any) => {
 
 const onChatClick = (chatId: string) => {
   emit('chat-select', chatId)
-  
+
   // Optionally close modal after selection
   if (!isFullscreen.value) {
     close()
@@ -303,19 +330,19 @@ const onSearchComplete = (results: SearchResult[], query?: string, searchTime?: 
   searchResults.value = results
   isSearching.value = false
   searchError.value = null
-  
+
   // Update performance metrics
   if (searchTime !== undefined) {
     updateSearchPerformance(searchTime)
   }
-  
+
   // Cache results for faster subsequent access
   if (query && query.trim()) {
     searchCache.value.set(query.toLowerCase().trim(), {
       results: [...results],
       timestamp: Date.now()
     })
-    
+
     // Limit cache size
     if (searchCache.value.size > 50) {
       const entries = Array.from(searchCache.value.entries())
@@ -324,9 +351,9 @@ const onSearchComplete = (results: SearchResult[], query?: string, searchTime?: 
       entries.slice(-25).forEach(([k, v]) => searchCache.value.set(k, v))
     }
   }
-  
+
   updateStats()
-  
+
   // Announce results for accessibility
   announceSearchResults(results.length)
 }
@@ -334,20 +361,18 @@ const onSearchComplete = (results: SearchResult[], query?: string, searchTime?: 
 const updateSearchPerformance = (searchTime: number) => {
   searchPerformance.value.lastSearchTime = searchTime
   searchPerformance.value.searchCount++
-  
+
   // Calculate rolling average
   const currentAvg = searchPerformance.value.averageSearchTime
   const count = searchPerformance.value.searchCount
-  searchPerformance.value.averageSearchTime = 
-    (currentAvg * (count - 1) + searchTime) / count
+  searchPerformance.value.averageSearchTime = (currentAvg * (count - 1) + searchTime) / count
 }
 
 const announceSearchResults = (count: number) => {
   // For screen readers
-  const message = count === 0 
-    ? 'No results found' 
-    : `Found ${count} result${count !== 1 ? 's' : ''}`
-  
+  const message =
+    count === 0 ? 'No results found' : `Found ${count} result${count !== 1 ? 's' : ''}`
+
   console.log(`Search announcement: ${message}`)
 }
 
@@ -357,7 +382,7 @@ const onSearchClear = () => {
   isSearching.value = false
   searchError.value = null
   updateStats()
-  
+
   // Focus back to search input for better UX
   nextTick(() => {
     searchRef.value?.$refs?.searchInputRef?.focus()
@@ -375,12 +400,12 @@ const updateStats = async () => {
 
 const rebuildIndex = async () => {
   if (isIndexing.value) return
-  
+
   try {
     isIndexing.value = true
     await backendSearchService.rebuildSearchIndex()
     await updateStats()
-    
+
     // Show success message (could use toast service)
     console.log('Search index rebuilt successfully')
   } catch (error) {
@@ -393,12 +418,12 @@ const rebuildIndex = async () => {
 
 const optimizeIndex = async () => {
   if (isOptimizing.value) return
-  
+
   try {
     isOptimizing.value = true
     await backendSearchService.optimizeSearchIndex()
     await updateStats()
-    
+
     // Show success message
     console.log('Search index optimized successfully')
   } catch (error) {
@@ -412,7 +437,7 @@ const optimizeIndex = async () => {
 const formatTime = (date: Date): string => {
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   if (diff < 60000) {
     return t('time.justNow')
   } else if (diff < 3600000) {
@@ -505,21 +530,24 @@ onUnmounted(() => {
 })
 
 // Watch for prop changes
-watch(() => props.visible, (newValue) => {
-  if (newValue !== isVisible.value) {
-    if (newValue) {
-      open()
-    } else {
-      close()
+watch(
+  () => props.visible,
+  newValue => {
+    if (newValue !== isVisible.value) {
+      if (newValue) {
+        open()
+      } else {
+        close()
+      }
     }
   }
-})
+)
 
 // Expose methods for parent components
 defineExpose({
   open,
   close,
-  toggle: () => isVisible.value ? close() : open()
+  toggle: () => (isVisible.value ? close() : open())
 })
 </script>
 
@@ -694,23 +722,23 @@ defineExpose({
   .global-search-overlay {
     @apply p-2;
   }
-  
+
   .modal-windowed {
     @apply w-full h-[90vh];
   }
-  
+
   .modal-header {
     @apply p-3;
   }
-  
+
   .shortcuts-list {
     @apply grid-cols-1;
   }
-  
+
   .footer-left {
     @apply flex-col items-start gap-1;
   }
-  
+
   .modal-footer {
     @apply flex-col items-start gap-3;
   }
@@ -721,7 +749,7 @@ defineExpose({
   .global-search-modal {
     @apply border-2;
   }
-  
+
   .action-btn:focus {
     @apply ring-2 ring-primary;
   }
@@ -732,7 +760,7 @@ defineExpose({
   .global-search-overlay {
     animation: none;
   }
-  
+
   .global-search-modal {
     animation: none;
   }

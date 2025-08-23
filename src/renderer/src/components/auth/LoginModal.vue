@@ -1,5 +1,8 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" v-if="isVisible">
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    v-if="isVisible"
+  >
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
       <div class="text-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -22,7 +25,7 @@
             required
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter your full name"
-          >
+          />
         </div>
 
         <!-- Email field -->
@@ -36,7 +39,7 @@
             required
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter your email"
-          >
+          />
         </div>
 
         <!-- Password field -->
@@ -51,7 +54,7 @@
               required
               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               :placeholder="isRegistering ? 'Create a strong password' : 'Enter your password'"
-            >
+            />
             <button
               type="button"
               @click="showPassword = !showPassword"
@@ -61,7 +64,7 @@
               <EyeSlashIcon v-else class="h-5 w-5" />
             </button>
           </div>
-          
+
           <!-- Password strength indicator (registration only) -->
           <div v-if="isRegistering && form.password" class="mt-2">
             <div class="flex space-x-1">
@@ -85,10 +88,10 @@
               v-model="form.rememberMe"
               type="checkbox"
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            >
+            />
             <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
           </label>
-          
+
           <button
             type="button"
             @click="showForgotPassword = true"
@@ -106,23 +109,29 @@
               type="checkbox"
               required
               class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            >
+            />
             <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">
-              I agree to the 
+              I agree to the
               <a href="#" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
-              and 
+              and
               <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
             </span>
           </label>
         </div>
 
         <!-- Error message -->
-        <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+        <div
+          v-if="errorMessage"
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+        >
           <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
         </div>
 
         <!-- Account lockout warning -->
-        <div v-if="lockoutMessage" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+        <div
+          v-if="lockoutMessage"
+          class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3"
+        >
           <p class="text-sm text-yellow-600 dark:text-yellow-400">{{ lockoutMessage }}</p>
         </div>
 
@@ -146,10 +155,7 @@
       <div class="mt-6 text-center">
         <p class="text-sm text-gray-600 dark:text-gray-400">
           {{ isRegistering ? 'Already have an account?' : "Don't have an account?" }}
-          <button
-            @click="toggleMode"
-            class="text-blue-600 hover:text-blue-500 font-medium ml-1"
-          >
+          <button @click="toggleMode" class="text-blue-600 hover:text-blue-500 font-medium ml-1">
             {{ isRegistering ? 'Sign In' : 'Sign Up' }}
           </button>
         </p>
@@ -165,8 +171,8 @@
     </div>
 
     <!-- Forgot Password Modal -->
-    <ForgotPasswordModal 
-      v-if="showForgotPassword" 
+    <ForgotPasswordModal
+      v-if="showForgotPassword"
       @close="showForgotPassword = false"
       @success="handleForgotPasswordSuccess"
     />
@@ -212,14 +218,14 @@ const form = reactive({
 const passwordStrength = computed(() => {
   const password = form.password
   if (!password) return 0
-  
+
   let strength = 0
   if (password.length >= 8) strength++
   if (/[a-z]/.test(password)) strength++
   if (/[A-Z]/.test(password)) strength++
   if (/[0-9]/.test(password)) strength++
   if (/[^A-Za-z0-9]/.test(password)) strength++
-  
+
   return Math.min(strength, 4)
 })
 
@@ -249,7 +255,7 @@ const toggleMode = () => {
   isRegistering.value = !isRegistering.value
   errorMessage.value = ''
   lockoutMessage.value = ''
-  
+
   // Reset form
   Object.assign(form, {
     name: '',
@@ -262,11 +268,11 @@ const toggleMode = () => {
 
 const handleSubmit = async () => {
   if (isLoading.value) return
-  
+
   errorMessage.value = ''
   lockoutMessage.value = ''
   isLoading.value = true
-  
+
   try {
     if (isRegistering.value) {
       await authStore.register({
@@ -278,12 +284,12 @@ const handleSubmit = async () => {
     } else {
       await authStore.login(form.email, form.password, form.rememberMe)
     }
-    
+
     emit('success')
     emit('close')
   } catch (error: any) {
     console.error('Authentication error:', error)
-    
+
     if (error.message.includes('locked')) {
       lockoutMessage.value = error.message
     } else {
@@ -300,19 +306,24 @@ const handleForgotPasswordSuccess = () => {
 }
 
 // Initialize device ID when component mounts
-watch(() => props.isVisible, (visible) => {
-  if (visible) {
-    authStore.initialize()
+watch(
+  () => props.isVisible,
+  visible => {
+    if (visible) {
+      authStore.initialize()
+    }
   }
-})
+)
 </script>
 
 <style scoped>
 /* Custom animations for modal */
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
   transition: opacity 0.3s ease;
 }
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 </style>

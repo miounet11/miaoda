@@ -1,7 +1,7 @@
 /**
  * 安全云同步协议
  * 实现端到端加密的数据同步、冲突解决、版本控制
- * 
+ *
  * 安全特性：
  * 1. 端到端加密 - 服务器永远看不到明文数据
  * 2. 完整性验证 - 每个数据块都有数字签名
@@ -98,7 +98,7 @@ export class SecureSyncManager extends EventEmitter {
       syncInProgress: false,
       errorCount: 0
     }
-    
+
     this.initialize()
   }
 
@@ -109,7 +109,7 @@ export class SecureSyncManager extends EventEmitter {
     try {
       // 生成设备指纹
       await this.generateDeviceFingerprint()
-      
+
       // 启动定期同步
       if (this.config.enableRealTimeSync) {
         this.startPeriodicSync()
@@ -129,7 +129,7 @@ export class SecureSyncManager extends EventEmitter {
    */
   private async generateDeviceFingerprint(): Promise<void> {
     const { publicKey, privateKey, keyId } = await this.crypto.generateKeyPair('rsa')
-    
+
     this.deviceFingerprint = {
       id: keyId,
       name: this.getDeviceName(),
@@ -161,13 +161,13 @@ export class SecureSyncManager extends EventEmitter {
     // 使用系统密钥库或加密存储私钥
     // 这里简化为加密后存储到本地
     const encryptedKey = await this.crypto.encryptData(privateKey)
-    
+
     // 在实际应用中，应该使用系统级安全存储
     // 如 macOS Keychain, Windows Credential Manager, Linux Secret Service
     const fs = require('fs').promises
     const path = require('path')
     const { app } = require('electron')
-    
+
     const keyPath = path.join(app.getPath('userData'), '.device_key')
     await fs.writeFile(keyPath, JSON.stringify(encryptedKey), { mode: 0o600 })
   }
@@ -183,10 +183,10 @@ export class SecureSyncManager extends EventEmitter {
   ): Promise<SyncPacket> {
     // 序列化数据
     const serializedData = JSON.stringify(data)
-    
+
     // 加密数据
     const encryptedData = await this.crypto.encryptData(serializedData)
-    
+
     // 创建数据包
     const packet: Omit<SyncPacket, 'signature' | 'checksum'> = {
       id: this.generatePacketId(),
@@ -202,7 +202,7 @@ export class SecureSyncManager extends EventEmitter {
 
     // 计算校验和
     const checksum = await this.calculateChecksum(packet)
-    
+
     // 数字签名
     const signature = await this.signPacket({ ...packet, checksum })
 
@@ -221,7 +221,7 @@ export class SecureSyncManager extends EventEmitter {
       // 验证校验和
       const { signature, ...packetWithoutSig } = packet
       const expectedChecksum = await this.calculateChecksum(packetWithoutSig)
-      
+
       if (packet.checksum !== expectedChecksum) {
         throw new Error('Checksum verification failed')
       }
@@ -245,7 +245,7 @@ export class SecureSyncManager extends EventEmitter {
       // 验证时间戳（防止重放攻击）
       const now = Date.now()
       const maxAge = 60 * 60 * 1000 // 1小时
-      
+
       if (now - packet.timestamp > maxAge) {
         throw new Error('Packet too old')
       }
@@ -271,19 +271,18 @@ export class SecureSyncManager extends EventEmitter {
 
       // 批量上传
       const batches = this.createBatches(packets, this.config.batchSize)
-      
+
       for (const batch of batches) {
         await this.uploadBatch(batch)
-        this.emit('syncProgress', { 
-          uploaded: batch.length, 
-          remaining: packets.length - batch.length 
+        this.emit('syncProgress', {
+          uploaded: batch.length,
+          remaining: packets.length - batch.length
         })
       }
 
       this.syncStatus.lastSyncTime = Date.now()
       this.syncStatus.pendingChanges = 0
       this.emit('syncCompleted', { direction: 'upload' })
-
     } catch (error) {
       this.handleSyncError('Upload failed', error)
       throw error
@@ -302,7 +301,7 @@ export class SecureSyncManager extends EventEmitter {
 
       // 获取远程更改
       const remotePackets = await this.downloadRemoteChanges()
-      
+
       // 验证所有数据包
       const validPackets: SyncPacket[] = []
       for (const packet of remotePackets) {
@@ -326,7 +325,6 @@ export class SecureSyncManager extends EventEmitter {
       this.emit('syncCompleted', { direction: 'download', count: validPackets.length })
 
       return validPackets
-
     } catch (error) {
       this.handleSyncError('Download failed', error)
       throw error
@@ -343,15 +341,16 @@ export class SecureSyncManager extends EventEmitter {
     const localChanges = this.getLocalChanges()
 
     for (const remotePacket of remotePackets) {
-      const localChange = localChanges.find(local => 
-        local.dataType === remotePacket.dataType &&
-        local.id === remotePacket.id &&
-        local.deviceId !== remotePacket.deviceId
+      const localChange = localChanges.find(
+        local =>
+          local.dataType === remotePacket.dataType &&
+          local.id === remotePacket.id &&
+          local.deviceId !== remotePacket.deviceId
       )
 
       if (localChange && localChange.timestamp !== remotePacket.timestamp) {
         conflicts.push(remotePacket)
-        
+
         // 记录冲突
         const conflictKey = `${remotePacket.dataType}:${remotePacket.id}`
         if (!this.conflictLog.has(conflictKey)) {
@@ -371,22 +370,22 @@ export class SecureSyncManager extends EventEmitter {
   private async resolveConflicts(conflicts: SyncPacket[]): Promise<void> {
     for (const conflict of conflicts) {
       const resolution = await this.getConflictResolution(conflict)
-      
+
       switch (resolution) {
         case 'local_wins':
           // 保持本地版本，忽略远程更改
           continue
-          
+
         case 'remote_wins':
           // 使用远程版本
           await this.applyRemoteChange(conflict)
           break
-          
+
         case 'merge':
           // 尝试合并更改
           await this.mergeConflict(conflict)
           break
-          
+
         case 'user_choice':
           // 提示用户选择
           this.emit('conflictRequiresUserInput', conflict)
@@ -403,16 +402,15 @@ export class SecureSyncManager extends EventEmitter {
       // 解密远程数据
       const remoteData = await this.crypto.decryptData(conflict.data)
       const remoteParsed = JSON.parse(remoteData.toString('utf8'))
-      
+
       // 获取本地数据
       const localData = await this.getLocalData(conflict.dataType, conflict.id)
-      
+
       // 执行三路合并
       const mergedData = this.performThreeWayMerge(localData, remoteParsed, conflict)
-      
+
       // 应用合并结果
       await this.applyMergedData(conflict.dataType, conflict.id, mergedData)
-      
     } catch (error) {
       console.error('Merge conflict failed:', error)
       // 降级到用户选择
@@ -444,7 +442,10 @@ export class SecureSyncManager extends EventEmitter {
     return {
       ...local,
       title: remote.updated_at > local.updated_at ? remote.title : local.title,
-      updated_at: Math.max(new Date(local.updated_at).getTime(), new Date(remote.updated_at).getTime()).toString(),
+      updated_at: Math.max(
+        new Date(local.updated_at).getTime(),
+        new Date(remote.updated_at).getTime()
+      ).toString()
       // 保持最新的更新时间和标题
     }
   }
@@ -494,11 +495,11 @@ export class SecureSyncManager extends EventEmitter {
    */
   async performFullSync(): Promise<void> {
     const localChanges = this.getLocalChanges()
-    
+
     if (localChanges.length > 0) {
       await this.syncToCloud(localChanges)
     }
-    
+
     await this.syncFromCloud()
   }
 
@@ -508,15 +509,15 @@ export class SecureSyncManager extends EventEmitter {
   private setupNetworkMonitoring(): void {
     // 在实际应用中，应该监听网络状态变化
     this.syncStatus.isOnline = true // 简化实现
-    
+
     // 模拟网络状态变化
     setInterval(() => {
       const wasOnline = this.syncStatus.isOnline
       this.syncStatus.isOnline = Math.random() > 0.1 // 90%在线率
-      
+
       if (!wasOnline && this.syncStatus.isOnline) {
         this.emit('networkOnline')
-        this.performFullSync().catch(err => 
+        this.performFullSync().catch(err =>
           this.handleSyncError('Sync on network recovery failed', err)
         )
       } else if (wasOnline && !this.syncStatus.isOnline) {
@@ -531,17 +532,15 @@ export class SecureSyncManager extends EventEmitter {
   private handleSyncError(message: string, error: any): void {
     this.syncStatus.errorCount++
     this.syncStatus.lastError = `${message}: ${error.message}`
-    
+
     console.error(message, error)
     this.emit('syncError', { message, error })
-    
+
     // 指数退避重试
     if (this.syncStatus.errorCount < this.config.maxRetries) {
       const delay = Math.pow(2, this.syncStatus.errorCount) * 1000
       setTimeout(() => {
-        this.performFullSync().catch(err => 
-          console.error('Retry sync failed:', err)
-        )
+        this.performFullSync().catch(err => console.error('Retry sync failed:', err))
       }, delay)
     }
   }
@@ -650,7 +649,7 @@ export class SecureSyncManager extends EventEmitter {
   private async applyRemoteChange(packet: SyncPacket): Promise<void> {
     const decryptedData = await this.crypto.decryptData(packet.data)
     const data = JSON.parse(decryptedData.toString('utf8'))
-    
+
     // 根据数据类型应用更改
     console.log(`Applying ${packet.operation} for ${packet.dataType}:`, data)
   }

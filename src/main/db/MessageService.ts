@@ -28,11 +28,13 @@ export class MessageService extends BaseDatabaseService {
         }
 
         // Check if timestamp column exists (for backward compatibility)
-        const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+        const columns = this.db.prepare('PRAGMA table_info(messages)').all() as Array<{
+          name: string
+        }>
         const hasTimestamp = columns.some(col => col.name === 'timestamp')
-        
+
         const createdAt = message.created_at || Date.now()
-        
+
         if (hasTimestamp) {
           // Include both timestamp and created_at for backward compatibility
           const stmt = this.db.prepare(
@@ -71,9 +73,9 @@ export class MessageService extends BaseDatabaseService {
         }
       })()
     } catch (error) {
-      logger.error('Failed to create message', 'MessageService', { 
-        messageId: message.id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to create message', 'MessageService', {
+        messageId: message.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
     }
@@ -87,7 +89,9 @@ export class MessageService extends BaseDatabaseService {
       this.validateId(chatId)
 
       // Check which column exists for ordering
-      const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      const columns = this.db.prepare('PRAGMA table_info(messages)').all() as Array<{
+        name: string
+      }>
       const hasCreatedAt = columns.some(col => col.name === 'created_at')
       const orderColumn = hasCreatedAt ? 'created_at' : 'timestamp'
 
@@ -104,9 +108,9 @@ export class MessageService extends BaseDatabaseService {
         metadata: msg.metadata ? JSON.parse(msg.metadata) : null
       }))
     } catch (error) {
-      logger.error('Failed to retrieve messages', 'MessageService', { 
-        chatId, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to retrieve messages', 'MessageService', {
+        chatId,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       return []
     }
@@ -132,9 +136,9 @@ export class MessageService extends BaseDatabaseService {
 
       return undefined
     } catch (error) {
-      logger.error('Failed to retrieve message', 'MessageService', { 
-        messageId: id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to retrieve message', 'MessageService', {
+        messageId: id,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       return undefined
     }
@@ -153,9 +157,9 @@ export class MessageService extends BaseDatabaseService {
         stmt.run(content, id)
       })()
     } catch (error) {
-      logger.error('Failed to update message', 'MessageService', { 
-        messageId: id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to update message', 'MessageService', {
+        messageId: id,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
     }
@@ -175,9 +179,9 @@ export class MessageService extends BaseDatabaseService {
 
       logger.info('Message deleted', 'MessageService', { messageId: id })
     } catch (error) {
-      logger.error('Failed to delete message', 'MessageService', { 
-        messageId: id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to delete message', 'MessageService', {
+        messageId: id,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
     }
@@ -197,9 +201,9 @@ export class MessageService extends BaseDatabaseService {
 
       logger.info('Messages deleted for chat', 'MessageService', { chatId })
     } catch (error) {
-      logger.error('Failed to delete messages for chat', 'MessageService', { 
-        chatId, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to delete messages for chat', 'MessageService', {
+        chatId,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
     }
@@ -220,9 +224,9 @@ export class MessageService extends BaseDatabaseService {
         stmt.run(error, errorDetails || null, id)
       })()
     } catch (error) {
-      logger.error('Failed to add message error', 'MessageService', { 
-        messageId: id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to add message error', 'MessageService', {
+        messageId: id,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw error
     }
@@ -239,9 +243,9 @@ export class MessageService extends BaseDatabaseService {
       const result = stmt.get(chatId) as { count: number }
       return result.count
     } catch (error) {
-      logger.error('Failed to get message count', 'MessageService', { 
-        chatId, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to get message count', 'MessageService', {
+        chatId,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       return 0
     }
@@ -253,13 +257,13 @@ export class MessageService extends BaseDatabaseService {
   getRecentMessages(limit: number = 50): MessageRecord[] {
     try {
       // Check which column exists for ordering
-      const columns = this.db.prepare("PRAGMA table_info(messages)").all() as Array<{name: string}>
+      const columns = this.db.prepare('PRAGMA table_info(messages)').all() as Array<{
+        name: string
+      }>
       const hasCreatedAt = columns.some(col => col.name === 'created_at')
       const orderColumn = hasCreatedAt ? 'created_at' : 'timestamp'
 
-      const stmt = this.db.prepare(
-        `SELECT * FROM messages ORDER BY ${orderColumn} DESC LIMIT ?`
-      )
+      const stmt = this.db.prepare(`SELECT * FROM messages ORDER BY ${orderColumn} DESC LIMIT ?`)
       const messages = stmt.all(limit) as any[]
 
       return messages.map(msg => ({
@@ -269,9 +273,9 @@ export class MessageService extends BaseDatabaseService {
         metadata: msg.metadata ? JSON.parse(msg.metadata) : null
       }))
     } catch (error) {
-      logger.error('Failed to retrieve recent messages', 'MessageService', { 
-        limit, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      logger.error('Failed to retrieve recent messages', 'MessageService', {
+        limit,
+        error: error instanceof Error ? error.message : 'Unknown error'
       })
       return []
     }

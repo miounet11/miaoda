@@ -1,10 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="toast">
-      <div
-        v-if="visible"
-        class="toast fixed top-4 right-4 z-[100] max-w-sm w-full"
-      >
+      <div v-if="visible" class="toast fixed top-4 right-4 z-[100] max-w-sm w-full">
         <div
           class="toast-content bg-background border border-border rounded-lg shadow-lg p-4 backdrop-blur-sm"
           :class="typeClasses"
@@ -17,13 +14,13 @@
               <Info v-else-if="type === 'info'" :size="18" class="text-blue-600" />
               <AlertTriangle v-else-if="type === 'warning'" :size="18" class="text-yellow-600" />
             </div>
-            
+
             <!-- Content -->
             <div class="flex-1 min-w-0">
               <div v-if="title" class="font-medium text-sm mb-1">{{ title }}</div>
               <div class="text-sm text-muted-foreground">{{ message }}</div>
             </div>
-            
+
             <!-- Close button -->
             <button
               v-if="dismissible"
@@ -60,7 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'hidden': []
+  hidden: []
 }>()
 
 const visible = ref(false)
@@ -75,7 +72,7 @@ const typeClasses = {
 
 const show = () => {
   visible.value = true
-  
+
   if (props.duration > 0) {
     timeoutId = setTimeout(() => {
       hide()
@@ -93,13 +90,16 @@ const hide = () => {
 }
 
 // Watch for show prop changes
-watch(() => props.show, (newValue) => {
-  if (newValue) {
-    show()
-  } else {
-    hide()
+watch(
+  () => props.show,
+  newValue => {
+    if (newValue) {
+      show()
+    } else {
+      hide()
+    }
   }
-})
+)
 
 // Auto-show when mounted if show prop is true
 onMounted(() => {

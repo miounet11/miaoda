@@ -31,14 +31,14 @@ class ToastService {
   show(options: ToastOptions): string {
     const toast = this.createToast(options)
     this.toasts.value.push(toast)
-    
+
     // Auto-remove after duration
     if (toast.duration && toast.duration > 0) {
       setTimeout(() => {
         this.hide(toast.id)
       }, toast.duration)
     }
-    
+
     return toast.id
   }
 

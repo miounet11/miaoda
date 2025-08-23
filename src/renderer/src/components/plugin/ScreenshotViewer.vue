@@ -8,8 +8,8 @@
           :alt="`Screenshot ${selectedIndex + 1}`"
           class="screenshot-image"
           @click="openFullscreen"
-        >
-        
+        />
+
         <!-- Navigation overlay -->
         <div v-if="screenshots.length > 1" class="navigation-overlay">
           <button
@@ -21,7 +21,7 @@
           >
             <ChevronLeft :size="20" />
           </button>
-          
+
           <button
             v-if="selectedIndex < screenshots.length - 1"
             type="button"
@@ -49,11 +49,7 @@
           :class="{ active: index === selectedIndex }"
           @click="selectScreenshot(index)"
         >
-          <img
-            :src="screenshot"
-            :alt="`Screenshot ${index + 1}`"
-            class="thumbnail-image"
-          >
+          <img :src="screenshot" :alt="`Screenshot ${index + 1}`" class="thumbnail-image" />
         </button>
       </div>
     </div>
@@ -76,14 +72,14 @@
           >
             <X :size="24" />
           </button>
-          
+
           <img
             :src="selectedScreenshot"
             :alt="`Screenshot ${selectedIndex + 1}`"
             class="fullscreen-image"
             @click.stop
-          >
-          
+          />
+
           <!-- Fullscreen navigation -->
           <div v-if="screenshots.length > 1" class="fullscreen-navigation">
             <button
@@ -95,11 +91,9 @@
             >
               <ChevronLeft :size="24" />
             </button>
-            
-            <div class="fullscreen-counter">
-              {{ selectedIndex + 1 }} / {{ screenshots.length }}
-            </div>
-            
+
+            <div class="fullscreen-counter">{{ selectedIndex + 1 }} / {{ screenshots.length }}</div>
+
             <button
               v-if="selectedIndex < screenshots.length - 1"
               type="button"
@@ -164,7 +158,7 @@ const closeFullscreen = () => {
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (!showFullscreen.value) return
-  
+
   switch (event.key) {
     case 'ArrowLeft':
       prevScreenshot()

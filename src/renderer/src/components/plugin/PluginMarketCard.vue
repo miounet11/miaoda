@@ -3,7 +3,7 @@
     :class="[
       'plugin-card',
       viewMode === 'list' ? 'list-card' : 'grid-card',
-      { 'installing': plugin.status === 'updating' }
+      { installing: plugin.status === 'updating' }
     ]"
     @click="$emit('click')"
   >
@@ -12,15 +12,10 @@
       <!-- Plugin Header -->
       <div class="card-header">
         <div class="plugin-icon-container">
-          <img
-            v-if="plugin.icon"
-            :src="plugin.icon"
-            :alt="plugin.name"
-            class="plugin-icon"
-          >
+          <img v-if="plugin.icon" :src="plugin.icon" :alt="plugin.name" class="plugin-icon" />
           <Package v-else :size="32" class="plugin-icon-default" />
         </div>
-        
+
         <div class="plugin-badges">
           <span v-if="plugin.verified" class="badge verified" title="认证插件">
             <Shield :size="12" />
@@ -39,7 +34,7 @@
         <h3 class="plugin-name" :title="plugin.name">{{ plugin.name }}</h3>
         <p class="plugin-author">by {{ plugin.author }}</p>
         <p class="plugin-description">{{ plugin.shortDescription || plugin.description }}</p>
-        
+
         <!-- Stats -->
         <div class="plugin-stats">
           <div class="stat-item">
@@ -55,11 +50,7 @@
 
         <!-- Tags -->
         <div class="plugin-tags">
-          <span
-            v-for="tag in plugin.tags.slice(0, 3)"
-            :key="tag"
-            class="tag"
-          >
+          <span v-for="tag in plugin.tags.slice(0, 3)" :key="tag" class="tag">
             {{ tag }}
           </span>
           <span v-if="plugin.tags.length > 3" class="tag-more">
@@ -88,7 +79,7 @@
             安装
           </button>
         </template>
-        
+
         <button @click.stop="$emit('rate', plugin)" class="action-btn-secondary rate">
           <Star :size="16" />
         </button>
@@ -101,15 +92,10 @@
         <!-- Left Side -->
         <div class="list-left">
           <div class="plugin-icon-container">
-            <img
-              v-if="plugin.icon"
-              :src="plugin.icon"
-              :alt="plugin.name"
-              class="plugin-icon"
-            >
+            <img v-if="plugin.icon" :src="plugin.icon" :alt="plugin.name" class="plugin-icon" />
             <Package v-else :size="40" class="plugin-icon-default" />
           </div>
-          
+
           <div class="plugin-info">
             <div class="info-header">
               <h3 class="plugin-name">{{ plugin.name }}</h3>
@@ -125,10 +111,10 @@
                 </span>
               </div>
             </div>
-            
+
             <p class="plugin-author">by {{ plugin.author }}</p>
             <p class="plugin-description">{{ plugin.description }}</p>
-            
+
             <div class="plugin-meta">
               <span class="version">v{{ plugin.version }}</span>
               <span class="separator">•</span>
@@ -152,7 +138,7 @@
               <span class="stat-value">{{ formatNumber(plugin.downloads) }}</span>
             </div>
           </div>
-          
+
           <div class="list-actions">
             <template v-if="plugin.status === 'installed'">
               <button @click.stop="$emit('uninstall', plugin)" class="action-btn uninstall">
@@ -172,7 +158,7 @@
                 安装
               </button>
             </template>
-            
+
             <button @click.stop="$emit('rate', plugin)" class="action-btn-secondary rate">
               <Star :size="16" />
             </button>
@@ -193,8 +179,14 @@
 
 <script setup lang="ts">
 import {
-  Package, Shield, Sparkles, DollarSign, Star, Download,
-  Trash2, Loader2
+  Package,
+  Shield,
+  Sparkles,
+  DollarSign,
+  Star,
+  Download,
+  Trash2,
+  Loader2
 } from 'lucide-vue-next'
 
 import type { PluginMarketListing } from '../../types/plugins'
@@ -229,7 +221,7 @@ const formatDate = (dateString: string): string => {
   const now = new Date()
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 1) return '昨天'
   if (diffDays < 7) return `${diffDays}天前`
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前`

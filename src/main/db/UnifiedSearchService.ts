@@ -1,11 +1,7 @@
 import { BaseDatabaseService } from './BaseDatabaseService'
 import { logger } from '../utils/Logger'
 import Database from 'better-sqlite3'
-import type {
-  SearchQuery,
-  SearchMatch,
-  DBSearchResult
-} from './searchTypes'
+import type { SearchQuery, SearchMatch, DBSearchResult } from './searchTypes'
 import type { ChatRecord, MessageRecord } from './types'
 
 /**
@@ -34,21 +30,21 @@ export interface UnifiedSearchConfig {
     // Basic search options
     fuzzySearch?: boolean
     caseSensitive?: boolean
-    
+
     // Advanced search options
     contextAware?: boolean
     includeRelated?: boolean
     maxResults?: number
-    
+
     // Semantic search options
     vectorSearch?: boolean
     similarityThreshold?: number
     embeddings?: boolean
-    
+
     // Multimodal search options
     imageSearch?: boolean
     audioSearch?: boolean
-    
+
     // Performance options
     cacheEnabled?: boolean
     cacheTimeout?: number
@@ -92,7 +88,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
         ...config.options
       }
     }
-    
+
     if (config.options?.cacheTimeout) {
       this.cacheTimeout = config.options.cacheTimeout
     }
@@ -104,12 +100,19 @@ export class UnifiedSearchService extends BaseDatabaseService {
   private initializeSearchIndex(): void {
     try {
       // Check if FTS index needs rebuilding
-      const ftsCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as { count: number } | null
-      const messagesCount = this.db.prepare('SELECT COUNT(*) as count FROM messages').get() as { count: number } | null
+      const ftsCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as {
+        count: number
+      } | null
+      const messagesCount = this.db.prepare('SELECT COUNT(*) as count FROM messages').get() as {
+        count: number
+      } | null
 
       // Handle mock database case where get() returns null
       if (!ftsCount || !messagesCount) {
-        logger.warn('Mock database detected, skipping search index initialization', 'UnifiedSearchService')
+        logger.warn(
+          'Mock database detected, skipping search index initialization',
+          'UnifiedSearchService'
+        )
         return
       }
 
@@ -125,9 +128,12 @@ export class UnifiedSearchService extends BaseDatabaseService {
   /**
    * Main search method - routes to appropriate search implementation
    */
-  async search(query: string | SearchQuery, config?: Partial<UnifiedSearchConfig>): Promise<SearchResult[]> {
+  async search(
+    query: string | SearchQuery,
+    config?: Partial<UnifiedSearchConfig>
+  ): Promise<SearchResult[]> {
     const searchConfig = config ? { ...this.currentConfig, ...config } : this.currentConfig
-    
+
     // Check cache if enabled
     if (searchConfig.options?.cacheEnabled) {
       const cached = this.getCachedResult(query)
@@ -135,7 +141,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
     }
 
     let results: SearchResult[]
-    
+
     switch (searchConfig.mode) {
       case 'semantic':
         results = await this.semanticSearch(query, searchConfig)
@@ -168,10 +174,13 @@ export class UnifiedSearchService extends BaseDatabaseService {
   /**
    * Basic search implementation
    */
-  private async basicSearch(query: string | SearchQuery, config: UnifiedSearchConfig): Promise<SearchResult[]> {
+  private async basicSearch(
+    query: string | SearchQuery,
+    config: UnifiedSearchConfig
+  ): Promise<SearchResult[]> {
     const searchQuery = typeof query === 'string' ? query : query.text
     const results: SearchResult[] = []
-    
+
     try {
       // Search in messages using FTS
       const messageStmt = this.db.prepare(`
@@ -190,9 +199,9 @@ export class UnifiedSearchService extends BaseDatabaseService {
         ORDER BY rank
         LIMIT ?
       `)
-      
+
       const messages = messageStmt.all(
-        searchQuery, 
+        searchQuery,
         config.options?.maxResults || 100
       ) as DBSearchResult[]
 
@@ -219,7 +228,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
           ORDER BY updated_at DESC 
           LIMIT ?
         `)
-        
+
         const chats = chatStmt.all(
           `%${searchQuery}%`,
           config.options?.maxResults || 100
@@ -250,57 +259,66 @@ export class UnifiedSearchService extends BaseDatabaseService {
   /**
    * Advanced search with context awareness
    */
-  private async advancedSearch(query: string | SearchQuery, config: UnifiedSearchConfig): Promise<SearchResult[]> {
+  private async advancedSearch(
+    query: string | SearchQuery,
+    config: UnifiedSearchConfig
+  ): Promise<SearchResult[]> {
     // Start with basic search
     let results = await this.basicSearch(query, config)
-    
+
     // Enhance with context if enabled
     if (config.options?.contextAware) {
       results = this.enhanceWithContext(results)
     }
-    
+
     // Include related results if enabled
     if (config.options?.includeRelated) {
       const related = await this.findRelatedContent(results)
       results = [...results, ...related]
     }
-    
+
     // Re-rank results based on relevance
     results = this.rankResults(results, query)
-    
+
     return results
   }
 
   /**
    * Semantic search using embeddings (simplified implementation)
    */
-  private async semanticSearch(query: string | SearchQuery, config: UnifiedSearchConfig): Promise<SearchResult[]> {
+  private async semanticSearch(
+    query: string | SearchQuery,
+    config: UnifiedSearchConfig
+  ): Promise<SearchResult[]> {
     // For now, use advanced search as base
     let results = await this.advancedSearch(query, config)
-    
+
     // If vector search is enabled, enhance with similarity scoring
     if (config.options?.vectorSearch) {
       results = this.calculateSimilarityScores(results, query)
-      
+
       // Filter by similarity threshold
       if (config.options?.similarityThreshold) {
         results = results.filter(r => r.score >= config.options!.similarityThreshold!)
       }
     }
-    
+
     return results
   }
 
   /**
    * Multimodal search (simplified implementation)
    */
-  private async multimodalSearch(query: string | SearchQuery, config: UnifiedSearchConfig): Promise<SearchResult[]> {
+  private async multimodalSearch(
+    query: string | SearchQuery,
+    config: UnifiedSearchConfig
+  ): Promise<SearchResult[]> {
     // Start with semantic search
     const results = await this.semanticSearch(query, config)
-    
+
     // TODO: Add image and audio search when attachments are implemented
     // For now, just return semantic search results
-    
+
     return results
   }
 
@@ -309,7 +327,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   searchChats(query: string): ChatRecord[] {
     this.validateText(query, 'search query')
-    
+
     const stmt = this.db.prepare(`
       SELECT DISTINCT c.* 
       FROM chats c 
@@ -317,7 +335,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
       WHERE c.title LIKE ? OR m.content LIKE ? 
       ORDER BY c.updated_at DESC
     `)
-    
+
     const searchPattern = `%${query}%`
     return stmt.all(searchPattern, searchPattern) as ChatRecord[]
   }
@@ -347,8 +365,10 @@ export class UnifiedSearchService extends BaseDatabaseService {
     indexSize: number
     lastRebuild: string | null
   } {
-    const messageCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as { count: number }
-    
+    const messageCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as {
+      count: number
+    }
+
     return {
       totalIndexedMessages: messageCount.count,
       indexSize: messageCount.count * 100, // Rough estimate
@@ -362,36 +382,35 @@ export class UnifiedSearchService extends BaseDatabaseService {
     const matches: SearchMatch[] = []
     const lowerContent = content.toLowerCase()
     const lowerQuery = query.toLowerCase()
-    
+
     let index = lowerContent.indexOf(lowerQuery)
     while (index !== -1) {
       const start = Math.max(0, index - 30)
       const end = Math.min(content.length, index + query.length + 30)
-      
+
       matches.push({
         field: 'content' as const,
         text: content.substring(start, end),
         startIndex: index - start,
         endIndex: index - start + query.length,
-        highlighted: content.substring(start, end).replace(
-          new RegExp(`(${query})`, 'gi'), 
-          '<mark>$1</mark>'
-        )
+        highlighted: content
+          .substring(start, end)
+          .replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>')
       })
-      
+
       index = lowerContent.indexOf(lowerQuery, index + 1)
     }
-    
+
     return matches
   }
 
   private enhanceWithContext(results: SearchResult[]): SearchResult[] {
     // Add context messages around each result
     const enhanced: SearchResult[] = []
-    
+
     for (const result of results) {
       enhanced.push(result)
-      
+
       // Get surrounding messages
       const contextStmt = this.db.prepare(`
         SELECT * FROM messages 
@@ -400,14 +419,14 @@ export class UnifiedSearchService extends BaseDatabaseService {
         AND id != ?
         ORDER BY created_at
       `)
-      
+
       const contextMessages = contextStmt.all(
         result.chatId,
         result.timestamp,
         result.timestamp,
         result.id
       ) as MessageRecord[]
-      
+
       // Add context messages with lower scores
       for (const msg of contextMessages) {
         enhanced.push({
@@ -422,7 +441,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
         })
       }
     }
-    
+
     return enhanced
   }
 
@@ -430,23 +449,26 @@ export class UnifiedSearchService extends BaseDatabaseService {
     // Find related content based on chat IDs
     const chatIds = [...new Set(results.map(r => r.chatId))]
     const related: SearchResult[] = []
-    
-    for (const chatId of chatIds.slice(0, 5)) { // Limit to first 5 chats
+
+    for (const chatId of chatIds.slice(0, 5)) {
+      // Limit to first 5 chats
       const relatedStmt = this.db.prepare(`
         SELECT * FROM messages 
         WHERE chat_id = ? 
         ORDER BY created_at DESC 
         LIMIT 5
       `)
-      
+
       const messages = relatedStmt.all(chatId) as MessageRecord[]
-      
+
       for (const msg of messages) {
         // Skip if already in results
         if (results.some(r => r.id === msg.id)) continue
-        
-        const chat = this.db.prepare('SELECT title FROM chats WHERE id = ?').get(chatId) as { title: string }
-        
+
+        const chat = this.db.prepare('SELECT title FROM chats WHERE id = ?').get(chatId) as {
+          title: string
+        }
+
         related.push({
           id: msg.id,
           chatId: msg.chat_id,
@@ -460,53 +482,59 @@ export class UnifiedSearchService extends BaseDatabaseService {
         })
       }
     }
-    
+
     return related
   }
 
   private rankResults(results: SearchResult[], query: string | SearchQuery): SearchResult[] {
     const searchQuery = typeof query === 'string' ? query : query.text
-    
+
     // Calculate relevance scores
     for (const result of results) {
       let score = result.score || 0
-      
+
       // Boost for exact matches
       if (result.content.toLowerCase().includes(searchQuery.toLowerCase())) {
         score += 0.5
       }
-      
+
       // Boost for title matches
-      if (result.type === 'chat' || result.chatTitle.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (
+        result.type === 'chat' ||
+        result.chatTitle.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
         score += 0.3
       }
-      
+
       // Boost for recent messages
       const age = Date.now() - new Date(result.timestamp).getTime()
       const ageBoost = Math.max(0, 1 - age / (30 * 24 * 60 * 60 * 1000)) // 30 days
       score += ageBoost * 0.2
-      
+
       result.score = score
     }
-    
+
     // Sort by score
     return results.sort((a, b) => b.score - a.score)
   }
 
-  private calculateSimilarityScores(results: SearchResult[], query: string | SearchQuery): SearchResult[] {
+  private calculateSimilarityScores(
+    results: SearchResult[],
+    query: string | SearchQuery
+  ): SearchResult[] {
     const searchQuery = typeof query === 'string' ? query : query.text
-    
+
     // Simple similarity calculation (would use embeddings in production)
     for (const result of results) {
       const words1 = searchQuery.toLowerCase().split(/\s+/)
       const words2 = result.content.toLowerCase().split(/\s+/)
-      
+
       const commonWords = words1.filter(w => words2.includes(w))
       const similarity = commonWords.length / Math.max(words1.length, words2.length)
-      
+
       result.score = (result.score || 0) + similarity
     }
-    
+
     return results
   }
 
@@ -515,16 +543,16 @@ export class UnifiedSearchService extends BaseDatabaseService {
   private getCachedResult(query: string | SearchQuery): SearchResult[] | null {
     const key = this.getCacheKey(query)
     const cached = this.searchCache.get(key)
-    
+
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.result
     }
-    
+
     // Clean expired cache
     if (cached) {
       this.searchCache.delete(key)
     }
-    
+
     return null
   }
 
@@ -534,7 +562,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
       result,
       timestamp: Date.now()
     })
-    
+
     // Limit cache size
     if (this.searchCache.size > 100) {
       const firstKey = this.searchCache.keys().next().value

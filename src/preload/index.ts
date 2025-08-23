@@ -7,12 +7,17 @@ const api = {
     login: (credentials: any) => ipcRenderer.invoke('auth:login', credentials),
     register: (userData: any) => ipcRenderer.invoke('auth:register', userData),
     logout: (params: any) => ipcRenderer.invoke('auth:logout', params),
-    refreshToken: (data: { refreshToken: string }) => ipcRenderer.invoke('auth:refresh-token', data),
-    validateSession: (data: { sessionId: string }) => ipcRenderer.invoke('auth:validate-session', data),
-    requestPasswordReset: (request: any) => ipcRenderer.invoke('auth:request-password-reset', request),
-    confirmPasswordReset: (request: any) => ipcRenderer.invoke('auth:confirm-password-reset', request),
+    refreshToken: (data: { refreshToken: string }) =>
+      ipcRenderer.invoke('auth:refresh-token', data),
+    validateSession: (data: { sessionId: string }) =>
+      ipcRenderer.invoke('auth:validate-session', data),
+    requestPasswordReset: (request: any) =>
+      ipcRenderer.invoke('auth:request-password-reset', request),
+    confirmPasswordReset: (request: any) =>
+      ipcRenderer.invoke('auth:confirm-password-reset', request),
     getSessions: (data: { sessionId: string }) => ipcRenderer.invoke('auth:get-sessions', data),
-    revokeSession: (data: { sessionId: string; targetSessionId: string }) => ipcRenderer.invoke('auth:revoke-session', data),
+    revokeSession: (data: { sessionId: string; targetSessionId: string }) =>
+      ipcRenderer.invoke('auth:revoke-session', data),
     updateProfile: (data: any) => ipcRenderer.invoke('auth:update-profile', data),
     changePassword: (data: any) => ipcRenderer.invoke('auth:change-password', data)
   },
@@ -25,18 +30,24 @@ const api = {
   },
   db: {
     createChat: (chat: any) => ipcRenderer.invoke('db:create-chat', chat),
-    updateChat: (id: string, title: string, updated_at: string) => 
+    updateChat: (id: string, title: string, updated_at: string) =>
       ipcRenderer.invoke('db:update-chat', id, title, updated_at),
     deleteChat: (id: string) => ipcRenderer.invoke('db:delete-chat', id),
     getChat: (id: string) => ipcRenderer.invoke('db:get-chat', id),
     getAllChats: () => ipcRenderer.invoke('db:get-all-chats'),
     createMessage: (message: any) => ipcRenderer.invoke('db:create-message', message),
-    updateMessage: (messageId: string, content: string) => ipcRenderer.invoke('db:update-message', messageId, content),
+    updateMessage: (messageId: string, content: string) =>
+      ipcRenderer.invoke('db:update-message', messageId, content),
     getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
     searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query),
     // Summary methods
-    updateChatSummary: (chatId: string, summary: string, tags: string[], keyPoints: string[], tokens?: number) =>
-      ipcRenderer.invoke('db:update-chat-summary', chatId, summary, tags, keyPoints, tokens),
+    updateChatSummary: (
+      chatId: string,
+      summary: string,
+      tags: string[],
+      keyPoints: string[],
+      tokens?: number
+    ) => ipcRenderer.invoke('db:update-chat-summary', chatId, summary, tags, keyPoints, tokens),
     getChatSummary: (chatId: string) => ipcRenderer.invoke('db:get-chat-summary', chatId),
     getAllChatsWithSummaries: () => ipcRenderer.invoke('db:get-all-chats-with-summaries'),
     searchChatsByTags: (tags: string[]) => ipcRenderer.invoke('db:search-chats-by-tags', tags),
@@ -46,7 +57,8 @@ const api = {
       ipcRenderer.invoke('db:needs-summary-update', chatId, minMessages, maxAgeHours),
     // Analytics methods
     generateAnalytics: (filter: any) => ipcRenderer.invoke('db:generate-analytics', filter),
-    getAnalyticsSummary: (timeRange?: string) => ipcRenderer.invoke('db:get-analytics-summary', timeRange)
+    getAnalyticsSummary: (timeRange?: string) =>
+      ipcRenderer.invoke('db:get-analytics-summary', timeRange)
   },
   search: {
     messages: (searchQuery: any) => ipcRenderer.invoke('search:messages', searchQuery),
@@ -81,7 +93,7 @@ const api = {
   },
   llm: {
     setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
-    sendMessage: (message: string | any[], chatId: string, messageId: string) => 
+    sendMessage: (message: string | any[], chatId: string, messageId: string) =>
       ipcRenderer.invoke('llm:sendMessage', message, chatId, messageId),
     getConfig: () => ipcRenderer.invoke('llm:getConfig'),
     isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
@@ -90,21 +102,18 @@ const api = {
     getAllProviders: () => ipcRenderer.invoke('llm:getAllProviders'),
     // Custom provider methods
     addCustomProvider: (config: any) => ipcRenderer.invoke('llm:addCustomProvider', config),
-    updateCustomProvider: (id: string, updates: any) => 
+    updateCustomProvider: (id: string, updates: any) =>
       ipcRenderer.invoke('llm:updateCustomProvider', id, updates),
     removeCustomProvider: (id: string) => ipcRenderer.invoke('llm:removeCustomProvider', id),
     getAllCustomProviders: () => ipcRenderer.invoke('llm:getAllCustomProviders'),
     getCustomProvider: (id: string) => ipcRenderer.invoke('llm:getCustomProvider', id),
-    checkCustomProviderHealth: (id: string) => 
+    checkCustomProviderHealth: (id: string) =>
       ipcRenderer.invoke('llm:checkCustomProviderHealth', id),
-    checkAllCustomProvidersHealth: () => 
-      ipcRenderer.invoke('llm:checkAllCustomProvidersHealth'),
-    getAllProviderHealthStatuses: () => 
-      ipcRenderer.invoke('llm:getAllProviderHealthStatuses'),
-    getCustomProviderHealth: (id: string) => 
-      ipcRenderer.invoke('llm:getCustomProviderHealth', id),
+    checkAllCustomProvidersHealth: () => ipcRenderer.invoke('llm:checkAllCustomProvidersHealth'),
+    getAllProviderHealthStatuses: () => ipcRenderer.invoke('llm:getAllProviderHealthStatuses'),
+    getCustomProviderHealth: (id: string) => ipcRenderer.invoke('llm:getCustomProviderHealth', id),
     exportCustomProviders: () => ipcRenderer.invoke('llm:exportCustomProviders'),
-    importCustomProviders: (providers: any[]) => 
+    importCustomProviders: (providers: any[]) =>
       ipcRenderer.invoke('llm:importCustomProviders', providers),
     onChunk: (callback: (data: any) => void) => {
       const handler = (_: any, data: any) => callback(data)
@@ -139,7 +148,7 @@ const api = {
         'shortcut:prev-chat',
         'shortcut:next-chat'
       ]
-      
+
       events.forEach(event => {
         ipcRenderer.on(event, () => callback(event.replace('shortcut:', '')))
       })
@@ -155,9 +164,9 @@ const api = {
     getChats: (chatIds: string[]) => ipcRenderer.invoke('export:get-chats', chatIds),
     getAllChats: () => ipcRenderer.invoke('export:get-all-chats'),
     getMessages: (chatId: string) => ipcRenderer.invoke('export:get-messages', chatId),
-    getChatsStream: (chatIds: string[], batchSize?: number) => 
+    getChatsStream: (chatIds: string[], batchSize?: number) =>
       ipcRenderer.invoke('export:get-chats-stream', chatIds, batchSize),
-    getMessagesStream: (chatId: string, offset?: number, limit?: number) => 
+    getMessagesStream: (chatId: string, offset?: number, limit?: number) =>
       ipcRenderer.invoke('export:get-messages-stream', chatId, offset, limit),
     onProgress: (callback: (data: any) => void) => {
       const handler = (_: any, data: any) => callback(data)

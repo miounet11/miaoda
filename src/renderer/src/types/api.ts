@@ -161,7 +161,11 @@ export interface ParameterDefinition {
   required?: string[]
 }
 
-export type ToolChoice = 'none' | 'auto' | 'required' | { type: 'function'; function: { name: string } }
+export type ToolChoice =
+  | 'none'
+  | 'auto'
+  | 'required'
+  | { type: 'function'; function: { name: string } }
 
 export interface ToolCall {
   id: string

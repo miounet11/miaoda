@@ -1,7 +1,7 @@
 /**
  * 多因素认证 (MFA) 管理器
  * 提供多种二次认证方法的安全实现
- * 
+ *
  * 支持的MFA方法：
  * - TOTP (Time-based One-Time Password) - RFC 6238
  * - SMS 二次验证
@@ -9,7 +9,7 @@
  * - 硬件安全密钥 (WebAuthn/FIDO2)
  * - 备份码
  * - 生物识别 (如支持)
- * 
+ *
  * 安全特性：
  * - 防暴力破解保护
  * - 验证码限时有效
@@ -139,7 +139,6 @@ export class MFAManager extends EventEmitter {
         backupCodes,
         manualEntryKey: secret.base32!
       }
-
     } catch (error) {
       this.emit('mfaSetupError', { userId, method: 'totp', error })
       throw new Error(`TOTP setup failed: ${error}`)
@@ -169,7 +168,7 @@ export class MFAManager extends EventEmitter {
       totpConfig.enabled = true
       totpConfig.setupCompleted = true
       totpConfig.failureCount = 0
-      
+
       this.emit('mfaEnabled', { userId, method: 'totp' })
       return true
     } else {
@@ -221,14 +220,17 @@ export class MFAManager extends EventEmitter {
       totpConfig.lockedUntil = undefined
 
       this.emit('mfaVerified', { userId, method: 'totp' })
-      
+
       return {
         success: true,
         method: 'totp'
       }
     } else {
       totpConfig.failureCount++
-      const remainingAttempts = Math.max(0, this.strategy.maxFailureAttempts - totpConfig.failureCount)
+      const remainingAttempts = Math.max(
+        0,
+        this.strategy.maxFailureAttempts - totpConfig.failureCount
+      )
 
       if (totpConfig.failureCount >= this.strategy.maxFailureAttempts) {
         totpConfig.lockedUntil = Date.now() + this.strategy.lockoutDuration
@@ -291,7 +293,7 @@ export class MFAManager extends EventEmitter {
 
     this.verificationCodes.set(codeKey, {
       code: this.hashVerificationCode(code),
-      expiresAt: Date.now() + (5 * 60 * 1000), // 5分钟有效
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5分钟有效
       attempts: 0,
       method: 'sms'
     })
@@ -299,8 +301,12 @@ export class MFAManager extends EventEmitter {
     try {
       // 在实际应用中，这里应该调用SMS服务提供商的API
       await this.sendSMSMessage(targetPhone!, code)
-      
-      this.emit('verificationCodeSent', { userId, method: 'sms', to: this.maskPhoneNumber(targetPhone!) })
+
+      this.emit('verificationCodeSent', {
+        userId,
+        method: 'sms',
+        to: this.maskPhoneNumber(targetPhone!)
+      })
     } catch (error) {
       this.verificationCodes.delete(codeKey)
       throw new Error(`Failed to send SMS: ${error}`)
@@ -359,7 +365,7 @@ export class MFAManager extends EventEmitter {
 
     this.verificationCodes.set(codeKey, {
       code: this.hashVerificationCode(code),
-      expiresAt: Date.now() + (10 * 60 * 1000), // 10分钟有效
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10分钟有效
       attempts: 0,
       method: 'email'
     })
@@ -367,8 +373,12 @@ export class MFAManager extends EventEmitter {
     try {
       // 在实际应用中，这里应该调用邮件服务提供商的API
       await this.sendEmailMessage(targetEmail!, code)
-      
-      this.emit('verificationCodeSent', { userId, method: 'email', to: this.maskEmail(targetEmail!) })
+
+      this.emit('verificationCodeSent', {
+        userId,
+        method: 'email',
+        to: this.maskEmail(targetEmail!)
+      })
     } catch (error) {
       this.verificationCodes.delete(codeKey)
       throw new Error(`Failed to send email: ${error}`)
@@ -385,7 +395,11 @@ export class MFAManager extends EventEmitter {
   /**
    * 验证码通用验证方法
    */
-  private async verifyCode(userId: string, inputCode: string, method: 'sms' | 'email'): Promise<VerificationResult> {
+  private async verifyCode(
+    userId: string,
+    inputCode: string,
+    method: 'sms' | 'email'
+  ): Promise<VerificationResult> {
     const codeKey = `${userId}:${method}`
     const storedCode = this.verificationCodes.get(codeKey)
 
@@ -424,32 +438,32 @@ export class MFAManager extends EventEmitter {
     if (hashedInput === storedCode.code) {
       // 验证成功
       this.verificationCodes.delete(codeKey)
-      
+
       const userMFA = this.getUserMFAConfigs(userId)
       const mfaConfig = userMFA.get(method)
-      
+
       if (mfaConfig) {
         mfaConfig.enabled = true
         mfaConfig.setupCompleted = true
         mfaConfig.lastUsed = Date.now()
         mfaConfig.failureCount = 0
-        
+
         if (mfaConfig.metadata) {
           mfaConfig.metadata.verified = true
         }
       }
 
       this.emit('mfaVerified', { userId, method })
-      
+
       return {
         success: true,
         method
       }
     } else {
       const remainingAttempts = Math.max(0, this.strategy.maxFailureAttempts - storedCode.attempts)
-      
+
       this.emit('mfaVerificationFailed', { userId, method, remainingAttempts })
-      
+
       return {
         success: false,
         method,
@@ -464,7 +478,7 @@ export class MFAManager extends EventEmitter {
    */
   generateBackupCodes(): string[] {
     const codes: string[] = []
-    
+
     for (let i = 0; i < this.strategy.backupCodesCount; i++) {
       // 生成8位字母数字备份码
       const code = this.generateAlphanumericCode(8)
@@ -493,15 +507,15 @@ export class MFAManager extends EventEmitter {
     const backupCodes = backupConfig.metadata.backupCodes
 
     // 查找匹配的备份码
-    const codeIndex = backupCodes.findIndex((codeObj: any) => 
-      codeObj.code === hashedInput && !codeObj.used
+    const codeIndex = backupCodes.findIndex(
+      (codeObj: any) => codeObj.code === hashedInput && !codeObj.used
     )
 
     if (codeIndex === -1) {
       backupConfig.failureCount++
-      
+
       this.emit('mfaVerificationFailed', { userId, method: 'backup_codes' })
-      
+
       return {
         success: false,
         method: 'backup_codes',
@@ -516,7 +530,7 @@ export class MFAManager extends EventEmitter {
 
     // 检查剩余备份码数量
     const remainingCodes = backupCodes.filter((codeObj: any) => !codeObj.used).length
-    
+
     if (remainingCodes <= 2) {
       this.emit('lowBackupCodes', { userId, remaining: remainingCodes })
     }
@@ -578,11 +592,13 @@ export class MFAManager extends EventEmitter {
         // 不返回敏感信息
         status[method] = {
           ...config,
-          metadata: config.metadata ? {
-            ...config.metadata,
-            secret: undefined,
-            backupCodes: undefined
-          } : undefined
+          metadata: config.metadata
+            ? {
+                ...config.metadata,
+                secret: undefined,
+                backupCodes: undefined
+              }
+            : undefined
         }
       }
     }
@@ -600,7 +616,7 @@ export class MFAManager extends EventEmitter {
     if (mfaConfig) {
       mfaConfig.enabled = false
       mfaConfig.setupCompleted = false
-      
+
       // 清理敏感数据
       if (mfaConfig.metadata) {
         delete mfaConfig.metadata.secret
@@ -654,12 +670,12 @@ export class MFAManager extends EventEmitter {
   private generateAlphanumericCode(length: number): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let code = ''
-    
+
     for (let i = 0; i < length; i++) {
       const randomIndex = crypto.randomInt(chars.length)
       code += chars[randomIndex]
     }
-    
+
     return code
   }
 
@@ -715,7 +731,7 @@ export class MFAManager extends EventEmitter {
   private maskEmail(email: string): string {
     const [user, domain] = email.split('@')
     if (user.length <= 2) return email
-    
+
     const maskedUser = user[0] + '*'.repeat(user.length - 2) + user.slice(-1)
     return `${maskedUser}@${domain}`
   }
@@ -726,7 +742,7 @@ export class MFAManager extends EventEmitter {
   private async sendSMSMessage(phoneNumber: string, code: string): Promise<void> {
     // 在实际应用中，这里应该调用SMS服务提供商的API
     console.log(`SMS to ${phoneNumber}: Your MiaoDa Chat verification code is ${code}`)
-    
+
     // 模拟网络延迟
     await new Promise(resolve => setTimeout(resolve, 1000))
   }
@@ -737,7 +753,7 @@ export class MFAManager extends EventEmitter {
   private async sendEmailMessage(email: string, code: string): Promise<void> {
     // 在实际应用中，这里应该调用邮件服务提供商的API
     console.log(`Email to ${email}: Your MiaoDa Chat verification code is ${code}`)
-    
+
     // 模拟网络延迟
     await new Promise(resolve => setTimeout(resolve, 1500))
   }
@@ -749,7 +765,7 @@ export class MFAManager extends EventEmitter {
     // 每分钟清理过期的验证码
     this.cleanupTimer = setInterval(() => {
       const now = Date.now()
-      
+
       for (const [key, code] of this.verificationCodes.entries()) {
         if (now > code.expiresAt) {
           this.verificationCodes.delete(key)
@@ -766,7 +782,7 @@ export class MFAManager extends EventEmitter {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = null
     }
-    
+
     this.mfaConfigs.clear()
     this.verificationCodes.clear()
     this.removeAllListeners()

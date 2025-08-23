@@ -12,31 +12,31 @@
         <component :is="recordIcon" :size="20" />
         <span class="record-pulse" v-if="isRecording" />
       </button>
-      
+
       <div class="recording-info">
         <div v-if="isRecording" class="recording-status">
           <div class="status-indicator">
             <div class="pulse-dot" />
             <span class="status-text">{{ $t('voice.recording') }}</span>
           </div>
-          
+
           <div class="recording-timer">
             {{ formatDuration(recordingDuration) }}
           </div>
         </div>
-        
+
         <div v-else-if="lastTranscript" class="last-result">
           <span class="transcript-text">{{ lastTranscript }}</span>
           <span class="confidence-badge" :class="confidenceClass">
             {{ Math.round(lastConfidence * 100) }}%
           </span>
         </div>
-        
+
         <div v-else class="recorder-hint">
           {{ recordingHint }}
         </div>
       </div>
-      
+
       <!-- Additional Controls -->
       <div class="additional-controls">
         <button
@@ -47,16 +47,16 @@
         >
           <Pause :size="16" />
         </button>
-        
+
         <button
           @click="toggleContinuous"
           class="control-btn continuous-btn"
-          :class="{ 'active': isContinuous }"
+          :class="{ active: isContinuous }"
           :title="$t('voice.continuousMode')"
         >
           <RotateCcw :size="16" />
         </button>
-        
+
         <button
           @click="showSettings"
           class="control-btn settings-btn"
@@ -66,32 +66,26 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Waveform Visualization -->
-    <div 
-      v-if="showWaveform && (isRecording || audioData.length > 0)" 
-      class="waveform-container"
-    >
+    <div v-if="showWaveform && (isRecording || audioData.length > 0)" class="waveform-container">
       <canvas
         ref="waveformCanvas"
         class="waveform-canvas"
         :width="canvasWidth"
         :height="canvasHeight"
       />
-      
+
       <div class="waveform-overlay">
         <div class="volume-level">
           <span class="volume-label">{{ $t('voice.volume') }}</span>
           <div class="volume-bar">
-            <div 
-              class="volume-fill" 
-              :style="{ width: `${currentVolume * 100}%` }"
-            />
+            <div class="volume-fill" :style="{ width: `${currentVolume * 100}%` }" />
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Recognition Results -->
     <div v-if="showResults && recognitionResults.length > 0" class="recognition-results">
       <div class="results-header">
@@ -100,25 +94,25 @@
           <X :size="14" />
         </button>
       </div>
-      
+
       <div class="results-list">
         <div
           v-for="(result, index) in recognitionResults"
           :key="index"
           class="result-item"
-          :class="{ 'final': result.isFinal }"
+          :class="{ final: result.isFinal }"
         >
           <div class="result-content">
             <span class="result-text">{{ result.transcript }}</span>
             <span class="result-confidence">{{ Math.round(result.confidence * 100) }}%</span>
           </div>
-          
+
           <div v-if="result.alternatives && result.alternatives.length > 0" class="alternatives">
             <button @click="toggleAlternatives(index)" class="alternatives-toggle">
               {{ $t('voice.alternatives') }} ({{ result.alternatives.length }})
-              <ChevronDown :size="12" :class="{ 'rotated': showAlternativesFor === index }" />
+              <ChevronDown :size="12" :class="{ rotated: showAlternativesFor === index }" />
             </button>
-            
+
             <div v-if="showAlternativesFor === index" class="alternatives-list">
               <div
                 v-for="(alt, altIndex) in result.alternatives"
@@ -131,7 +125,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="result-actions">
             <button
               @click="copyResult(result.transcript)"
@@ -140,7 +134,7 @@
             >
               <Copy :size="12" />
             </button>
-            
+
             <button
               @click="useResult(result.transcript)"
               class="action-btn use-btn"
@@ -152,7 +146,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Error Display -->
     <div v-if="error" class="error-display">
       <AlertCircle :size="16" />
@@ -161,7 +155,7 @@
         <X :size="14" />
       </button>
     </div>
-    
+
     <!-- Permission Request -->
     <div v-if="!hasPermission && !isRecording" class="permission-request">
       <Mic :size="24" />
@@ -170,7 +164,7 @@
         {{ $t('voice.grantPermission') }}
       </button>
     </div>
-    
+
     <!-- Settings Modal -->
     <VoiceSettings
       v-if="showSettingsModal"
@@ -183,11 +177,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import {
-  Mic, MicOff, Pause, Play, RotateCcw, Settings, X, Copy, Check,
-  AlertCircle, ChevronDown
+  Mic,
+  MicOff,
+  Pause,
+  Play,
+  RotateCcw,
+  Settings,
+  X,
+  Copy,
+  Check,
+  AlertCircle,
+  ChevronDown
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { voiceService, type VoiceRecognitionResult } from '@renderer/src/services/voice/VoiceService'
+import {
+  voiceService,
+  type VoiceRecognitionResult
+} from '@renderer/src/services/voice/VoiceService'
 import VoiceSettings from './VoiceSettings.vue'
 
 // Props
@@ -213,9 +219,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'recording-start': []
   'recording-end': []
-  'result': [result: VoiceRecognitionResult]
-  'transcript': [text: string]
-  'error': [error: Error]
+  result: [result: VoiceRecognitionResult]
+  transcript: [text: string]
+  error: [error: Error]
 }>()
 
 // Composables
@@ -254,15 +260,15 @@ const canvasHeight = ref(100)
 
 // Computed properties
 const recorderClasses = computed(() => ({
-  'recording': isRecording.value,
-  'paused': isPaused.value,
+  recording: isRecording.value,
+  paused: isPaused.value,
   'has-error': error.value !== null,
   'no-permission': !hasPermission.value
 }))
 
 const recordButtonClasses = computed(() => ({
-  'recording': isRecording.value,
-  'disabled': !isSupported.value || (!hasPermission.value && !isRecording.value)
+  recording: isRecording.value,
+  disabled: !isSupported.value || (!hasPermission.value && !isRecording.value)
 }))
 
 const recordIcon = computed(() => {
@@ -309,22 +315,22 @@ const toggleRecording = async () => {
 const startRecording = async () => {
   try {
     error.value = null
-    
+
     const success = await voiceService.startRecording({
       language: props.language,
       continuous: isContinuous.value,
       interimResults: true,
       maxAlternatives: 3
     })
-    
+
     if (success) {
       isRecording.value = true
       isPaused.value = false
       recordingDuration.value = 0
-      
+
       startAudioAnalysis()
       startTimer()
-      
+
       emit('recording-start')
     }
   } catch (err) {
@@ -335,14 +341,14 @@ const startRecording = async () => {
 
 const stopRecording = async () => {
   const success = voiceService.stopRecognition()
-  
+
   if (success) {
     isRecording.value = false
     isPaused.value = false
-    
+
     stopAudioAnalysis()
     stopTimer()
-    
+
     emit('recording-end')
   }
 }
@@ -350,7 +356,7 @@ const stopRecording = async () => {
 const pauseRecording = () => {
   if (isRecording.value) {
     isPaused.value = !isPaused.value
-    
+
     if (isPaused.value) {
       stopAudioAnalysis()
     } else {
@@ -376,24 +382,24 @@ const requestPermission = async () => {
 // Audio analysis
 const startAudioAnalysis = async () => {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ 
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true
       }
     })
-    
+
     audioContext = new (window.AudioContext || window.webkitAudioContext)()
     analyser = audioContext.createAnalyser()
     microphone = audioContext.createMediaStreamSource(stream)
-    
+
     analyser.fftSize = 256
     const bufferLength = analyser.frequencyBinCount
     dataArray = new Uint8Array(bufferLength)
-    
+
     microphone.connect(analyser)
-    
+
     animateWaveform()
   } catch (err) {
     console.error('Failed to start audio analysis:', err)
@@ -405,83 +411,83 @@ const stopAudioAnalysis = () => {
     cancelAnimationFrame(animationFrame)
     animationFrame = null
   }
-  
+
   if (microphone) {
     microphone.disconnect()
     microphone = null
   }
-  
+
   if (audioContext) {
     audioContext.close()
     audioContext = null
   }
-  
+
   analyser = null
   dataArray = null
 }
 
 const animateWaveform = () => {
   if (!analyser || !dataArray || !waveformCanvas.value) return
-  
+
   analyser.getByteFrequencyData(dataArray)
-  
+
   // Calculate volume level
   const sum = dataArray.reduce((a, b) => a + b, 0)
   currentVolume.value = sum / (dataArray.length * 255)
-  
+
   // Draw waveform
   drawWaveform()
-  
+
   // Store audio data for visualization
   audioData.value.push(...Array.from(dataArray))
   if (audioData.value.length > 1000) {
     audioData.value = audioData.value.slice(-1000)
   }
-  
+
   animationFrame = requestAnimationFrame(animateWaveform)
 }
 
 const drawWaveform = () => {
   if (!waveformCanvas.value || !dataArray) return
-  
+
   const canvas = waveformCanvas.value
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  
+
   const width = canvas.width
   const height = canvas.height
-  
+
   // Clear canvas
   ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
   ctx.fillRect(0, 0, width, height)
-  
+
   // Draw waveform
   ctx.lineWidth = 2
   ctx.strokeStyle = '#3b82f6'
   ctx.beginPath()
-  
+
   const sliceWidth = width / dataArray.length
   let x = 0
-  
+
   for (let i = 0; i < dataArray.length; i++) {
     const v = dataArray[i] / 128.0
-    const y = v * height / 2
-    
+    const y = (v * height) / 2
+
     if (i === 0) {
       ctx.moveTo(x, y)
     } else {
       ctx.lineTo(x, y)
     }
-    
+
     x += sliceWidth
   }
-  
+
   ctx.stroke()
-  
+
   // Draw frequency bars
   ctx.fillStyle = '#3b82f620'
   const barWidth = width / dataArray.length
-  
+
   for (let i = 0; i < dataArray.length; i++) {
     const barHeight = (dataArray[i] / 255) * height
     ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight)
@@ -506,18 +512,18 @@ const formatDuration = (ms: number): string => {
   const seconds = Math.floor(ms / 1000)
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
-  
+
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
 // Results management
 const addResult = (result: VoiceRecognitionResult) => {
   recognitionResults.value.unshift(result)
-  
+
   if (recognitionResults.value.length > props.maxResults) {
     recognitionResults.value = recognitionResults.value.slice(0, props.maxResults)
   }
-  
+
   if (result.isFinal) {
     lastTranscript.value = result.transcript
     lastConfidence.value = result.confidence
@@ -534,7 +540,10 @@ const toggleAlternatives = (index: number) => {
   showAlternativesFor.value = showAlternativesFor.value === index ? null : index
 }
 
-const selectAlternative = (result: VoiceRecognitionResult, alternative: { transcript: string; confidence: number }) => {
+const selectAlternative = (
+  result: VoiceRecognitionResult,
+  alternative: { transcript: string; confidence: number }
+) => {
   emit('transcript', alternative.transcript)
   showAlternativesFor.value = null
 }
@@ -580,7 +589,7 @@ const onRecognitionEnd = () => {
 const onRecognitionResult = (result: VoiceRecognitionResult) => {
   addResult(result)
   emit('result', result)
-  
+
   if (result.isFinal) {
     emit('transcript', result.transcript)
   }
@@ -589,7 +598,7 @@ const onRecognitionResult = (result: VoiceRecognitionResult) => {
 const onRecognitionError = (err: Error) => {
   error.value = err
   emit('error', err)
-  
+
   isRecording.value = false
   stopAudioAnalysis()
   stopTimer()
@@ -600,19 +609,19 @@ onMounted(async () => {
   // Check support and permissions
   isSupported.value = voiceService.isRecognitionSupported()
   hasPermission.value = voiceService.hasMicrophonePermission()
-  
+
   // Setup event listeners
   voiceService.on('recognition-start', onRecognitionStart)
   voiceService.on('recognition-end', onRecognitionEnd)
   voiceService.on('recognition-result', onRecognitionResult)
   voiceService.on('recognition-error', onRecognitionError)
-  
+
   // Auto-start if requested
   if (props.autoStart && hasPermission.value && isSupported.value) {
     await nextTick()
     startRecording()
   }
-  
+
   // Setup canvas resize observer
   if (waveformCanvas.value) {
     const resizeObserver = new ResizeObserver(entries => {
@@ -622,7 +631,7 @@ onMounted(async () => {
         canvasHeight.value = height
       }
     })
-    
+
     resizeObserver.observe(waveformCanvas.value.parentElement!)
   }
 })
@@ -632,7 +641,7 @@ onUnmounted(() => {
   stopRecording()
   stopAudioAnalysis()
   stopTimer()
-  
+
   // Remove event listeners
   voiceService.off('recognition-start', onRecognitionStart)
   voiceService.off('recognition-end', onRecognitionEnd)
@@ -641,9 +650,12 @@ onUnmounted(() => {
 })
 
 // Watch for prop changes
-watch(() => props.continuous, (newValue) => {
-  isContinuous.value = newValue
-})
+watch(
+  () => props.continuous,
+  newValue => {
+    isContinuous.value = newValue
+  }
+)
 </script>
 
 <style scoped>
@@ -875,12 +887,18 @@ watch(() => props.continuous, (newValue) => {
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes ping {
-  75%, 100% {
+  75%,
+  100% {
     transform: scale(2);
     opacity: 0;
   }
@@ -891,11 +909,11 @@ watch(() => props.continuous, (newValue) => {
   .record-btn.recording {
     animation: none;
   }
-  
+
   .record-pulse {
     animation: none;
   }
-  
+
   .pulse-dot {
     animation: none;
   }
@@ -906,7 +924,7 @@ watch(() => props.continuous, (newValue) => {
   .voice-recorder {
     @apply border-2;
   }
-  
+
   .record-btn:focus {
     @apply ring-2 ring-primary;
   }

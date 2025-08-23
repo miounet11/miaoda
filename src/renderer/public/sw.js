@@ -13,19 +13,10 @@ const PRECACHE_URLS = [
 ]
 
 // Assets to cache on install (critical resources)
-const CRITICAL_ASSETS = [
-  '/assets/index.js',
-  '/assets/index.css',
-  '/assets/fonts/inter-var.woff2'
-]
+const CRITICAL_ASSETS = ['/assets/index.js', '/assets/index.css', '/assets/fonts/inter-var.woff2']
 
 // Network-first resources (API calls, dynamic content)
-const NETWORK_FIRST_PATTERNS = [
-  /\/api\//,
-  /\/chat\//,
-  /\/messages\//,
-  /\/search\//
-]
+const NETWORK_FIRST_PATTERNS = [/\/api\//, /\/chat\//, /\/messages\//, /\/search\//]
 
 // Cache-first resources (static assets)
 const CACHE_FIRST_PATTERNS = [
@@ -36,16 +27,12 @@ const CACHE_FIRST_PATTERNS = [
 ]
 
 // Stale-while-revalidate patterns (frequently updated but cacheable)
-const SWR_PATTERNS = [
-  /\/plugins\//,
-  /\/themes\//,
-  /\/locales\//
-]
+const SWR_PATTERNS = [/\/plugins\//, /\/themes\//, /\/locales\//]
 
 // Install event - cache critical resources
 self.addEventListener('install', event => {
   console.log('[SW] Installing service worker...')
-  
+
   event.waitUntil(
     Promise.all([
       // Cache precache resources
@@ -53,7 +40,7 @@ self.addEventListener('install', event => {
         console.log('[SW] Caching precache resources')
         return cache.addAll(PRECACHE_URLS)
       }),
-      
+
       // Cache critical assets
       caches.open(CACHE_NAME).then(cache => {
         console.log('[SW] Caching critical assets')
@@ -72,7 +59,7 @@ self.addEventListener('install', event => {
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
   console.log('[SW] Activating service worker...')
-  
+
   event.waitUntil(
     Promise.all([
       // Clean up old caches
@@ -86,7 +73,7 @@ self.addEventListener('activate', event => {
           })
         )
       }),
-      
+
       // Take control of all clients
       self.clients.claim()
     ]).then(() => {
@@ -99,17 +86,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event
   const url = new URL(request.url)
-  
+
   // Skip non-HTTP requests
   if (!url.protocol.startsWith('http')) {
     return
   }
-  
+
   // Skip requests to different origins (unless specifically handled)
   if (url.origin !== self.location.origin && !shouldHandleCrossOrigin(url)) {
     return
   }
-  
+
   // Handle different request types
   if (matchesPattern(url.pathname, NETWORK_FIRST_PATTERNS)) {
     event.respondWith(networkFirst(request))
@@ -126,7 +113,7 @@ self.addEventListener('fetch', event => {
 // Background sync for offline message queuing
 self.addEventListener('sync', event => {
   console.log('[SW] Background sync triggered:', event.tag)
-  
+
   if (event.tag === 'message-sync') {
     event.waitUntil(syncMessages())
   } else if (event.tag === 'search-index-sync') {
@@ -139,7 +126,7 @@ self.addEventListener('sync', event => {
 // Push notifications
 self.addEventListener('push', event => {
   console.log('[SW] Push message received:', event)
-  
+
   const options = {
     badge: '/icons/badge-72x72.png',
     icon: '/icons/icon-192x192.png',
@@ -161,7 +148,7 @@ self.addEventListener('push', event => {
       }
     ]
   }
-  
+
   if (event.data) {
     const data = event.data.json()
     options.title = data.title || 'MiaoDa Chat'
@@ -172,18 +159,16 @@ self.addEventListener('push', event => {
     options.title = 'MiaoDa Chat'
     options.body = 'You have a new message'
   }
-  
-  event.waitUntil(
-    self.registration.showNotification(options.title, options)
-  )
+
+  event.waitUntil(self.registration.showNotification(options.title, options))
 })
 
 // Notification click handling
 self.addEventListener('notificationclick', event => {
   console.log('[SW] Notification clicked:', event)
-  
+
   event.notification.close()
-  
+
   if (event.action === 'open') {
     event.waitUntil(
       clients.matchAll({ type: 'window' }).then(windowClients => {
@@ -193,7 +178,7 @@ self.addEventListener('notificationclick', event => {
             return client.focus()
           }
         }
-        
+
         // Open new window/tab
         if (clients.openWindow) {
           return clients.openWindow('/')
@@ -206,9 +191,9 @@ self.addEventListener('notificationclick', event => {
 // Message handling from main thread
 self.addEventListener('message', event => {
   console.log('[SW] Message received:', event.data)
-  
+
   const { type, payload } = event.data
-  
+
   switch (type) {
     case 'SKIP_WAITING':
       self.skipWaiting()
@@ -239,50 +224,53 @@ async function networkFirst(request) {
   try {
     // Try network first
     const networkResponse = await fetch(request)
-    
+
     // Cache successful responses
     if (networkResponse.ok) {
       const cache = await caches.open(RUNTIME_CACHE)
       cache.put(request, networkResponse.clone())
     }
-    
+
     return networkResponse
   } catch (error) {
     console.log('[SW] Network failed, trying cache:', request.url)
-    
+
     // Fall back to cache
     const cachedResponse = await caches.match(request)
     if (cachedResponse) {
       return cachedResponse
     }
-    
+
     // Return offline page for navigation requests
     if (request.mode === 'navigate') {
-      return caches.match('/offline.html') || new Response(
-        'Offline - Please check your internet connection',
-        { status: 503, statusText: 'Service Unavailable' }
+      return (
+        caches.match('/offline.html') ||
+        new Response('Offline - Please check your internet connection', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        })
       )
     }
-    
+
     throw error
   }
 }
 
 async function cacheFirst(request) {
   const cachedResponse = await caches.match(request)
-  
+
   if (cachedResponse) {
     return cachedResponse
   }
-  
+
   try {
     const networkResponse = await fetch(request)
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(RUNTIME_CACHE)
       cache.put(request, networkResponse.clone())
     }
-    
+
     return networkResponse
   } catch (error) {
     console.log('[SW] Cache and network both failed:', request.url)
@@ -293,17 +281,19 @@ async function cacheFirst(request) {
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME_CACHE)
   const cachedResponse = await cache.match(request)
-  
+
   // Start fetching fresh version
-  const fetchPromise = fetch(request).then(networkResponse => {
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone())
-    }
-    return networkResponse
-  }).catch(error => {
-    console.log('[SW] Failed to revalidate:', request.url, error)
-  })
-  
+  const fetchPromise = fetch(request)
+    .then(networkResponse => {
+      if (networkResponse.ok) {
+        cache.put(request, networkResponse.clone())
+      }
+      return networkResponse
+    })
+    .catch(error => {
+      console.log('[SW] Failed to revalidate:', request.url, error)
+    })
+
   // Return cached version immediately, or wait for network
   return cachedResponse || fetchPromise
 }
@@ -311,11 +301,11 @@ async function staleWhileRevalidate(request) {
 // Background sync functions
 async function syncMessages() {
   console.log('[SW] Syncing queued messages...')
-  
+
   try {
     const db = await openDB()
     const messages = await getQueuedMessages(db)
-    
+
     for (const message of messages) {
       try {
         const response = await fetch('/api/messages', {
@@ -325,7 +315,7 @@ async function syncMessages() {
           },
           body: JSON.stringify(message.data)
         })
-        
+
         if (response.ok) {
           await removeQueuedMessage(db, message.id)
           console.log('[SW] Message synced successfully:', message.id)
@@ -359,15 +349,13 @@ function shouldHandleCrossOrigin(url) {
   const allowedOrigins = [
     // Add allowed external origins here
   ]
-  
+
   return allowedOrigins.some(origin => url.origin === origin)
 }
 
 async function clearAllCaches() {
   const cacheNames = await caches.keys()
-  await Promise.all(
-    cacheNames.map(cacheName => caches.delete(cacheName))
-  )
+  await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
 }
 
 async function cacheUrls(urls) {
@@ -379,13 +367,13 @@ async function cacheUrls(urls) {
 async function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('MiaoDaChatDB', 1)
-    
+
     request.onerror = () => reject(request.error)
     request.onsuccess = () => resolve(request.result)
-    
-    request.onupgradeneeded = (event) => {
+
+    request.onupgradeneeded = event => {
       const db = event.target.result
-      
+
       if (!db.objectStoreNames.contains('messageQueue')) {
         const store = db.createObjectStore('messageQueue', { keyPath: 'id', autoIncrement: true })
         store.createIndex('timestamp', 'timestamp', { unique: false })
@@ -398,13 +386,13 @@ async function queueMessage(messageData) {
   const db = await openDB()
   const transaction = db.transaction(['messageQueue'], 'readwrite')
   const store = transaction.objectStore('messageQueue')
-  
+
   const message = {
     data: messageData,
     timestamp: Date.now(),
     retries: 0
   }
-  
+
   return new Promise((resolve, reject) => {
     const request = store.add(message)
     request.onsuccess = () => resolve(request.result)
@@ -415,7 +403,7 @@ async function queueMessage(messageData) {
 async function getQueuedMessages(db) {
   const transaction = db.transaction(['messageQueue'], 'readonly')
   const store = transaction.objectStore('messageQueue')
-  
+
   return new Promise((resolve, reject) => {
     const request = store.getAll()
     request.onsuccess = () => resolve(request.result)
@@ -426,7 +414,7 @@ async function getQueuedMessages(db) {
 async function removeQueuedMessage(db, messageId) {
   const transaction = db.transaction(['messageQueue'], 'readwrite')
   const store = transaction.objectStore('messageQueue')
-  
+
   return new Promise((resolve, reject) => {
     const request = store.delete(messageId)
     request.onsuccess = () => resolve()
@@ -435,11 +423,14 @@ async function removeQueuedMessage(db, messageId) {
 }
 
 // Periodic cleanup
-setInterval(() => {
-  // Clean up old runtime cache entries
-  caches.open(RUNTIME_CACHE).then(cache => {
-    // Implementation for cache cleanup based on age/size
-  })
-}, 24 * 60 * 60 * 1000) // Daily cleanup
+setInterval(
+  () => {
+    // Clean up old runtime cache entries
+    caches.open(RUNTIME_CACHE).then(cache => {
+      // Implementation for cache cleanup based on age/size
+    })
+  },
+  24 * 60 * 60 * 1000
+) // Daily cleanup
 
 console.log('[SW] Service worker script loaded')

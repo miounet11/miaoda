@@ -70,9 +70,11 @@ export function useGlobalShortcuts() {
       modifiers: { meta: true, ctrl: true },
       action: () => {
         // Switch to chat at index (dispatching event for implementation)
-        document.dispatchEvent(new CustomEvent('shortcuts:switch-chat', { 
-          detail: { index: i - 1 } 
-        }))
+        document.dispatchEvent(
+          new CustomEvent('shortcuts:switch-chat', {
+            detail: { index: i - 1 }
+          })
+        )
       }
     })
   }
@@ -83,8 +85,8 @@ export function useGlobalShortcuts() {
     // Don't handle shortcuts when typing in inputs, textareas, or contenteditable elements
     const target = event.target as HTMLElement
     if (
-      target.tagName === 'INPUT' || 
-      target.tagName === 'TEXTAREA' || 
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
       target.isContentEditable ||
       target.closest('[contenteditable="true"]')
     ) {
@@ -97,16 +99,16 @@ export function useGlobalShortcuts() {
 
     const matchedShortcut = shortcuts.find(shortcut => {
       const keyMatch = shortcut.key.toLowerCase() === event.key.toLowerCase()
-      
+
       // Check modifiers - if shortcut has both meta and ctrl, use the right one for platform
       if (shortcut.modifiers?.meta && shortcut.modifiers?.ctrl) {
         const platformModifier = isMac ? event.metaKey : event.ctrlKey
         const altMatch = shortcut.modifiers?.alt ? event.altKey : !event.altKey
         const shiftMatch = shortcut.modifiers?.shift ? event.shiftKey : !event.shiftKey
-        
+
         return keyMatch && platformModifier && altMatch && shiftMatch
       }
-      
+
       // Handle individual modifier checks
       const metaMatch = shortcut.modifiers?.meta ? event.metaKey : !event.metaKey
       const ctrlMatch = shortcut.modifiers?.ctrl ? event.ctrlKey : !event.ctrlKey

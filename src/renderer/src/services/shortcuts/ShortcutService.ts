@@ -21,23 +21,23 @@ class ShortcutService {
 
   private normalizeKey(event: KeyboardEvent): string {
     const parts: string[] = []
-    
+
     // Use cmd on mac, ctrl on other platforms
     const isMac = navigator.platform.toLowerCase().includes('mac')
     const modifier = isMac ? event.metaKey : event.ctrlKey
-    
+
     if (modifier) parts.push('mod')
     if (event.shiftKey) parts.push('shift')
     if (event.altKey) parts.push('alt')
-    
+
     // Normalize key names
     let key = event.key.toLowerCase()
     if (key === ' ') key = 'space'
     if (key === 'enter') key = 'enter'
     if (key === 'escape') key = 'escape'
-    
+
     parts.push(key)
-    
+
     return parts.join('+')
   }
 
@@ -55,8 +55,8 @@ class ShortcutService {
     // Don't handle shortcuts when typing in inputs, textareas, or contenteditable elements
     const target = event.target as HTMLElement
     if (
-      target.tagName === 'INPUT' || 
-      target.tagName === 'TEXTAREA' || 
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
       target.isContentEditable ||
       target.closest('[contenteditable="true"]')
     ) {
@@ -133,7 +133,7 @@ class ShortcutService {
 
   initialize(): () => void {
     document.addEventListener('keydown', this.handleKeyDown)
-    
+
     return () => {
       document.removeEventListener('keydown', this.handleKeyDown)
     }

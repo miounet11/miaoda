@@ -8,7 +8,7 @@ export interface PluginManifest {
   description?: string
   author?: string
   homepage?: string
-  
+
   // Plugin capabilities
   capabilities: {
     tools?: boolean
@@ -16,14 +16,14 @@ export interface PluginManifest {
     themes?: boolean
     ui?: boolean
   }
-  
+
   // Entry points
   main?: string // Main process entry
   renderer?: string // Renderer process entry
-  
+
   // Dependencies
   dependencies?: Record<string, string>
-  
+
   // Permissions
   permissions?: string[]
 }
@@ -39,15 +39,15 @@ export interface PluginInstance {
   // Lifecycle methods
   activate(): Promise<void>
   deactivate(): Promise<void>
-  
+
   // Tool provider
   getTools?(): Tool[]
   executeTool?(toolName: string, args: any): Promise<any>
-  
+
   // Command provider
   getCommands?(): PluginCommand[]
   executeCommand?(commandId: string, ...args: any[]): Promise<any>
-  
+
   // UI provider
   getUIComponents?(): PluginUIComponent[]
 }
@@ -74,18 +74,18 @@ export interface PluginAPI {
     onDidCloseChat(listener: (chatId: string) => void): Disposable
     getActiveChat(): { id: string; title: string } | null
   }
-  
+
   messages: {
     onDidReceiveMessage(listener: (message: any) => void): Disposable
     sendMessage(chatId: string, content: string): Promise<void>
   }
-  
+
   storage: {
     get(key: string): any
     set(key: string, value: any): void
     delete(key: string): void
   }
-  
+
   ui: {
     showMessage(message: string, type?: 'info' | 'warning' | 'error'): void
     showInputBox(options: { prompt: string; placeholder?: string }): Promise<string | null>
@@ -108,31 +108,31 @@ export interface PluginMarketListing {
   authorId: string
   homepage?: string
   repository?: string
-  
+
   // Market metadata
   category: PluginCategory
   tags: string[]
   screenshots?: string[]
   icon?: string
   banner?: string
-  
+
   // Statistics
   downloads: number
   rating: number
   reviewCount: number
   lastUpdated: string
   createdAt: string
-  
+
   // Pricing
   pricing: 'free' | 'paid' | 'freemium'
   price?: number
   currency?: string
-  
+
   // Status
   status: 'available' | 'installed' | 'updating' | 'deprecated'
   verified: boolean
   featured: boolean
-  
+
   // Compatibility
   minVersion: string
   maxVersion?: string
@@ -213,10 +213,10 @@ export interface PluginSDK {
   system: PluginSystemAPI
   workflow: PluginWorkflowAPI
   theme: PluginThemeAPI
-  
+
   // Development utilities
   dev: PluginDevAPI
-  
+
   // Plugin metadata
   manifest: PluginManifest
   context: PluginContext
@@ -233,7 +233,7 @@ export interface PluginCoreAPI extends PluginAPI {
     createChat(title: string): Promise<string>
     deleteChat(chatId: string): Promise<void>
   }
-  
+
   // Enhanced message operations
   messages: {
     onDidReceiveMessage(listener: (message: ChatMessage) => void): Disposable
@@ -244,7 +244,7 @@ export interface PluginCoreAPI extends PluginAPI {
     deleteMessage(messageId: string): Promise<void>
     searchMessages(query: string, options?: SearchOptions): Promise<ChatMessage[]>
   }
-  
+
   // Plugin lifecycle
   lifecycle: {
     onActivate(callback: () => Promise<void>): void
@@ -260,21 +260,21 @@ export interface PluginUIAPI {
     registerContextMenu(item: ContextMenuItem): Disposable
     registerToolbar(item: ToolbarItem): Disposable
   }
-  
+
   // Panels and views
   panels: {
     createPanel(config: PanelConfig): PluginPanel
     registerSidebarPanel(config: SidebarPanelConfig): Disposable
     registerModalDialog(config: ModalDialogConfig): Disposable
   }
-  
+
   // Notifications and feedback
   notifications: {
     showMessage(message: string, type?: MessageType): void
     showNotification(notification: NotificationConfig): Disposable
     showProgress(config: ProgressConfig): ProgressHandle
   }
-  
+
   // Input and dialogs
   dialogs: {
     showInputBox(options: InputBoxOptions): Promise<string | null>
@@ -282,7 +282,7 @@ export interface PluginUIAPI {
     showOpenDialog(options: OpenDialogOptions): Promise<string[] | null>
     showSaveDialog(options: SaveDialogOptions): Promise<string | null>
   }
-  
+
   // Status and indicators
   status: {
     setStatusBarItem(id: string, config: StatusBarItemConfig): Disposable
@@ -298,11 +298,11 @@ export interface PluginDataAPI {
     delete(key: string): Promise<void>
     clear(): Promise<void>
     keys(): Promise<string[]>
-    
+
     // Scoped storage
     createScope(scopeName: string): PluginStorageScope
   }
-  
+
   // Temporary cache
   cache: {
     get<T>(key: string): T | undefined
@@ -310,7 +310,7 @@ export interface PluginDataAPI {
     delete(key: string): void
     clear(): void
   }
-  
+
   // File system operations (sandboxed)
   fs: {
     readFile(path: string): Promise<Buffer>
@@ -320,7 +320,7 @@ export interface PluginDataAPI {
     readdir(path: string): Promise<string[]>
     stat(path: string): Promise<FileStats>
   }
-  
+
   // Database operations (if allowed)
   db?: {
     query<T>(sql: string, params?: any[]): Promise<T[]>
@@ -337,7 +337,7 @@ export interface PluginSystemAPI {
     userDataPath: string
     pluginPath: string
   }
-  
+
   // Network operations (if allowed)
   http?: {
     get(url: string, options?: HttpOptions): Promise<HttpResponse>
@@ -345,13 +345,13 @@ export interface PluginSystemAPI {
     put(url: string, data?: any, options?: HttpOptions): Promise<HttpResponse>
     delete(url: string, options?: HttpOptions): Promise<HttpResponse>
   }
-  
+
   // Process operations (if allowed)
   process?: {
     spawn(command: string, args: string[], options?: SpawnOptions): Promise<ProcessResult>
     exec(command: string, options?: ExecOptions): Promise<ProcessResult>
   }
-  
+
   // Clipboard operations
   clipboard: {
     readText(): Promise<string>
@@ -369,13 +369,13 @@ export interface PluginWorkflowAPI {
     getStatus(executionId: string): Promise<WorkflowStatus>
     cancel(executionId: string): Promise<void>
   }
-  
+
   // Step definitions
   steps: {
     registerStep(name: string, handler: WorkflowStepHandler): Disposable
     getAvailableSteps(): string[]
   }
-  
+
   // Triggers
   triggers: {
     onChatMessage(pattern: string | RegExp, handler: WorkflowTriggerHandler): Disposable
@@ -391,7 +391,7 @@ export interface PluginThemeAPI {
     getCurrentTheme(): ThemeDefinition
     onThemeChanged(listener: (theme: ThemeDefinition) => void): Disposable
   }
-  
+
   // Style customization
   styles: {
     addGlobalStyles(css: string): Disposable
@@ -399,7 +399,7 @@ export interface PluginThemeAPI {
     getCSSSVariables(): Record<string, string>
     setCSSVariable(name: string, value: string): void
   }
-  
+
   // Icon management
   icons: {
     registerIcon(name: string, svg: string): Disposable
@@ -415,14 +415,14 @@ export interface PluginDevAPI {
     warn(message: string, ...args: any[]): void
     error(message: string, ...args: any[]): void
   }
-  
+
   // Performance monitoring
   performance: {
     mark(name: string): void
     measure(name: string, startMark?: string, endMark?: string): number
     getMetrics(): PerformanceMetrics
   }
-  
+
   // Testing utilities
   testing?: {
     createMockContext(): PluginContext
@@ -435,16 +435,16 @@ export interface PluginContext {
   pluginId: string
   version: string
   isDev: boolean
-  
+
   // Runtime info
   activatedAt: Date
-  
+
   // Permissions
   permissions: PluginPermissions
-  
+
   // Configuration
   config: PluginConfiguration
-  
+
   // State
   state: Record<string, any>
 }

@@ -19,7 +19,7 @@ export class BackendSearchService {
   async searchMessages(query: SearchQuery): Promise<SearchResult[]> {
     try {
       const results = await window.api.search.messages(query)
-      
+
       // Convert date strings to Date objects
       return results.map(result => ({
         ...result,
@@ -77,7 +77,11 @@ export class BackendSearchService {
   /**
    * Get search index status
    */
-  async getSearchIndexStatus(): Promise<{ needsRebuild: boolean, messageCount: number, indexedCount: number }> {
+  async getSearchIndexStatus(): Promise<{
+    needsRebuild: boolean
+    messageCount: number
+    indexedCount: number
+  }> {
     try {
       return await window.api.search.getIndexStatus()
     } catch (error) {
@@ -118,11 +122,11 @@ export class BackendSearchService {
   async searchByDateRange(start: Date, end: Date): Promise<SearchResult[]> {
     return this.searchMessages({
       text: '',
-      filters: { 
-        dateRange: { 
-          start: start.toISOString(), 
-          end: end.toISOString() 
-        } 
+      filters: {
+        dateRange: {
+          start: start.toISOString(),
+          end: end.toISOString()
+        }
       },
       options: { sortBy: 'date', sortOrder: 'desc' }
     })
@@ -131,9 +135,9 @@ export class BackendSearchService {
   /**
    * Build semantic search index
    */
-  async buildSemanticIndex(): Promise<{ processed: number, failed: number }> {
+  async buildSemanticIndex(): Promise<{ processed: number; failed: number }> {
     try {
-      return await window.api.search?.buildSemanticIndex?.() || { processed: 0, failed: 0 }
+      return (await window.api.search?.buildSemanticIndex?.()) || { processed: 0, failed: 0 }
     } catch (error) {
       logger.error('Failed to build semantic index', 'BackendSearchService', error)
       throw error
@@ -146,7 +150,7 @@ export class BackendSearchService {
   async semanticSearch(query: SearchQuery): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.semantic?.(query)
-      
+
       if (!results) return []
 
       // Convert date strings to Date objects
@@ -169,7 +173,7 @@ export class BackendSearchService {
   async hybridSearch(query: SearchQuery): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.hybrid?.(query)
-      
+
       if (!results) return await this.searchMessages(query)
 
       return results.map(result => ({
@@ -192,7 +196,7 @@ export class BackendSearchService {
   async findSimilarMessages(messageId: string, limit = 5): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.findSimilar?.(messageId, limit)
-      
+
       if (!results) return []
 
       return results.map(result => ({
@@ -213,7 +217,7 @@ export class BackendSearchService {
    */
   async getSemanticSearchStats(): Promise<any> {
     try {
-      return await window.api.search?.getSemanticStats?.() || {}
+      return (await window.api.search?.getSemanticStats?.()) || {}
     } catch (error) {
       logger.error('Failed to get semantic search stats', 'BackendSearchService', error)
       throw error
@@ -249,7 +253,7 @@ export class BackendSearchService {
    */
   async getVectorIndexStats(): Promise<any> {
     try {
-      return await window.api.search?.getVectorStats?.() || {}
+      return (await window.api.search?.getVectorStats?.()) || {}
     } catch (error) {
       logger.error('Failed to get vector index stats', 'BackendSearchService', error)
       throw error
@@ -262,7 +266,7 @@ export class BackendSearchService {
   async multimodalSearch(query: SearchQuery): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.multimodal?.(query)
-      
+
       if (!results) return []
 
       return results.map(result => ({
@@ -281,10 +285,13 @@ export class BackendSearchService {
   /**
    * Search in images (OCR and descriptions)
    */
-  async searchImages(query: string, options: { useOCR?: boolean, useDescriptions?: boolean } = {}): Promise<SearchResult[]> {
+  async searchImages(
+    query: string,
+    options: { useOCR?: boolean; useDescriptions?: boolean } = {}
+  ): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.images?.(query, options)
-      
+
       if (!results) return []
 
       return results.map(result => ({
@@ -306,7 +313,7 @@ export class BackendSearchService {
   async searchDocuments(query: string): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.documents?.(query)
-      
+
       if (!results) return []
 
       return results.map(result => ({
@@ -328,7 +335,7 @@ export class BackendSearchService {
   async searchAudio(query: string): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.audio?.(query)
-      
+
       if (!results) return []
 
       return results.map(result => ({
@@ -349,7 +356,7 @@ export class BackendSearchService {
    */
   async getMultimodalSearchStats(): Promise<any> {
     try {
-      return await window.api.search?.getMultimodalStats?.() || {}
+      return (await window.api.search?.getMultimodalStats?.()) || {}
     } catch (error) {
       logger.error('Failed to get multimodal search stats', 'BackendSearchService', error)
       throw error
@@ -361,7 +368,7 @@ export class BackendSearchService {
    */
   async getPerformanceAnalysis(timeRange = '7d'): Promise<any> {
     try {
-      return await window.api.search?.getPerformanceAnalysis?.(timeRange) || {}
+      return (await window.api.search?.getPerformanceAnalysis?.(timeRange)) || {}
     } catch (error) {
       logger.error('Failed to get performance analysis', 'BackendSearchService', error)
       throw error
@@ -373,7 +380,7 @@ export class BackendSearchService {
    */
   async getPerformanceRecommendations(): Promise<any[]> {
     try {
-      return await window.api.search?.getPerformanceRecommendations?.() || []
+      return (await window.api.search?.getPerformanceRecommendations?.()) || []
     } catch (error) {
       logger.error('Failed to get performance recommendations', 'BackendSearchService', error)
       throw error
@@ -385,7 +392,12 @@ export class BackendSearchService {
    */
   async optimizePerformance(): Promise<any> {
     try {
-      return await window.api.search?.optimizePerformance?.() || { optimizationsApplied: [], estimatedImprovement: 'No optimizations available' }
+      return (
+        (await window.api.search?.optimizePerformance?.()) || {
+          optimizationsApplied: [],
+          estimatedImprovement: 'No optimizations available'
+        }
+      )
     } catch (error) {
       logger.error('Failed to optimize search performance', 'BackendSearchService', error)
       throw error
@@ -404,12 +416,14 @@ export class BackendSearchService {
     const processedFilters = { ...filters }
     if (filters.dateRange) {
       processedFilters.dateRange = {
-        start: filters.dateRange.start instanceof Date 
-          ? filters.dateRange.start.toISOString() 
-          : filters.dateRange.start,
-        end: filters.dateRange.end instanceof Date 
-          ? filters.dateRange.end.toISOString() 
-          : filters.dateRange.end
+        start:
+          filters.dateRange.start instanceof Date
+            ? filters.dateRange.start.toISOString()
+            : filters.dateRange.start,
+        end:
+          filters.dateRange.end instanceof Date
+            ? filters.dateRange.end.toISOString()
+            : filters.dateRange.end
       }
     }
 

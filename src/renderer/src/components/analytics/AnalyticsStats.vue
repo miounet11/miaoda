@@ -5,16 +5,19 @@
       <div class="stat-card">
         <div class="stat-icon bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.418 8-9.899 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.418-8 9.899-8s9.901 3.582 9.901 8z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.418 8-9.899 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.418-8 9.899-8s9.901 3.582 9.901 8z"
+            />
           </svg>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ formatNumber(totalChats) }}</div>
           <div class="stat-label">Total Chats</div>
           <div class="stat-change" v-if="summary">
-            <span class="text-xs text-gray-500">
-              {{ summary.activeToday }} today
-            </span>
+            <span class="text-xs text-gray-500"> {{ summary.activeToday }} today </span>
           </div>
         </div>
       </div>
@@ -23,32 +26,42 @@
       <div class="stat-card">
         <div class="stat-icon bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+            />
           </svg>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ formatNumber(totalMessages) }}</div>
           <div class="stat-label">Total Messages</div>
           <div class="stat-change" v-if="averagePerDay !== null">
-            <span class="text-xs text-gray-500">
-              {{ formatNumber(averagePerDay) }}/day avg
-            </span>
+            <span class="text-xs text-gray-500"> {{ formatNumber(averagePerDay) }}/day avg </span>
           </div>
         </div>
       </div>
 
       <!-- Average Messages per Chat -->
       <div class="stat-card">
-        <div class="stat-icon bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300">
+        <div
+          class="stat-icon bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300"
+        >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
           </svg>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ averageMessagesPerChat.toFixed(1) }}</div>
           <div class="stat-label">Avg Messages/Chat</div>
           <div class="stat-change" v-if="weeklyTrend">
-            <span 
+            <span
               class="text-xs inline-flex items-center gap-1"
               :class="getTrendColor(weeklyTrend)"
             >
@@ -60,18 +73,23 @@
 
       <!-- Active Chats -->
       <div class="stat-card">
-        <div class="stat-icon bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300">
+        <div
+          class="stat-icon bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300"
+        >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
           </svg>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ formatNumber(activeChats) }}</div>
           <div class="stat-label">Active Chats</div>
           <div class="stat-change">
-            <span class="text-xs text-gray-500">
-              {{ formatNumber(archivedChats) }} archived
-            </span>
+            <span class="text-xs text-gray-500"> {{ formatNumber(archivedChats) }} archived </span>
           </div>
         </div>
       </div>
@@ -85,14 +103,19 @@
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Success Rate</h4>
           <div class="flex items-center text-green-600">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
             <span class="font-semibold">{{ performance.successRate.toFixed(1) }}%</span>
           </div>
         </div>
         <div class="mt-2">
           <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-            <div 
+            <div
               class="bg-green-500 h-2 rounded-full transition-all duration-500"
               :style="{ width: `${performance.successRate}%` }"
             />
@@ -106,14 +129,19 @@
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Error Rate</h4>
           <div class="flex items-center text-red-600">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
             <span class="font-semibold">{{ performance.errorRate.toFixed(1) }}%</span>
           </div>
         </div>
         <div class="mt-2">
           <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-            <div 
+            <div
               class="bg-red-500 h-2 rounded-full transition-all duration-500"
               :style="{ width: `${Math.max(performance.errorRate, 1)}%` }"
             />
@@ -127,14 +155,17 @@
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Peak Usage</h4>
           <div class="flex items-center text-blue-600">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span class="font-semibold">{{ peakUsageTime }}</span>
           </div>
         </div>
-        <div class="mt-2 text-xs text-gray-500">
-          Most active hour of the day
-        </div>
+        <div class="mt-2 text-xs text-gray-500">Most active hour of the day</div>
       </div>
     </div>
   </div>
@@ -142,11 +173,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { 
-  ChatAnalytics, 
-  MessageAnalytics, 
-  UsageAnalytics, 
-  PerformanceAnalytics 
+import type {
+  ChatAnalytics,
+  MessageAnalytics,
+  UsageAnalytics,
+  PerformanceAnalytics
 } from '../../types'
 
 interface Props {
@@ -188,19 +219,27 @@ function formatNumber(num: number): string {
 
 function getTrendIcon(trend: string): string {
   switch (trend) {
-    case 'up': return '↗️'
-    case 'down': return '↘️'
-    case 'stable': return '➡️'
-    default: return '➡️'
+    case 'up':
+      return '↗️'
+    case 'down':
+      return '↘️'
+    case 'stable':
+      return '➡️'
+    default:
+      return '➡️'
   }
 }
 
 function getTrendColor(trend: string): string {
   switch (trend) {
-    case 'up': return 'text-green-600'
-    case 'down': return 'text-red-600'
-    case 'stable': return 'text-gray-600'
-    default: return 'text-gray-600'
+    case 'up':
+      return 'text-green-600'
+    case 'down':
+      return 'text-red-600'
+    case 'stable':
+      return 'text-gray-600'
+    default:
+      return 'text-gray-600'
   }
 }
 </script>

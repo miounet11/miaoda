@@ -84,13 +84,13 @@ class WebToolsPlugin {
     switch (toolName) {
       case 'fetch_url':
         return this.fetchUrl(args.url, args.options)
-      
+
       case 'extract_links':
         return this.extractLinks(args.html, args.baseUrl)
-      
+
       case 'parse_url':
         return this.parseUrl(args.url)
-      
+
       default:
         throw new Error(`Unknown tool: ${toolName}`)
     }
@@ -100,10 +100,10 @@ class WebToolsPlugin {
     try {
       const url = new URL(urlString)
       const timeout = options.timeout || 10000
-      
+
       return new Promise((resolve, reject) => {
         const protocol = url.protocol === 'https:' ? https : http
-        
+
         const requestOptions = {
           hostname: url.hostname,
           port: url.port,
@@ -115,14 +115,14 @@ class WebToolsPlugin {
           },
           timeout
         }
-        
-        const req = protocol.request(requestOptions, (res) => {
+
+        const req = protocol.request(requestOptions, res => {
           let data = ''
-          
-          res.on('data', (chunk) => {
+
+          res.on('data', chunk => {
             data += chunk
           })
-          
+
           res.on('end', () => {
             resolve({
               url: urlString,
@@ -135,14 +135,14 @@ class WebToolsPlugin {
             })
           })
         })
-        
-        req.on('error', (error) => {
+
+        req.on('error', error => {
           resolve({
             url: urlString,
             error: error.message
           })
         })
-        
+
         req.on('timeout', () => {
           req.destroy()
           resolve({
@@ -150,7 +150,7 @@ class WebToolsPlugin {
             error: 'Request timeout'
           })
         })
-        
+
         req.end()
       })
     } catch (error) {
@@ -167,10 +167,10 @@ class WebToolsPlugin {
       const linkRegex = /<a[^>]+href=["']([^"']+)["'][^>]*>/gi
       const links = []
       let match
-      
+
       while ((match = linkRegex.exec(html)) !== null) {
         let href = match[1]
-        
+
         // Resolve relative URLs if baseUrl provided
         if (baseUrl) {
           try {
@@ -180,15 +180,15 @@ class WebToolsPlugin {
             // Keep original if resolution fails
           }
         }
-        
+
         links.push(href)
       }
-      
+
       // Also extract src attributes from img, script, link tags
       const srcRegex = /<(?:img|script|link)[^>]+(?:src|href)=["']([^"']+)["'][^>]*>/gi
       while ((match = srcRegex.exec(html)) !== null) {
         let src = match[1]
-        
+
         if (baseUrl) {
           try {
             const resolved = new URL(src, baseUrl)
@@ -197,13 +197,13 @@ class WebToolsPlugin {
             // Keep original if resolution fails
           }
         }
-        
+
         links.push(src)
       }
-      
+
       // Remove duplicates
       const uniqueLinks = [...new Set(links)]
-      
+
       return {
         totalLinks: uniqueLinks.length,
         links: uniqueLinks,
@@ -219,7 +219,7 @@ class WebToolsPlugin {
   parseUrl(urlString) {
     try {
       const url = new URL(urlString)
-      
+
       return {
         href: url.href,
         protocol: url.protocol,

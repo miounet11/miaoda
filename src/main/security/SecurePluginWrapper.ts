@@ -55,7 +55,7 @@ export class SecurePluginWrapper extends EventEmitter {
     this.sessionId = this.generateSessionId()
     this.metrics = this.initializeMetrics()
     this.apiProxy = this.createSecureAPIProxy()
-    
+
     // Set max listeners based on security policy
     this.setMaxListeners(this.policy.maxEventListeners)
   }
@@ -86,10 +86,12 @@ export class SecurePluginWrapper extends EventEmitter {
     return new Proxy(originalAPI, {
       get: (target, property, receiver) => {
         const propName = String(property)
-        
+
         // Check if API is allowed
         if (!this.policy.allowedAPIs.includes(propName)) {
-          throw new Error(`Plugin ${this.plugin.manifest.id} does not have permission to access '${propName}'`)
+          throw new Error(
+            `Plugin ${this.plugin.manifest.id} does not have permission to access '${propName}'`
+          )
         }
 
         // Track API usage
@@ -143,10 +145,7 @@ export class SecurePluginWrapper extends EventEmitter {
   /**
    * Execute plugin code with security controls
    */
-  private async executeWithSecurity<T>(
-    fn: () => T | Promise<T>, 
-    operation: string
-  ): Promise<T> {
+  private async executeWithSecurity<T>(fn: () => T | Promise<T>, operation: string): Promise<T> {
     if (!this.isActive) {
       throw new Error(`Plugin ${this.plugin.manifest.id} is not active`)
     }
@@ -158,20 +157,21 @@ export class SecurePluginWrapper extends EventEmitter {
       // Create execution timeout
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
-          reject(new Error(`Plugin ${this.plugin.manifest.id} execution timeout for operation '${operation}'`))
+          reject(
+            new Error(
+              `Plugin ${this.plugin.manifest.id} execution timeout for operation '${operation}'`
+            )
+          )
         }, this.policy.maxExecutionTime)
       })
 
       // Execute with timeout
-      const result = await Promise.race([
-        Promise.resolve(fn()),
-        timeoutPromise
-      ]) as T
+      const result = (await Promise.race([Promise.resolve(fn()), timeoutPromise])) as T
 
       // Update metrics
       const executionTime = performance.now() - startTime
       const memoryUsed = process.memoryUsage().heapUsed - initialMemory
-      
+
       this.metrics.cpuTime += executionTime
       this.metrics.memoryUsage = Math.max(this.metrics.memoryUsage, memoryUsed / 1024 / 1024) // Convert to MB
       this.metrics.lastActivity = Date.now()
@@ -209,19 +209,16 @@ export class SecurePluginWrapper extends EventEmitter {
 
       // Initialize plugin in secure context
       if (this.plugin.activate) {
-        await this.executeWithSecurity(
-          () => this.plugin.activate!(this.apiProxy),
-          'activate'
-        )
+        await this.executeWithSecurity(() => this.plugin.activate!(this.apiProxy), 'activate')
       }
 
       this.isActive = true
       this.emit('activated', { plugin: this.plugin.manifest.id, sessionId: this.sessionId })
     } catch (error) {
-      this.emit('activation-failed', { 
-        plugin: this.plugin.manifest.id, 
+      this.emit('activation-failed', {
+        plugin: this.plugin.manifest.id,
         error: error.message,
-        sessionId: this.sessionId 
+        sessionId: this.sessionId
       })
       throw error
     }
@@ -233,21 +230,18 @@ export class SecurePluginWrapper extends EventEmitter {
   async deactivate(): Promise<void> {
     try {
       if (this.plugin.deactivate) {
-        await this.executeWithSecurity(
-          () => this.plugin.deactivate!(),
-          'deactivate'
-        )
+        await this.executeWithSecurity(() => this.plugin.deactivate!(), 'deactivate')
       }
 
       this.isActive = false
       this.removeAllListeners()
-      
+
       this.emit('deactivated', { plugin: this.plugin.manifest.id, sessionId: this.sessionId })
     } catch (error) {
-      this.emit('deactivation-error', { 
-        plugin: this.plugin.manifest.id, 
+      this.emit('deactivation-error', {
+        plugin: this.plugin.manifest.id,
         error: error.message,
-        sessionId: this.sessionId 
+        sessionId: this.sessionId
       })
     }
   }
@@ -279,8 +273,10 @@ export class SecurePluginWrapper extends EventEmitter {
     // Check for suspicious permissions
     const dangerousPermissions = ['system', 'network', 'filesystem']
     if (manifest.permissions?.some(perm => dangerousPermissions.includes(perm))) {
-      console.warn(`Plugin ${manifest.id} requests dangerous permissions:`, 
-        manifest.permissions.filter(perm => dangerousPermissions.includes(perm)))
+      console.warn(
+        `Plugin ${manifest.id} requests dangerous permissions:`,
+        manifest.permissions.filter(perm => dangerousPermissions.includes(perm))
+      )
     }
 
     // Validate entry point
@@ -321,9 +317,9 @@ export class SecurePluginWrapper extends EventEmitter {
    */
   isHealthy(): boolean {
     const now = Date.now()
-    const isResponsive = (now - this.metrics.lastActivity) < 60000 // 1 minute
+    const isResponsive = now - this.metrics.lastActivity < 60000 // 1 minute
     const withinMemoryLimit = this.metrics.memoryUsage <= this.policy.maxMemoryUsage
-    
+
     return this.isActive && isResponsive && withinMemoryLimit
   }
 
@@ -334,8 +330,8 @@ export class SecurePluginWrapper extends EventEmitter {
     try {
       this.isActive = false
       this.removeAllListeners()
-      this.emit('force-stopped', { 
-        plugin: this.plugin.manifest.id, 
+      this.emit('force-stopped', {
+        plugin: this.plugin.manifest.id,
         sessionId: this.sessionId,
         reason: 'Security violation or manual intervention'
       })
@@ -385,7 +381,7 @@ export class PluginSecurityAuditor extends EventEmitter {
     }
 
     this.auditLog.push(entry)
-    
+
     // Keep only last 1000 entries
     if (this.auditLog.length > 1000) {
       this.auditLog = this.auditLog.slice(-1000)

@@ -11,20 +11,20 @@ export class WelcomePlugin implements PluginModule {
   async activate(context: PluginContext): Promise<void> {
     this.context = context
     console.log('Welcome Plugin activated!')
-    
+
     // Show welcome notification on first activation
     if (!this.welcomeShown) {
       await this.showWelcomeMessage()
       this.welcomeShown = true
     }
-    
+
     // Listen for app initialization
     this.context.chatStore?.on?.('initialized', this.onAppInitialized.bind(this))
   }
 
   async deactivate(context: PluginContext): Promise<void> {
     console.log('Welcome Plugin deactivated!')
-    
+
     // Clean up listeners
     this.context?.chatStore?.off?.('initialized', this.onAppInitialized.bind(this))
     this.context = null
@@ -33,26 +33,26 @@ export class WelcomePlugin implements PluginModule {
   // Hook: Called when app initializes
   async onAppInit(data: any, context: PluginContext): Promise<any> {
     console.log('Welcome Plugin: App initialized', data)
-    
+
     // Show tips for new users
     const isNewUser = await this.checkIfNewUser()
     if (isNewUser) {
       await this.showNewUserTips()
     }
-    
+
     return data
   }
 
   // Hook: Called before message send
   async beforeMessageSend(data: any, context: PluginContext): Promise<any> {
     console.log('Welcome Plugin: Before message send', data)
-    
+
     // Add welcome enhancement for first message
     const messageCount = await context.storage.get('messageCount', 0)
     if (messageCount === 0) {
       context.showNotification('Welcome to MiaoDa Chat! 🎉', 'success')
     }
-    
+
     await context.storage.set('messageCount', messageCount + 1)
     return data
   }
@@ -60,7 +60,7 @@ export class WelcomePlugin implements PluginModule {
   // Hook: Called when chat is created
   async onChatCreate(data: any, context: PluginContext): Promise<any> {
     console.log('Welcome Plugin: Chat created', data)
-    
+
     // Show helpful tips for new chats
     const chatCount = await context.storage.get('chatCount', 0)
     if (chatCount < 3) {
@@ -68,7 +68,7 @@ export class WelcomePlugin implements PluginModule {
         context.showToast('Tip: You can search through your messages using Ctrl+F', 5000)
       }, 2000)
     }
-    
+
     await context.storage.set('chatCount', chatCount + 1)
     return data
   }
@@ -116,22 +116,26 @@ export class WelcomePlugin implements PluginModule {
     const tips = [
       {
         title: 'Quick Search',
-        message: 'Press Ctrl+F to search within the current chat, or Ctrl+K for global search across all your conversations.',
+        message:
+          'Press Ctrl+F to search within the current chat, or Ctrl+K for global search across all your conversations.',
         icon: '🔍'
       },
       {
         title: 'Voice Features',
-        message: 'Click the microphone icon to use voice input, or enable text-to-speech in settings to hear responses.',
+        message:
+          'Click the microphone icon to use voice input, or enable text-to-speech in settings to hear responses.',
         icon: '🎤'
       },
       {
         title: 'Plugin System',
-        message: 'Extend MiaoDa Chat with plugins! Visit the Plugin Manager to discover and install new features.',
+        message:
+          'Extend MiaoDa Chat with plugins! Visit the Plugin Manager to discover and install new features.',
         icon: '🔌'
       },
       {
         title: 'Keyboard Shortcuts',
-        message: 'Use Ctrl+N for new chat, Ctrl+T for new tab, and many more shortcuts to boost your productivity.',
+        message:
+          'Use Ctrl+N for new chat, Ctrl+T for new tab, and many more shortcuts to boost your productivity.',
         icon: '⌨️'
       }
     ]
@@ -153,21 +157,24 @@ export class WelcomePlugin implements PluginModule {
     }
 
     // Show completion message
-    this.context.showNotification('Tips completed! You can access help anytime from the menu.', 'success')
+    this.context.showNotification(
+      'Tips completed! You can access help anytime from the menu.',
+      'success'
+    )
   }
 
   private async checkIfNewUser(): Promise<boolean> {
     if (!this.context) return false
-    
+
     const welcomeShown = await this.context.storage.get('welcomeShown', false)
     const messageCount = await this.context.storage.get('messageCount', 0)
-    
+
     return !welcomeShown && messageCount === 0
   }
 
   private onAppInitialized(): void {
     console.log('Welcome Plugin: App initialization complete')
-    
+
     // Show periodic tips
     this.scheduleTips()
   }
@@ -176,29 +183,32 @@ export class WelcomePlugin implements PluginModule {
     if (!this.context) return
 
     // Show a helpful tip every 10 minutes for new users
-    const tipInterval = setInterval(async () => {
-      const messageCount = await this.context!.storage.get('messageCount', 0)
-      const tipsShown = await this.context!.storage.get('tipsShown', 0)
-      
-      // Stop showing tips after user has sent 20 messages or seen 5 tips
-      if (messageCount > 20 || tipsShown >= 5) {
-        clearInterval(tipInterval)
-        return
-      }
+    const tipInterval = setInterval(
+      async () => {
+        const messageCount = await this.context!.storage.get('messageCount', 0)
+        const tipsShown = await this.context!.storage.get('tipsShown', 0)
 
-      const tips = [
-        'Tip: Right-click on messages to access additional options like copy, edit, or delete.',
-        'Tip: You can drag and drop files directly into the chat to share them.',
-        'Tip: Use markdown formatting in your messages - **bold**, *italic*, `code`, etc.',
-        'Tip: Press Ctrl+/ to see all available keyboard shortcuts.',
-        'Tip: Enable dark mode in settings if you prefer a darker interface.'
-      ]
+        // Stop showing tips after user has sent 20 messages or seen 5 tips
+        if (messageCount > 20 || tipsShown >= 5) {
+          clearInterval(tipInterval)
+          return
+        }
 
-      const randomTip = tips[Math.floor(Math.random() * tips.length)]
-      this.context!.showToast(randomTip, 8000)
-      
-      await this.context!.storage.set('tipsShown', tipsShown + 1)
-    }, 10 * 60 * 1000) // 10 minutes
+        const tips = [
+          'Tip: Right-click on messages to access additional options like copy, edit, or delete.',
+          'Tip: You can drag and drop files directly into the chat to share them.',
+          'Tip: Use markdown formatting in your messages - **bold**, *italic*, `code`, etc.',
+          'Tip: Press Ctrl+/ to see all available keyboard shortcuts.',
+          'Tip: Enable dark mode in settings if you prefer a darker interface.'
+        ]
+
+        const randomTip = tips[Math.floor(Math.random() * tips.length)]
+        this.context!.showToast(randomTip, 8000)
+
+        await this.context!.storage.set('tipsShown', tipsShown + 1)
+      },
+      10 * 60 * 1000
+    ) // 10 minutes
   }
 }
 

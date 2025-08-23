@@ -2,14 +2,20 @@
   <div class="chat-input-container border-t bg-background/95 backdrop-blur">
     <div class="chat-input-wrapper max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <!-- Configuration Warning -->
-      <div v-if="!isConfigured" class="config-warning mb-3 p-3 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-2">
+      <div
+        v-if="!isConfigured"
+        class="config-warning mb-3 p-3 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-2"
+      >
         <AlertCircle :size="16" class="text-warning flex-shrink-0" />
         <span class="text-sm">Please configure an LLM provider in settings to start chatting.</span>
-        <button @click="$emit('open-settings')" class="ml-auto text-sm font-medium text-primary hover:underline">
+        <button
+          @click="$emit('open-settings')"
+          class="ml-auto text-sm font-medium text-primary hover:underline"
+        >
           Configure now →
         </button>
       </div>
-      
+
       <!-- Enhanced Attachments Preview -->
       <AttachmentsPreview
         v-if="attachments.length > 0 || showAttachmentDropZone"
@@ -31,17 +37,21 @@
       />
 
       <!-- Vision Capability Notification -->
-      <div 
+      <div
         v-if="showVisionWarning"
         class="vision-warning mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-3"
       >
-        <AlertTriangle :size="16" class="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+        <AlertTriangle
+          :size="16"
+          class="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0"
+        />
         <div class="flex-1">
           <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
             当前模型不支持图片分析
           </p>
           <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-            要使用图片分析功能，请切换到支持视觉的模型，如 GPT-4o、Claude 3.5 Sonnet 或 Gemini 1.5 Pro
+            要使用图片分析功能，请切换到支持视觉的模型，如 GPT-4o、Claude 3.5 Sonnet 或 Gemini 1.5
+            Pro
           </p>
           <button
             @click="$emit('open-settings')"
@@ -57,7 +67,7 @@
           <X :size="14" class="text-yellow-600 dark:text-yellow-400" />
         </button>
       </div>
-      
+
       <!-- Input Container -->
       <div class="input-container relative">
         <div
@@ -72,9 +82,12 @@
               title="Attach files (images, documents)"
               :disabled="disabled"
             >
-              <Paperclip :size="18" class="group-hover:text-primary transition-colors sm:w-[20px] sm:h-[20px]" />
+              <Paperclip
+                :size="18"
+                class="group-hover:text-primary transition-colors sm:w-[20px] sm:h-[20px]"
+              />
             </button>
-            
+
             <!-- Voice Input Button -->
             <VoiceInputButton
               ref="voiceInputButtonRef"
@@ -88,7 +101,7 @@
               @error="handleVoiceError"
             />
           </div>
-          
+
           <!-- Text Input -->
           <textarea
             ref="textareaRef"
@@ -101,11 +114,24 @@
             :placeholder="placeholder"
             :disabled="disabled"
             class="chat-input-field flex-1 min-h-[40px] sm:min-h-[44px] max-h-[160px] sm:max-h-[240px] px-3 py-2.5 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-sm sm:text-base leading-relaxed"
-            style="font-family: system-ui, -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif; line-height: 1.75; letter-spacing: 0.02em; word-break: break-word; ime-mode: active;"
+            style="
+              font-family:
+                system-ui,
+                -apple-system,
+                'PingFang SC',
+                'Helvetica Neue',
+                'Microsoft YaHei',
+                'Source Han Sans SC',
+                sans-serif;
+              line-height: 1.75;
+              letter-spacing: 0.02em;
+              word-break: break-word;
+              ime-mode: active;
+            "
             rows="1"
             data-chat-input
           />
-          
+
           <!-- Send Button -->
           <div class="send-button-container pb-0.5">
             <button
@@ -119,7 +145,7 @@
             </button>
           </div>
         </div>
-        
+
         <!-- Voice Recording Interface -->
         <div
           v-if="isVoiceInputActive"
@@ -134,20 +160,21 @@
             @error="handleVoiceError"
           />
         </div>
-        
+
         <!-- Keyboard Hints -->
-        <div class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          Press <kbd class="kbd">Enter</kbd> to send, 
-          <kbd class="kbd">Shift+Enter</kbd> for new line,
-          <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Enter</kbd> to force send
+        <div
+          class="keyboard-hints absolute -bottom-6 left-0 text-xs text-muted-foreground hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          Press <kbd class="kbd">Enter</kbd> to send, <kbd class="kbd">Shift+Enter</kbd> for new
+          line, <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Enter</kbd> to force send
           <span v-if="showVoiceInput" class="ml-4">
             <kbd class="kbd">{{ isMac ? '⌘' : 'Ctrl' }}+Shift+V</kbd> for voice input
           </span>
         </div>
-        
+
         <!-- Character Count -->
         <div
-          v-if="showCharCount && inputText.length > 0" 
+          v-if="showCharCount && inputText.length > 0"
           class="char-count absolute -bottom-6 right-0 text-xs transition-all duration-300"
           :class="[charCountClasses, charCountAnimationClass]"
         >
@@ -207,7 +234,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'send': [message: string, attachments: Attachment[]]
+  send: [message: string, attachments: Attachment[]]
   'open-settings': []
   'voice-toggle': [enabled: boolean]
   'voice-transcript': [text: string, confidence: number]
@@ -251,7 +278,12 @@ const isMac = navigator.platform.toLowerCase().includes('mac')
 const visionCapableProviders = ['openai', 'anthropic', 'google']
 const visionCapableModels = {
   openai: ['gpt-4o', 'gpt-4-vision-preview', 'gpt-4-turbo'],
-  anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'],
+  anthropic: [
+    'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229',
+    'claude-3-haiku-20240307',
+    'claude-3-5-sonnet-20241022'
+  ],
   google: ['gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash']
 }
 
@@ -269,35 +301,36 @@ const currentModel = computed(() => props.currentModel || settingsStore.modelNam
 const isCurrentProviderVisionCapable = computed(() => {
   const provider = currentProvider.value
   const model = currentModel.value
-  
+
   if (!visionCapableProviders.includes(provider)) {
     return false
   }
-  
+
   if (visionCapableModels[provider as keyof typeof visionCapableModels]) {
-    return visionCapableModels[provider as keyof typeof visionCapableModels].some(supportedModel => 
-      model.includes(supportedModel) || supportedModel.includes(model)
+    return visionCapableModels[provider as keyof typeof visionCapableModels].some(
+      supportedModel => model.includes(supportedModel) || supportedModel.includes(model)
     )
   }
-  
+
   return false
 })
 
-const hasImageAttachments = computed(() => 
-  attachments.value.some(att => att.type === 'image')
-)
+const hasImageAttachments = computed(() => attachments.value.some(att => att.type === 'image'))
 
 // Show vision warning when user has images but provider doesn't support vision
-const shouldShowVisionWarning = computed(() => 
-  hasImageAttachments.value && 
-  !isCurrentProviderVisionCapable.value && 
-  !visionWarningDismissed.value
+const shouldShowVisionWarning = computed(
+  () =>
+    hasImageAttachments.value &&
+    !isCurrentProviderVisionCapable.value &&
+    !visionWarningDismissed.value
 )
 const canSend = computed(() => {
-  return props.isConfigured && 
-         !props.disabled && 
-         !props.isLoading && 
-         (inputText.value.trim() || attachments.value.length > 0)
+  return (
+    props.isConfigured &&
+    !props.disabled &&
+    !props.isLoading &&
+    (inputText.value.trim() || attachments.value.length > 0)
+  )
 })
 
 const sendButtonClasses = computed(() => ({
@@ -340,8 +373,8 @@ const charCountStatus = computed(() => {
 })
 
 const inputWrapperClasses = computed(() => ({
-  'typing': isTyping.value,
-  'focused': isFocused.value,
+  typing: isTyping.value,
+  focused: isFocused.value,
   'drop-zone-active': showAttachmentDropZone.value,
   'focus-ripple': focusRipple.value,
   'text-highlight': textHighlight.value
@@ -361,15 +394,14 @@ const charCountAnimationClass = computed(() => {
 })
 
 const charCountClasses = computed(() => ({
-  'warning': charCountStatus.value === 'warning',
-  'error': charCountStatus.value === 'error'
+  warning: charCountStatus.value === 'warning',
+  error: charCountStatus.value === 'error'
 }))
-
 
 // Auto-resize textarea
 const adjustTextareaHeight = () => {
   if (!textareaRef.value) return
-  
+
   textareaRef.value.style.height = 'auto'
   textareaRef.value.style.height = `${textareaRef.value.scrollHeight}px`
 }
@@ -377,20 +409,20 @@ const adjustTextareaHeight = () => {
 // Handle input events
 const handleInput = () => {
   adjustTextareaHeight()
-  
+
   // 打字状态检测
   isTyping.value = true
   textHighlight.value = true
-  
+
   if (typingTimeout.value) {
     clearTimeout(typingTimeout.value)
   }
-  
+
   typingTimeout.value = setTimeout(() => {
     isTyping.value = false
     textHighlight.value = false
   }, 1000)
-  
+
   // 字符计数脉冲效果
   if (props.showCharCount && inputText.value.length > 0) {
     charCountPulse.value = true
@@ -402,7 +434,7 @@ const handleInput = () => {
 
 const handleKeydown = (event: KeyboardEvent) => {
   const isModifierPressed = event.ctrlKey || event.metaKey
-  
+
   if (event.key === 'Enter') {
     if (!event.shiftKey || (isModifierPressed && !event.shiftKey)) {
       event.preventDefault()
@@ -416,7 +448,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 const handleFocus = () => {
   isFocused.value = true
   focusRipple.value = true
-  
+
   setTimeout(() => {
     focusRipple.value = false
   }, 600)
@@ -440,20 +472,20 @@ const handleSend = () => {
     }
     return
   }
-  
+
   const message = inputText.value.trim()
   const messageAttachments = [...attachments.value]
-  
+
   if (!message && messageAttachments.length === 0) return
-  
+
   // 防止快速重复发送
   const now = Date.now()
   if (now - lastSendTime.value < 500) return
   lastSendTime.value = now
-  
+
   // 发送状态动画
   sendButtonState.value = 'sending'
-  
+
   // 输入框清空动画
   const textarea = textareaRef.value
   if (textarea) {
@@ -462,20 +494,20 @@ const handleSend = () => {
       textarea.classList.remove('clear-animation')
     }, 300)
   }
-  
+
   // Clear input
   inputText.value = ''
   attachments.value = []
   isTyping.value = false
-  
+
   // Reset textarea height
   if (textareaRef.value) {
     textareaRef.value.style.height = 'auto'
   }
-  
+
   // Emit send event
   emit('send', message, messageAttachments)
-  
+
   // 成功状态动画
   setTimeout(() => {
     sendButtonState.value = 'success'
@@ -493,10 +525,10 @@ const selectFiles = async () => {
     console.error('[ChatInput] File API not available')
     return
   }
-  
+
   try {
     const files = await window.api.file.select()
-    
+
     for (const file of files) {
       const attachment: Attachment = {
         id: Date.now().toString() + Math.random(),
@@ -516,20 +548,20 @@ const selectFiles = async () => {
 const handlePaste = async (event: ClipboardEvent) => {
   const items = event.clipboardData?.items
   if (!items) return
-  
+
   for (const item of items) {
     if (item.type.startsWith('image/')) {
       event.preventDefault()
-      
+
       try {
         const file = item.getAsFile()
         if (!file) continue
-        
+
         const reader = new FileReader()
-        reader.onload = async (e) => {
+        reader.onload = async e => {
           const dataUrl = e.target?.result as string
           const fileInfo = await window.api.file.paste(dataUrl)
-          
+
           attachments.value.push({
             id: Date.now().toString() + Math.random(),
             name: fileInfo.name,
@@ -555,18 +587,18 @@ const removeAttachment = (id: string) => {
 const retryAttachment = async (id: string) => {
   const attachment = attachments.value.find(a => a.id === id)
   if (!attachment) return
-  
+
   attachment.status = 'uploading'
   attachment.uploadProgress = 0
   attachment.error = undefined
-  
+
   try {
     // Simulate upload progress
     for (let progress = 0; progress <= 100; progress += 20) {
       attachment.uploadProgress = progress
       await new Promise(resolve => setTimeout(resolve, 100))
     }
-    
+
     attachment.status = 'ready'
   } catch (error) {
     attachment.status = 'error'
@@ -578,11 +610,11 @@ const retryAttachment = async (id: string) => {
 const handleAttachmentDrop = async (event: DragEvent) => {
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
-  
+
   for (const file of files) {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader()
-      
+
       // Create attachment with uploading status
       const attachment: Attachment = {
         id: Date.now().toString() + Math.random(),
@@ -592,30 +624,30 @@ const handleAttachmentDrop = async (event: DragEvent) => {
         status: 'uploading',
         uploadProgress: 0
       }
-      
+
       attachments.value.push(attachment)
-      
-      reader.onload = async (e) => {
+
+      reader.onload = async e => {
         try {
           const dataUrl = e.target?.result as string
           attachment.data = dataUrl
-          
+
           // Simulate processing
           attachment.status = 'processing'
           await new Promise(resolve => setTimeout(resolve, 1000))
-          
+
           attachment.status = 'ready'
         } catch (error) {
           attachment.status = 'error'
           attachment.error = 'Processing failed'
         }
       }
-      
+
       reader.onerror = () => {
         attachment.status = 'error'
         attachment.error = 'Failed to read file'
       }
-      
+
       reader.readAsDataURL(file)
     }
   }
@@ -647,7 +679,7 @@ const handleVoiceRecordingStop = () => {
   isVoiceInputActive.value = false
   voiceTranscript.value = ''
   emit('voice-toggle', false)
-  
+
   // Focus back to textarea
   nextTick(() => {
     textareaRef.value?.focus()
@@ -656,16 +688,19 @@ const handleVoiceRecordingStop = () => {
 
 const handleVoicePermissionRequired = () => {
   // Show a user-friendly message about granting permission
-  handleError(new Error('Please grant microphone permission to use voice input'), 'Voice Permission')
+  handleError(
+    new Error('Please grant microphone permission to use voice input'),
+    'Voice Permission'
+  )
 }
 
 const handleVoiceTranscript = (transcript: string, confidence: number) => {
   // Update the voice transcript
   voiceTranscript.value = transcript
-  
+
   // Emit transcript event for parent components
   emit('voice-transcript', transcript, confidence)
-  
+
   // Only add to input if confidence is high enough
   if (confidence > 0.8) {
     // Clean up the transcript before adding
@@ -677,7 +712,7 @@ const handleVoiceTranscript = (transcript: string, confidence: number) => {
       } else {
         inputText.value = cleanTranscript
       }
-      
+
       // Auto-resize textarea
       nextTick(() => {
         adjustTextareaHeight()
@@ -690,7 +725,7 @@ const handleRecordingStop = () => {
   // Auto-stop voice input when recording stops
   isVoiceInputActive.value = false
   voiceTranscript.value = ''
-  
+
   // Focus back to textarea
   nextTick(() => {
     textareaRef.value?.focus()
@@ -702,13 +737,12 @@ const handleVoiceError = (error: string) => {
   emit('voice-error', error)
   isVoiceInputActive.value = false
   voiceTranscript.value = ''
-  
+
   // Focus back to textarea after error
   nextTick(() => {
     textareaRef.value?.focus()
   })
 }
-
 
 // Keyboard shortcuts
 const handleGlobalKeydown = (event: KeyboardEvent) => {
@@ -724,7 +758,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     }
     return
   }
-  
+
   // Esc to cancel voice recording
   if (event.key === 'Escape' && isVoiceInputActive.value) {
     event.preventDefault()
@@ -744,7 +778,7 @@ const handleSendMessageEvent = () => {
 onMounted(() => {
   // Add global keyboard event listener
   document.addEventListener('keydown', handleGlobalKeydown)
-  
+
   // Add custom event listeners for shortcuts
   document.addEventListener('sendMessage', handleSendMessageEvent)
   document.addEventListener('shortcuts:send-message', handleShortcutSend)
@@ -753,23 +787,26 @@ onMounted(() => {
 onUnmounted(() => {
   // Remove global keyboard event listener
   document.removeEventListener('keydown', handleGlobalKeydown)
-  
+
   // Remove custom event listeners
   document.removeEventListener('sendMessage', handleSendMessageEvent)
   document.removeEventListener('shortcuts:send-message', handleShortcutSend)
 })
 
 // Watch for prop changes
-watch(() => props.autoFocus, (shouldFocus) => {
-  if (shouldFocus && textareaRef.value) {
-    nextTick(() => {
-      textareaRef.value?.focus()
-    })
+watch(
+  () => props.autoFocus,
+  shouldFocus => {
+    if (shouldFocus && textareaRef.value) {
+      nextTick(() => {
+        textareaRef.value?.focus()
+      })
+    }
   }
-})
+)
 
 // Watch for vision warning
-watch(shouldShowVisionWarning, (should) => {
+watch(shouldShowVisionWarning, should => {
   showVisionWarning.value = should
 })
 
@@ -903,59 +940,76 @@ defineExpose({
 
 /* 新增动画 */
 @keyframes sendSuccess {
-  0% { 
-    transform: scale(1); 
+  0% {
+    transform: scale(1);
     background: var(--primary);
   }
-  50% { 
-    transform: scale(1.2); 
-    background: var(--success, #10b981); 
+  50% {
+    transform: scale(1.2);
+    background: var(--success, #10b981);
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
   }
-  100% { 
-    transform: scale(1); 
+  100% {
+    transform: scale(1);
     background: var(--primary);
   }
 }
 
 @keyframes typingPulse {
-  0%, 100% { 
-    border-color: rgba(var(--primary-rgb), 0.2); 
+  0%,
+  100% {
+    border-color: rgba(var(--primary-rgb), 0.2);
     box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.1);
   }
-  50% { 
-    border-color: rgba(var(--primary-rgb), 0.4); 
+  50% {
+    border-color: rgba(var(--primary-rgb), 0.4);
     box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
   }
 }
 
 @keyframes charCountPulse {
-  0%, 100% { 
-    opacity: 1; 
+  0%,
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
-  50% { 
-    opacity: 0.6; 
+  50% {
+    opacity: 0.6;
     transform: scale(1.1);
   }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-  20%, 40%, 60%, 80% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-3px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 @keyframes errorShake {
-  0%, 100% { 
+  0%,
+  100% {
     transform: translateX(0) scale(1);
     background: var(--destructive);
   }
-  25% { 
+  25% {
     transform: translateX(-4px) scale(0.98);
     background: #dc2626;
   }
-  75% { 
+  75% {
     transform: translateX(4px) scale(0.98);
     background: #dc2626;
   }
@@ -1001,7 +1055,8 @@ defineExpose({
 
 /* 附件拖拽区域动画 */
 @keyframes dropZonePulse {
-  0%, 100% {
+  0%,
+  100% {
     border-color: rgba(var(--primary-rgb), 0.3);
     background: rgba(var(--primary-rgb), 0.05);
   }
@@ -1061,13 +1116,17 @@ defineExpose({
 }
 
 .input-wrapper:focus-within {
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2), 0 8px 25px rgba(var(--primary-rgb), 0.1);
+  box-shadow:
+    0 0 0 2px rgba(var(--primary-rgb), 0.2),
+    0 8px 25px rgba(var(--primary-rgb), 0.1);
   transform: translateY(-1px);
   background: rgba(var(--background-rgb), 0.95);
 }
 
 .input-wrapper.focused {
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3), 0 8px 30px rgba(var(--primary-rgb), 0.15);
+  box-shadow:
+    0 0 0 2px rgba(var(--primary-rgb), 0.3),
+    0 8px 30px rgba(var(--primary-rgb), 0.15);
 }
 
 /* 输入中状态指示 */
@@ -1076,12 +1135,7 @@ defineExpose({
 }
 
 .input-wrapper.text-highlight .message-input {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(var(--primary-rgb), 0.05),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb), 0.05), transparent);
   background-size: 200% 100%;
   animation: textHighlight 1s ease-in-out;
 }
@@ -1123,20 +1177,20 @@ defineExpose({
   .char-count {
     display: none;
   }
-  
+
   .input-actions {
     gap: 0.25rem;
   }
-  
+
   .action-btn {
     padding: 6px;
   }
-  
+
   .voice-interface {
     margin: 0.75rem 0;
     padding: 0.75rem;
   }
-  
+
   .chat-input {
     padding: 0.5rem 1rem;
   }
@@ -1147,7 +1201,7 @@ defineExpose({
     border-radius: 0.5rem;
     margin: 0.5rem -0.5rem;
   }
-  
+
   .input-wrapper {
     padding: 0.75rem;
     border-radius: 1rem;
@@ -1166,7 +1220,7 @@ defineExpose({
   --background: hsl(0, 0%, 100%);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --background-rgb: 15, 23, 42;
   --primary: hsl(221, 83%, 65%);
   --muted: hsl(217, 33%, 17%);

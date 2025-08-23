@@ -4,32 +4,20 @@
       <div class="loading-spinner" />
       <p>正在加载更新日志...</p>
     </div>
-    
+
     <div v-else-if="changelog.length === 0" class="empty-state">
       <Clock :size="48" class="empty-icon" />
       <h3>暂无更新日志</h3>
       <p>此插件还没有发布更新</p>
     </div>
-    
+
     <div v-else class="changelog-container">
-      <div
-        v-for="version in changelog"
-        :key="version.version"
-        class="version-item"
-      >
+      <div v-for="version in changelog" :key="version.version" class="version-item">
         <div class="version-header">
           <div class="version-info">
             <h3 class="version-number">v{{ version.version }}</h3>
-            <span
-              v-if="version.isLatest"
-              class="latest-badge"
-            >
-              最新
-            </span>
-            <span
-              v-if="version.type"
-              :class="['version-type', version.type]"
-            >
+            <span v-if="version.isLatest" class="latest-badge"> 最新 </span>
+            <span v-if="version.type" :class="['version-type', version.type]">
               {{ getVersionTypeLabel(version.type) }}
             </span>
           </div>
@@ -38,12 +26,12 @@
             <span v-if="version.size" class="version-size">{{ version.size }}</span>
           </div>
         </div>
-        
+
         <div class="version-content">
           <div v-if="version.summary" class="version-summary">
             {{ version.summary }}
           </div>
-          
+
           <div class="changes-section">
             <!-- New Features -->
             <div v-if="version.changes.features?.length" class="change-group">
@@ -57,7 +45,7 @@
                 </li>
               </ul>
             </div>
-            
+
             <!-- Improvements -->
             <div v-if="version.changes.improvements?.length" class="change-group">
               <h4 class="change-title">
@@ -70,7 +58,7 @@
                 </li>
               </ul>
             </div>
-            
+
             <!-- Bug Fixes -->
             <div v-if="version.changes.fixes?.length" class="change-group">
               <h4 class="change-title">
@@ -83,7 +71,7 @@
                 </li>
               </ul>
             </div>
-            
+
             <!-- Breaking Changes -->
             <div v-if="version.changes.breaking?.length" class="change-group">
               <h4 class="change-title">
@@ -96,7 +84,7 @@
                 </li>
               </ul>
             </div>
-            
+
             <!-- Security -->
             <div v-if="version.changes.security?.length" class="change-group">
               <h4 class="change-title">
@@ -110,7 +98,7 @@
               </ul>
             </div>
           </div>
-          
+
           <!-- Version Actions -->
           <div class="version-actions">
             <button
@@ -139,8 +127,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import {
-  Clock, Plus, ArrowUp, Bug, AlertTriangle, Shield,
-  Download, ExternalLink
+  Clock,
+  Plus,
+  ArrowUp,
+  Bug,
+  AlertTriangle,
+  Shield,
+  Download,
+  ExternalLink
 } from 'lucide-vue-next'
 
 import type { PluginMarketListing } from '../../types/plugins'
@@ -209,19 +203,9 @@ const changelog = ref<ChangelogVersion[]>([
     type: 'patch',
     size: '2.1 MB',
     changes: {
-      fixes: [
-        '修复计算结果显示错误',
-        '修复插件崩溃问题',
-        '修复设置无法保存'
-      ],
-      improvements: [
-        '优化启动速度',
-        '减少内存占用'
-      ],
-      security: [
-        '修复潜在的安全漏洞',
-        '更新依赖库版本'
-      ]
+      fixes: ['修复计算结果显示错误', '修复插件崩溃问题', '修复设置无法保存'],
+      improvements: ['优化启动速度', '减少内存占用'],
+      security: ['修复潜在的安全漏洞', '更新依赖库版本']
     }
   },
   {
@@ -231,21 +215,9 @@ const changelog = ref<ChangelogVersion[]>([
     type: 'major',
     size: '2.5 MB',
     changes: {
-      features: [
-        '全新的用户界面设计',
-        '支持科学计数法',
-        '添加历史记录功能',
-        '支持多种主题切换'
-      ],
-      improvements: [
-        '重构计算引擎',
-        '提升计算精度',
-        '优化性能表现'
-      ],
-      breaking: [
-        'API 接口变更，不兼容 1.x 版本',
-        '配置文件格式更新，需要重新设置'
-      ]
+      features: ['全新的用户界面设计', '支持科学计数法', '添加历史记录功能', '支持多种主题切换'],
+      improvements: ['重构计算引擎', '提升计算精度', '优化性能表现'],
+      breaking: ['API 接口变更，不兼容 1.x 版本', '配置文件格式更新，需要重新设置']
     }
   }
 ])

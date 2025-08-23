@@ -34,14 +34,14 @@
 .hover\:scale-95:hover,
 .group-hover\:scale-105,
 .group-hover\:scale-110,
-[class*="scale"]:hover {
+[class*='scale']:hover {
   transform: none !important;
 }
 
 /* 移除active scale效果 */
 .active\:scale-95:active,
 .active\:scale-90:active,
-[class*="scale"]:active {
+[class*='scale']:active {
   transform: none !important;
 }
 
@@ -57,14 +57,26 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes loadingDots {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  80%, 100% { opacity: 0; }
+  0%,
+  20% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* === 2. 状态反馈动效 === */
@@ -248,7 +260,7 @@
   .page-transition-leave-active {
     animation-duration: 0.2s !important;
   }
-  
+
   .hover-lift:hover,
   .hover-highlight:hover,
   .hover-border:hover {
@@ -259,15 +271,15 @@
 /* 低性能设备优化 */
 @media (prefers-reduced-motion: reduce) {
   /* 完全禁用所有动效 */
-  *, 
-  *::before, 
+  *,
+  *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   /* 只保留必要的状态变化 */
   .focus-ring:focus,
   .focus-ring:focus-visible {
@@ -313,8 +325,12 @@
 }
 
 @keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 /* 进度条动效（功能必需） */
@@ -327,8 +343,12 @@
 }
 
 @keyframes progressIndeterminate {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ============== 调试和开发辅助 ============== */

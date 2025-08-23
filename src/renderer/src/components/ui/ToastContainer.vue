@@ -2,11 +2,7 @@
   <Teleport to="body">
     <div class="toast-container fixed top-4 right-4 z-[100] space-y-2 pointer-events-none">
       <TransitionGroup name="toast-list" tag="div">
-        <div
-          v-for="toast in toasts"
-          :key="toast.id"
-          class="toast-item pointer-events-auto"
-        >
+        <div v-for="toast in toasts" :key="toast.id" class="toast-item pointer-events-auto">
           <div
             class="toast-content bg-background border border-border rounded-lg shadow-lg p-4 backdrop-blur-sm max-w-sm"
             :class="getTypeClasses(toast.type)"
@@ -17,15 +13,19 @@
                 <Check v-if="toast.type === 'success'" :size="18" class="text-green-600" />
                 <AlertCircle v-else-if="toast.type === 'error'" :size="18" class="text-red-600" />
                 <Info v-else-if="toast.type === 'info'" :size="18" class="text-blue-600" />
-                <AlertTriangle v-else-if="toast.type === 'warning'" :size="18" class="text-yellow-600" />
+                <AlertTriangle
+                  v-else-if="toast.type === 'warning'"
+                  :size="18"
+                  class="text-yellow-600"
+                />
               </div>
-              
+
               <!-- Content -->
               <div class="flex-1 min-w-0">
                 <div v-if="toast.title" class="font-medium text-sm mb-1">{{ toast.title }}</div>
                 <div class="text-sm text-muted-foreground">{{ toast.message }}</div>
               </div>
-              
+
               <!-- Close button -->
               <button
                 v-if="toast.dismissible"
@@ -128,7 +128,7 @@ const hideToast = (id: string) => {
     right: 1rem;
     max-width: none;
   }
-  
+
   .toast-content {
     max-width: none;
   }

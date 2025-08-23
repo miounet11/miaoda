@@ -15,21 +15,21 @@
   /* 按钮高度标准 */
   --button-height-xs: 32px;
   --button-height-sm: 40px;
-  --button-height-md: 48px;  /* 标准触摸目标 */
+  --button-height-md: 48px; /* 标准触摸目标 */
   --button-height-lg: 56px;
-  
+
   /* 按钮内边距标准 */
   --button-padding-xs: 8px 12px;
   --button-padding-sm: 10px 16px;
   --button-padding-md: 12px 20px;
   --button-padding-lg: 16px 24px;
-  
+
   /* 按钮字体大小 */
   --button-font-xs: 12px;
   --button-font-sm: 14px;
   --button-font-md: 16px;
   --button-font-lg: 18px;
-  
+
   /* 按钮边框圆角 */
   --button-radius-sm: 6px;
   --button-radius-md: 8px;
@@ -48,19 +48,19 @@ button {
   font: inherit !important;
   cursor: pointer !important;
   outline: none !important;
-  
+
   /* 基础交互属性 */
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   transform: translateZ(0) !important;
   backface-visibility: hidden !important;
-  
+
   /* 禁用状态 */
   &:disabled {
     cursor: not-allowed !important;
     opacity: 0.5 !important;
     transform: none !important;
   }
-  
+
   /* 焦点可访问性 */
   &:focus-visible {
     outline: 2px solid hsl(var(--primary-500)) !important;
@@ -72,7 +72,7 @@ button {
 
 .btn-primary,
 .button-primary,
-button[data-variant="primary"] {
+button[data-variant='primary'] {
   /* 尺寸和间距 */
   min-height: var(--button-height-md) !important;
   padding: var(--button-padding-md) !important;
@@ -80,34 +80,36 @@ button[data-variant="primary"] {
   font-size: var(--button-font-md) !important;
   font-weight: 600 !important;
   line-height: 1 !important;
-  
+
   /* 最小宽度确保可点击性 */
   min-width: 80px !important;
-  
+
   /* 视觉样式 */
   background: var(--gradient-primary) !important;
   color: white !important;
   border: none !important;
-  
+
   /* 阴影和深度 */
-  box-shadow: 
+  box-shadow:
     0 2px 4px -1px rgba(var(--primary-500), 0.3),
     0 4px 8px -2px rgba(var(--primary-500), 0.15) !important;
-  
+
   /* 交互状态 */
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, 
-      hsl(var(--primary-600)) 0%, 
-      hsl(var(--primary-700)) 100%) !important;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary-600)) 0%,
+      hsl(var(--primary-700)) 100%
+    ) !important;
     transform: translateY(-1px) scale(1.01) !important;
-    box-shadow: 
+    box-shadow:
       0 4px 8px -2px rgba(var(--primary-500), 0.4),
       0 8px 16px -4px rgba(var(--primary-500), 0.2) !important;
   }
-  
+
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.98) !important;
-    box-shadow: 
+    box-shadow:
       0 1px 2px -1px rgba(var(--primary-500), 0.3),
       0 2px 4px -2px rgba(var(--primary-500), 0.15) !important;
   }
@@ -117,7 +119,7 @@ button[data-variant="primary"] {
 
 .btn-secondary,
 .button-secondary,
-button[data-variant="secondary"] {
+button[data-variant='secondary'] {
   /* 尺寸和间距 */
   min-height: var(--button-height-md) !important;
   padding: var(--button-padding-md) !important;
@@ -125,23 +127,23 @@ button[data-variant="secondary"] {
   font-size: var(--button-font-md) !important;
   font-weight: 500 !important;
   min-width: 80px !important;
-  
+
   /* 视觉样式 */
   background: hsl(var(--surface-elevated)) !important;
   color: hsl(var(--text-primary)) !important;
   border: 1px solid hsl(var(--border)) !important;
-  
+
   /* 交互状态 */
   &:hover:not(:disabled) {
     background: hsl(var(--surface-hover)) !important;
     border-color: hsl(var(--primary-300)) !important;
     color: hsl(var(--primary-600)) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 
+    box-shadow:
       0 2px 4px -1px rgba(0, 0, 0, 0.05),
       0 4px 8px -2px rgba(var(--primary-500), 0.1) !important;
   }
-  
+
   &:active:not(:disabled) {
     background: hsl(var(--surface-pressed)) !important;
     transform: translateY(0) scale(0.98) !important;
@@ -152,23 +154,23 @@ button[data-variant="secondary"] {
 
 .btn-icon,
 .button-icon,
-button[data-variant="icon"] {
+button[data-variant='icon'] {
   /* 确保正方形触摸目标 */
   min-width: var(--button-height-md) !important;
   min-height: var(--button-height-md) !important;
   padding: var(--space-3) !important;
   border-radius: var(--button-radius-md) !important;
-  
+
   /* 视觉样式 */
   background: transparent !important;
   color: hsl(var(--text-secondary)) !important;
   border: 1px solid transparent !important;
-  
+
   /* 图标居中 */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  
+
   /* 交互状态 */
   &:hover:not(:disabled) {
     background: hsl(var(--surface-hover)) !important;
@@ -176,7 +178,7 @@ button[data-variant="icon"] {
     border-color: hsl(var(--border)) !important;
     transform: translateY(-1px) scale(1.02) !important;
   }
-  
+
   &:active:not(:disabled) {
     background: hsl(var(--surface-pressed)) !important;
     transform: translateY(0) scale(0.95) !important;
@@ -187,7 +189,7 @@ button[data-variant="icon"] {
 
 .btn-sm,
 .button-sm,
-button[data-size="sm"] {
+button[data-size='sm'] {
   min-height: var(--button-height-sm) !important;
   padding: var(--button-padding-sm) !important;
   font-size: var(--button-font-sm) !important;
@@ -196,7 +198,7 @@ button[data-size="sm"] {
 }
 
 .btn-icon.btn-sm,
-.button-icon[data-size="sm"] {
+.button-icon[data-size='sm'] {
   min-width: var(--button-height-sm) !important;
   min-height: var(--button-height-sm) !important;
   padding: var(--space-2) !important;
@@ -206,7 +208,7 @@ button[data-size="sm"] {
 
 .btn-lg,
 .button-lg,
-button[data-size="lg"] {
+button[data-size='lg'] {
   min-height: var(--button-height-lg) !important;
   padding: var(--button-padding-lg) !important;
   font-size: var(--button-font-lg) !important;
@@ -218,15 +220,15 @@ button[data-size="lg"] {
 
 .btn-destructive,
 .button-destructive,
-button[data-variant="destructive"] {
+button[data-variant='destructive'] {
   background: hsl(var(--error-500)) !important;
   color: white !important;
   border: none !important;
-  
+
   &:hover:not(:disabled) {
     background: hsl(var(--error-600)) !important;
     transform: translateY(-1px) scale(1.01) !important;
-    box-shadow: 
+    box-shadow:
       0 4px 8px -2px rgba(var(--error-500), 0.4),
       0 8px 16px -4px rgba(var(--error-500), 0.2) !important;
   }
@@ -236,7 +238,7 @@ button[data-variant="destructive"] {
 
 .btn-link,
 .button-link,
-button[data-variant="link"] {
+button[data-variant='link'] {
   background: transparent !important;
   color: hsl(var(--primary-600)) !important;
   border: none !important;
@@ -244,7 +246,7 @@ button[data-variant="link"] {
   min-height: auto !important;
   text-decoration: underline !important;
   text-underline-offset: 2px !important;
-  
+
   &:hover:not(:disabled) {
     color: hsl(var(--primary-700)) !important;
     text-decoration: none !important;
@@ -257,19 +259,19 @@ button[data-variant="link"] {
 /* === 发送按钮 === */
 .send-button {
   @extend .btn-primary;
-  
+
   /* 特殊的发送按钮样式 */
   background: var(--gradient-primary) !important;
   border-radius: 50% !important;
   min-width: var(--button-height-md) !important;
   min-height: var(--button-height-md) !important;
   padding: 0 !important;
-  
+
   /* 图标居中 */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  
+
   &:disabled {
     background: hsl(var(--muted)) !important;
     color: hsl(var(--text-disabled)) !important;
@@ -279,7 +281,7 @@ button[data-variant="link"] {
 /* === 语音按钮 === */
 .voice-button {
   @extend .btn-icon;
-  
+
   &.recording {
     background: hsl(var(--error-500)) !important;
     color: white !important;
@@ -288,14 +290,19 @@ button[data-variant="link"] {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* === 侧边栏按钮 === */
 .sidebar button {
   @extend .btn-icon;
-  
+
   min-width: 36px !important;
   min-height: 36px !important;
   padding: var(--space-2) !important;
@@ -307,21 +314,21 @@ button[data-variant="link"] {
 .button-group {
   display: flex !important;
   gap: var(--space-2) !important;
-  
+
   /* 连续按钮样式 */
   &.connected {
     gap: 0 !important;
-    
+
     button {
       border-radius: 0 !important;
       border-right-width: 0 !important;
     }
-    
+
     button:first-child {
       border-top-left-radius: var(--button-radius-lg) !important;
       border-bottom-left-radius: var(--button-radius-lg) !important;
     }
-    
+
     button:last-child {
       border-top-right-radius: var(--button-radius-lg) !important;
       border-bottom-right-radius: var(--button-radius-lg) !important;
@@ -333,13 +340,13 @@ button[data-variant="link"] {
 /* ============== 加载状态按钮 ============== */
 
 .btn-loading,
-button[data-loading="true"] {
+button[data-loading='true'] {
   position: relative !important;
   pointer-events: none !important;
-  
+
   /* 隐藏文本内容 */
   color: transparent !important;
-  
+
   &::after {
     content: '' !important;
     position: absolute !important;
@@ -347,7 +354,7 @@ button[data-loading="true"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    
+
     /* 加载动画 */
     border: 2px solid transparent !important;
     border-top: 2px solid currentColor !important;
@@ -360,7 +367,9 @@ button[data-loading="true"] {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============== 移动端优化 ============== */
@@ -371,12 +380,12 @@ button[data-loading="true"] {
     --button-height-md: 44px;
     --button-padding-md: 10px 16px;
   }
-  
+
   /* 移动端按钮间距调整 */
   .button-group {
     gap: var(--space-3) !important;
   }
-  
+
   /* 触摸优化 */
   button {
     -webkit-tap-highlight-color: transparent !important;
@@ -390,7 +399,7 @@ button[data-loading="true"] {
     border-width: 2px !important;
     font-weight: 600 !important;
   }
-  
+
   .btn-primary:focus-visible,
   .btn-secondary:focus-visible,
   .btn-icon:focus-visible {
@@ -406,16 +415,16 @@ button[data-loading="true"] {
     transition: none !important;
     transform: none !important;
   }
-  
+
   button:hover,
   button:active {
     transform: none !important;
   }
-  
+
   .btn-loading::after {
     animation: none !important;
   }
-  
+
   .voice-button.recording {
     animation: none !important;
   }

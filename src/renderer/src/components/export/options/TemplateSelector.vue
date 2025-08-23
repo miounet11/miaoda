@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <h4 class="text-md font-semibold text-gray-900 dark:text-white">Export Template</h4>
-    
+
     <div class="grid grid-cols-1 gap-3">
       <div
         v-for="tmpl in templates"
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="text-xs text-gray-500 dark:text-gray-400">
       Templates control the visual styling and layout of your exported content.
     </div>
@@ -55,7 +55,7 @@ const emit = defineEmits<Emits>()
 
 const template = computed({
   get: () => props.template,
-  set: (value) => emit('update:template', value)
+  set: value => emit('update:template', value)
 })
 
 // Predefined templates

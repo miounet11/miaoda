@@ -12,7 +12,7 @@
   "scope": "/",
   "lang": "en-US",
   "dir": "ltr",
-  
+
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -69,7 +69,7 @@
       "purpose": "badge"
     }
   ],
-  
+
   "screenshots": [
     {
       "src": "/screenshots/desktop-1.png",
@@ -86,13 +86,9 @@
       "label": "Chat interface on mobile"
     }
   ],
-  
-  "categories": [
-    "productivity",
-    "social",
-    "utilities"
-  ],
-  
+
+  "categories": ["productivity", "social", "utilities"],
+
   "shortcuts": [
     {
       "name": "New Chat",
@@ -147,14 +143,14 @@
       ]
     }
   ],
-  
+
   "protocol_handlers": [
     {
       "protocol": "miaoda-chat",
       "url": "/?action=handle&url=%s"
     }
   ],
-  
+
   "file_handlers": [
     {
       "action": "/handle-file",
@@ -165,7 +161,7 @@
       }
     }
   ],
-  
+
   "share_target": {
     "action": "/share",
     "method": "POST",
@@ -177,24 +173,14 @@
       "files": [
         {
           "name": "files",
-          "accept": [
-            "text/plain",
-            "application/json",
-            "image/*",
-            "audio/*"
-          ]
+          "accept": ["text/plain", "application/json", "image/*", "audio/*"]
         }
       ]
     }
   },
-  
-  "permissions": [
-    "notifications",
-    "microphone",
-    "clipboard-read",
-    "clipboard-write"
-  ],
-  
+
+  "permissions": ["notifications", "microphone", "clipboard-read", "clipboard-write"],
+
   "features": [
     "cross-browser-support",
     "offline-support",
@@ -204,33 +190,28 @@
     "speech-synthesis",
     "file-handling"
   ],
-  
+
   "prefer_related_applications": false,
-  
+
   "related_applications": [
     {
       "platform": "webapp",
       "url": "https://miaoda-chat.com/app"
     }
   ],
-  
+
   "edge_side_panel": {
     "preferred_width": 400
   },
-  
+
   "launch_handler": {
     "client_mode": "focus-existing"
   },
-  
+
   "handle_links": "preferred",
-  
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui",
-    "browser"
-  ],
-  
+
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+
   "user_preferences": {
     "color_scheme_dark": {
       "theme_color": "#1a1a1a",

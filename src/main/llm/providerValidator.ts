@@ -43,7 +43,7 @@ export class ProviderValidator {
     options: EnhancedValidationOptions = {}
   ): Promise<ValidationResult> {
     const startTime = Date.now()
-    
+
     try {
       // Basic configuration validation
       const configValidation = this.validateConfiguration(config)
@@ -58,7 +58,7 @@ export class ProviderValidator {
       }
 
       // Feature detection
-      const features = options.detectFeatures 
+      const features = options.detectFeatures
         ? await this.detectSupportedFeatures(config, options)
         : { streaming: false, toolCalling: false, multimodal: false }
 
@@ -77,9 +77,9 @@ export class ProviderValidator {
         }
       }
     } catch (error: any) {
-      logger.error('Provider validation failed', 'ProviderValidator', { 
-        error: error.message, 
-        config: { ...config, apiKey: '***' } 
+      logger.error('Provider validation failed', 'ProviderValidator', {
+        error: error.message,
+        config: { ...config, apiKey: '***' }
       })
 
       return {
@@ -134,7 +134,7 @@ export class ProviderValidator {
    * Test basic connectivity to the provider
    */
   private async testConnection(
-    config: CustomProviderConfig, 
+    config: CustomProviderConfig,
     timeout = this.DEFAULT_TIMEOUT
   ): Promise<ValidationResult> {
     const controller = new AbortController()
@@ -144,7 +144,7 @@ export class ProviderValidator {
       const response = await fetch(`${config.baseURL}/models`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
           ...config.headers
         },
@@ -190,9 +190,10 @@ export class ProviderValidator {
 
       // Multimodal detection is based on known model capabilities
       features.multimodal = this.detectMultimodal(config.model)
-
     } catch (error: any) {
-      logger.warn('Feature detection partially failed', 'ProviderValidator', { error: error.message })
+      logger.warn('Feature detection partially failed', 'ProviderValidator', {
+        error: error.message
+      })
     }
 
     return features
@@ -206,7 +207,7 @@ export class ProviderValidator {
       const response = await fetch(`${config.baseURL}/chat/completions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
           ...config.headers
         },
@@ -244,7 +245,7 @@ export class ProviderValidator {
       const response = await fetch(`${config.baseURL}/chat/completions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
           ...config.headers
         },
@@ -288,7 +289,7 @@ export class ProviderValidator {
     try {
       const response = await fetch(`${config.baseURL}/models`, {
         headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
           ...config.headers
         }
       })
@@ -306,11 +307,13 @@ export class ProviderValidator {
   /**
    * Detect rate limits through response headers
    */
-  private async detectRateLimits(config: CustomProviderConfig): Promise<{ requestsPerMinute?: number; tokensPerMinute?: number }> {
+  private async detectRateLimits(
+    config: CustomProviderConfig
+  ): Promise<{ requestsPerMinute?: number; tokensPerMinute?: number }> {
     try {
       const response = await fetch(`${config.baseURL}/models`, {
         headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
           ...config.headers
         }
       })
@@ -339,7 +342,7 @@ export class ProviderValidator {
    */
   private getErrorSolution(error: any): string {
     const message = error.message || error.toString()
-    
+
     // Match error patterns
     for (const [pattern, solution] of Object.entries(ERROR_SOLUTIONS)) {
       if (message.includes(pattern) || message.includes(pattern.toLowerCase())) {
@@ -380,7 +383,7 @@ export class ProviderValidator {
    * Create health status from validation result
    */
   createHealthStatus(
-    providerName: string, 
+    providerName: string,
     validationResult: ValidationResult
   ): ProviderHealthStatus {
     return {

@@ -131,6 +131,12 @@ export interface AppSettings {
   advanced: AdvancedSettings
 }
 
-export interface SettingsState extends LLMConfig, AppearanceSettings, BehaviorSettings, ShortcutSettings, PrivacySettings, NetworkSettings {
+export interface SettingsState
+  extends LLMConfig,
+    AppearanceSettings,
+    BehaviorSettings,
+    ShortcutSettings,
+    PrivacySettings,
+    NetworkSettings {
   llmProvider: LLMProvider
 }

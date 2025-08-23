@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     ref="contentRef"
     class="enhanced-markdown-content prose prose-slate dark:prose-invert max-w-none animate-content-reveal"
     :class="contentClasses"
@@ -72,7 +72,7 @@ const contentClasses = computed(() => {
     // Font size
     {
       'text-sm': props.fontSize === 'sm',
-      'text-base': props.fontSize === 'base', 
+      'text-base': props.fontSize === 'base',
       'text-lg': props.fontSize === 'lg'
     },
     // Line height
@@ -88,25 +88,28 @@ const contentClasses = computed(() => {
 
 // Copy to clipboard functionality
 const setupCopyFunctionality = () => {
-  if (!props.copyCodeBlocks || typeof window === 'undefined') return
-  
-  // Global copy function for code blocks with enhanced error handling
-  ;(window as any).copyToClipboard = async (button: HTMLElement, encodedCode: string, language: string) => {
+  if (!props.copyCodeBlocks || typeof window === 'undefined')
+    return // Global copy function for code blocks with enhanced error handling
+  ;(window as any).copyToClipboard = async (
+    button: HTMLElement,
+    encodedCode: string,
+    language: string
+  ) => {
     try {
       // Validate inputs
       if (!button || !encodedCode) {
         throw new Error('Invalid copy parameters')
       }
-      
+
       const code = decodeURIComponent(encodedCode)
-      
+
       // Validate decoded content
       if (!code || typeof code !== 'string') {
         throw new Error('Invalid code content')
       }
-      
+
       await navigator.clipboard.writeText(code)
-      
+
       // Visual feedback
       const originalHTML = button.innerHTML
       button.innerHTML = `
@@ -116,7 +119,7 @@ const setupCopyFunctionality = () => {
       `
       button.classList.add('text-green-600', 'dark:text-green-400')
       button.setAttribute('title', '已复制!')
-      
+
       setTimeout(() => {
         try {
           button.innerHTML = originalHTML
@@ -126,16 +129,16 @@ const setupCopyFunctionality = () => {
           console.warn('Failed to reset copy button:', resetError)
         }
       }, 2000)
-      
+
       emit('code-copied', code, language)
     } catch (error) {
       console.error('Failed to copy code:', error)
-      
+
       // Enhanced error feedback
       try {
         button.classList.add('text-red-600', 'dark:text-red-400')
         button.setAttribute('title', '复制失败')
-        
+
         // Try fallback copy method for older browsers
         if (navigator.clipboard) {
           // Already tried above, show error
@@ -147,7 +150,7 @@ const setupCopyFunctionality = () => {
           textArea.style.opacity = '0'
           document.body.appendChild(textArea)
           textArea.select()
-          
+
           try {
             document.execCommand('copy')
             button.setAttribute('title', '已复制 (兼容模式)')
@@ -157,7 +160,7 @@ const setupCopyFunctionality = () => {
             document.body.removeChild(textArea)
           }
         }
-        
+
         setTimeout(() => {
           try {
             button.classList.remove('text-red-600', 'dark:text-red-400')
@@ -176,25 +179,25 @@ const setupCopyFunctionality = () => {
 // Setup interactivity after content renders
 const setupInteractivity = async () => {
   if (!contentRef.value) return
-  
+
   await nextTick()
-  
+
   // Setup copy functionality
   setupCopyFunctionality()
-  
+
   // Setup link click handling
   const links = contentRef.value.querySelectorAll('a.enhanced-link')
   links.forEach(link => {
-    link.addEventListener('click', (event) => {
+    link.addEventListener('click', event => {
       const href = (link as HTMLAnchorElement).href
       emit('link-clicked', href, event)
     })
   })
-  
+
   // Setup heading anchor scrolling
   const headingLinks = contentRef.value.querySelectorAll('a.heading-link')
   headingLinks.forEach(link => {
-    link.addEventListener('click', (event) => {
+    link.addEventListener('click', event => {
       event.preventDefault()
       const href = (link as HTMLAnchorElement).getAttribute('href')
       if (href && href.startsWith('#')) {
@@ -209,16 +212,24 @@ const setupInteractivity = async () => {
 }
 
 // Watch for content changes and setup interactivity
-watch(renderedContent, () => {
-  setupInteractivity()
-}, { flush: 'post' })
+watch(
+  renderedContent,
+  () => {
+    setupInteractivity()
+  },
+  { flush: 'post' }
+)
 
 // Setup interactivity on mount
-watch(contentRef, (el) => {
-  if (el) {
-    setupInteractivity()
-  }
-}, { immediate: true })
+watch(
+  contentRef,
+  el => {
+    if (el) {
+      setupInteractivity()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style>
@@ -335,8 +346,13 @@ watch(contentRef, (el) => {
 }
 
 @keyframes linkFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 /* Enhanced Paragraphs with Reveal Animation */
@@ -472,7 +488,8 @@ watch(contentRef, (el) => {
 
 .code-block-wrapper .hljs {
   @apply !bg-slate-50 dark:!bg-slate-900;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -513,8 +530,12 @@ watch(contentRef, (el) => {
 }
 
 @keyframes labelFade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-code-highlight {
@@ -537,13 +558,19 @@ watch(contentRef, (el) => {
 }
 
 @keyframes codeShimmer {
-  0%, 100% { transform: translateX(-100%); }
-  50% { transform: translateX(100%); }
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
 }
 
 /* Enhanced Inline code with Hover Effects */
 .inline-code {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   position: relative;
 }
 
@@ -616,7 +643,7 @@ watch(contentRef, (el) => {
 }
 
 /* Task lists */
-.task-list-item input[type="checkbox"] {
+.task-list-item input[type='checkbox'] {
   @apply hidden;
 }
 
@@ -776,7 +803,8 @@ watch(contentRef, (el) => {
   overflow-y: auto;
   max-height: 12rem;
   line-height: 1.4;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
@@ -795,22 +823,22 @@ watch(contentRef, (el) => {
     border-color: rgba(248, 113, 113, 0.3);
     background: rgba(248, 113, 113, 0.03);
   }
-  
+
   .error-content details:hover {
     border-color: rgba(248, 113, 113, 0.5);
     background: rgba(248, 113, 113, 0.08);
   }
-  
+
   .error-content summary {
     background: rgba(248, 113, 113, 0.08);
     border-bottom-color: rgba(248, 113, 113, 0.2);
   }
-  
+
   .error-content summary:hover {
     background: rgba(248, 113, 113, 0.15);
     color: #f87171;
   }
-  
+
   .error-content pre {
     background: rgba(248, 113, 113, 0.08) !important;
   }
@@ -860,7 +888,8 @@ watch(contentRef, (el) => {
 }
 
 @keyframes externalFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   50% {
@@ -913,9 +942,15 @@ watch(contentRef, (el) => {
 }
 
 @keyframes copyClick {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.95); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Enhanced Responsive design with animations */
@@ -924,19 +959,19 @@ watch(contentRef, (el) => {
     font-size: 0.9rem;
     line-height: 1.6;
   }
-  
+
   .enhanced-markdown-content h1 {
     @apply text-2xl;
   }
-  
+
   .enhanced-markdown-content h2 {
     @apply text-xl;
   }
-  
+
   .code-block-wrapper {
     transform: none;
   }
-  
+
   .code-block-wrapper:hover {
     transform: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -965,7 +1000,7 @@ watch(contentRef, (el) => {
   .animate-external-float {
     animation: none !important;
   }
-  
+
   .enhanced-markdown-content h1:hover,
   .enhanced-markdown-content h2:hover,
   .enhanced-markdown-content h3:hover,
@@ -974,16 +1009,16 @@ watch(contentRef, (el) => {
   .enhanced-markdown-content h6:hover {
     transform: none;
   }
-  
+
   .enhanced-markdown-content img:hover {
     transform: none;
   }
-  
+
   .math-inline:hover,
   .math-block:hover {
     transform: none;
   }
-  
+
   .code-block-wrapper:hover {
     transform: none;
   }

@@ -13,30 +13,30 @@
 :root {
   /* === 基础间距系统 (4px 基准) === */
   --space-0: 0;
-  --space-1: 4px;   /* 微间距 */
-  --space-2: 8px;   /* 小间距 */
-  --space-3: 12px;  /* 中小间距 */
-  --space-4: 16px;  /* 标准间距 */
-  --space-5: 20px;  /* 中间距 */
-  --space-6: 24px;  /* 大间距 */
-  --space-7: 28px;  /* 很大间距 */
-  --space-8: 32px;  /* 超大间距 */
+  --space-1: 4px; /* 微间距 */
+  --space-2: 8px; /* 小间距 */
+  --space-3: 12px; /* 中小间距 */
+  --space-4: 16px; /* 标准间距 */
+  --space-5: 20px; /* 中间距 */
+  --space-6: 24px; /* 大间距 */
+  --space-7: 28px; /* 很大间距 */
+  --space-8: 32px; /* 超大间距 */
   --space-10: 40px; /* 特大间距 */
   --space-12: 48px; /* 极大间距 */
   --space-16: 64px; /* 超极大间距 */
-  
+
   /* === 组件间距令牌 === */
-  --component-padding-xs: var(--space-2);   /* 8px */
-  --component-padding-sm: var(--space-3);   /* 12px */
-  --component-padding-md: var(--space-4);   /* 16px */
-  --component-padding-lg: var(--space-6);   /* 24px */
-  --component-padding-xl: var(--space-8);   /* 32px */
-  
+  --component-padding-xs: var(--space-2); /* 8px */
+  --component-padding-sm: var(--space-3); /* 12px */
+  --component-padding-md: var(--space-4); /* 16px */
+  --component-padding-lg: var(--space-6); /* 24px */
+  --component-padding-xl: var(--space-8); /* 32px */
+
   /* === 容器间距令牌 === */
-  --container-padding-mobile: var(--space-4);  /* 16px */
+  --container-padding-mobile: var(--space-4); /* 16px */
   --container-padding-desktop: var(--space-6); /* 24px */
-  --container-gap: var(--space-4);             /* 16px */
-  
+  --container-gap: var(--space-4); /* 16px */
+
   /* === 布局高度令牌 === */
   --header-height-compact: 56px;
   --header-height-normal: 64px;
@@ -63,7 +63,7 @@
   align-items: center !important;
   gap: var(--space-3) !important;
   flex-shrink: 0 !important;
-  
+
   /* 优化背景和边框 */
   background: hsl(var(--surface-elevated) / 0.98) !important;
   backdrop-filter: blur(20px) !important;
@@ -145,7 +145,7 @@
   margin: var(--space-1) var(--space-2) !important;
   padding: var(--component-padding-sm) var(--component-padding-md) !important;
   border-radius: 12px !important;
-  
+
   /* 改进的内部间距 */
   display: flex !important;
   align-items: flex-start !important;
@@ -174,11 +174,11 @@
     height: var(--header-height-normal) !important;
     padding: var(--space-4) var(--component-padding-lg) !important;
   }
-  
+
   .messages-container {
     padding: var(--component-padding-lg) var(--component-padding-xl) !important;
   }
-  
+
   .input-area {
     padding: var(--component-padding-lg) var(--component-padding-xl) !important;
   }
@@ -189,7 +189,7 @@
   .sidebar {
     width: 240px !important;
   }
-  
+
   .messages-container {
     padding: var(--component-padding-md) var(--component-padding-lg) !important;
   }
@@ -202,29 +202,29 @@
     --input-area-height: 72px;
     --component-padding-md: var(--space-3); /* 移动端减小内边距 */
   }
-  
+
   .chat-header {
     padding: var(--space-2) var(--component-padding-md) !important;
   }
-  
+
   .messages-container {
     padding: var(--component-padding-sm) var(--component-padding-md) !important;
   }
-  
+
   .input-area {
     padding: var(--component-padding-md) !important;
   }
-  
+
   .message-bubble {
     max-width: 85% !important;
     margin: var(--space-2) 0 !important;
     padding: var(--space-2) var(--component-padding-sm) !important;
   }
-  
+
   .sidebar-header {
     padding: var(--component-padding-md) !important;
   }
-  
+
   .chat-item {
     margin: var(--space-1) !important;
     padding: var(--space-2) var(--component-padding-sm) !important;
@@ -234,21 +234,43 @@
 /* ============== 布局工具类 ============== */
 
 /* === 间距工具类 === */
-.spacing-xs { gap: var(--space-1) !important; }
-.spacing-sm { gap: var(--space-2) !important; }
-.spacing-md { gap: var(--space-3) !important; }
-.spacing-lg { gap: var(--space-4) !important; }
-.spacing-xl { gap: var(--space-6) !important; }
+.spacing-xs {
+  gap: var(--space-1) !important;
+}
+.spacing-sm {
+  gap: var(--space-2) !important;
+}
+.spacing-md {
+  gap: var(--space-3) !important;
+}
+.spacing-lg {
+  gap: var(--space-4) !important;
+}
+.spacing-xl {
+  gap: var(--space-6) !important;
+}
 
 /* === 内边距工具类 === */
-.padding-component-sm { padding: var(--component-padding-sm) !important; }
-.padding-component-md { padding: var(--component-padding-md) !important; }
-.padding-component-lg { padding: var(--component-padding-lg) !important; }
+.padding-component-sm {
+  padding: var(--component-padding-sm) !important;
+}
+.padding-component-md {
+  padding: var(--component-padding-md) !important;
+}
+.padding-component-lg {
+  padding: var(--component-padding-lg) !important;
+}
 
 /* === 外边距工具类 === */
-.margin-component-sm { margin: var(--component-padding-sm) !important; }
-.margin-component-md { margin: var(--component-padding-md) !important; }
-.margin-component-lg { margin: var(--component-padding-lg) !important; }
+.margin-component-sm {
+  margin: var(--component-padding-sm) !important;
+}
+.margin-component-md {
+  margin: var(--component-padding-md) !important;
+}
+.margin-component-lg {
+  margin: var(--component-padding-lg) !important;
+}
 
 /* ============== 布局网格系统 ============== */
 

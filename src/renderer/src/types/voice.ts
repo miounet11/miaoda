@@ -60,9 +60,9 @@ export interface AudioWaveformData {
   peak: number
 }
 
-export type VoiceEventType = 
+export type VoiceEventType =
   | 'recognition-start'
-  | 'recognition-end' 
+  | 'recognition-end'
   | 'recognition-result'
   | 'recognition-error'
   | 'synthesis-start'
@@ -149,20 +149,56 @@ export enum VoiceErrorCode {
 
 // Constants
 export const SUPPORTED_LANGUAGES: VoiceLanguage[] = [
-  { code: 'en-US', name: 'English', nativeName: 'English (US)', region: 'United States', quality: 'high' },
-  { code: 'en-GB', name: 'English', nativeName: 'English (UK)', region: 'United Kingdom', quality: 'high' },
+  {
+    code: 'en-US',
+    name: 'English',
+    nativeName: 'English (US)',
+    region: 'United States',
+    quality: 'high'
+  },
+  {
+    code: 'en-GB',
+    name: 'English',
+    nativeName: 'English (UK)',
+    region: 'United Kingdom',
+    quality: 'high'
+  },
   { code: 'zh-CN', name: 'Chinese', nativeName: '中文 (简体)', region: 'China', quality: 'high' },
   { code: 'zh-TW', name: 'Chinese', nativeName: '中文 (繁體)', region: 'Taiwan', quality: 'high' },
   { code: 'ja-JP', name: 'Japanese', nativeName: '日本語', region: 'Japan', quality: 'high' },
   { code: 'ko-KR', name: 'Korean', nativeName: '한국어', region: 'South Korea', quality: 'high' },
-  { code: 'es-ES', name: 'Spanish', nativeName: 'Español (España)', region: 'Spain', quality: 'high' },
-  { code: 'es-MX', name: 'Spanish', nativeName: 'Español (México)', region: 'Mexico', quality: 'high' },
+  {
+    code: 'es-ES',
+    name: 'Spanish',
+    nativeName: 'Español (España)',
+    region: 'Spain',
+    quality: 'high'
+  },
+  {
+    code: 'es-MX',
+    name: 'Spanish',
+    nativeName: 'Español (México)',
+    region: 'Mexico',
+    quality: 'high'
+  },
   { code: 'fr-FR', name: 'French', nativeName: 'Français', region: 'France', quality: 'high' },
   { code: 'de-DE', name: 'German', nativeName: 'Deutsch', region: 'Germany', quality: 'high' },
   { code: 'it-IT', name: 'Italian', nativeName: 'Italiano', region: 'Italy', quality: 'high' },
-  { code: 'pt-BR', name: 'Portuguese', nativeName: 'Português (Brasil)', region: 'Brazil', quality: 'high' },
+  {
+    code: 'pt-BR',
+    name: 'Portuguese',
+    nativeName: 'Português (Brasil)',
+    region: 'Brazil',
+    quality: 'high'
+  },
   { code: 'ru-RU', name: 'Russian', nativeName: 'Русский', region: 'Russia', quality: 'medium' },
-  { code: 'ar-SA', name: 'Arabic', nativeName: 'العربية', region: 'Saudi Arabia', quality: 'medium' },
+  {
+    code: 'ar-SA',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    region: 'Saudi Arabia',
+    quality: 'medium'
+  },
   { code: 'hi-IN', name: 'Hindi', nativeName: 'हिन्दी', region: 'India', quality: 'medium' }
 ]
 

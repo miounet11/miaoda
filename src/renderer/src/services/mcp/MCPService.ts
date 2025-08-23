@@ -70,20 +70,20 @@ export class MCPService extends EventEmitter<{
   private activeCalls = new Map<string, MCPToolCall>()
   private resources = new Map<string, MCPResource>()
   private prompts = new Map<string, MCPPrompt>()
-  
+
   // Tool execution history
   private callHistory: MCPToolCall[] = []
   private maxHistorySize = 1000
-  
+
   // Connection management
   private connectionRetryDelays = new Map<string, number>()
   private heartbeatIntervals = new Map<string, NodeJS.Timeout>()
-  
+
   constructor() {
     super()
     this.initialize()
   }
-  
+
   private async initialize() {
     // Initialize MCP connection if available
     if (window.api?.mcp) {
@@ -91,7 +91,7 @@ export class MCPService extends EventEmitter<{
       this.setupEventListeners()
     }
   }
-  
+
   private async discoverServers() {
     try {
       // Check if MCP API is available
@@ -99,9 +99,9 @@ export class MCPService extends EventEmitter<{
         console.debug('MCP API not available, skipping server discovery')
         return
       }
-      
+
       const discoveredServers = await window.api.mcp.discoverServers()
-      
+
       for (const serverInfo of discoveredServers) {
         // Limit retries during discovery to prevent spam
         await this.connectToServer(serverInfo, 1)
@@ -111,13 +111,13 @@ export class MCPService extends EventEmitter<{
       // Gracefully handle discovery failures
     }
   }
-  
+
   private setupEventListeners() {
     if (!window.api?.mcp) return
-    
+
     // Basic MCP events - extended event system not yet implemented
     console.log('MCP basic event listeners setup')
-    
+
     /* 
     // Advanced event listeners to be implemented:
     window.api.mcp.onServerConnect?.((server: MCPServer) => {
@@ -137,15 +137,18 @@ export class MCPService extends EventEmitter<{
     })
     */
   }
-  
-  async connectToServer(serverConfig: {
-    id: string
-    name: string
-    endpoint?: string
-    command?: string
-    args?: string[]
-    env?: Record<string, string>
-  }, maxRetries: number = 2): Promise<boolean> {
+
+  async connectToServer(
+    serverConfig: {
+      id: string
+      name: string
+      endpoint?: string
+      command?: string
+      args?: string[]
+      env?: Record<string, string>
+    },
+    maxRetries: number = 2
+  ): Promise<boolean> {
     try {
       // Check if we have an MCP API available
       if (!window.api?.mcp?.connect) {
@@ -156,53 +159,57 @@ export class MCPService extends EventEmitter<{
         }
         return false
       }
-      
+
       const server = await window.api.mcp.connect(serverConfig)
-      
+
       // Validate server response
       if (!server || !server.id) {
         throw new Error(`Invalid server response: missing server.id for ${serverConfig.name}`)
       }
-      
+
       this.servers.set(server.id, server)
       this.startHeartbeat(server.id)
       this.emit('server-connected', server)
-      
+
       // Reset retry count on successful connection
       this.connectionRetryDelays.delete(serverConfig.id)
       this.connectionRetryDelays.delete(serverConfig.id + '_api_unavailable')
-      
+
       return true
     } catch (error) {
       const currentRetryCount = this.connectionRetryDelays.get(serverConfig.id) || 0
-      
+
       if (currentRetryCount >= maxRetries) {
         // Only log the final failure, not every retry
-        console.error(`MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`)
+        console.error(
+          `MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`
+        )
         this.connectionRetryDelays.set(serverConfig.id + '_disabled', 999) // Mark as permanently disabled
         this.connectionRetryDelays.delete(serverConfig.id)
         return false
       }
-      
+
       // Only log first retry to reduce spam
       if (currentRetryCount === 0) {
-        console.warn(`MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`)
+        console.warn(
+          `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`
+        )
       }
-      
+
       // Increment retry count
       this.connectionRetryDelays.set(serverConfig.id, currentRetryCount + 1)
-      
+
       // Schedule retry with exponential backoff, but limit to reasonable delay
       const retryDelay = Math.min(2000 * Math.pow(2, currentRetryCount), 10000)
-      
+
       setTimeout(() => {
         this.connectToServer(serverConfig, maxRetries)
       }, retryDelay)
-      
+
       return false
     }
   }
-  
+
   async disconnectServer(serverId: string) {
     try {
       await window.api.mcp.disconnect(serverId)
@@ -211,23 +218,23 @@ export class MCPService extends EventEmitter<{
       console.error(`Failed to disconnect MCP server ${serverId}:`, error)
     }
   }
-  
+
   private handleServerConnect(server: MCPServer) {
     this.servers.set(server.id, server)
     this.connectionRetryDelays.delete(server.id)
     this.startHeartbeat(server.id)
-    
+
     // Load server resources and prompts
     this.loadServerResources(server.id)
     this.loadServerPrompts(server.id)
   }
-  
+
   private handleServerDisconnect(serverId: string) {
     this.servers.delete(serverId)
     this.stopHeartbeat(serverId)
     this.emit('server-disconnected', serverId)
   }
-  
+
   private startHeartbeat(serverId: string) {
     const interval = setInterval(async () => {
       try {
@@ -245,10 +252,10 @@ export class MCPService extends EventEmitter<{
         // Don't disconnect on heartbeat failure for now
       }
     }, 30000) // 30 seconds
-    
+
     this.heartbeatIntervals.set(serverId, interval)
   }
-  
+
   private stopHeartbeat(serverId: string) {
     const interval = this.heartbeatIntervals.get(serverId)
     if (interval) {
@@ -256,12 +263,12 @@ export class MCPService extends EventEmitter<{
       this.heartbeatIntervals.delete(serverId)
     }
   }
-  
+
   private async loadServerResources(serverId: string) {
     try {
       // Advanced resource loading not implemented yet
       console.log(`Loading resources for server ${serverId}`)
-      
+
       /*
       // Advanced resource loading to be implemented:
       const resources = await window.api.mcp.listResources(serverId)
@@ -275,12 +282,12 @@ export class MCPService extends EventEmitter<{
       console.warn(`Failed to load resources for server ${serverId}:`, error)
     }
   }
-  
+
   private async loadServerPrompts(serverId: string) {
     try {
       // Advanced prompt loading not implemented yet
       console.log(`Loading prompts for server ${serverId}`)
-      
+
       /*
       // Advanced prompt loading to be implemented:
       const prompts = await window.api.mcp.listPrompts(serverId)
@@ -294,9 +301,9 @@ export class MCPService extends EventEmitter<{
       console.warn(`Failed to load prompts for server ${serverId}:`, error)
     }
   }
-  
+
   async callTool(
-    toolName: string, 
+    toolName: string,
     args: Record<string, any>,
     options?: {
       timeout?: number
@@ -312,98 +319,94 @@ export class MCPService extends EventEmitter<{
       timestamp: new Date(),
       status: 'pending'
     }
-    
+
     this.activeCalls.set(callId, call)
     this.emit('tool-call-start', call)
-    
+
     try {
       call.status = 'running'
       const startTime = Date.now()
-      
-      const result = await window.api.mcp.callTool(
-        toolName,
-        args,
-        {
-          timeout: options?.timeout || 30000,
-          serverId: options?.serverId
-        }
-      )
-      
+
+      const result = await window.api.mcp.callTool(toolName, args, {
+        timeout: options?.timeout || 30000,
+        serverId: options?.serverId
+      })
+
       call.status = 'completed'
       call.result = result
       call.duration = Date.now() - startTime
-      
+
       this.handleToolComplete(call)
-      
+
       return call
     } catch (error) {
       call.status = 'failed'
       call.error = error instanceof Error ? error.message : String(error)
       call.duration = Date.now() - call.timestamp.getTime()
-      
+
       this.handleToolError(callId, error as Error)
-      
+
       // Retry logic
       if (options?.retries && options.retries > 0) {
         console.log(`Retrying tool call ${toolName}, ${options.retries} attempts remaining`)
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000))
-        
+
         return this.callTool(toolName, args, {
           ...options,
           retries: options.retries - 1
         })
       }
-      
+
       throw error
     }
   }
-  
+
   private handleToolResult(callId: string, result: any) {
     const call = this.activeCalls.get(callId)
     if (!call) return
-    
+
     call.status = 'completed'
     call.result = result
     call.duration = Date.now() - call.timestamp.getTime()
-    
+
     this.handleToolComplete(call)
   }
-  
+
   private handleToolError(callId: string, error: Error) {
     const call = this.activeCalls.get(callId)
     if (!call) return
-    
+
     call.status = 'failed'
     call.error = error.message
     call.duration = Date.now() - call.timestamp.getTime()
-    
+
     this.activeCalls.delete(callId)
     this.addToHistory(call)
     this.emit('tool-call-error', call, error)
   }
-  
+
   private handleToolComplete(call: MCPToolCall) {
     this.activeCalls.delete(call.id)
     this.addToHistory(call)
     this.emit('tool-call-complete', call)
   }
-  
+
   private addToHistory(call: MCPToolCall) {
     this.callHistory.unshift(call)
-    
+
     // Limit history size
     if (this.callHistory.length > this.maxHistorySize) {
       this.callHistory = this.callHistory.slice(0, this.maxHistorySize)
     }
   }
-  
+
   async getResource(uri: string): Promise<MCPResource | null> {
     try {
       // Advanced resource fetching not implemented yet
       console.log(`Getting resource: ${uri}`)
       return null
-      
+
       /*
       // Advanced resource fetching to be implemented:
       const resource = await window.api.mcp.getResource(uri)
@@ -419,16 +422,13 @@ export class MCPService extends EventEmitter<{
       return null
     }
   }
-  
-  async executePrompt(
-    promptName: string,
-    args?: Record<string, any>
-  ): Promise<string> {
+
+  async executePrompt(promptName: string, args?: Record<string, any>): Promise<string> {
     try {
       // Advanced prompt execution not implemented yet
       console.log(`Executing prompt: ${promptName}`)
       return `Prompt ${promptName} executed (simulated)`
-      
+
       /*
       // Advanced prompt execution to be implemented:
       return await window.api.mcp.executePrompt(promptName, args)
@@ -438,123 +438,124 @@ export class MCPService extends EventEmitter<{
       throw error
     }
   }
-  
+
   // Public API
   getServers(): MCPServer[] {
     return Array.from(this.servers.values())
   }
-  
+
   getServer(serverId: string): MCPServer | null {
     return this.servers.get(serverId) || null
   }
-  
+
   getAvailableTools(): MCPTool[] {
     const tools: MCPTool[] = []
-    
+
     for (const server of this.servers.values()) {
       if (server.status === 'connected') {
         tools.push(...server.tools)
       }
     }
-    
+
     return tools
   }
-  
+
   getTool(toolName: string): MCPTool | null {
     for (const server of this.servers.values()) {
       const tool = server.tools.find(t => t.name === toolName)
       if (tool) return tool
     }
-    
+
     return null
   }
-  
+
   getActiveCalls(): MCPToolCall[] {
     return Array.from(this.activeCalls.values())
   }
-  
+
   getCallHistory(limit?: number): MCPToolCall[] {
     return limit ? this.callHistory.slice(0, limit) : [...this.callHistory]
   }
-  
+
   getResources(): MCPResource[] {
     return Array.from(this.resources.values())
   }
-  
+
   getPrompts(): MCPPrompt[] {
     return Array.from(this.prompts.values())
   }
-  
+
   abortCall(callId: string): boolean {
     const call = this.activeCalls.get(callId)
     if (!call) return false
-    
+
     try {
       // Advanced tool abort not implemented yet
       console.log(`Aborting tool call: ${callId}`)
-      
+
       /*
       // Advanced tool abort to be implemented:
       window.api.mcp.abortToolCall(callId)
       */
-      
+
       call.status = 'failed'
       call.error = 'Aborted by user'
       call.duration = Date.now() - call.timestamp.getTime()
-      
+
       this.activeCalls.delete(callId)
       this.addToHistory(call)
-      
+
       return true
     } catch (error) {
       console.error(`Failed to abort call ${callId}:`, error)
       return false
     }
   }
-  
+
   isConnected(): boolean {
     return Array.from(this.servers.values()).some(server => server.status === 'connected')
   }
-  
+
   getConnectionStatus(): Record<string, 'connected' | 'disconnected' | 'error'> {
     const status: Record<string, 'connected' | 'disconnected' | 'error'> = {}
-    
+
     for (const [id, server] of this.servers) {
       status[id] = server.status
     }
-    
+
     return status
   }
-  
+
   // Tool filtering and search
   searchTools(query: string): MCPTool[] {
     const searchTerm = query.toLowerCase()
     const tools = this.getAvailableTools()
-    
-    return tools.filter(tool => 
-      tool.name.toLowerCase().includes(searchTerm) ||
-      tool.description.toLowerCase().includes(searchTerm) ||
-      tool.category?.toLowerCase().includes(searchTerm) ||
-      tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+
+    return tools.filter(
+      tool =>
+        tool.name.toLowerCase().includes(searchTerm) ||
+        tool.description.toLowerCase().includes(searchTerm) ||
+        tool.category?.toLowerCase().includes(searchTerm) ||
+        tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
     )
   }
-  
+
   getToolsByCategory(category: string): MCPTool[] {
     return this.getAvailableTools().filter(tool => tool.category === category)
   }
-  
+
   getToolCategories(): string[] {
     const categories = new Set<string>()
-    
+
     for (const tool of this.getAvailableTools()) {
       if (tool.category) {
         categories.add(tool.category)
       }
     }
-    
+
     return Array.from(categories).sort()
   }
-  
+
   // Statistics
   getCallStats() {
     const stats = {
@@ -565,59 +566,59 @@ export class MCPService extends EventEmitter<{
       mostUsedTools: new Map<string, number>(),
       callsByHour: new Map<number, number>()
     }
-    
+
     let totalDuration = 0
-    
+
     for (const call of this.callHistory) {
       if (call.status === 'completed') {
         stats.successfulCalls++
       } else if (call.status === 'failed') {
         stats.failedCalls++
       }
-      
+
       if (call.duration) {
         totalDuration += call.duration
       }
-      
+
       // Count tool usage
       const count = stats.mostUsedTools.get(call.name) || 0
       stats.mostUsedTools.set(call.name, count + 1)
-      
+
       // Count calls by hour
       const hour = call.timestamp.getHours()
       const hourCount = stats.callsByHour.get(hour) || 0
       stats.callsByHour.set(hour, hourCount + 1)
     }
-    
+
     stats.averageCallTime = stats.totalCalls > 0 ? totalDuration / stats.totalCalls : 0
-    
+
     return stats
   }
-  
+
   private generateCallId(): string {
     return `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
-  
+
   // Cleanup
   destroy() {
     // Disconnect all servers
     for (const serverId of this.servers.keys()) {
       this.disconnectServer(serverId)
     }
-    
+
     // Clear all data
     this.servers.clear()
     this.activeCalls.clear()
     this.resources.clear()
     this.prompts.clear()
     this.callHistory.length = 0
-    
+
     // Clear timers
     for (const interval of this.heartbeatIntervals.values()) {
       clearInterval(interval)
     }
     this.heartbeatIntervals.clear()
-    
+
     this.clear()
   }
 }

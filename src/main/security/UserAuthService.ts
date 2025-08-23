@@ -81,7 +81,7 @@ export class UserAuthService {
 
   constructor(userService: UserService) {
     this.userService = userService
-    
+
     // Set up periodic cleanup
     this.startPeriodicCleanup()
   }
@@ -169,7 +169,6 @@ export class UserAuthService {
           profile_completion: false
         }
       })
-
     } catch (error) {
       // Log registration failure
       await this.userService.logAuthAction({
@@ -226,16 +225,16 @@ export class UserAuthService {
 
     // Verify password
     const isPasswordValid = await this.userService.verifyPassword(user.id, password)
-    
+
     if (!isPasswordValid) {
       // Increment failed attempts
       const newAttempts = user.failed_login_attempts + 1
-      
+
       if (newAttempts >= this.MAX_LOGIN_ATTEMPTS) {
         // Lock account
         const lockUntil = Date.now() + this.ACCOUNT_LOCK_DURATION
         this.userService.lockUser(user.id, lockUntil, newAttempts)
-        
+
         await this.userService.logAuthAction({
           user_id: user.id,
           action: 'account_locked',
@@ -245,12 +244,12 @@ export class UserAuthService {
           user_agent: request.userAgent,
           risk_score: 80
         })
-        
+
         throw new Error('Too many failed attempts. Account has been locked for 30 minutes.')
       } else {
         // Update failed attempts
         this.userService.updateLoginAttempts(user.id, newAttempts)
-        
+
         await this.userService.logAuthAction({
           user_id: user.id,
           action: 'login',
@@ -260,8 +259,10 @@ export class UserAuthService {
           user_agent: request.userAgent,
           risk_score: 40
         })
-        
-        throw new Error(`Invalid email or password. ${this.MAX_LOGIN_ATTEMPTS - newAttempts} attempts remaining.`)
+
+        throw new Error(
+          `Invalid email or password. ${this.MAX_LOGIN_ATTEMPTS - newAttempts} attempts remaining.`
+        )
       }
     }
 
@@ -272,8 +273,8 @@ export class UserAuthService {
 
     // Check if 2FA is required
     const authMethods = this.userService.getAuthMethods(user.id)
-    const has2FA = authMethods.some(method => 
-      method.method_type === 'totp' && method.is_enabled && method.setup_completed
+    const has2FA = authMethods.some(
+      method => method.method_type === 'totp' && method.is_enabled && method.setup_completed
     )
 
     // Create session
@@ -319,7 +320,7 @@ export class UserAuthService {
     if (allDevices) {
       // Log out from all devices
       this.userService.deleteUserSessions(session.user_id)
-      
+
       await this.userService.logAuthAction({
         user_id: session.user_id,
         session_id: sessionId,
@@ -329,7 +330,7 @@ export class UserAuthService {
     } else {
       // Log out from current session only
       this.userService.deleteSession(sessionId)
-      
+
       await this.userService.logAuthAction({
         user_id: session.user_id,
         session_id: sessionId,
@@ -346,7 +347,7 @@ export class UserAuthService {
     // Hash the refresh token to find session
     const tokenHash = this.hashToken(refreshToken)
     const sessions = await this.findSessionByRefreshToken(tokenHash)
-    
+
     if (!sessions || sessions.expires_at < Date.now()) {
       throw new Error('Invalid or expired refresh token')
     }
@@ -386,14 +387,14 @@ export class UserAuthService {
   async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
     const { email } = request
     const user = this.userService.getUserByEmail(email)
-    
+
     // Always return success to prevent email enumeration
     // But only send email if user exists
     if (user) {
       // Generate secure reset token
       const resetToken = this.generateSecureToken(32)
       const tokenHash = this.hashToken(resetToken)
-      
+
       // Store reset token
       const tokenId = this.generateTokenId()
       this.userService.createPasswordResetToken({
@@ -435,7 +436,7 @@ export class UserAuthService {
    */
   async confirmPasswordReset(request: PasswordResetConfirmRequest): Promise<void> {
     const { token, newPassword } = request
-    
+
     // Validate new password
     const passwordValidation = PasswordStrengthValidator.validateStrength(newPassword)
     if (!passwordValidation.isStrong) {
@@ -445,7 +446,7 @@ export class UserAuthService {
     // Find valid reset token
     const tokenHash = this.hashToken(token)
     const resetToken = this.userService.getPasswordResetToken(tokenHash)
-    
+
     if (!resetToken) {
       await this.userService.logAuthAction({
         action: 'password_reset_confirm',
@@ -460,10 +461,10 @@ export class UserAuthService {
 
     // Update password
     await this.userService.updatePassword(resetToken.user_id, newPassword)
-    
+
     // Mark token as used
     this.userService.usePasswordResetToken(resetToken.id)
-    
+
     // Invalidate all sessions for security
     this.userService.deleteUserSessions(resetToken.user_id)
 
@@ -550,13 +551,14 @@ export class UserAuthService {
     const sessionId = this.generateSessionId()
     const accessToken = this.generateSecureToken(32)
     const refreshToken = this.generateSecureToken(32)
-    
+
     const accessTokenHash = this.hashToken(accessToken)
     const refreshTokenHash = this.hashToken(refreshToken)
-    
+
     // Session duration based on remember me
-    const sessionDuration = sessionData.remember_me ? 
-      this.REFRESH_TOKEN_DURATION : this.SESSION_DURATION
+    const sessionDuration = sessionData.remember_me
+      ? this.REFRESH_TOKEN_DURATION
+      : this.SESSION_DURATION
 
     const session = this.userService.createSession({
       id: sessionId,
@@ -580,7 +582,7 @@ export class UserAuthService {
   }
 
   private buildAuthResponse(
-    user: UserRecord, 
+    user: UserRecord,
     session: SessionRecord & { access_token?: string; refresh_token?: string },
     options: {
       requires_2fa?: boolean
@@ -645,8 +647,11 @@ export class UserAuthService {
 
   private startPeriodicCleanup(): void {
     // Clean up expired data every hour
-    setInterval(() => {
-      this.userService.cleanupExpiredData()
-    }, 60 * 60 * 1000)
+    setInterval(
+      () => {
+        this.userService.cleanupExpiredData()
+      },
+      60 * 60 * 1000
+    )
   }
 }

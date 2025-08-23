@@ -2,9 +2,7 @@
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
       <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Reset Password
-        </h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Reset Password</h2>
         <p class="text-gray-600 dark:text-gray-400">
           Enter your email to receive reset instructions
         </p>
@@ -22,16 +20,22 @@
             required
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             placeholder="Enter your email"
-          >
+          />
         </div>
 
         <!-- Error message -->
-        <div v-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+        <div
+          v-if="errorMessage"
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+        >
           <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
         </div>
 
         <!-- Success message -->
-        <div v-if="successMessage" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+        <div
+          v-if="successMessage"
+          class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
+        >
           <p class="text-sm text-green-600 dark:text-green-400">{{ successMessage }}</p>
         </div>
 
@@ -91,16 +95,16 @@ const successMessage = ref('')
 
 const handleSubmit = async () => {
   if (isLoading.value) return
-  
+
   errorMessage.value = ''
   successMessage.value = ''
   isLoading.value = true
-  
+
   try {
     await authStore.forgotPassword(email.value)
-    
+
     successMessage.value = 'Password reset instructions have been sent to your email address.'
-    
+
     // Close modal after 3 seconds
     setTimeout(() => {
       emit('success')

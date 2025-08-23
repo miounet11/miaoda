@@ -11,14 +11,17 @@
             title="Back to Chat"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
-          
+
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Analytics Dashboard
-            </h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">
               Comprehensive insights into your chat activity and usage patterns
             </p>
@@ -32,11 +35,7 @@
             @change="handleTimeRangeChange"
             class="time-range-selector"
           >
-            <option
-              v-for="option in timeRangeOptions"
-              :key="option.value"
-              :value="option.value"
-            >
+            <option v-for="option in timeRangeOptions" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
           </select>
@@ -87,9 +86,7 @@
       <!-- Last Updated -->
       <div class="mt-4 text-sm text-gray-500" v-if="lastUpdated">
         Last updated: {{ formatDateTime(lastUpdated) }}
-        <span v-if="isStale" class="text-orange-500 ml-2">
-          (Data may be outdated)
-        </span>
+        <span v-if="isStale" class="text-orange-500 ml-2"> (Data may be outdated) </span>
       </div>
     </div>
 
@@ -104,8 +101,18 @@
     <!-- Error State -->
     <div v-else-if="hasError && !isLoaded" class="error-container">
       <div class="error-message">
-        <svg class="w-8 h-8 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        <svg
+          class="w-8 h-8 text-red-500 mb-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+          />
         </svg>
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
           Failed to load analytics
@@ -159,12 +166,7 @@
 
         <!-- Keyword Cloud -->
         <div class="chart-container">
-          <KeywordCloud
-            :data="contentAnalytics"
-            height="350px"
-            :theme="theme"
-            :loading="loading"
-          />
+          <KeywordCloud :data="contentAnalytics" height="350px" :theme="theme" :loading="loading" />
         </div>
 
         <!-- Message Length Distribution -->
@@ -194,12 +196,20 @@
     <!-- Empty State -->
     <div v-else class="empty-state">
       <div class="empty-message">
-        <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <svg
+          class="w-16 h-16 text-gray-400 mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
         </svg>
-        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
-          No Analytics Data
-        </h3>
+        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">No Analytics Data</h3>
         <p class="text-gray-600 dark:text-gray-400 mb-4">
           Start chatting to see your analytics dashboard come to life.
         </p>
@@ -262,7 +272,7 @@ const {
   summary
 } = analyticsStore
 
-const theme = computed(() => uiStore.theme === 'dark' ? 'dark' : 'light')
+const theme = computed(() => (uiStore.theme === 'dark' ? 'dark' : 'light'))
 
 // Chart options
 const messageLengthChartOption = computed(() => {
@@ -278,20 +288,22 @@ const messageLengthChartOption = computed(() => {
       trigger: 'item',
       formatter: '{b}: {c} messages ({d}%)'
     },
-    series: [{
-      type: 'pie',
-      radius: ['30%', '70%'],
-      center: ['50%', '55%'],
-      data: contentAnalytics.messageLengthDistribution.map(item => ({
-        name: item.range,
-        value: item.count
-      })),
-      itemStyle: {
-        borderRadius: 5,
-        borderColor: '#fff',
-        borderWidth: 2
+    series: [
+      {
+        type: 'pie',
+        radius: ['30%', '70%'],
+        center: ['50%', '55%'],
+        data: contentAnalytics.messageLengthDistribution.map(item => ({
+          name: item.range,
+          value: item.count
+        })),
+        itemStyle: {
+          borderRadius: 5,
+          borderColor: '#fff',
+          borderWidth: 2
+        }
       }
-    }]
+    ]
   }
 })
 
@@ -311,7 +323,7 @@ const errorAnalysisChartOption = computed(() => {
     xAxis: {
       type: 'category',
       data: performanceAnalytics.errorsByType.map(e => e.type),
-      axisLabel: { 
+      axisLabel: {
         rotate: 45,
         fontSize: 10
       }
@@ -320,22 +332,24 @@ const errorAnalysisChartOption = computed(() => {
       type: 'value',
       name: 'Count'
     },
-    series: [{
-      type: 'bar',
-      data: performanceAnalytics.errorsByType.map(e => e.count),
-      itemStyle: {
-        color: '#EF4444',
-        borderRadius: [4, 4, 0, 0]
+    series: [
+      {
+        type: 'bar',
+        data: performanceAnalytics.errorsByType.map(e => e.count),
+        itemStyle: {
+          color: '#EF4444',
+          borderRadius: [4, 4, 0, 0]
+        }
       }
-    }]
+    ]
   }
 })
 
 // Methods
 async function refreshAnalytics() {
-  await analyticsStore.generateAnalytics({ 
+  await analyticsStore.generateAnalytics({
     timeRange: selectedTimeRange.value,
-    includeArchived: false 
+    includeArchived: false
   })
   await analyticsStore.loadSummary(selectedTimeRange.value)
 }
@@ -369,9 +383,12 @@ onMounted(async () => {
 })
 
 // Watch for time range changes in store
-watch(() => analyticsStore.currentFilter.timeRange, (newRange) => {
-  selectedTimeRange.value = newRange
-})
+watch(
+  () => analyticsStore.currentFilter.timeRange,
+  newRange => {
+    selectedTimeRange.value = newRange
+  }
+)
 </script>
 
 <style scoped>
@@ -387,15 +404,20 @@ watch(() => analyticsStore.currentFilter.timeRange, (newRange) => {
   @apply px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
 }
 
-.refresh-btn, .export-btn {
+.refresh-btn,
+.export-btn {
   @apply px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2;
 }
 
-.loading-container, .error-container, .empty-state {
+.loading-container,
+.error-container,
+.empty-state {
   @apply flex items-center justify-center min-h-96;
 }
 
-.loading-spinner, .error-message, .empty-message {
+.loading-spinner,
+.error-message,
+.empty-message {
   @apply text-center;
 }
 

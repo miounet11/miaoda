@@ -11,7 +11,7 @@ interface ShortcutHandler {
 export function useKeyboardShortcuts() {
   const shortcuts = ref<Map<string, ShortcutHandler>>(new Map())
   const isEnabled = ref(true)
-  
+
   // Default shortcuts configuration
   const defaultShortcuts: KeyboardShortcuts = {
     newChat: 'cmd+n',
@@ -25,7 +25,7 @@ export function useKeyboardShortcuts() {
     clearChat: 'cmd+shift+c',
     exportChat: 'cmd+e'
   }
-  
+
   // Parse shortcut string to key combination
   const parseShortcut = (shortcut: string) => {
     const parts = shortcut.toLowerCase().split('+')
@@ -35,9 +35,9 @@ export function useKeyboardShortcuts() {
       shift: false,
       meta: false
     }
-    
+
     let key = ''
-    
+
     parts.forEach(part => {
       switch (part) {
         case 'ctrl':
@@ -55,30 +55,30 @@ export function useKeyboardShortcuts() {
           key = part
       }
     })
-    
+
     return { modifiers, key }
   }
-  
+
   // Check if event matches shortcut
   const matchesShortcut = (event: KeyboardEvent, shortcut: string) => {
     const { modifiers, key } = parseShortcut(shortcut)
     const eventKey = event.key.toLowerCase()
-    
+
     // Special key mappings
     const keyMap: Record<string, string> = {
-      'enter': 'enter',
-      'space': ' ',
-      'up': 'arrowup',
-      'down': 'arrowdown',
-      'left': 'arrowleft',
-      'right': 'arrowright',
-      'esc': 'escape',
-      'escape': 'escape'
+      enter: 'enter',
+      space: ' ',
+      up: 'arrowup',
+      down: 'arrowdown',
+      left: 'arrowleft',
+      right: 'arrowright',
+      esc: 'escape',
+      escape: 'escape'
     }
-    
+
     const normalizedKey = keyMap[key] || key
     const normalizedEventKey = keyMap[eventKey] || eventKey
-    
+
     return (
       normalizedKey === normalizedEventKey &&
       modifiers.ctrl === (event.ctrlKey || event.metaKey) &&
@@ -86,7 +86,7 @@ export function useKeyboardShortcuts() {
       modifiers.shift === event.shiftKey
     )
   }
-  
+
   // Register a shortcut
   const register = (
     key: string,
@@ -101,16 +101,16 @@ export function useKeyboardShortcuts() {
       disabled
     })
   }
-  
+
   // Unregister a shortcut
   const unregister = (key: string) => {
     shortcuts.value.delete(key)
   }
-  
+
   // Handle keyboard events
   const handleKeyDown = (event: KeyboardEvent) => {
     if (!isEnabled.value) return
-    
+
     // Don't handle shortcuts when typing in input fields
     const target = event.target as HTMLElement
     if (
@@ -123,18 +123,15 @@ export function useKeyboardShortcuts() {
       const currentShortcut = Array.from(shortcuts.value.values()).find(shortcut =>
         matchesShortcut(event, shortcut.key)
       )
-      
+
       if (!currentShortcut || !allowedInInputs.includes(currentShortcut.key)) {
         return
       }
     }
-    
+
     // Find matching shortcut
     for (const shortcut of shortcuts.value.values()) {
-      if (
-        matchesShortcut(event, shortcut.key) &&
-        (!shortcut.disabled || !shortcut.disabled())
-      ) {
+      if (matchesShortcut(event, shortcut.key) && (!shortcut.disabled || !shortcut.disabled())) {
         event.preventDefault()
         event.stopPropagation()
         shortcut.handler(event)
@@ -142,16 +139,16 @@ export function useKeyboardShortcuts() {
       }
     }
   }
-  
+
   // Enable/disable shortcuts
   const enable = () => {
     isEnabled.value = true
   }
-  
+
   const disable = () => {
     isEnabled.value = false
   }
-  
+
   // Get all registered shortcuts
   const getShortcuts = () => {
     return Array.from(shortcuts.value.values()).map(shortcut => ({
@@ -160,7 +157,7 @@ export function useKeyboardShortcuts() {
       disabled: shortcut.disabled?.() || false
     }))
   }
-  
+
   // Format shortcut for display
   const formatShortcut = (shortcut: string) => {
     return shortcut
@@ -176,9 +173,11 @@ export function useKeyboardShortcuts() {
       .replace('left', '←')
       .replace('right', '→')
   }
-  
+
   // Register default shortcuts
-  const registerDefaults = (handlers: Partial<Record<keyof KeyboardShortcuts, (event: KeyboardEvent) => void>>) => {
+  const registerDefaults = (
+    handlers: Partial<Record<keyof KeyboardShortcuts, (event: KeyboardEvent) => void>>
+  ) => {
     Object.entries(handlers).forEach(([action, handler]) => {
       const key = action as keyof KeyboardShortcuts
       const shortcut = defaultShortcuts[key]
@@ -187,7 +186,7 @@ export function useKeyboardShortcuts() {
       }
     })
   }
-  
+
   // Get description for default actions
   const getActionDescription = (action: keyof KeyboardShortcuts): string => {
     const descriptions: Record<keyof KeyboardShortcuts, string> = {
@@ -202,24 +201,24 @@ export function useKeyboardShortcuts() {
       clearChat: 'Clear current chat',
       exportChat: 'Export current chat'
     }
-    
+
     return descriptions[action]
   }
-  
+
   // Setup event listeners
   onMounted(() => {
     document.addEventListener('keydown', handleKeyDown, true)
   })
-  
+
   onUnmounted(() => {
     document.removeEventListener('keydown', handleKeyDown, true)
     shortcuts.value.clear()
   })
-  
+
   return {
     // State
     isEnabled,
-    
+
     // Methods
     register,
     unregister,
@@ -228,7 +227,7 @@ export function useKeyboardShortcuts() {
     getShortcuts,
     formatShortcut,
     registerDefaults,
-    
+
     // Default shortcuts
     defaultShortcuts
   }

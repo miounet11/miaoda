@@ -65,10 +65,7 @@ export function getPluginManager() {
 /**
  * Execute a plugin hook across all enabled plugins
  */
-export async function executePluginHook<T = any>(
-  hook: string,
-  data: T
-): Promise<T> {
+export async function executePluginHook<T = any>(hook: string, data: T): Promise<T> {
   return pluginManager.executeHook(hook as any, data)
 }
 
@@ -258,7 +255,7 @@ export const createPlugin = {
         requiredPermissions: [],
         settings: []
       },
-      
+
       plugin: {
         async activate(context: PluginContext) {
           console.log(`${options.name} plugin activated!`)
@@ -306,12 +303,18 @@ ${manifest.requiredPermissions?.map((p: string) => `- ${p}`).join('\n') || 'None
 
 ## Settings
 
-${manifest.settings?.map((s: any) => `
+${
+  manifest.settings
+    ?.map(
+      (s: any) => `
 ### ${s.title}
 - **Type:** ${s.type}
 - **Default:** ${s.default}
 - **Description:** ${s.description}
-`).join('\n') || 'No configurable settings'}
+`
+    )
+    .join('\n') || 'No configurable settings'
+}
 
 ## Support
 

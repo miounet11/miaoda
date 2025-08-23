@@ -6,12 +6,8 @@
     @scroll="handleScroll"
   >
     <!-- Spacer for items before visible range -->
-    <div 
-      v-if="startIndex > 0"
-      :style="{ height: startOffset + 'px' }"
-      class="virtual-spacer-top"
-    />
-    
+    <div v-if="startIndex > 0" :style="{ height: startOffset + 'px' }" class="virtual-spacer-top" />
+
     <!-- Visible items -->
     <div
       v-for="(item, index) in visibleItems"
@@ -20,25 +16,18 @@
       class="virtual-item"
       :style="getItemStyle(startIndex + index)"
     >
-      <slot
-        :item="item"
-        :index="startIndex + index"
-        :is-visible="true"
-      />
+      <slot :item="item" :index="startIndex + index" :is-visible="true" />
     </div>
-    
+
     <!-- Spacer for items after visible range -->
-    <div 
+    <div
       v-if="endIndex < items.length - 1"
       :style="{ height: endOffset + 'px' }"
       class="virtual-spacer-bottom"
     />
-    
+
     <!-- Loading indicator for dynamic loading -->
-    <div
-      v-if="hasMore && endIndex >= items.length - loadThreshold"
-      class="virtual-loading"
-    >
+    <div v-if="hasMore && endIndex >= items.length - loadThreshold" class="virtual-loading">
       <slot name="loading">
         <div class="loading-spinner">Loading more...</div>
       </slot>
@@ -48,7 +37,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { rafThrottle, calculateVirtualScrollRange, debounce, OptimizedCache, memoryManager } from '@renderer/src/utils/performance'
+import {
+  rafThrottle,
+  calculateVirtualScrollRange,
+  debounce,
+  OptimizedCache,
+  memoryManager
+} from '@renderer/src/utils/performance'
 
 interface Props {
   items: any[]
@@ -71,7 +66,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'load-more': []
-  'scroll': [scrollTop: number, scrollHeight: number, clientHeight: number]
+  scroll: [scrollTop: number, scrollHeight: number, clientHeight: number]
   'item-rendered': [item: any, index: number]
 }>()
 
@@ -91,7 +86,7 @@ const totalHeight = computed(() => {
   if (typeof props.itemHeight === 'number') {
     return props.items.length * props.itemHeight
   }
-  
+
   let height = 0
   for (let i = 0; i < props.items.length; i++) {
     const measured = measuredHeights.value.get(i)
@@ -112,33 +107,33 @@ const virtualRange = computed(() => {
       buffer: props.buffer
     })
   }
-  
+
   // Variable height calculation
   let currentHeight = 0
   let startIndex = 0
   let endIndex = 0
   let foundStart = false
-  
+
   const visibleTop = scrollTop.value
   const visibleBottom = scrollTop.value + props.containerHeight
-  
+
   for (let i = 0; i < props.items.length; i++) {
     const itemHeight = measuredHeights.value.get(i) || props.estimatedItemHeight
     const itemTop = currentHeight
     const itemBottom = currentHeight + itemHeight
-    
+
     if (!foundStart && itemBottom > visibleTop - props.buffer * props.estimatedItemHeight) {
       startIndex = Math.max(0, i - props.buffer)
       foundStart = true
     }
-    
+
     if (itemTop <= visibleBottom + props.buffer * props.estimatedItemHeight) {
       endIndex = Math.min(props.items.length - 1, i + props.buffer)
     }
-    
+
     currentHeight += itemHeight
   }
-  
+
   return {
     startIndex,
     endIndex,
@@ -154,7 +149,7 @@ const endOffset = computed(() => {
   if (typeof props.itemHeight === 'number') {
     return (props.items.length - endIndex.value - 1) * props.itemHeight
   }
-  
+
   let height = 0
   for (let i = endIndex.value + 1; i < props.items.length; i++) {
     height += measuredHeights.value.get(i) || props.estimatedItemHeight
@@ -176,7 +171,7 @@ const getItemKey = (item: any, index: number) => {
 
 const getItemStyle = (index: number) => {
   const style: Record<string, string> = {}
-  
+
   if (typeof props.itemHeight === 'number') {
     style.height = `${props.itemHeight}px`
   } else {
@@ -185,7 +180,7 @@ const getItemStyle = (index: number) => {
       style.height = `${measured}px`
     }
   }
-  
+
   return style
 }
 
@@ -193,7 +188,7 @@ const getOffsetForIndex = (index: number) => {
   if (typeof props.itemHeight === 'number') {
     return index * props.itemHeight
   }
-  
+
   let offset = 0
   for (let i = 0; i < index; i++) {
     offset += measuredHeights.value.get(i) || props.estimatedItemHeight
@@ -203,22 +198,22 @@ const getOffsetForIndex = (index: number) => {
 
 const measureItems = () => {
   if (!containerRef.value || typeof props.itemHeight === 'number') return
-  
+
   // Use ResizeObserver for more efficient measurements
   const items = containerRef.value.querySelectorAll('.virtual-item')
   items.forEach((element, index) => {
     const actualIndex = startIndex.value + index
-    
+
     // Skip if already measured and element hasn't changed
     const currentHeight = measuredHeights.value.get(actualIndex)
     const rect = element.getBoundingClientRect()
-    
+
     if (rect.height > 0 && rect.height !== currentHeight) {
       measuredHeights.value.set(actualIndex, rect.height)
       emit('item-rendered', props.items[actualIndex], actualIndex)
     }
   })
-  
+
   // Cache will automatically clean up old entries based on OptimizedCache settings
 }
 
@@ -226,44 +221,44 @@ const measureItems = () => {
 const handleScroll = rafThrottle((event: Event) => {
   const target = event.target as HTMLElement
   const newScrollTop = target.scrollTop
-  
+
   // Skip if scroll position hasn't changed significantly
   if (Math.abs(newScrollTop - scrollTop.value) < 1 && isInitialized.value) {
     return
   }
-  
+
   scrollTop.value = newScrollTop
-  
+
   // Set scrolling state with optimized timer handling
   if (!isScrolling.value) {
     isScrolling.value = true
   }
-  
+
   if (scrollTimer.value) {
     clearTimeout(scrollTimer.value)
   }
-  
+
   scrollTimer.value = setTimeout(() => {
     isScrolling.value = false
     // Trigger measurement after scrolling stops
     nextTick(() => measureItems())
   }, 100) // Reduced timeout for better responsiveness
-  
+
   // Emit scroll event (throttled)
   emit('scroll', newScrollTop, target.scrollHeight, target.clientHeight)
-  
+
   // Optimized load more check
   if (props.hasMore && endIndex.value >= props.items.length - props.loadThreshold) {
     emit('load-more')
   }
-  
+
   isInitialized.value = true
 })
 
 // Public methods
 const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
   if (!containerRef.value) return
-  
+
   const offset = getOffsetForIndex(index)
   containerRef.value.scrollTo({
     top: offset,
@@ -273,7 +268,7 @@ const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
 
 const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
   if (!containerRef.value) return
-  
+
   containerRef.value.scrollTo({
     top: 0,
     behavior
@@ -282,7 +277,7 @@ const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
 
 const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
   if (!containerRef.value) return
-  
+
   containerRef.value.scrollTo({
     top: totalHeight.value,
     behavior
@@ -290,47 +285,55 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
 }
 
 // Optimized watcher for items changes
-watch(() => props.items.length, (newLength, oldLength) => {
-  // Batch DOM operations for better performance
-  if (newLength > oldLength) {
-    // Clear render cache when items are added
-    renderCache.value.clear()
-    
-    nextTick(() => {
-      measureItems()
-    })
-  }
-  
-  // Efficiently clear measurements for removed items
-  if (newLength < oldLength) {
-    const keysToDelete: number[] = []
-    // OptimizedCache doesn't have forEach, need to iterate differently
-    for (let index = newLength; index < oldLength; index++) {
-      if (measuredHeights.value.has(index)) {
-        keysToDelete.push(index)
-      }
+watch(
+  () => props.items.length,
+  (newLength, oldLength) => {
+    // Batch DOM operations for better performance
+    if (newLength > oldLength) {
+      // Clear render cache when items are added
+      renderCache.value.clear()
+
+      nextTick(() => {
+        measureItems()
+      })
     }
-    
-    // Use batch deletion for better performance
-    keysToDelete.forEach(key => {
-      measuredHeights.value.delete(key)
-      renderCache.value.delete(`item-${key}`)
-    })
-  }
-}, { immediate: true })
+
+    // Efficiently clear measurements for removed items
+    if (newLength < oldLength) {
+      const keysToDelete: number[] = []
+      // OptimizedCache doesn't have forEach, need to iterate differently
+      for (let index = newLength; index < oldLength; index++) {
+        if (measuredHeights.value.has(index)) {
+          keysToDelete.push(index)
+        }
+      }
+
+      // Use batch deletion for better performance
+      keysToDelete.forEach(key => {
+        measuredHeights.value.delete(key)
+        renderCache.value.delete(`item-${key}`)
+      })
+    }
+  },
+  { immediate: true }
+)
 
 // Optimized watcher for visible items with debouncing
 const debouncedMeasure = debounce(() => {
   measureItems()
 }, 16) // ~60fps
 
-watch(visibleItems, () => {
-  if (isScrolling.value) {
-    // Don't measure while scrolling for better performance
-    return
-  }
-  nextTick(debouncedMeasure)
-}, { flush: 'post' })
+watch(
+  visibleItems,
+  () => {
+    if (isScrolling.value) {
+      // Don't measure while scrolling for better performance
+      return
+    }
+    nextTick(debouncedMeasure)
+  },
+  { flush: 'post' }
+)
 
 // Lifecycle
 onMounted(() => {
@@ -343,7 +346,7 @@ onUnmounted(() => {
   if (scrollTimer.value) {
     clearTimeout(scrollTimer.value)
   }
-  
+
   // Cleanup memory caches
   measuredHeights.value.clear()
   renderCache.value.clear()
@@ -466,11 +469,11 @@ defineExpose({
 }
 
 /* Dark theme support */
-:root[data-theme="dark"] .virtual-scroll-container::-webkit-scrollbar-thumb {
+:root[data-theme='dark'] .virtual-scroll-container::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
 }
 
-:root[data-theme="dark"] .virtual-scroll-container::-webkit-scrollbar-thumb:hover {
+:root[data-theme='dark'] .virtual-scroll-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 </style>

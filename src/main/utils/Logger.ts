@@ -73,7 +73,7 @@ export class Logger {
 
   error(message: string, context?: string, error?: any): void {
     const logMessage = context ? `[${context}] ${message}` : message
-    
+
     if (error instanceof Error) {
       log.error(logMessage, error.message)
       if (error.stack && this.isDevelopment) {
@@ -116,13 +116,13 @@ export class Logger {
   clearOldLogs(daysToKeep = 7): void {
     try {
       const fs = require('fs')
-      
+
       if (!existsSync(logsDir)) return
-      
+
       const files = fs.readdirSync(logsDir)
       const now = Date.now()
-      const cutoff = now - (daysToKeep * 24 * 60 * 60 * 1000)
-      
+      const cutoff = now - daysToKeep * 24 * 60 * 60 * 1000
+
       files.forEach((file: string) => {
         if (file.endsWith('.log')) {
           const filePath = join(logsDir, file)
@@ -168,7 +168,7 @@ export class Logger {
 export const logger = Logger.getInstance()
 
 // Setup global error handlers
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.logUnhandledError(error, 'uncaughtException')
 })
 
