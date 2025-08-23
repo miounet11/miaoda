@@ -5,6 +5,7 @@ export type { APIError } from './api'
 export * from '../../../types/analytics'
 export * from './recommendation'
 export * from './settings'
+export * from './customProvider'
 
 // Utility types
 export type Nullable<T> = T | null

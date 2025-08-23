@@ -671,7 +671,7 @@ export default {
     transcripts: '转录',
     voiceControl: '语音控制',
     gestureControl: '手势控制',
-    keyboardShortcuts: '键盘快捷键',
+    keyboardShortcutsPage: '键盘快捷键',
     hotkeys: '热键',
     customShortcuts: '自定义快捷键',
     globalShortcuts: '全局快捷键',

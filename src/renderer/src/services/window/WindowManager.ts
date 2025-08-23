@@ -106,7 +106,7 @@ export class WindowManager extends EventEmitter<{
       this.emit('window-focused', windowId)
     })
 
-    window.api.window.onWindowBoundsChanged?.((windowId: string, bounds: WindowState['bounds']) => {
+    window.api.window.onWindowStateChanged?.((windowId: string, bounds: WindowState['bounds']) => {
       const window = this.windows.get(windowId)
       if (window) {
         window.bounds = bounds

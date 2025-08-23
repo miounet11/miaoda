@@ -662,7 +662,7 @@ export default {
     transcripts: 'Transcripts',
     voiceControl: 'Voice Control',
     gestureControl: 'Gesture Control',
-    keyboardShortcuts: 'Keyboard Shortcuts',
+    keyboardShortcutsPage: 'Keyboard Shortcuts',
     hotkeys: 'Hotkeys',
     customShortcuts: 'Custom Shortcuts',
     globalShortcuts: 'Global Shortcuts',
