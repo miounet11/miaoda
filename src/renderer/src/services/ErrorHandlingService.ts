@@ -354,15 +354,3 @@ export function useErrorHandler() {
     exportLog: () => errorHandler.exportErrorLog()
   }
 }
-
-// Declare global type
-declare global {
-  interface Window {
-    app?: any
-    api?: {
-      error?: {
-        report: (data: any) => Promise<void>
-      }
-    }
-  }
-}

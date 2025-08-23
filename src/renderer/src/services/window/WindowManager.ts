@@ -166,7 +166,7 @@ export class WindowManager extends EventEmitter<{
 
     // Create Electron window if available
     if (window.api?.window?.createWindow) {
-      await window.api.window.createWindow(windowId, {
+      await window.api.window.createWindow({
         title: windowState.title,
         ...windowState.bounds,
         parent: options.parentWindowId
