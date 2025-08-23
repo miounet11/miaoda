@@ -28,7 +28,7 @@ export class ThemePlugin implements PluginModule {
     this.registerThemeVariables()
   }
 
-  async deactivate(context: PluginContext): Promise<void> {
+  async deactivate(_context: PluginContext): Promise<void> {
     console.log('Theme Plugin deactivated!')
 
     // Clean up media query listener
@@ -40,21 +40,21 @@ export class ThemePlugin implements PluginModule {
   }
 
   // Hook: Called when theme changes
-  async onThemeChange(data: any, context: PluginContext): Promise<any> {
+  async onThemeChange(data: any, _context: PluginContext): Promise<any> {
     console.log('Theme Plugin: Theme changed', data)
 
     // Apply theme-specific enhancements
     await this.enhanceTheme(data.theme)
 
     // Save theme preference
-    await context.storage.set('currentTheme', data.theme)
+    await this.context?.storage.set('currentTheme', data.theme)
     this.currentTheme = data.theme
 
     return data
   }
 
   // Hook: Called when settings change
-  async onSettingsChange(data: any, context: PluginContext): Promise<any> {
+  async onSettingsChange(data: any, _context: PluginContext): Promise<any> {
     console.log('Theme Plugin: Settings changed', data)
 
     // Check if theme-related settings changed
@@ -66,7 +66,7 @@ export class ThemePlugin implements PluginModule {
   }
 
   // Hook: Called on app initialization
-  async onAppInit(data: any, context: PluginContext): Promise<any> {
+  async onAppInit(data: any, _context: PluginContext): Promise<any> {
     console.log('Theme Plugin: App initialized')
 
     // Ensure theme is properly applied after app loads

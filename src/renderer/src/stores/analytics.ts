@@ -116,7 +116,7 @@ export const useAnalyticsStore = defineStore(
       await generateAnalytics(newFilter)
     }
 
-    async function exportAnalytics(config: AnalyticsExportConfig) {
+    async function exportAnalytics(_config: AnalyticsExportConfig) {
       loading.value = true
       error.value = null
 

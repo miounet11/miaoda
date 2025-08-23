@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ref, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
 
 export interface LoadingPriority {

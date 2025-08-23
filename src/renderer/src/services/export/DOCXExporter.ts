@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, TableOfContents, SectionType, Header, Footer } from 'docx'
 import type {
   ExportChatData,

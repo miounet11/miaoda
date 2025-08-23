@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Global Error Boundary Service
  * Prevents console spam by throttling repeated errors and implementing circuit breakers

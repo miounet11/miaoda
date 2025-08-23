@@ -310,24 +310,6 @@ export class ErrorHandlingService {
   exportErrorLog(): string {
     return JSON.stringify(this.errorQueue, null, 2)
   }
-
-  private showToast(message: string, type: 'error' | 'success' = 'error') {
-    if (!this.toastStore) {
-      try {
-        this.toastStore = useToastStore()
-      } catch (e) {
-        // Pinia not ready, skip
-        console.warn('Toast store not available')
-        return
-      }
-    }
-
-    if (type === 'error') {
-      this.toastStore.showError(message)
-    } else {
-      this.toastStore.showSuccess(message)
-    }
-  }
 }
 
 // Export singleton instance

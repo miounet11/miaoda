@@ -211,11 +211,11 @@ export const useChatStore = defineStore(
       }
     }
 
-    const createChat = async () => {
+    const createChat = async (title?: string): Promise<string> => {
       const now = new Date()
       const newChat: Chat = {
         id: nanoid(),
-        title: 'New Chat',
+        title: title || 'New Chat',
         messages: [],
         createdAt: now,
         updatedAt: now
@@ -232,7 +232,7 @@ export const useChatStore = defineStore(
       chats.value.unshift(newChat)
       currentChatId.value = newChat.id
 
-      return newChat
+      return newChat.id
     }
 
     const selectChat = async (chatId: string) => {
@@ -334,7 +334,7 @@ export const useChatStore = defineStore(
       // Update in database
       try {
         // Calling database update
-        await window.api.db.updateMessage(messageId, content)
+        await window.api.db?.updateMessage?.(messageId, content)
         // Database update successful
         logger.info('Message content updated in database', 'ChatStore', {
           messageId,
@@ -351,11 +351,13 @@ export const useChatStore = defineStore(
 
       // Create new chat if none selected
       if (!targetChatId) {
-        const newChat = await createChat()
-        if (!newChat) return ''
-        targetChatId = newChat.id
+        const newChatId = await createChat()
+        if (!newChatId) return ''
+        targetChatId = newChatId
         currentChatId.value = targetChatId
       }
+
+      const ensuredChatId = targetChatId as string
 
       try {
         isGenerating.value = true
@@ -366,7 +368,7 @@ export const useChatStore = defineStore(
           content,
           role: 'user',
           timestamp: new Date(),
-          chatId: targetChatId,
+          chatId: ensuredChatId,
           attachments
         }
 
@@ -378,11 +380,11 @@ export const useChatStore = defineStore(
           content: '',
           role: 'assistant',
           timestamp: new Date(),
-          chatId: targetChatId,
+          chatId: ensuredChatId,
           pending: true
         }
 
-        const chat = chats.value.find(c => c.id === targetChatId)
+        const chat = chats.value.find(c => c.id === ensuredChatId)
         if (chat && chat.messages) {
           chat.messages.push(assistantMessage)
         }
@@ -397,9 +399,9 @@ export const useChatStore = defineStore(
             // Save empty assistant message to database first
             const now = new Date()
             try {
-              await window.api.db.createMessage({
+              await window.api.db?.createMessage?.({
                 id: assistantMessage.id,
-                chat_id: targetChatId,
+                chat_id: ensuredChatId,
                 role: 'assistant',
                 content: '',
                 created_at: now.getTime()
@@ -413,39 +415,52 @@ export const useChatStore = defineStore(
             }
 
             // Send message through LLM API - this will trigger streaming via IPC events
-            await window.api.llm.sendMessage(content, targetChatId, assistantMessage.id)
+            await window.api.llm.sendMessage(content, ensuredChatId, assistantMessage.id)
 
             // Note: The actual response will be handled by the streaming listeners
             // The message content will be updated incrementally through 'llm:chunk' events
             // and finalized through 'llm:stream-complete' event
           } catch (error: any) {
             // Handle LLM error
-            assistantMessage.content = `Error: ${error.message || 'Failed to get response'}`
-            assistantMessage.error = error.message || 'Failed to get response'
-            assistantMessage.pending = false
+            const chat = chats.value.find(c => c.id === ensuredChatId)
+            if (chat && chat.messages) {
+              const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
+              if (index >= 0) {
+                chat.messages[index].content = `Error: ${error.message || 'Failed to get response'}`
+                chat.messages[index].error = error.message || 'Failed to get response'
+                chat.messages[index].pending = false
+              }
+            }
             isGenerating.value = false
             streamingContent.value = ''
             streamingMessageId.value = null
           }
         } else {
           // Fallback if LLM API is not available
-          assistantMessage.content = 'Error: LLM service not available'
-          assistantMessage.error = 'LLM service not available'
-          assistantMessage.pending = false
+          const chat = chats.value.find(c => c.id === ensuredChatId)
+          if (chat && chat.messages) {
+            const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
+            if (index >= 0) {
+              chat.messages[index].content = 'Error: LLM service not available'
+              chat.messages[index].error = 'LLM service not available'
+              chat.messages[index].pending = false
+            }
+          }
           isGenerating.value = false
           streamingContent.value = ''
           streamingMessageId.value = null
         }
 
         // Update chat timestamp
-        if (chat) {
-          chat.updatedAt = new Date()
+        const chat2 = chats.value.find(c => c.id === ensuredChatId)
+        if (chat2) {
+          chat2.updatedAt = new Date()
 
           // Update title based on first user message
-          if (chat.messages.length <= 2 && userMessage.role === 'user') {
+          if (chat2.messages.length <= 2 && userMessage.role === 'user') {
             // User + assistant message
             const newTitle = content.slice(0, 30) + (content.length > 30 ? '...' : '')
-            chat.title = newTitle
+            chat2.title = newTitle
             // Update title in database if needed
           }
         }
@@ -453,8 +468,8 @@ export const useChatStore = defineStore(
         handleError(error, 'Send Message')
 
         // Mark message as error
-        if (targetChatId && streamingMessageId.value) {
-          const chat = chats.value.find(c => c.id === targetChatId)
+        if (ensuredChatId && streamingMessageId.value) {
+          const chat = chats.value.find(c => c.id === ensuredChatId)
           if (chat?.messages) {
             const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
             if (index >= 0) {
@@ -500,7 +515,7 @@ export const useChatStore = defineStore(
       messages.value.set(chatId, [])
     }
 
-    async function archiveChat(chatId: string, _archived: boolean = true): Promise<void> {
+    async function archiveChat(_chatId: string, _archived: boolean = true): Promise<void> {
       // No-op placeholder for now
       return
     }
@@ -509,8 +524,8 @@ export const useChatStore = defineStore(
       await updateMessageContent(messageId, newContent)
     }
 
-    async function deleteMessage(chatId: string, messageId: string): Promise<void> {
-      const chat = chats.value.find(c => c.id === chatId)
+    async function deleteMessage(_chatId: string, messageId: string): Promise<void> {
+      const chat = chats.value.find(c => c.messages?.some(m => m.id === messageId))
       if (!chat?.messages) return
       const idx = chat.messages.findIndex(m => m.id === messageId)
       if (idx >= 0) chat.messages.splice(idx, 1)

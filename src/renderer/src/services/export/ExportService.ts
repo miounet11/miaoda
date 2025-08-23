@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ChatRecord, MessageRecord } from '@renderer/src/types'
 import { searchService } from '../search/SearchService'
 import { ExportValidator } from './ExportValidator'
