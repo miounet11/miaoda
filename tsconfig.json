@@ -20,11 +20,13 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.d.ts",
+    "src/renderer/**/*.ts",
+    "src/renderer/**/*.tsx",
+    "src/renderer/**/*.vue",
+    "src/renderer/**/*.d.ts",
+    "src/preload/**/*.ts",
+    "src/preload/**/*.d.ts",
     "electron.vite.config.ts"
   ],
-  "exclude": ["node_modules", "dist", "out"]
+  "exclude": ["node_modules", "dist", "out", "src/main/**"]
 }

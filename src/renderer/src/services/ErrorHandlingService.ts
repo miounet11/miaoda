@@ -199,18 +199,7 @@ export class ErrorHandlingService {
       message = messages.database
     }
 
-    this.toastStore.showToast({
-      title: 'Error',
-      message,
-      type: report.severity === 'critical' || report.severity === 'high' ? 'error' : 'warning',
-      duration: 5000,
-      action: report.recovery
-        ? {
-            label: 'Retry',
-            handler: () => this.attemptRecovery(report)
-          }
-        : undefined
-    })
+    this.toastStore.showError(message)
   }
 
   /**

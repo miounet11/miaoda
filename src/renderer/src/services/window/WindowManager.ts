@@ -30,13 +30,14 @@ export interface WindowState {
   activeTabId: string | null
   theme: 'light' | 'dark' | 'system'
   opacity: number
+  api?: any
 }
 
 export interface WindowLayout {
   id: string
   name: string
   description: string
-  windows: Partial<WindowState>[]
+  windows: any[]
   createdAt: Date
 }
 

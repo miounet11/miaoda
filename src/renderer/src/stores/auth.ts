@@ -489,7 +489,7 @@ export const useAuthStore = defineStore(
       paths: ['session', 'deviceId', 'twoFactorEnabled', 'autoLockEnabled', 'autoLockDelay'],
       storage: localStorage
     }
-  }
+  } as any
 )
 
 // Mock authentication service - ONLY FOR DEVELOPMENT

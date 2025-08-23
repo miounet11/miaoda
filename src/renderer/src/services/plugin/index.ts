@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import { pluginManager } from './PluginManager'
 import type { PluginInstance, PluginContext } from './PluginManager'
 

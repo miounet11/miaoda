@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import type { AnalyticsData, AnalyticsFilter, TimeRange, AnalyticsExportConfig } from '../types'
 // Import removed - using IPC calls instead
 // import { AnalyticsService } from '../services/analytics/AnalyticsService'
@@ -244,5 +244,5 @@ export const useAnalyticsStore = defineStore(
       key: 'analytics-store',
       paths: ['currentFilter'] // Only persist filter settings
     }
-  }
+  } as any
 )

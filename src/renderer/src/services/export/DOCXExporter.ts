@@ -1,22 +1,4 @@
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  HeadingLevel,
-  AlignmentType,
-  UnderlineType,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
-  BorderStyle,
-  PageBreak,
-  TableOfContents,
-  SectionType,
-  Header,
-  Footer
-} from 'docx'
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, TableOfContents, SectionType, Header, Footer } from 'docx'
 import type {
   ExportChatData,
   ExportOptions,
@@ -62,7 +44,7 @@ export class DOCXExporter {
       const buffer = await Packer.toBuffer(doc)
 
       // Convert to base64 for consistent handling
-      const base64String = this.arrayBufferToBase64(buffer)
+      const base64String = this.arrayBufferToBase64(buffer as unknown as ArrayBuffer)
       const dataUri = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64String}`
 
       return {
@@ -221,7 +203,7 @@ export class DOCXExporter {
         children: [
           new TextRun({
             text: 'AI Conversation Archive',
-            italic: true,
+            italics: true,
             size: 24,
             color: '666666'
           })
@@ -276,7 +258,9 @@ export class DOCXExporter {
     })
 
     if (options.author) {
-      infoTable.root[0].push(
+      // Append an author row by rebuilding rows
+      const rows = (infoTable as any).options.rows || []
+      rows.push(
         new TableRow({
           children: [
             new TableCell({
@@ -288,6 +272,7 @@ export class DOCXExporter {
           ]
         })
       )
+      ;(infoTable as any).options.rows = rows
     }
 
     content.push(infoTable)
@@ -331,13 +316,13 @@ export class DOCXExporter {
         metadataChildren.push(
           new TextRun({
             text: `Created: ${new Date(chat.createdAt).toLocaleString()}  `,
-            italic: true,
+            italics: true,
             size: 18,
             color: '666666'
           }),
           new TextRun({
             text: `Updated: ${new Date(chat.updatedAt).toLocaleString()}  `,
-            italic: true,
+            italics: true,
             size: 18,
             color: '666666'
           })
@@ -347,7 +332,7 @@ export class DOCXExporter {
       metadataChildren.push(
         new TextRun({
           text: `Messages: ${chat.messages.length}`,
-          italic: true,
+          italics: true,
           size: 18,
           color: '666666'
         })
@@ -406,7 +391,7 @@ export class DOCXExporter {
       headerChildren.push(
         new TextRun({
           text: `  ${new Date(message.created_at).toLocaleString()}`,
-          italic: true,
+          italics: true,
           size: 18,
           color: '666666'
         })

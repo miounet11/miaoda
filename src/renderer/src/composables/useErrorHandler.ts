@@ -1,5 +1,12 @@
 import { ref } from 'vue'
-import type { ErrorInfo } from '@renderer/src/components/error/ErrorToast.vue'
+
+type ErrorInfo = {
+  id: string
+  title: string
+  message: string
+  severity?: 'info' | 'warning' | 'error'
+  duration?: number
+}
 
 // Global error toast instance ref
 let errorToastInstance: any = null

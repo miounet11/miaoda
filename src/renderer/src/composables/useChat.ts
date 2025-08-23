@@ -1,7 +1,7 @@
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useErrorHandler } from './useErrorHandler'
-import type { Message, Attachment, Chat } from '@renderer/src/types'
+import type { Attachment } from '@renderer/src/types'
 
 export function useChat() {
   const chatStore = useChatStore()
