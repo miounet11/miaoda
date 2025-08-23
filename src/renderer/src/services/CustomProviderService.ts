@@ -99,10 +99,11 @@ export class CustomProviderService {
 
       if (result.success) {
         // Fetch the updated provider to return full config
-        const updatedProvider = await this.getProvider(id)
+        const updated = await this.getProvider(id)
         return {
-          success: true,
-          data: updatedProvider || undefined
+          success: !!updated.success,
+          data: updated.data || undefined,
+          error: updated.error
         }
       }
 

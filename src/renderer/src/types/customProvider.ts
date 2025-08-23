@@ -31,17 +31,25 @@ export type ProviderHealthStatus = {
 	responseTime?: number
 }
 
+export type HealthStatus = 'healthy' | 'unhealthy' | 'unknown' | 'error'
+
 export type ProviderListItem = {
 	id: string
 	name: string
 	displayName: string
 	model: string
-	enabled: boolean
+	enabled?: boolean
+	isHealthy?: boolean
+	lastChecked?: string | null
+	error?: string | null
 }
 
 export type CustomProviderOperationResult = {
-	success: boolean
-	error?: string
+	success: true
+	id?: string
+} | {
+	success: false
+	error: string
 }
 
 export type ProviderImportResult = {

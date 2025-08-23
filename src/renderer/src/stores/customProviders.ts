@@ -3,17 +3,17 @@ import { ref, computed, watch } from 'vue'
 import { customProviderService } from '@renderer/src/services/CustomProviderService'
 import type {
   CustomProviderConfig,
-  ProviderHealthStatus,
   CustomProviderFormData,
   ProviderListItem,
   CustomProviderOperationResult,
-  ProviderImportResult
+  ProviderImportResult,
+  HealthStatus
 } from '@/types/customProvider'
 
 interface CustomProviderState {
   id: string
   config: CustomProviderConfig
-  status: ProviderHealthStatus
+  status: HealthStatus
   lastChecked: Date | null
   lastError: string | null
   isHealthy: boolean
@@ -33,7 +33,7 @@ export const useCustomProvidersStore = defineStore(
     const loading = ref(false)
     const error = ref<string | null>(null)
     const lastSyncTime = ref<Date | null>(null)
-    const healthCheckInterval = ref<NodeJS.Timeout | null>(null)
+    const healthCheckInterval = ref<ReturnType<typeof setInterval> | null>(null)
     const cacheVersion = ref(1)
 
     // Cache management
@@ -539,5 +539,5 @@ export const useCustomProvidersStore = defineStore(
       paths: ['lastSyncTime'],
       storage: localStorage
     }
-  }
+  } as any
 )
