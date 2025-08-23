@@ -1,6 +1,6 @@
 {
   "name": "miaoda-chat",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Modern AI Chat Client - Fusion of DeepChat and ChatBox",
   "main": "./out/main/index.js",
   "author": "MiaoDa",
