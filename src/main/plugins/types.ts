@@ -536,3 +536,37 @@ export interface TemplateFile {
   content: string
   template?: boolean // If true, content will be processed as a template
 }
+
+export type SearchOptions = Record<string, any>
+export type ContextMenuItem = { id: string; title: string }
+export type ToolbarItem = { id: string; title: string }
+export type PluginPanel = any
+export type SidebarPanelConfig = any
+export type ModalDialogConfig = any
+export type MessageType = 'info' | 'warning' | 'error' | 'success'
+export type NotificationConfig = { title: string; message: string; type?: MessageType }
+export type ProgressConfig = { title?: string; total?: number }
+export type ProgressHandle = { update: (n: number) => void; done: () => void }
+export type InputBoxOptions = { prompt?: string; value?: string }
+export type QuickPickItem<T = any> = { label: string; value: T }
+export type QuickPickOptions = { placeholder?: string }
+export type OpenDialogOptions = { filters?: any[] }
+export type SaveDialogOptions = { defaultPath?: string }
+export type StatusBarItemConfig = { text: string; tooltip?: string }
+export type PluginStorageScope = { get: (k: string) => Promise<any> }
+export type FileStats = { size: number; mtime: number }
+export type HttpOptions = { headers?: Record<string, string> }
+export type HttpResponse = { status: number; data: any }
+export type SpawnOptions = any
+export type ProcessResult = { code: number; stdout: string; stderr: string }
+export type ExecOptions = any
+export type WorkflowInstance = any
+export type WorkflowStatus = 'pending' | 'running' | 'completed' | 'failed'
+export type WorkflowStepHandler = (...args: any[]) => any
+export type WorkflowTriggerHandler = (...args: any[]) => any
+export type PerformanceMetrics = any
+export type TestResults = { passed: number; failed: number }
+export type Attachment = { url: string; name?: string }
+export type Mention = { userId: string }
+export type WorkflowStep = any
+export type WorkflowTrigger = any

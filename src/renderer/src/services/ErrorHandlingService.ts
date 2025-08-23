@@ -59,26 +59,9 @@ export class ErrorHandlingService {
     window.addEventListener('error', event => {
       this.handleError(event.error || new Error(event.message), {
         component: 'global',
-        action: 'globalError',
-        metadata: {
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno
-        }
+        action: 'windowError'
       })
-      event.preventDefault()
     })
-
-    // Vue error handler
-    if (window.app) {
-      window.app.config.errorHandler = (error: Error, instance: any, info: string) => {
-        this.handleError(error, {
-          component: instance?.$options.name || 'unknown',
-          action: info,
-          metadata: { vueComponent: true }
-        })
-      }
-    }
   }
 
   /**
