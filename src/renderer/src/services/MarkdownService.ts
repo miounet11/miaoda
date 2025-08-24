@@ -186,7 +186,7 @@ function safeHtmlEscape(unsafe: any): string {
 function createIsolatedMarkedInstance(options: MarkdownOptions = {}): typeof marked {
   try {
     // Create a fresh marked instance
-    const markedInstance = new marked.Marked()
+    const markedInstance: any = marked
 
     // Configure syntax highlighting if enabled
     if (options.enableHighlight !== false) {
@@ -236,7 +236,7 @@ function createIsolatedMarkedInstance(options: MarkdownOptions = {}): typeof mar
 
     // Override renderer methods with input validation
     const originalCode = renderer.code.bind(renderer)
-    renderer.code = function (code: string, language?: string, escaped?: boolean): string {
+    renderer.code = function (code: any, language?: any, escaped?: any): any {
       try {
         // Validate inputs
         if (typeof code !== 'string') {
@@ -251,7 +251,7 @@ function createIsolatedMarkedInstance(options: MarkdownOptions = {}): typeof mar
           language = String(language || 'plaintext')
         }
 
-        return originalCode.call(this, code, language, escaped)
+        return (originalCode as any).call(this, code, language, escaped)
       } catch (error) {
         logger.error('Code renderer failed', 'MarkdownService', { error })
         return `<pre><code>${safeHtmlEscape(code)}</code></pre>`
@@ -259,7 +259,7 @@ function createIsolatedMarkedInstance(options: MarkdownOptions = {}): typeof mar
     }
 
     const originalCodespan = renderer.codespan.bind(renderer)
-    renderer.codespan = function (code: string): string {
+    renderer.codespan = function (code: any): any {
       try {
         if (typeof code !== 'string') {
           logger.warn('Non-string codespan in renderer', 'MarkdownService', {
@@ -276,7 +276,7 @@ function createIsolatedMarkedInstance(options: MarkdownOptions = {}): typeof mar
     }
 
     const originalText = renderer.text.bind(renderer)
-    renderer.text = function (text: string): string {
+    renderer.text = function (text: any): any {
       try {
         if (typeof text !== 'string') {
           logger.warn('Non-string text in renderer', 'MarkdownService', { textType: typeof text })
@@ -480,4 +480,3 @@ export const markdownService = new MarkdownService()
 
 // Export additional utilities
 export { sanitizeMarkdownInput, validateMarkdownInput, safeHtmlEscape }
-export type { MarkdownOptions, ParseResult }

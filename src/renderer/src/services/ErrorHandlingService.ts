@@ -59,26 +59,9 @@ export class ErrorHandlingService {
     window.addEventListener('error', event => {
       this.handleError(event.error || new Error(event.message), {
         component: 'global',
-        action: 'globalError',
-        metadata: {
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno
-        }
+        action: 'windowError'
       })
-      event.preventDefault()
     })
-
-    // Vue error handler
-    if (window.app) {
-      window.app.config.errorHandler = (error: Error, instance: any, info: string) => {
-        this.handleError(error, {
-          component: instance?.$options.name || 'unknown',
-          action: info,
-          metadata: { vueComponent: true }
-        })
-      }
-    }
   }
 
   /**
@@ -216,18 +199,7 @@ export class ErrorHandlingService {
       message = messages.database
     }
 
-    this.toastStore.showToast({
-      title: 'Error',
-      message,
-      type: report.severity === 'critical' || report.severity === 'high' ? 'error' : 'warning',
-      duration: 5000,
-      action: report.recovery
-        ? {
-            label: 'Retry',
-            handler: () => this.attemptRecovery(report)
-          }
-        : undefined
-    })
+    this.toastStore.showError(message)
   }
 
   /**
@@ -352,17 +324,5 @@ export function useErrorHandler() {
     getStats: () => errorHandler.getErrorStats(),
     clearErrors: () => errorHandler.clearErrors(),
     exportLog: () => errorHandler.exportErrorLog()
-  }
-}
-
-// Declare global type
-declare global {
-  interface Window {
-    app?: any
-    api?: {
-      error?: {
-        report: (data: any) => Promise<void>
-      }
-    }
   }
 }

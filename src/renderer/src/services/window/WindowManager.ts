@@ -30,13 +30,14 @@ export interface WindowState {
   activeTabId: string | null
   theme: 'light' | 'dark' | 'system'
   opacity: number
+  api?: any
 }
 
 export interface WindowLayout {
   id: string
   name: string
   description: string
-  windows: Partial<WindowState>[]
+  windows: any[]
   createdAt: Date
 }
 
@@ -106,7 +107,7 @@ export class WindowManager extends EventEmitter<{
       this.emit('window-focused', windowId)
     })
 
-    window.api.window.onWindowBoundsChanged?.((windowId: string, bounds: WindowState['bounds']) => {
+    window.api.window.onWindowStateChanged?.((windowId: string, bounds: WindowState['bounds']) => {
       const window = this.windows.get(windowId)
       if (window) {
         window.bounds = bounds
@@ -166,7 +167,7 @@ export class WindowManager extends EventEmitter<{
 
     // Create Electron window if available
     if (window.api?.window?.createWindow) {
-      await window.api.window.createWindow(windowId, {
+      await window.api.window.createWindow({
         title: windowState.title,
         ...windowState.bounds,
         parent: options.parentWindowId

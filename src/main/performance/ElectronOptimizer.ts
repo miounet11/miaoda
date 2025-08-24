@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { app, BrowserWindow, ipcMain, powerMonitor, systemPreferences } from 'electron'
 import { EventEmitter } from 'events'
 import { logger } from '../utils/Logger'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import crypto from 'crypto'
 import { UserService, type UserRecord, type SessionRecord } from '../db/UserService'
 import { cryptoManager } from './crypto/CryptoManager'

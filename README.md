@@ -40,10 +40,10 @@ A modern, sophisticated AI chat application built with Electron + Vue 3 + TypeSc
 ## 🚀 Installation
 
 ### Prerequisites
-- **Node.js** >= 20.0.0
-- **pnpm** >= 8.0.0
+- Node.js >= 20.0.0
+- Package manager: pnpm (recommended) or npm
 
-### Quick Start
+### Quick Start (pnpm)
 ```bash
 # Clone repository
 git clone https://github.com/miounet11/miaodachat.git
@@ -56,16 +56,38 @@ pnpm install
 pnpm run dev
 ```
 
+### Quick Start (npm)
+```bash
+# Clone repository
+git clone https://github.com/miounet11/miaodachat.git
+cd miaodachat/miaoda-chat
+
+# Install dependencies
+npm ci
+
+# Start development server
+npm run dev
+```
+
 ### Build for Production
 ```bash
-# macOS
-pnpm run build:mac
+# Using pnpm
+pnpm run build
+pnpm run build:mac   # macOS
+pnpm run build:win   # Windows
+pnpm run build:linux # Linux
 
-# Windows
-pnpm run build:win
+# Using npm
+npm run build
+```
 
-# Linux
-pnpm run build:linux
+### Typecheck & Lint
+```bash
+# TypeScript typecheck
+npm run typecheck   # or pnpm run typecheck
+
+# ESLint
+npm run lint        # or pnpm run lint
 ```
 
 ## 🎯 What's New in v4.1.0
@@ -179,3 +201,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by MiaoDa Team**
 
 *Bringing sophisticated AI conversation to your desktop with professional design and uncompromising accessibility.*
+
+## 📦 Push to GitHub
+
+If this is a new repo:
+```bash
+git init
+git add -A
+git commit -m "chore: initial cleanup and stabilization"
+git branch -M main
+git remote add origin <your_repo_url>
+git push -u origin main
+```
+
+If the remote exists:
+```bash
+git add -A
+git commit -m "docs: update README and installation; stabilize types"
+git push
+```

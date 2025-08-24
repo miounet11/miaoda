@@ -23,12 +23,12 @@ const app = createApp(App)
 setupI18n(app)
 
 // Global error handler for Vue
-app.config.errorHandler = (error, instance, info) => {
-  errorBoundary.handleComponentError(error, instance?.$?.type?.name || 'UnknownComponent', { info })
+app.config.errorHandler = (error, _instance, info) => {
+  errorBoundary.handleComponentError(error, _instance?.$?.type?.name || 'UnknownComponent', { info })
 }
 
 // Global warning handler for Vue
-app.config.warnHandler = (msg, instance, trace) => {
+app.config.warnHandler = (msg, _instance, trace) => {
   if (
     msg.includes('value.replace is not a function') ||
     msg.includes('Invalid date') ||

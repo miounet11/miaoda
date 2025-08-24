@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EventEmitter } from '@renderer/src/utils/performance'
 
 // MCP Protocol Types

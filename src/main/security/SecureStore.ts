@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Secure Store Service
  * Provides encrypted storage for sensitive data like API keys

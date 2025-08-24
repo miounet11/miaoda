@@ -22,7 +22,7 @@ export class WelcomePlugin implements PluginModule {
     this.context.chatStore?.on?.('initialized', this.onAppInitialized.bind(this))
   }
 
-  async deactivate(context: PluginContext): Promise<void> {
+  async deactivate(_context: PluginContext): Promise<void> {
     console.log('Welcome Plugin deactivated!')
 
     // Clean up listeners
@@ -31,7 +31,7 @@ export class WelcomePlugin implements PluginModule {
   }
 
   // Hook: Called when app initializes
-  async onAppInit(data: any, context: PluginContext): Promise<any> {
+  async onAppInit(data: any, _context: PluginContext): Promise<any> {
     console.log('Welcome Plugin: App initialized', data)
 
     // Show tips for new users

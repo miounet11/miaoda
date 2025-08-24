@@ -89,6 +89,9 @@ const api = {
     },
     onWindowStateChanged: (callback: Function) => {
       ipcRenderer.on('window:state-changed', (_, ...args) => callback(...args))
+    },
+    onWindowBoundsChanged: (callback: Function) => {
+      ipcRenderer.on('window:bounds-changed', (_, ...args) => callback(...args))
     }
   },
   llm: {
@@ -175,7 +178,10 @@ const api = {
     }
   },
   // 通用invoke方法，为了向后兼容
-  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
+  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
+  error: {
+    report: (data: any) => ipcRenderer.invoke('error:report', data)
+  }
 }
 
 console.log('[Preload] Script loaded, api object:', api)

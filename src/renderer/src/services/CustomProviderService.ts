@@ -99,10 +99,11 @@ export class CustomProviderService {
 
       if (result.success) {
         // Fetch the updated provider to return full config
-        const updatedProvider = await this.getProvider(id)
+        const updated = await this.getProvider(id)
         return {
-          success: true,
-          data: updatedProvider || undefined
+          success: !!updated.success,
+          data: updated.data || undefined,
+          error: updated.error
         }
       }
 
@@ -317,26 +318,36 @@ export class CustomProviderService {
     }
 
     if (formData.parameters) {
-      const { temperature, maxTokens, topP, frequencyPenalty, presencePenalty } =
-        formData.parameters
+      const params: any = formData.parameters as any
+      const temperature = params.temperature
+      const maxTokens = params.maxTokens
+      const topP = params.topP
+      const frequencyPenalty = params.frequencyPenalty
+      const presencePenalty = params.presencePenalty
 
-      if (temperature !== undefined && (temperature < 0 || temperature > 2)) {
+      if (typeof temperature === 'number' && (temperature < 0 || temperature > 2)) {
         errors.push('Temperature must be between 0 and 2')
       }
 
-      if (maxTokens !== undefined && (maxTokens < 1 || maxTokens > 100000)) {
+      if (typeof maxTokens === 'number' && (maxTokens < 1 || maxTokens > 100000)) {
         errors.push('Max tokens must be between 1 and 100000')
       }
 
-      if (topP !== undefined && (topP < 0 || topP > 1)) {
+      if (typeof topP === 'number' && (topP < 0 || topP > 1)) {
         errors.push('Top P must be between 0 and 1')
       }
 
-      if (frequencyPenalty !== undefined && (frequencyPenalty < -2 || frequencyPenalty > 2)) {
+      if (
+        typeof frequencyPenalty === 'number' &&
+        (frequencyPenalty < -2 || frequencyPenalty > 2)
+      ) {
         errors.push('Frequency penalty must be between -2 and 2')
       }
 
-      if (presencePenalty !== undefined && (presencePenalty < -2 || presencePenalty > 2)) {
+      if (
+        typeof presencePenalty === 'number' &&
+        (presencePenalty < -2 || presencePenalty > 2)
+      ) {
         errors.push('Presence penalty must be between -2 and 2')
       }
     }

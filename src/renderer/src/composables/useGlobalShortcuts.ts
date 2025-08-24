@@ -1,5 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@renderer/src/stores/chat'
 import { useUIStore } from '@renderer/src/stores/ui'
 
@@ -15,7 +14,7 @@ interface ShortcutDefinition {
 }
 
 export function useGlobalShortcuts() {
-  const router = useRouter()
+  // const router = useRouter()
   const chatsStore = useChatStore()
   const uiStore = useUIStore()
 
@@ -41,7 +40,7 @@ export function useGlobalShortcuts() {
       key: '/',
       modifiers: { meta: true, ctrl: true },
       action: () => {
-        uiStore.toggleShortcutsHelp()
+        uiStore.toggleShortcutHelp()
       }
     },
     // Send Message: Cmd/Ctrl + Enter

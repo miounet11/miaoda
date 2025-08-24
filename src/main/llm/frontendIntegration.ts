@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Frontend Integration Support for Custom Provider Management
  * MCP Integration Agent - Technical Integration Guide

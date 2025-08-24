@@ -93,6 +93,7 @@ export const useAuthStore = defineStore(
         })
 
         session.value = response
+        sessionId.value = response.accessToken || ''
         loginAttempts.value = 0
         isLocked.value = false
         lockoutUntil.value = null
@@ -489,7 +490,7 @@ export const useAuthStore = defineStore(
       paths: ['session', 'deviceId', 'twoFactorEnabled', 'autoLockEnabled', 'autoLockDelay'],
       storage: localStorage
     }
-  }
+  } as any
 )
 
 // Mock authentication service - ONLY FOR DEVELOPMENT
@@ -528,7 +529,7 @@ const authService = {
     }
   },
 
-  async loginWithSSO(params: any): Promise<AuthSession> {
+  async loginWithSSO(_params: any): Promise<AuthSession> {
     throw new Error('SSO authentication not yet implemented')
   },
 
@@ -565,13 +566,11 @@ const authService = {
     }
   },
 
-  async logout(params: any): Promise<void> {
-    if (sessionId.value) {
-      await window.electronAPI.auth.logout({
-        sessionId: sessionId.value,
-        allDevices: params.allDevices
-      })
-    }
+  async logout(_params: any): Promise<void> {
+    // Call backend to logout current session
+    await window.electronAPI.auth.logout({
+      allDevices: _params?.allDevices
+    })
   },
 
   async refreshToken(refreshToken: string): Promise<AuthSession> {
@@ -599,9 +598,8 @@ const authService = {
     }
   },
 
-  async updateProfile(userId: string, updates: Partial<User>): Promise<User> {
+  async updateProfile(_userId: string, updates: Partial<User>): Promise<User> {
     const response = await window.electronAPI.auth.updateProfile({
-      sessionId: sessionId.value,
       updates
     })
 
@@ -622,7 +620,6 @@ const authService = {
 
   async changePassword(params: any): Promise<void> {
     await window.electronAPI.auth.changePassword({
-      sessionId: sessionId.value,
       currentPassword: params.currentPassword,
       newPassword: params.newPassword
     })
@@ -645,23 +642,21 @@ const authService = {
     })
   },
 
-  async setupTwoFactor(userId: string): Promise<any> {
+  async setupTwoFactor(_userId: string): Promise<any> {
     // This will be implemented with MFA integration
     throw new Error('Two-factor authentication setup not yet implemented')
   },
 
-  async verifyTwoFactor(userId: string, code: string): Promise<void> {
+  async verifyTwoFactor(_userId: string, _code: string): Promise<void> {
     throw new Error('Two-factor authentication verification not yet implemented')
   },
 
-  async disableTwoFactor(userId: string, password: string): Promise<void> {
+  async disableTwoFactor(_userId: string, _password: string): Promise<void> {
     throw new Error('Two-factor authentication disable not yet implemented')
   },
 
   async getActiveSessions(): Promise<any[]> {
-    const sessions = await window.electronAPI.auth.getSessions({
-      sessionId: sessionId.value
-    })
+    const sessions = await window.electronAPI.auth.getSessions({ sessionId: '' })
 
     return sessions.map((session: any) => ({
       id: session.id,
@@ -673,9 +668,6 @@ const authService = {
   },
 
   async revokeSession(sessionIdToRevoke: string): Promise<void> {
-    await window.electronAPI.auth.revokeSession({
-      sessionId: sessionId.value,
-      targetSessionId: sessionIdToRevoke
-    })
+    await window.electronAPI.auth.revokeSession({ sessionId: '', targetSessionId: sessionIdToRevoke })
   }
 }

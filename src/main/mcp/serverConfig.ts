@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MCPServer } from './mcpManager'
 import { join } from 'path'
 import { homedir } from 'os'

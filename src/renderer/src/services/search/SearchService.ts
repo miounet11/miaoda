@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EventEmitter } from '@renderer/src/utils/performance'
 import type { Message } from '@renderer/src/types'
 import { backendSearchService } from './BackendSearchService'

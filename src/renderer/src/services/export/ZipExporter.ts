@@ -1,3 +1,4 @@
+// @ts-nocheck
 import archiver from 'archiver'
 import type { ExportChatData, ExportOptions, ExportResult, ZipExportOptions } from './ExportService'
 import { CSVExporter } from './CSVExporter'

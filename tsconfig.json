@@ -13,17 +13,20 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/renderer/src/*"],
       "@main/*": ["src/main/*"],
       "@renderer/*": ["src/renderer/*"],
       "@shared/*": ["src/shared/*"]
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.d.ts",
+    "src/main/**/*.ts",
+    "src/renderer/**/*.ts",
+    "src/renderer/**/*.tsx",
+    "src/renderer/**/*.vue",
+    "src/renderer/**/*.d.ts",
+    "src/preload/**/*.ts",
+    "src/preload/**/*.d.ts",
     "electron.vite.config.ts"
   ],
   "exclude": ["node_modules", "dist", "out"]

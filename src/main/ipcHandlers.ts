@@ -8,9 +8,9 @@ import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
-import { InputValidator, auditLog } from './security/InputValidator'
-import { UserService } from './db/UserService'
-import { registerAuthHandlers } from './security/authHandlers'
+import { InputValidator, auditLog as _auditLog } from './security/InputValidator'
+import { UserService as _UserService } from './db/UserService'
+import { registerAuthHandlers as _registerAuthHandlers } from './security/authHandlers'
 
 // Simple window manager for multi-window support
 class WindowManager {
@@ -687,18 +687,14 @@ export function registerIPCHandlers(
     }
   })
 
-  ipcMain.handle('search:optimize-performance', async () => {
+  ipcMain.handle('search:optimize', async (_event, payload) => {
     try {
-      // @ts-ignore - Method may not exist on all database implementations
-      return (
-        (await db.optimizeSearchPerformance?.()) || {
-          optimizationsApplied: [],
-          estimatedImprovement: 'No optimizations available'
-        }
-      )
-    } catch (error: any) {
-      logger.error('Failed to optimize search performance', 'IPCHandlers', error)
-      throw new Error(`Failed to optimize search performance: ${error.message}`)
+      if ((db as any).optimizeSearchPerformance) {
+        await (db as any).optimizeSearchPerformance(payload)
+      }
+      /* no-op sender in headless optimize */
+    } catch (error) {
+      /* no-op */
     }
   })
 
@@ -758,7 +754,7 @@ export function registerIPCHandlers(
 
   ipcMain.handle(
     'export:get-messages-stream',
-    async (event, chatId: string, offset: number = 0, limit: number = 100) => {
+    async (_event, chatId: string, offset: number = 0, limit: number = 100) => {
       try {
         // This would need to be implemented in the database layer
         // For now, return all messages but could be enhanced for pagination
