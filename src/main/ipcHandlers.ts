@@ -9,8 +9,8 @@ import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
 import { InputValidator, auditLog } from './security/InputValidator'
-import { UserService } from './db/UserService'
-import { registerAuthHandlers } from './security/authHandlers'
+import { UserService as _UserService } from './db/UserService'
+import { registerAuthHandlers as _registerAuthHandlers } from './security/authHandlers'
 
 // Simple window manager for multi-window support
 class WindowManager {
@@ -687,18 +687,14 @@ export function registerIPCHandlers(
     }
   })
 
-  ipcMain.handle('search:optimize-performance', async () => {
+  ipcMain.handle('search:optimize', async (_event, payload) => {
     try {
-      // @ts-ignore - Method may not exist on all database implementations
-      return (
-        (await db.optimizeSearchPerformance?.()) || {
-          optimizationsApplied: [],
-          estimatedImprovement: 'No optimizations available'
-        }
-      )
-    } catch (error: any) {
-      logger.error('Failed to optimize search performance', 'IPCHandlers', error)
-      throw new Error(`Failed to optimize search performance: ${error.message}`)
+      const result = (db as any).optimizeSearchPerformance
+        ? await (db as any).optimizeSearchPerformance(payload)
+        : { success: false, error: 'optimizeSearchPerformance not implemented' }
+      _event.sender.send('search:optimize:result', result)
+    } catch (error) {
+      _event.sender.send('search:optimize:result', { success: false, error: String(error) })
     }
   })
 

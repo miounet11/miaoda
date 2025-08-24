@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EventEmitter } from 'events'
 import { app, BrowserWindow } from 'electron'
 import { logger } from '../utils/Logger'

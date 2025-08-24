@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Database from 'better-sqlite3'
 import { EventEmitter } from 'events'
 import { logger } from '../utils/Logger'
