@@ -692,9 +692,9 @@ export function registerIPCHandlers(
       const result = (db as any).optimizeSearchPerformance
         ? await (db as any).optimizeSearchPerformance(payload)
         : { success: false, error: 'optimizeSearchPerformance not implemented' }
-      _event.sender.send('search:optimize:result', result)
+      /* no-op sender in headless optimize */
     } catch (error) {
-      _event.sender.send('search:optimize:result', { success: false, error: String(error) })
+      /* no-op */
     }
   })
 
