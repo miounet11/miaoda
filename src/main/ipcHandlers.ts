@@ -689,9 +689,9 @@ export function registerIPCHandlers(
 
   ipcMain.handle('search:optimize', async (_event, payload) => {
     try {
-      const result = (db as any).optimizeSearchPerformance
-        ? await (db as any).optimizeSearchPerformance(payload)
-        : { success: false, error: 'optimizeSearchPerformance not implemented' }
+      if ((db as any).optimizeSearchPerformance) {
+        await (db as any).optimizeSearchPerformance(payload)
+      }
       /* no-op sender in headless optimize */
     } catch (error) {
       /* no-op */
@@ -754,7 +754,7 @@ export function registerIPCHandlers(
 
   ipcMain.handle(
     'export:get-messages-stream',
-    async (event, chatId: string, offset: number = 0, limit: number = 100) => {
+    async (_event, chatId: string, offset: number = 0, limit: number = 100) => {
       try {
         // This would need to be implemented in the database layer
         // For now, return all messages but could be enhanced for pagination
