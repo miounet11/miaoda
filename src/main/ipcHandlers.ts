@@ -8,7 +8,7 @@ import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
-import { InputValidator, auditLog } from './security/InputValidator'
+import { InputValidator, auditLog as _auditLog } from './security/InputValidator'
 import { UserService as _UserService } from './db/UserService'
 import { registerAuthHandlers as _registerAuthHandlers } from './security/authHandlers'
 
