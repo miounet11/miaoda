@@ -1,61 +1,65 @@
-# Global Development Guidelines
+# CLAUDE.md
 
-## Architecture Principles
+> Think carefully and implement the most concise solution that changes as little code as possible.
 
-### SOLID Principles
-- **Single Responsibility Principle (SRP)**: A class should have only one reason to change
-- **Open/Closed Principle (OCP)**: Open for extension, closed for modification
-- **Liskov Substitution Principle (LSP)**: Subclasses must be able to replace their base classes
-- **Interface Segregation Principle (ISP)**: Clients should not be forced to depend on interfaces they don't use
-- **Dependency Inversion Principle (DIP)**: Depend on abstractions, not concrete implementations
+## USE SUB-AGENTS FOR CONTEXT OPTIMIZATION
 
-### Design Pattern Preferences
-- Prefer composition over inheritance
-- Use dependency injection to improve testability
-- Apply repository pattern to separate data access logic
-- Use strategy pattern to handle algorithmic variations
+### 1. Always use the file-analyzer sub-agent when asked to read files.
+The file-analyzer agent is an expert in extracting and summarizing critical information from files, particularly log files and verbose outputs. It provides concise, actionable summaries that preserve essential information while dramatically reducing context usage.
 
-## Code Quality
+### 2. Always use the code-analyzer sub-agent when asked to search code, analyze code, research bugs, or trace logic flow.
 
-### Naming Conventions
-- Use descriptive and clear variable/function names
-- Avoid abbreviations and magic numbers
-- Follow naming conventions of the project language
+The code-analyzer agent is an expert in code analysis, logic tracing, and vulnerability detection. It provides concise, actionable summaries that preserve essential information while dramatically reducing context usage.
 
-### Code Organization
-- Keep files and functions concise
-- Single functions should not exceed 20 lines (except for complex logic)
-- Use meaningful comments to explain "why" rather than "what"
+### 3. Always use the test-runner sub-agent to run tests and analyze the test results.
+
+Using the test-runner agent ensures:
+
+- Full test output is captured for debugging
+- Main conversation stays clean and focused
+- Context usage is optimized
+- All issues are properly surfaced
+- No approval dialogs interrupt the workflow
+
+## Philosophy
 
 ### Error Handling
-- Gracefully handle all possible error scenarios
-- Provide meaningful error messages
-- Avoid silent failures
 
-## Development Practices
+- **Fail fast** for critical configuration (missing text model)
+- **Log and continue** for optional features (extraction model)
+- **Graceful degradation** when external services unavailable
+- **User-friendly messages** through resilience layer
 
-### General Recommendations
-- **Search first when uncertain**: Conduct web search when encountering technical issues
-- **Test-driven**: Write tests for core functionality
-- **Documentation updates**: Update relevant documentation when modifying code
-- **Security first**: Always consider security, avoid hardcoding sensitive information
+### Testing
 
-### Performance Considerations
-- Avoid premature optimization
-- Focus on algorithmic complexity
-- Use caching appropriately
-- Monitor memory usage
+- Always use the test-runner agent to execute tests.
+- Do not use mock services for anything ever.
+- Do not move on to the next test until the current test is complete.
+- If the test fails, consider checking if the test is structured correctly before deciding we need to refactor the codebase.
+- Tests to be verbose so we can use them for debugging.
 
-### Code Review
-- Focus on code readability and maintainability
-- Check boundary condition handling
-- Verify error handling logic
-- Ensure test coverage
 
-### Package Management and Project Standards
-- Prefer pnpm for Node.js projects
-- Commit titles limited to 70 characters and must be lowercase
-- Keep CLAUDE.md file concise, avoid bloat
+## Tone and Behavior
 
-### General Conventions
-- Do not use emojis
+- Criticism is welcome. Please tell me when I am wrong or mistaken, or even when you think I might be wrong or mistaken.
+- Please tell me if there is a better approach than the one I am taking.
+- Please tell me if there is a relevant standard or convention that I appear to be unaware of.
+- Be skeptical.
+- Be concise.
+- Short summaries are OK, but don't give an extended breakdown unless we are working through the details of a plan.
+- Do not flatter, and do not give compliments unless I am specifically asking for your judgement.
+- Occasional pleasantries are fine.
+- Feel free to ask many questions. If you are in doubt of my intent, don't guess. Ask.
+
+## ABSOLUTE RULES:
+
+- NO PARTIAL IMPLEMENTATION
+- NO SIMPLIFICATION : no "//This is simplified stuff for now, complete implementation would blablabla"
+- NO CODE DUPLICATION : check existing codebase to reuse functions and constants Read files before writing new functions. Use common sense function name to find them easily.
+- NO DEAD CODE : either use or delete from codebase completely
+- IMPLEMENT TEST FOR EVERY FUNCTIONS
+- NO CHEATER TESTS : test must be accurate, reflect real usage and be designed to reveal flaws. No useless tests! Design tests to be verbose so we can use them for debuging.
+- NO INCONSISTENT NAMING - read existing codebase naming patterns.
+- NO OVER-ENGINEERING - Don't add unnecessary abstractions, factory patterns, or middleware when simple functions would work. Don't think "enterprise" when you need "working"
+- NO MIXED CONCERNS - Don't put validation logic inside API handlers, database queries inside UI components, etc. instead of proper separation
+- NO RESOURCE LEAKS - Don't forget to close database connections, clear timeouts, remove event listeners, or clean up file handles
