@@ -182,7 +182,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
         )
       ])
     } catch (error) {
-      status = error.message === 'Operation timeout' ? 'timeout' : 'failed'
+      status = error instanceof Error && error.message === 'Operation timeout' ? 'timeout' : 'failed'
       throw error
     } finally {
       const metrics = this.endTest(testId, status)!

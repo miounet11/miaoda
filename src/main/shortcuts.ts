@@ -1,4 +1,5 @@
 import { globalShortcut, ipcMain, BrowserWindow } from 'electron'
+import { logger } from './utils/Logger'
 
 export function registerShortcuts(mainWindow: BrowserWindow) {
   // Register global shortcuts
@@ -87,14 +88,23 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
   const registerAllShortcuts = () => {
     shortcuts.forEach(({ accelerator, action }) => {
       try {
+        // Check if shortcut is already registered
+        if (globalShortcut.isRegistered(accelerator)) {
+          globalShortcut.unregister(accelerator)
+        }
+
         const success = globalShortcut.register(accelerator, action)
         if (!success) {
-          console.warn(`Failed to register shortcut: ${accelerator}`)
+          logger.warn(`Failed to register shortcut: ${accelerator}`, 'Shortcuts', {
+            accelerator,
+            reason: 'Global shortcut registration returned false'
+          })
         } else {
-          console.log(`Successfully registered shortcut: ${accelerator}`)
+          logger.debug(`Successfully registered shortcut: ${accelerator}`, 'Shortcuts')
         }
       } catch (error) {
-        console.error(`Error registering shortcut ${accelerator}:`, error)
+        logger.error(`Error registering shortcut ${accelerator}`, 'Shortcuts', error)
+        // Don't throw - allow other shortcuts to be registered
       }
     })
   }

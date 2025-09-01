@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { EventEmitter } from '@renderer/src/utils/performance'
+import { logger } from '@renderer/src/utils/Logger'
 
 // MCP Protocol Types
 export interface MCPTool {
@@ -97,7 +98,7 @@ export class MCPService extends EventEmitter<{
     try {
       // Check if MCP API is available
       if (!window.api?.mcp?.discoverServers) {
-        console.debug('MCP API not available, skipping server discovery')
+        logger.debug('MCP API not available, skipping server discovery')
         return
       }
 
@@ -108,7 +109,7 @@ export class MCPService extends EventEmitter<{
         await this.connectToServer(serverInfo, 1)
       }
     } catch (error) {
-      console.debug('MCP server discovery failed (this is normal if MCP is not configured):', error)
+      logger.debug('MCP server discovery failed (this is normal if MCP is not configured)', 'MCPService', error)
       // Gracefully handle discovery failures
     }
   }
@@ -117,7 +118,7 @@ export class MCPService extends EventEmitter<{
     if (!window.api?.mcp) return
 
     // Basic MCP events - extended event system not yet implemented
-    console.log('MCP basic event listeners setup')
+    logger.debug('MCP basic event listeners setup', 'MCPService')
 
     /* 
     // Advanced event listeners to be implemented:
@@ -155,7 +156,7 @@ export class MCPService extends EventEmitter<{
       if (!window.api?.mcp?.connect) {
         // Only log once per server to avoid spam
         if (!this.connectionRetryDelays.has(serverConfig.id + '_api_unavailable')) {
-          console.warn(`MCP API not available, disabling MCP server ${serverConfig.name}`)
+          logger.warn(`MCP API not available, disabling MCP server ${serverConfig.name}`, 'MCPService')
           this.connectionRetryDelays.set(serverConfig.id + '_api_unavailable', 999) // Mark as permanently disabled
         }
         return false
@@ -182,8 +183,9 @@ export class MCPService extends EventEmitter<{
 
       if (currentRetryCount >= maxRetries) {
         // Only log the final failure, not every retry
-        console.error(
-          `MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`
+        logger.debug(
+          `MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`,
+          'MCPService'
         )
         this.connectionRetryDelays.set(serverConfig.id + '_disabled', 999) // Mark as permanently disabled
         this.connectionRetryDelays.delete(serverConfig.id)
@@ -192,7 +194,7 @@ export class MCPService extends EventEmitter<{
 
       // Only log first retry to reduce spam
       if (currentRetryCount === 0) {
-        console.warn(
+        console.debug(
           `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`
         )
       }

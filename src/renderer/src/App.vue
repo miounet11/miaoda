@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container h-screen flex flex-col bg-background">
+  <div class="app-container h-screen flex flex-col bg-white">
     <!-- macOS draggable title bar area -->
     <div
       v-if="isMac"
@@ -22,26 +22,12 @@
 
     <!-- Normal App Content -->
     <template v-else>
-      <!-- Multi-Window Layout -->
-      <div v-if="useMultiWindow" class="flex-1 overflow-hidden">
-        <Window
-          ref="mainWindowRef"
-          :window-id="activeWindowId"
-          :show-header="!isMac"
-          :show-status-bar="true"
-          @window-close="handleWindowClose"
-          @window-minimize="handleWindowMinimize"
-          @window-maximize="handleWindowMaximize"
-          @window-focus="handleWindowFocus"
-          @tab-change="handleTabChange"
-        />
-      </div>
-
-      <!-- Legacy Single-Window Layout (fallback) -->
-      <div v-else class="flex-1 overflow-hidden">
+      <!-- Simple Single-Window Layout -->
+      <div class="flex-1 overflow-hidden">
         <!-- Title bar for Windows/Linux -->
-        <div v-if="!isMac" class="title-bar h-8 bg-background border-b flex items-center px-4">
-          <span class="text-sm font-medium">MiaoDa Chat</span>
+        <div v-if="!isMac" class="title-bar h-12 bg-white border-b border-gray-200 flex items-center px-6">
+          <span class="text-lg font-semibold text-gray-800">MiaoDa Chat</span>
+          <div class="ml-auto text-sm text-gray-500">免费AI对话平台</div>
         </div>
 
         <!-- Main content -->
@@ -63,12 +49,6 @@
 
       <!-- Toast Container -->
       <ToastContainer />
-
-      <!-- Shortcuts Help Modal -->
-      <ShortcutsHelpModal />
-
-      <!-- Quick Search Modal -->
-      <QuickSearchModal />
     </template>
   </div>
 </template>
@@ -77,30 +57,14 @@
 import { ref, computed, onMounted, onUnmounted, onErrorCaptured } from 'vue'
 import { useRouter } from 'vue-router'
 import { Loader } from 'lucide-vue-next'
-import Window from '@renderer/src/components/window/Window.vue'
 import ErrorFallback from '@renderer/src/components/ErrorFallback.vue'
 import ErrorToast from '@renderer/src/components/error/ErrorToast.vue'
 import ToastContainer from '@renderer/src/components/ui/ToastContainer.vue'
-import ShortcutsHelpModal from '@renderer/src/components/ShortcutsHelpModal.vue'
-import QuickSearchModal from '@renderer/src/components/QuickSearchModal.vue'
-import { windowManager } from '@renderer/src/services/window/WindowManager'
-import { mcpService } from '@renderer/src/services/mcp/MCPService'
-import { useUIStore } from '@renderer/src/stores/ui'
-import { useGlobalShortcuts } from '@renderer/src/composables/useGlobalShortcuts'
 import { logger } from '@renderer/src/utils/Logger'
 
 const router = useRouter()
-const uiStore = useUIStore()
 
-// Initialize global shortcuts
-const { shortcuts } = useGlobalShortcuts()
-
-// Refs
-const mainWindowRef = ref<InstanceType<typeof Window>>()
-
-// State - 默认禁用多窗口模式以提高兼容性
-const useMultiWindow = ref(false) // Feature flag for multi-window support (disabled by default for better compatibility)
-const activeWindowId = ref<string | null>(null)
+// State - 简化状态管理
 const isLoading = ref(false)
 const loadingMessage = ref('')
 const globalError = ref<string | null>(null)
@@ -113,142 +77,21 @@ const isMac = computed(() => navigator.platform.toLowerCase().includes('mac'))
 
 // Methods
 const initializeApplication = async () => {
-  logger.info('Starting application initialization', 'App')
+  logger.info('Starting MiaoDa Chat v1.0', 'App')
   try {
     isLoading.value = true
-    loadingMessage.value = 'Initializing application...'
+    loadingMessage.value = '正在启动MiaoDa Chat...'
 
-    // Initialize services with individual error handling
-    const initPromises = []
+    // 简单的初始化逻辑
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // Try to initialize window manager
-    initPromises.push(
-      initializeWindowManager().catch(error => {
-        logger.error('Window manager initialization failed', 'App', error)
-        // Continue without multi-window support
-        useMultiWindow.value = false
-      })
-    )
-
-    // Try to initialize MCP service
-    initPromises.push(
-      initializeMCPService().catch(error => {
-        logger.error('MCP service initialization failed', 'App', error)
-        // Continue without MCP - not critical
-      })
-    )
-
-    await Promise.allSettled(initPromises)
-
-    // Set up active window
-    const activeWindow = windowManager.getActiveWindow()
-    if (activeWindow) {
-      activeWindowId.value = activeWindow.id
-    }
+    logger.info('MiaoDa Chat启动成功', 'App')
   } catch (error) {
-    logger.error('Failed to initialize application', 'App', error)
-    globalError.value = 'Failed to initialize application. Please try restarting.'
-
-    // Fallback to single-window mode
-    useMultiWindow.value = false
+    logger.error('应用启动失败', 'App', error)
+    globalError.value = '应用启动失败，请重试'
   } finally {
     isLoading.value = false
     loadingMessage.value = ''
-  }
-}
-
-const initializeWindowManager = async () => {
-  try {
-    // Window manager initializes automatically
-    // Set up event listeners
-    windowManager.on('window-created', window => {
-      // Window created
-    })
-
-    windowManager.on('window-closed', windowId => {
-      // Window closed
-
-      // If this was the active window, switch to another
-      if (activeWindowId.value === windowId) {
-        const remainingWindows = windowManager.getWindows()
-        activeWindowId.value = remainingWindows.length > 0 ? remainingWindows[0].id : null
-      }
-    })
-
-    windowManager.on('window-focused', windowId => {
-      activeWindowId.value = windowId
-    })
-  } catch (error) {
-    logger.error('Failed to initialize window manager', 'App', error)
-    throw error
-  }
-}
-
-const initializeMCPService = async () => {
-  try {
-    // MCP service initializes automatically
-    // Set up event listeners
-    mcpService.on('server-connected', server => {
-      // MCP server connected
-    })
-
-    mcpService.on('server-disconnected', serverId => {
-      // MCP server disconnected
-    })
-
-    mcpService.on('tool-call-error', (call, error) => {
-      logger.error('MCP tool call failed', 'App', error)
-    })
-  } catch (error) {
-    logger.error('Failed to initialize MCP service', 'App', error)
-    // MCP service failure is not critical for basic functionality
-  }
-}
-
-const handleWindowClose = (windowId: string) => {
-  // Handling window close
-
-  // If this is the last window, quit the application
-  const remainingWindows = windowManager.getWindows()
-  if (remainingWindows.length === 0) {
-    if (window.api?.app?.quit) {
-      window.api.app.quit()
-    }
-  }
-}
-
-const handleWindowMinimize = (windowId: string) => {
-  // Handling window minimize
-}
-
-const handleWindowMaximize = (windowId: string) => {
-  // Handling window maximize
-}
-
-const handleWindowFocus = (windowId: string) => {
-  activeWindowId.value = windowId
-  // Handling window focus
-}
-
-const handleTabChange = (windowId: string, tabId: string) => {
-  // Handling tab change
-
-  // Update router if needed for legacy compatibility
-  const window = windowManager.getWindow(windowId)
-  if (window) {
-    const tab = window.tabs.find(t => t.id === tabId)
-    if (tab && !useMultiWindow.value) {
-      // Map tab types to routes for single-window fallback
-      const routeMap: Record<string, string> = {
-        chat: '/',
-        settings: '/settings'
-      }
-
-      const route = routeMap[tab.type]
-      if (route && router.currentRoute.value.path !== route) {
-        router.push(route)
-      }
-    }
   }
 }
 
@@ -256,194 +99,37 @@ const clearGlobalError = () => {
   globalError.value = null
 }
 
-// Global shortcuts
-const setupGlobalShortcuts = () => {
-  const handleShortcut = (action: string) => {
-    try {
-      switch (action) {
-        case 'new-chat':
-          handleNewChat()
-          break
-        case 'new-window':
-          handleNewWindow()
-          break
-        case 'close-tab':
-          handleCloseTab()
-          break
-        case 'next-tab':
-          handleNextTab()
-          break
-        case 'prev-tab':
-          handlePrevTab()
-          break
-        case 'open-settings':
-          handleOpenSettings()
-          break
-        case 'focus-input':
-          handleFocusInput()
-          break
-        case 'clear-chat':
-          handleClearChat()
-          break
-        case 'toggle-sidebar':
-          handleToggleSidebar()
-          break
-        default:
-        // Unknown shortcut action
-      }
-    } catch (error) {
-      logger.error('Failed to handle shortcut', 'App', error)
-    }
-  }
-
-  // Listen for shortcuts from main process
-  if (window.api?.shortcuts?.on) {
-    window.api.shortcuts.on(handleShortcut)
-  }
-
-  // Also listen for keyboard shortcuts
-  document.addEventListener('keydown', event => {
-    const { key, ctrlKey, metaKey, shiftKey, altKey } = event
-    const cmd = ctrlKey || metaKey
-
-    // Global shortcuts that work anywhere
-    if (cmd && key === 't' && !shiftKey) {
-      event.preventDefault()
-      handleNewChat()
-    } else if (cmd && shiftKey && key === 'T') {
-      event.preventDefault()
-      handleNewWindow()
-    } else if (cmd && key === 'w') {
-      event.preventDefault()
-      handleCloseTab()
-    } else if (cmd && key === ',') {
-      event.preventDefault()
-      handleOpenSettings()
-    }
-  })
-}
-
-// Shortcut handlers
-const handleNewChat = async () => {
-  if (useMultiWindow.value && activeWindowId.value) {
-    await windowManager.createTab(activeWindowId.value, {
-      title: 'New Chat',
-      type: 'chat'
-    })
-  } else {
-    window.dispatchEvent(new CustomEvent('app:new-chat'))
-  }
-}
-
-const handleNewWindow = async () => {
-  if (useMultiWindow.value) {
-    const windowId = await windowManager.createWindow({
-      title: 'MiaoDa Chat'
-    })
-    handleWindowFocus(windowId)
-  }
-}
-
-const handleCloseTab = () => {
-  if (useMultiWindow.value && activeWindowId.value) {
-    const window = windowManager.getWindow(activeWindowId.value)
-    if (window && window.activeTabId) {
-      windowManager.closeTab(activeWindowId.value, window.activeTabId)
-    }
-  }
-}
-
-const handleNextTab = () => {
-  if (useMultiWindow.value && activeWindowId.value) {
-    const window = windowManager.getWindow(activeWindowId.value)
-    if (window && window.tabs.length > 1) {
-      const currentIndex = window.tabs.findIndex(tab => tab.id === window.activeTabId)
-      const nextIndex = (currentIndex + 1) % window.tabs.length
-      windowManager.switchTab(activeWindowId.value, window.tabs[nextIndex].id)
-    }
-  }
-}
-
-const handlePrevTab = () => {
-  if (useMultiWindow.value && activeWindowId.value) {
-    const window = windowManager.getWindow(activeWindowId.value)
-    if (window && window.tabs.length > 1) {
-      const currentIndex = window.tabs.findIndex(tab => tab.id === window.activeTabId)
-      const prevIndex = currentIndex === 0 ? window.tabs.length - 1 : currentIndex - 1
-      windowManager.switchTab(activeWindowId.value, window.tabs[prevIndex].id)
-    }
-  }
-}
-
-const handleOpenSettings = async () => {
-  if (useMultiWindow.value && activeWindowId.value) {
-    await windowManager.createTab(activeWindowId.value, {
-      title: 'Settings',
-      type: 'settings'
-    })
-  } else {
-    router.push('/settings')
-  }
-}
-
-const handleFocusInput = () => {
-  window.dispatchEvent(new CustomEvent('app:focus-input'))
-}
-
-const handleClearChat = () => {
-  window.dispatchEvent(new CustomEvent('app:clear-chat'))
-}
-
-const handleToggleSidebar = () => {
-  window.dispatchEvent(new CustomEvent('app:toggle-sidebar'))
-}
-
 // Error handling
 const handleGlobalError = (error: Error | string) => {
   const message = error instanceof Error ? error.message : error
   globalError.value = message
-  logger.error('Global error', 'App', message)
+  logger.error('全局错误', 'App', message)
 
-  // Auto-clear error after 5 seconds
+  // 3秒后自动清除错误
   setTimeout(() => {
     if (globalError.value === message) {
       globalError.value = null
     }
-  }, 5000)
-}
-
-// Window event handlers
-const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-  // Check for unsaved changes
-  const windows = windowManager.getWindows()
-  const hasUnsavedChanges = windows.some(window => window.tabs.some(tab => tab.modified))
-
-  if (hasUnsavedChanges) {
-    event.preventDefault()
-    event.returnValue = 'You have unsaved changes. Are you sure you want to close?'
-    return event.returnValue
-  }
+  }, 3000)
 }
 
 // Error handling
 onErrorCaptured((error, instance, info) => {
-  logger.error('Error captured', 'App', error)
+  logger.error('捕获到错误', 'App', error)
 
-  // Show critical error fallback for unrecoverable errors
+  // 对于严重错误，显示错误回退界面
   if (
     error?.message?.includes('Cannot read') ||
-    error?.message?.includes('Cannot access') ||
-    error?.message?.includes('is not defined') ||
-    error?.message?.includes('is not a function')
+    error?.message?.includes('Cannot access')
   ) {
     hasCriticalError.value = true
-    criticalErrorMessage.value = error.message || 'Critical error occurred'
+    criticalErrorMessage.value = error.message || '发生严重错误'
     criticalErrorDetails.value = error?.stack || ''
-    return false // Prevent error propagation
+    return false // 阻止错误传播
   }
 
-  // For other errors, just log and show toast
-  globalError.value = error?.message || 'An unexpected error occurred'
+  // 对于其他错误，显示提示信息
+  globalError.value = error?.message || '发生未知错误'
   return false
 })
 
@@ -451,9 +137,8 @@ onErrorCaptured((error, instance, info) => {
 onMounted(async () => {
   try {
     await initializeApplication()
-    setupGlobalShortcuts()
 
-    // Set up global error handling
+    // 设置全局错误处理
     window.addEventListener('error', event => {
       handleGlobalError(event.error || event.message)
     })
@@ -461,82 +146,111 @@ onMounted(async () => {
     window.addEventListener('unhandledrejection', event => {
       handleGlobalError(event.reason)
     })
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
   } catch (error) {
-    logger.error('Failed to start application', 'App', error)
-    handleGlobalError('Failed to start application')
+    logger.error('应用启动失败', 'App', error)
+    handleGlobalError('应用启动失败')
   }
 })
 
 onUnmounted(() => {
-  // Cleanup
-  windowManager.destroy()
-  mcpService.destroy()
-
-  window.removeEventListener('beforeunload', handleBeforeUnload)
+  // 清理事件监听器
 })
-
-// Expose methods for debugging
-if (import.meta.env.DEV) {
-  ;(window as any).__app = {
-    windowManager,
-    mcpService,
-    activeWindowId: () => activeWindowId.value,
-    switchToSingleWindow: () => {
-      useMultiWindow.value = false
-    },
-    switchToMultiWindow: () => {
-      useMultiWindow.value = true
-    }
-  }
-}
 </script>
 
-<style>
-/* Draggable title bar area for macOS */
-.titlebar-drag-region {
-  pointer-events: none;
+<style scoped>
+/* MiaoDa Chat v1.0 简洁样式 */
+
+/* 应用容器 */
+.app-container {
+  height: 100vh;
+  background: white;
 }
 
-.titlebar-drag-region .window-controls-area {
-  pointer-events: auto;
-}
-
-/* Title bar for Windows/Linux */
+/* 标题栏样式 */
 .title-bar {
-  -webkit-app-region: drag;
+  height: 48px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
 }
 
-/* Loading Overlay */
+/* 加载覆盖层 */
 .loading-overlay {
-  @apply fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .loading-content {
-  @apply text-center space-y-4;
+  text-align: center;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.loading-content p {
-  @apply text-muted-foreground;
+/* 错误状态样式 */
+.error-state {
+  padding: 16px;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  margin: 16px;
 }
 
-/* Ensure proper layering */
-.loading-overlay {
-  pointer-events: auto;
+.error-title {
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
-/* Animation for loading spinner */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
+.error-message {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 按钮样式 */
+.btn-primary {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 </style>

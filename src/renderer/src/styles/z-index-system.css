@@ -1,0 +1,103 @@
+/* 🎯 统一Z-Index管理系统 */
+
+/* 基础层级定义 */
+:root {
+  /* 背景层 */
+  --z-background: -1;
+  --z-base: 0;
+
+  /* 内容层 */
+  --z-content: 1;
+  --z-sticky: 10;
+  --z-dropdown: 20;
+  --z-overlay: 30;
+
+  /* 对话框层 */
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-modal-high: 60;
+  --z-modal-top: 70;
+
+  /* 特殊组件 */
+  --z-tooltip: 80;
+  --z-toast: 90;
+  --z-loading: 100;
+  --z-critical: 9999;
+}
+
+/* 🎨 Z-Index实用类 */
+.z-background { z-index: var(--z-background); }
+.z-base { z-index: var(--z-base); }
+.z-content { z-index: var(--z-content); }
+.z-sticky { z-index: var(--z-sticky); }
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-overlay { z-index: var(--z-overlay); }
+.z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.z-modal { z-index: var(--z-modal); }
+.z-modal-high { z-index: var(--z-modal-high); }
+.z-modal-top { z-index: var(--z-modal-top); }
+.z-tooltip { z-index: var(--z-tooltip); }
+.z-toast { z-index: var(--z-toast); }
+.z-loading { z-index: var(--z-loading); }
+.z-critical { z-index: var(--z-critical); }
+
+/* 🎯 组件特定层级 */
+
+/* 侧边栏 */
+.sidebar { z-index: var(--z-sticky); }
+.sidebar-resizer { z-index: var(--z-dropdown); }
+
+/* 对话框 */
+.modal-backdrop { z-index: var(--z-modal-backdrop); }
+.modal { z-index: var(--z-modal); }
+
+/* 快速搜索 */
+.quick-search-backdrop { z-index: var(--z-modal); }
+.quick-search-modal { z-index: var(--z-modal-high); }
+
+/* 快捷键帮助 */
+.shortcuts-backdrop { z-index: var(--z-modal); }
+.shortcuts-modal { z-index: var(--z-modal-high); }
+
+/* 设置对话框 */
+.settings-backdrop { z-index: var(--z-modal); }
+.settings-modal { z-index: var(--z-modal-high); }
+
+/* 导出对话框 */
+.export-backdrop { z-index: var(--z-modal); }
+.export-modal { z-index: var(--z-modal-high); }
+
+/* 插件对话框 */
+.plugin-backdrop { z-index: var(--z-modal); }
+.plugin-modal { z-index: var(--z-modal-high); }
+
+/* 认证对话框 */
+.auth-backdrop { z-index: var(--z-modal); }
+.auth-modal { z-index: var(--z-modal-high); }
+
+/* 语音设置 */
+.voice-backdrop { z-index: var(--z-modal); }
+.voice-modal { z-index: var(--z-modal-high); }
+
+/* 下拉菜单 */
+.dropdown-menu { z-index: var(--z-dropdown); }
+.context-menu { z-index: var(--z-dropdown); }
+
+/* 工具提示 */
+.tooltip { z-index: var(--z-tooltip); }
+
+/* Toast通知 */
+.toast { z-index: var(--z-toast); }
+
+/* 加载状态 */
+.loading-overlay { z-index: var(--z-loading); }
+
+/* 错误边界 */
+.error-boundary { z-index: var(--z-critical); }
+
+/* 🎨 响应式Z-Index调整 */
+@media (max-width: 768px) {
+  /* 移动端调整 */
+  .mobile-dropdown { z-index: var(--z-modal); }
+  .mobile-menu { z-index: var(--z-modal-high); }
+}

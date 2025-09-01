@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { performance } from 'perf_hooks'
 import { TestingPerformanceMonitor, BenchmarkResult, PerformanceThresholds } from './TestingPerformanceMonitor'
 import { PerformanceMonitor } from './PerformanceMonitor'
 import { logger } from '../utils/Logger'
@@ -131,7 +130,7 @@ export class BenchmarkRunner extends EventEmitter {
         } catch (error) {
           logger.error('Suite execution failed', 'BenchmarkRunner', {
             suiteName,
-            error: error.message
+            error: error instanceof Error ? error.message : String(error)
           })
 
           // Create failed result
@@ -222,7 +221,7 @@ export class BenchmarkRunner extends EventEmitter {
     } catch (error) {
       logger.error('Suite execution failed', 'BenchmarkRunner', {
         suiteName,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
       throw error
     }
@@ -445,7 +444,7 @@ export class BenchmarkRunner extends EventEmitter {
       } catch (error) {
         logger.error('Benchmark failed', 'BenchmarkRunner', {
           benchmarkName: benchmark.name,
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         })
 
         // Create failed result
@@ -483,7 +482,7 @@ export class BenchmarkRunner extends EventEmitter {
           } catch (error) {
             logger.error('Parallel benchmark failed', 'BenchmarkRunner', {
               benchmarkName: benchmark.name,
-              error: error.message
+              error: error instanceof Error ? error.message : String(error)
             })
 
             return {
@@ -537,7 +536,7 @@ export class BenchmarkRunner extends EventEmitter {
     } catch (error) {
       logger.error('Benchmark execution failed', 'BenchmarkRunner', {
         benchmarkName: benchmark.name,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
       throw error
     }

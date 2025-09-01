@@ -1,148 +1,59 @@
 <template>
   <div class="message-content" :class="contentClasses">
-    <!-- Tool Status (Enhanced only) -->
-    <div
-      v-if="toolStatus && (variant === 'enhanced' || variant === 'improved')"
-      class="tool-status mb-2"
-    >
-      <div class="flex items-center gap-2 text-sm text-muted-foreground">
-        <div class="loading-dot" />
-        <span>{{ toolStatus.tool }}: {{ toolStatus.action }}</span>
-        <div v-if="toolStatus.progress !== undefined" class="ml-auto">
-          {{ toolStatus.progress }}%
-        </div>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="message-loading">
+      <div class="loading-spinner" />
+      <span v-if="loadingText" class="loading-text">{{ loadingText }}</span>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="message-error">
+      <div class="error-icon">⚠️</div>
+      <div class="error-content">
+        <p class="error-message">{{ error }}</p>
+        <p v-if="errorDetails" class="error-details">{{ errorDetails }}</p>
+        <button v-if="showRetry" @click="$emit('retry')" class="error-retry-btn" aria-label="按钮">
+          {{ retrying ? '重试中...' : '重试' }}
+        </button>
       </div>
-      <div v-if="toolStatus.progress !== undefined" class="progress-bar">
-        <div class="progress-fill" :style="{ width: toolStatus.progress + '%' }" />
-      </div>
     </div>
 
-    <!-- Enhanced Attachments Display with Staggered Animation -->
-    <div
-      v-if="showAttachments && attachments?.length > 0"
-      class="attachments mb-4 animate-slide-in-up"
-    >
-      <AttachmentsPreview
-        :attachments="attachments"
-        :show-drop-zone="false"
-        @image-preview="handleImagePreview"
-        @remove="() => {}"
-      />
-    </div>
-
-    <!-- Thumbnail (thumbnail variant) -->
-    <div v-if="variant === 'thumbnail' && thumbnail" class="message-thumbnail mb-3">
-      <img
-        :src="thumbnail"
-        :alt="thumbnailAlt"
-        class="w-full h-32 object-cover rounded-lg cursor-pointer"
-        @click="openImage(thumbnail)"
-      />
-    </div>
-
-    <!-- Enhanced Loading States with Smooth Transitions -->
-    <div v-if="isLoading" class="loading-container animate-fade-in">
-      <!-- Enhanced loading with skeleton -->
-      <div
-        v-if="variant === 'enhanced' || variant === 'improved'"
-        class="message-skeleton animate-pulse-wave"
-      >
+    <!-- Main Content -->
+    <div v-else-if="content" class="message-body">
+      <!-- Attachments -->
+      <div v-if="showAttachments && attachments?.length" class="message-attachments">
         <div
-          class="skeleton-line w-3/4 h-4 mb-2 animate-skeleton-shimmer"
-          style="animation-delay: 0ms"
-        />
-        <div
-          class="skeleton-line w-1/2 h-4 mb-2 animate-skeleton-shimmer"
-          style="animation-delay: 150ms"
-        />
-        <div
-          class="skeleton-line w-2/3 h-4 animate-skeleton-shimmer"
-          style="animation-delay: 300ms"
-        />
-      </div>
-
-      <!-- Enhanced simple loading indicator -->
-      <div v-else class="flex items-center gap-2 animate-bounce-subtle">
-        <div class="typing-indicator enhanced-typing">
-          <span class="typing-dot" />
-          <span class="typing-dot" />
-          <span class="typing-dot" />
-        </div>
-        <span v-if="loadingText" class="text-sm text-muted-foreground animate-text-appear">{{
-          loadingText
-        }}</span>
-      </div>
-    </div>
-
-    <!-- Enhanced Error State with Gentle Animation -->
-    <div
-      v-else-if="error && (variant === 'enhanced' || variant === 'improved')"
-      class="error-container animate-error-shake"
-    >
-      <div
-        class="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg hover:bg-destructive/15 transition-all duration-300 group"
-      >
-        <AlertCircle :size="16" class="text-destructive animate-error-pulse" />
-        <div class="flex-1">
-          <p class="text-sm font-medium text-destructive animate-slide-in-left">{{ error }}</p>
-          <p
-            v-if="errorDetails"
-            class="text-xs text-destructive/70 mt-1 animate-slide-in-left"
-            style="animation-delay: 100ms"
-          >
-            {{ errorDetails }}
-          </p>
-        </div>
-        <button
-          v-if="showRetry"
-          @click="$emit('retry')"
-          :disabled="retrying"
-          class="px-2 py-1 text-xs bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95"
+          v-for="attachment in attachments"
+          :key="attachment.id || attachment.url"
+          class="attachment-item"
+          @click="handleAttachmentClick(attachment)"
         >
-          <span v-if="retrying" class="flex items-center gap-1">
-            <div
-              class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"
-            />
-            重试中...
-          </span>
-          <span v-else>重试</span>
-        </button>
+          <img v-if="attachment.type === 'image'" :src="attachment.url" :alt="attachment.name" class="attachment-image" />
+          <div v-else class="attachment-file">
+            <FileText :size="16" />
+            <span class="attachment-name">{{ attachment.name }}</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Enhanced Main Content with Reveal Animation -->
-    <div v-else-if="content" ref="contentElement" class="content-wrapper animate-content-reveal">
-      <!-- Enhanced Markdown for improved variants -->
-      <EnhancedMarkdown
-        v-if="variant === 'enhanced' || variant === 'improved'"
-        :content="content"
-        :render-mode="renderMode"
-        :prose="prose"
-        :compact="compact"
-        @image-click="handleImagePreview"
-        class="animate-text-appear"
-      />
+      <!-- Content Text -->
+      <SimpleMarkdown v-if="renderMode === 'markdown'" :content="content" class="message-text" />
+      <div v-else class="message-text" v-html="renderedContent" />
 
-      <!-- Enhanced standard content rendering -->
-      <div v-else :class="proseClasses" v-html="renderedContent" class="animate-text-appear" />
-    </div>
-
-    <!-- Enhanced Actions with Hover Effects -->
-    <div
-      v-if="showActions && (variant === 'enhanced' || variant === 'improved')"
-      class="message-actions mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-slide-in-up"
-    >
-      <slot name="actions">
-        <button @click="$emit('copy')" class="action-btn hover-lift" title="复制">
-          <Copy :size="14" />
-        </button>
-        <button @click="$emit('edit')" class="action-btn hover-lift" title="编辑">
-          <Edit :size="14" />
-        </button>
-        <button @click="$emit('delete')" class="action-btn hover-lift hover-danger" title="删除">
-          <Trash2 :size="14" />
-        </button>
-      </slot>
+      <!-- Actions -->
+      <div v-if="showActions" class="message-actions">
+        <slot name="actions">
+          <button @click="$emit('copy')" class="action-btn" title="复制" aria-label="按钮">
+            <Copy :size="14" />
+          </button>
+          <button @click="$emit('edit')" class="action-btn" title="编辑" aria-label="按钮">
+            <Edit :size="14" />
+          </button>
+          <button @click="$emit('delete')" class="action-btn action-delete" title="删除" aria-label="按钮">
+            <Trash2 :size="14" />
+          </button>
+        </slot>
+      </div>
     </div>
 
     <!-- Image Preview Modal -->
@@ -157,14 +68,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUpdated, nextTick, PropType } from 'vue'
-import { FileText, Copy, Edit, Trash2, Maximize2, Download, X, AlertCircle } from 'lucide-vue-next'
-import hljs from 'highlight.js'
-import { logger } from '../utils/Logger'
-import { renderMarkdownSafely } from '@renderer/src/utils/SafeMarkdownParser'
-import AttachmentsPreview from './chat/AttachmentsPreview.vue'
+import { computed, ref } from 'vue'
+import { FileText, Copy, Edit, Trash2 } from 'lucide-vue-next'
+import SimpleMarkdown from './ui/SimpleMarkdown.vue'
 import ImagePreviewModal from './ui/ImagePreviewModal.vue'
-import EnhancedMarkdown from './ui/EnhancedMarkdown.vue'
 
 interface Attachment {
   url: string
@@ -174,15 +81,8 @@ interface Attachment {
   id?: string
 }
 
-interface ToolStatus {
-  tool: string
-  action: string
-  progress?: number
-  details?: string
-}
-
 const props = defineProps({
-  // Core props
+  // Core content
   content: {
     type: String,
     default: ''
@@ -191,42 +91,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-
-  // Display modes - supports all variants
-  variant: {
-    type: String as PropType<'simple' | 'standard' | 'enhanced' | 'improved' | 'thumbnail'>,
-    default: 'standard'
-  },
-  renderMode: {
-    type: String as PropType<'markdown' | 'html' | 'text'>,
-    default: 'markdown'
+  loadingText: {
+    type: String,
+    default: 'Loading...'
   },
 
-  // Enhanced features (backwards compatibility)
-  enhanced: {
-    type: Boolean,
-    default: false
-  },
-
-  // Thumbnail variant props
-  withThumbnail: {
-    type: Boolean,
-    default: false
-  },
-  thumbnail: String,
-  thumbnailAlt: String,
-
-  // Attachments
-  attachments: {
-    type: Array as PropType<Attachment[]>,
-    default: () => []
-  },
-  showAttachments: {
-    type: Boolean,
-    default: true
-  },
-
-  // Error handling (improved variant)
+  // Error handling
   error: String,
   errorDetails: String,
   showRetry: {
@@ -238,34 +108,26 @@ const props = defineProps({
     default: false
   },
 
-  // Tool status (improved variant)
-  toolStatus: {
-    type: Object as PropType<ToolStatus>,
-    default: null
+  // Attachments
+  attachments: {
+    type: Array as PropType<Attachment[]>,
+    default: () => []
+  },
+  showAttachments: {
+    type: Boolean,
+    default: true
   },
 
-  // UI options
+  // Actions
   showActions: {
     type: Boolean,
     default: false
   },
-  loadingText: {
-    type: String,
-    default: 'Loading...'
-  },
-  typingMessage: {
-    type: String,
-    default: 'AI is thinking...'
-  },
 
-  // Styling
-  prose: {
-    type: Boolean,
-    default: true
-  },
-  compact: {
-    type: Boolean,
-    default: false
+  // Render mode
+  renderMode: {
+    type: String as PropType<'markdown' | 'html' | 'text'>,
+    default: 'markdown'
   }
 })
 
@@ -279,1040 +141,695 @@ const emit = defineEmits<{
 }>()
 
 // Refs
-const contentElement = ref<HTMLElement>()
 const previewImage = ref<string | null>(null)
 const currentImageIndex = ref(0)
 
-// Computed properties
+// Computed
 const contentClasses = computed(() => ({
-  'message-content-simple': props.variant === 'simple',
-  'message-content-enhanced': props.variant === 'enhanced' || props.enhanced,
-  'message-content-improved': props.variant === 'improved',
-  'message-content-thumbnail': props.variant === 'thumbnail' || props.withThumbnail,
-  'message-content-compact': props.compact
+  'message-loading': props.isLoading,
+  'message-error': !!props.error,
+  'message-has-actions': props.showActions
 }))
 
-const proseClasses = computed(() => {
-  const classes = []
-  if (props.prose) {
-    classes.push('prose', 'prose-sm', 'dark:prose-invert', 'max-w-none')
-  }
-  if (props.compact) {
-    classes.push('prose-compact')
-  }
-  return classes.join(' ')
-})
-
-const imageClasses = computed(() => {
-  const classes = ['rounded-lg', 'cursor-pointer', 'transition-all', 'duration-200']
-
-  // Different styling per variant
-  if (props.variant === 'simple') {
-    classes.push('max-w-full', 'hover:opacity-90')
-  } else if (props.variant === 'thumbnail') {
-    classes.push('w-full', 'h-full', 'object-cover')
-  } else {
-    classes.push('max-w-full', 'hover:scale-[1.02]', 'hover:shadow-lg')
-  }
-
-  return classes.join(' ')
-})
-
-// Robust content sanitization and validation
-const sanitizeContent = (rawContent: any): string => {
-  try {
-    // Handle null, undefined, or empty values
-    if (rawContent === null || rawContent === undefined) {
-      return ''
-    }
-
-    // Handle string content
-    if (typeof rawContent === 'string') {
-      return rawContent.trim()
-    }
-
-    // Handle numbers and booleans
-    if (typeof rawContent === 'number' || typeof rawContent === 'boolean') {
-      return String(rawContent)
-    }
-
-    // Handle arrays
-    if (Array.isArray(rawContent)) {
-      return rawContent
-        .filter(item => item !== null && item !== undefined)
-        .map(item => (typeof item === 'string' ? item : String(item)))
-        .join('\n')
-        .trim()
-    }
-
-    // Handle objects with toString method
-    if (typeof rawContent === 'object' && rawContent !== null) {
-      if (
-        typeof rawContent.toString === 'function' &&
-        rawContent.toString !== Object.prototype.toString
-      ) {
-        return String(rawContent.toString()).trim()
-      }
-      // Safely stringify complex objects
-      try {
-        return JSON.stringify(rawContent, null, 2).trim()
-      } catch {
-        return '[Complex Object]'
-      }
-    }
-
-    // Final fallback
-    return String(rawContent || '').trim()
-  } catch (error) {
-    logger.error('Content sanitization failed', 'UnifiedMessageContent', { error, rawContent })
-    return String(rawContent || '').trim()
-  }
-}
-
-// Enhanced markdown parsing with bulletproof error handling - using the safe parser
-const parseMarkdownSafely = (content: string): string => {
-  try {
-    // Use the bulletproof safe markdown parser instead of direct marked usage
-    return renderMarkdownSafely(content)
-  } catch (error) {
-    logger.error('Safe markdown parsing failed', 'UnifiedMessageContent', {
-      error: error instanceof Error ? error.message : String(error),
-      contentLength: content?.length || 0,
-      contentStart: content?.substring(0, 50) || ''
-    })
-    // Return safely escaped HTML as ultimate fallback
-    return escapeHtml(content)
-  }
-}
-
-// Render content based on mode and variant
 const renderedContent = computed(() => {
+  if (!props.content) return ''
+
   try {
-    // Sanitize and validate content first
-    const sanitizedContent = sanitizeContent(props.content)
-
-    // Early return for empty content
-    if (!sanitizedContent) {
-      return ''
+    switch (props.renderMode) {
+      case 'html':
+        return props.content
+      case 'text':
+        return escapeHtml(props.content)
+      case 'markdown':
+      default:
+        // Markdown is now handled by SimpleMarkdown component
+        return escapeHtml(props.content)
     }
-
-    // Handle simple variant
-    if (props.variant === 'simple') {
-      return escapeHtml(sanitizedContent)
-    }
-
-    // Handle HTML mode
-    if (props.renderMode === 'html') {
-      return sanitizedContent
-    }
-
-    // Handle text mode
-    if (props.renderMode === 'text') {
-      return escapeHtml(sanitizedContent)
-    }
-
-    // Default to markdown parsing using the bulletproof safe parser
-    return renderMarkdownSafely(props.content)
   } catch (error) {
-    logger.error('Critical content rendering error', 'UnifiedMessageContent', {
-      error: error instanceof Error ? error.message : String(error),
-      contentType: typeof props.content,
-      contentPreview: String(props.content || '').substring(0, 100)
-    })
-
-    // Ultra-safe fallback
-    const emergencyContent = String(props.content || 'Content rendering failed')
-    return `<div class="error-content p-4 bg-subtle border border-strong rounded-lg">
-      <p class="text-primary font-medium">⚠️ Content rendering error</p>
-      <details class="mt-2 cursor-pointer">
-        <summary class="text-sm text-secondary hover:text-primary transition-colors">
-          显示原始内容 (Click to expand)
-        </summary>
-        <pre class="text-xs text-muted mt-2 p-2 bg-muted rounded border overflow-auto max-h-40 whitespace-pre-wrap">${escapeHtml(emergencyContent)}</pre>
-      </details>
-    </div>`
+    console.error('Content rendering error:', error)
+    return `<div class="error-fallback">内容渲染失败</div>`
   }
 })
 
-// Enhanced HTML escape function with validation
-const escapeHtml = (unsafe: any): string => {
-  try {
-    // Handle non-string inputs safely
-    if (unsafe === null || unsafe === undefined) {
-      return ''
-    }
-
-    const safeString = String(unsafe)
-
-    return safeString
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/\n/g, '<br>')
-  } catch (error) {
-    logger.error('HTML escaping failed', 'UnifiedMessageContent', { error, unsafe })
-    return '[Content could not be displayed safely]'
-  }
-}
-
-// Methods
-const getAttachmentsGridClass = () => {
-  const imageAttachments = props.attachments.filter(a => a.type === 'image')
-  const count = imageAttachments.length
-
-  if (count === 0) return ''
-  if (count === 1) return 'grid-cols-1'
-  if (count === 2) return 'grid-cols-2 gap-2'
-  if (count >= 3) return 'grid-cols-2 sm:grid-cols-3 gap-2'
-
-  return 'grid gap-2'
-}
-
-const getDisplayName = (name: string) => {
-  if (name.startsWith('pasted-')) {
-    return '粘贴的图片'
-  }
-
-  if (name.length > 30) {
-    const ext = name.split('.').pop()
-    return name.substring(0, 25) + '...' + (ext ? `.${ext}` : '')
-  }
-
-  return name
-}
-
-const onImageLoad = () => {
-  // Handle image load if needed
-}
-
-const onImageError = () => {
-  // Handle image error if needed
-}
-
-// Computed for all images
 const allImages = computed(() => {
-  const attachmentImages = props.attachments
+  return props.attachments
     .filter(a => a.type === 'image')
     .map(a => ({ url: a.url, name: a.name }))
-
-  // Add any images found in content
-  // This is a simplified approach - could be enhanced with content parsing
-  return attachmentImages
 })
 
-const openImage = (url: string) => {
-  previewImage.value = url
-  const index = allImages.value.findIndex(img => img.url === url)
-  currentImageIndex.value = Math.max(0, index)
-  emit('imageClick', url)
+// Methods
+const escapeHtml = (text: string): string => {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
 }
 
-const handleImagePreview = (url: string) => {
-  openImage(url)
-  emit('imagePreview', url)
+const handleAttachmentClick = (attachment: Attachment) => {
+  if (attachment.type === 'image') {
+    previewImage.value = attachment.url
+    currentImageIndex.value = allImages.value.findIndex(img => img.url === attachment.url)
+    emit('imagePreview', attachment.url)
+  }
 }
 
 const closeImagePreview = () => {
   previewImage.value = null
 }
 
-const downloadAttachment = async (attachment: Attachment) => {
-  try {
-    const link = document.createElement('a')
-    link.href = attachment.url
-    link.download = attachment.name
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  } catch (error) {
-    logger.error('Failed to download attachment', 'UnifiedMessageContent', {
-      error,
-      attachment: attachment.name
-    })
-  }
-}
-
 const downloadCurrentImage = () => {
   const currentImage = allImages.value[currentImageIndex.value]
   if (currentImage) {
-    downloadAttachment({
-      url: currentImage.url,
-      name: currentImage.name,
-      type: 'image'
-    })
+    const link = document.createElement('a')
+    link.href = currentImage.url
+    link.download = currentImage.name
+    link.click()
   }
 }
-
-// Setup code copy functionality
-const setupCodeCopyButtons = () => {
-  if (!contentElement.value) return
-
-  const copyButtons = contentElement.value.querySelectorAll('.copy-button')
-
-  copyButtons.forEach(button => {
-    button.addEventListener('click', async e => {
-      e.preventDefault()
-      const btn = e.currentTarget as HTMLElement
-      const codeId = btn.getAttribute('data-code-id')
-      if (!codeId) return
-
-      const codeElement = document.getElementById(codeId)
-      if (!codeElement) return
-
-      try {
-        await navigator.clipboard.writeText(codeElement.textContent || '')
-
-        const copyText = btn.querySelector('.copy-text') as HTMLElement
-        if (copyText) {
-          const originalText = copyText.textContent
-          copyText.textContent = '已复制'
-          setTimeout(() => {
-            copyText.textContent = originalText
-          }, 2000)
-        }
-      } catch (error) {
-        logger.error('Failed to copy code', 'UnifiedMessageContent', { error })
-      }
-    })
-  })
-}
-
-// Lifecycle - setup code copy buttons when content changes
-onMounted(() => {
-  nextTick(() => setupCodeCopyButtons())
-})
-
-onUpdated(() => {
-  nextTick(() => setupCodeCopyButtons())
-})
 </script>
 
 <style scoped>
-/* Enhanced Base component styles with micro-interactions */
-.message-content {
-  @apply w-full transition-all duration-300 ease-out;
-  position: relative;
-  /* Fix layout artifacts and prevent UI boxes */
-  contain: layout style;
-  overflow: visible;
-  transform: translateZ(0); /* Force GPU acceleration */
-  z-index: 1;
+
+/* 🎨 响应式设计系统 */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
-.message-content:hover {
-  transform: translateY(-1px);
+/* 🎨 响应式实用类 */
+.container-sm { max-width: var(--breakpoint-sm); }
+.container-md { max-width: var(--breakpoint-md); }
+.container-lg { max-width: var(--breakpoint-lg); }
+.container-xl { max-width: var(--breakpoint-xl); }
+
+/* 响应式显示 */
+.hidden-sm { display: none; }
+.hidden-md { display: none; }
+.hidden-lg { display: none; }
+
+@media (min-width: 640px) {
+  .hidden-sm { display: block; }
 }
 
-/* Fix for content rendering issues */
-.message-content,
-.message-content * {
-  box-sizing: border-box;
-  max-width: 100%;
+@media (min-width: 768px) {
+  .hidden-md { display: block; }
 }
 
-/* Remove unexpected outlines and borders */
-.message-content,
-.message-content * {
-  outline: none;
+@media (min-width: 1024px) {
+  .hidden-lg { display: block; }
 }
 
-/* Enhanced Error Content Styles with Improved Expansion */
-.message-content .error-content {
-  @apply relative z-10;
-  /* Fix layout artifacts */
-  contain: layout style;
-  overflow: visible;
-  box-sizing: border-box;
+/* 响应式文本 */
+.text-responsive-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
+.text-responsive-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+.text-responsive-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
+.text-responsive-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+
+/* 响应式间距 */
+.space-responsive-sm { gap: clamp(0.5rem, 2vw, 1rem); }
+.space-responsive-md { gap: clamp(1rem, 3vw, 1.5rem); }
+.space-responsive-lg { gap: clamp(1.5rem, 4vw, 2rem); }
+
+/* 响应式网格 */
+.grid-responsive-sm {
+  grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 25vw, 300px), 1fr));
 }
 
-.message-content .error-content details {
-  @apply mt-2;
-  /* Enhanced details/summary styling */
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 0.375rem;
-  overflow: hidden;
-  background: rgba(239, 68, 68, 0.02);
-  transition: all 0.3s ease;
+.grid-responsive-md {
+  grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 30vw, 350px), 1fr));
 }
 
-.message-content .error-content details:hover {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.05);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+.grid-responsive-lg {
+  grid-template-columns: repeat(auto-fit, minmax(clamp(300px, 35vw, 400px), 1fr));
 }
 
-.message-content .error-content details[open] {
-  border-color: rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.08);
+/* 响应式布局调整 */
+@media (max-width: 640px) {
+  .flex-col-mobile { flex-direction: column; }
+  .grid-1-mobile { grid-template-columns: 1fr; }
+  .gap-2-mobile { gap: var(--space-2); }
+  .p-4-mobile { padding: var(--space-4); }
 }
 
-.message-content .error-content summary {
-  @apply px-3 py-2 font-medium;
-  cursor: pointer;
-  user-select: none;
-  background: rgba(239, 68, 68, 0.05);
-  border-bottom: 1px solid rgba(239, 68, 68, 0.1);
-  transition: all 0.2s ease;
-  position: relative;
+@media (max-width: 768px) {
+  .flex-col-tablet { flex-direction: column; }
+  .grid-2-tablet { grid-template-columns: repeat(2, 1fr); }
+  .gap-4-tablet { gap: var(--space-4); }
+  .p-6-tablet { padding: var(--space-6); }
+}
+
+@media (max-width: 1024px) {
+  .sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+}
+
+/* 🎨 现代布局系统 */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.message-content .error-content summary:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.message-content .error-content summary::marker {
-  display: none;
+.flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-.message-content .error-content summary::after {
-  content: '▶';
-  font-size: 0.75rem;
-  transition: transform 0.2s ease;
-  color: currentColor;
-  opacity: 0.7;
+.flex-col {
+  display: flex;
+  flex-direction: column;
 }
 
-.message-content .error-content details[open] summary::after {
-  transform: rotate(90deg);
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.message-content .error-content pre {
-  @apply m-0;
-  /* Fix overflow and layout issues */
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 12rem;
-  line-height: 1.4;
-  font-family:
-    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 0.75rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  /* Ensure proper spacing */
-  padding: 0.75rem;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  /* Fix background conflicts */
-  background: rgba(239, 68, 68, 0.05) !important;
+/* 🎨 网格系统 */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-4);
 }
 
-/* Tool Status */
-/* Enhanced Tool Status with pulse animation */
-.tool-status {
-  @apply rounded-lg bg-muted/20 p-3 border border-border/50 animate-slide-in-down;
-  animation-duration: 0.4s;
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
 }
 
-.loading-dot {
-  @apply w-2 h-2 bg-primary rounded-full;
-  animation: loadingPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+.grid-gap-2 { gap: var(--space-2); }
+.grid-gap-4 { gap: var(--space-4); }
+.grid-gap-6 { gap: var(--space-6); }
+
+/* 🎨 卡片布局 */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-@keyframes loadingPulse {
-  0%,
-  100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-    box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4);
-  }
+.card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
-/* Enhanced progress bar with gradient fill */
-.progress-bar {
-  @apply w-full h-1 bg-muted rounded-full overflow-hidden mt-2;
-  position: relative;
+.card-interactive:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.progress-fill {
-  @apply h-full transition-all duration-500 ease-out;
-  background: linear-gradient(90deg, var(--primary), hsl(var(--primary) / 0.8), var(--primary));
-  background-size: 200% 100%;
-  animation: progressShimmer 2s linear infinite;
-  position: relative;
+/* 🎨 页面布局 */
+.page-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
-.progress-fill::after {
-  content: '';
-  position: absolute;
+.page-header {
+  position: sticky;
   top: 0;
-  right: -10px;
-  width: 10px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  animation: progressGlow 2s ease-in-out infinite;
+  z-index: 50;
+  background: white;
+  border-bottom: 1px solid var(--color-gray-200);
 }
 
-@keyframes progressShimmer {
-  0% {
-    background-position: -200% 0;
+.page-main {
+  padding: var(--space-6) 0;
+}
+
+.page-footer {
+  border-top: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+}
+
+/* 🎨 侧边栏布局 */
+.sidebar-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-6);
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--space-6);
+  height: fit-content;
+}
+
+.sidebar-content {
+  padding: var(--space-6);
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--color-gray-200);
+}
+
+/* 🎨 响应式工具 */
+@media (max-width: 768px) {
+  .sidebar-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
   }
-  100% {
-    background-position: 200% 0;
-  }
+
+  .hidden-mobile { display: none; }
+  .flex-mobile-col { flex-direction: column; }
+  .grid-mobile-1 { grid-template-columns: 1fr; }
 }
 
-@keyframes progressGlow {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(10px);
-  }
+/* 🎨 完整间距系统 - 基于4px网格 */
+:root {
+  --space-0: 0;
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+  --space-32: 8rem;      /* 128px */
+
+  /* 负间距 */
+  --space-neg-1: -0.25rem;
+  --space-neg-2: -0.5rem;
+  --space-neg-4: -1rem;
 }
 
-/* Enhanced Attachments with staggered animations */
-.attachments-grid {
-  @apply grid gap-3;
-}
+/* 🎨 间距实用类 */
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
 
-.attachment-item {
-  @apply relative overflow-hidden rounded-lg border border-border/20 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
-  animation: attachmentAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
 
-.attachment-item:nth-child(1) {
-  animation-delay: 0ms;
-}
-.attachment-item:nth-child(2) {
-  animation-delay: 100ms;
-}
-.attachment-item:nth-child(3) {
-  animation-delay: 200ms;
-}
-.attachment-item:nth-child(4) {
-  animation-delay: 300ms;
-}
-.attachment-item:nth-child(n + 5) {
-  animation-delay: 400ms;
-}
+.mx-auto { margin-left: auto; margin-right: auto; }
+.my-auto { margin-top: auto; margin-bottom: auto; }
 
-@keyframes attachmentAppear {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9) rotateX(10deg);
-  }
-  60% {
-    opacity: 0.8;
-    transform: translateY(-5px) scale(1.05) rotateX(0deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1) rotateX(0deg);
-  }
-}
+.px-1 { padding-left: var(--space-1); padding-right: var(--space-1); }
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
 
-.image-attachment {
-  @apply relative;
-}
+.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
 
-.image-overlay {
-  @apply absolute inset-0 flex flex-col justify-between pointer-events-none;
-}
-
-.image-overlay > * {
-  @apply pointer-events-auto;
-}
-
-.overlay-btn {
-  @apply p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-all;
-}
-
-.overlay-btn:hover {
-  @apply scale-110;
-}
-
-.overlay-btn:active {
-  @apply scale-95;
-}
-
-.image-name {
-  @apply px-1;
-}
-
-.file-attachment {
-  @apply flex items-center gap-2 p-2 bg-secondary/20 rounded hover:bg-secondary/30 transition-colors;
-}
-
-/* Enhanced Loading states with sophisticated animations */
-.loading-container {
-  @apply py-2;
-}
-
-.message-skeleton {
-  @apply space-y-2;
-}
-
-.skeleton-line {
-  @apply bg-muted/30 rounded;
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
+/* 🎨 容器和布局间距 */
+.container {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
 }
 
-@keyframes skeletonShimmer {
-  0% {
-    left: -100%;
+.section-spacing {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+}
+
+.card-spacing {
+  padding: var(--space-6);
+}
+
+.stack-sm > * + * { margin-top: var(--space-2); }
+.stack-md > * + * { margin-top: var(--space-4); }
+.stack-lg > * + * { margin-top: var(--space-6); }
+.stack-xl > * + * { margin-top: var(--space-8); }
+
+.inline-sm > * + * { margin-left: var(--space-2); }
+.inline-md > * + * { margin-left: var(--space-4); }
+.inline-lg > * + * { margin-left: var(--space-6); }
+
+/* 🎨 完整字体系统 */
+:root {
+  /* 字体族 */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
+
+  /* 字体大小 - 基于1.25的倍数比例 */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+
+  /* 字体权重 */
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* 字母间距 */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+}
+
+/* 🎨 字体实用类 */
+.font-sans { font-family: var(--font-family-sans); }
+.font-mono { font-family: var(--font-family-mono); }
+
+.text-xs { font-size: var(--font-size-xs); line-height: var(--line-height-tight); }
+.text-sm { font-size: var(--font-size-sm); line-height: var(--line-height-snug); }
+.text-base { font-size: var(--font-size-base); line-height: var(--line-height-normal); }
+.text-lg { font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
+.text-xl { font-size: var(--font-size-xl); line-height: var(--line-height-relaxed); }
+.text-2xl { font-size: var(--font-size-2xl); line-height: var(--line-height-loose); }
+.text-3xl { font-size: var(--font-size-3xl); line-height: var(--line-height-loose); }
+
+.font-thin { font-weight: var(--font-weight-thin); }
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+.leading-tight { line-height: var(--line-height-tight); }
+.leading-snug { line-height: var(--line-height-snug); }
+.leading-normal { line-height: var(--line-height-normal); }
+.leading-relaxed { line-height: var(--line-height-relaxed); }
+
+.tracking-tight { letter-spacing: var(--letter-spacing-tight); }
+.tracking-normal { letter-spacing: var(--letter-spacing-normal); }
+.tracking-wide { letter-spacing: var(--letter-spacing-wide); }
+
+/* 🎨 文本层次优化 */
+.heading-1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tighter);
+  margin-bottom: 1rem;
+}
+
+.heading-2 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tighter);
+  margin-bottom: 0.875rem;
+}
+
+.heading-3 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-tight);
+  margin-bottom: 0.75rem;
+}
+
+.body-large {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.body-regular {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.body-small {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.caption {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-gray-600);
+}
+
+/* 🎨 高级色彩系统 */
+:root {
+  /* 基础色彩 */
+  --color-primary: hsl(221 83% 53%);
+  --color-primary-hover: hsl(221 83% 48%);
+  --color-primary-active: hsl(221 83% 43%);
+
+  /* 语义色彩 */
+  --color-success: hsl(142 71% 45%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 84% 60%);
+  --color-info: hsl(217 91% 60%);
+
+  /* 中性色彩 */
+  --color-gray-50: hsl(210 20% 98%);
+  --color-gray-100: hsl(210 15% 95%);
+  --color-gray-200: hsl(210 10% 89%);
+  --color-gray-300: hsl(210 8% 75%);
+  --color-gray-400: hsl(210 8% 56%);
+  --color-gray-500: hsl(210 6% 43%);
+  --color-gray-600: hsl(210 8% 35%);
+  --color-gray-700: hsl(210 10% 28%);
+  --color-gray-800: hsl(210 12% 21%);
+  --color-gray-900: hsl(210 15% 15%);
+
+  /* 透明度变体 */
+  --color-primary-10: hsl(221 83% 53% / 0.1);
+  --color-primary-20: hsl(221 83% 53% / 0.2);
+  --color-primary-30: hsl(221 83% 53% / 0.3);
+  --color-success-10: hsl(142 71% 45% / 0.1);
+  --color-error-10: hsl(0 84% 60% / 0.1);
+}
+
+/* 🎨 色彩实用类 */
+.text-primary { color: var(--color-primary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+.text-gray-500 { color: var(--color-gray-500); }
+.text-gray-600 { color: var(--color-gray-600); }
+.text-gray-700 { color: var(--color-gray-700); }
+
+.bg-primary { background-color: var(--color-primary); }
+.bg-primary-hover:hover { background-color: var(--color-primary-hover); }
+.bg-success { background-color: var(--color-success); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-error { background-color: var(--color-error); }
+
+.border-primary { border-color: var(--color-primary); }
+.border-success { border-color: var(--color-success); }
+.border-error { border-color: var(--color-error); }
+
+/* 🎨 对比度增强 */
+.high-contrast {
+  --color-primary: hsl(221 100% 40%);
+  --color-gray-900: hsl(210 20% 10%);
+  --color-gray-100: hsl(210 15% 95%);
+}
+
+/* 🎨 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-50: hsl(210 15% 15%);
+    --color-gray-100: hsl(210 12% 21%);
+    --color-gray-200: hsl(210 10% 28%);
+    --color-gray-300: hsl(210 8% 35%);
+    --color-gray-400: hsl(210 6% 43%);
+    --color-gray-500: hsl(210 8% 56%);
+    --color-gray-600: hsl(210 8% 75%);
+    --color-gray-700: hsl(210 10% 89%);
+    --color-gray-800: hsl(210 15% 95%);
+    --color-gray-900: hsl(210 20% 98%);
   }
-  100% {
-    left: 100%;
+}
+/* 所有样式已整合到统一样式系统中 - unified-design-system.css */
+
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-.enhanced-typing {
-  @apply flex items-center gap-1;
+/* 焦点样式 */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: 2px;
 }
 
-.typing-dot {
-  @apply w-2 h-2 bg-current rounded-full;
-  animation: typingBounce 1.4s ease-in-out infinite;
+/* 🎨 错误状态设计 */
+.error-state {
+  padding: 1rem;
+  border: 1px solid hsl(0 84% 60% / 0.2);
+  border-radius: 8px;
+  background-color: hsl(0 84% 60% / 0.05);
+  color: hsl(0 84% 60%);
 }
 
-.typing-dot:nth-child(1) {
-  animation-delay: 0ms;
-}
-.typing-dot:nth-child(2) {
-  animation-delay: 160ms;
-}
-.typing-dot:nth-child(3) {
-  animation-delay: 320ms;
+.error-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  color: hsl(0 84% 60%);
 }
 
-@keyframes typingBounce {
-  0%,
-  60%,
-  100% {
-    opacity: 0.3;
-    transform: scale(0.8) translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: scale(1.2) translateY(-4px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+.error-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-/* Enhanced Error states with gentle animations */
-.error-container {
-  @apply py-2;
+.error-message {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
 }
 
-/* Enhanced Actions with hover lift effects */
-.message-actions {
-  @apply transition-all duration-300;
+.error-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.action-btn {
-  @apply p-1.5 rounded transition-all duration-200 bg-transparent hover:bg-secondary;
+.error-retry-btn {
+  padding: 0.5rem 1rem;
+  background-color: hsl(0 84% 60%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.error-retry-btn:hover {
+  background-color: hsl(0 84% 60% / 0.9);
+}
+
+/* 🎨 微交互和动画 */
+.btn-primary {
   position: relative;
   overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.action-btn::before {
+.btn-primary::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   width: 0;
   height: 0;
-  background: rgba(var(--primary-rgb), 0.1);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: all 0.3s ease;
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
-.action-btn:hover::before {
-  width: 40px;
-  height: 40px;
+.btn-primary:active::before {
+  width: 300px;
+  height: 300px;
 }
 
+/* 悬停效果 */
 .hover-lift {
-  @apply transition-all duration-200;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-  @apply -translate-y-0.5 shadow-md;
-  transform: translateY(-2px) scale(1.05);
-}
-
-.hover-lift:active {
-  @apply translate-y-0;
-  transform: translateY(0) scale(0.95);
-  transition-duration: 0.1s;
-}
-
-.hover-danger:hover {
-  @apply text-destructive;
-}
-
-/* Enhanced Animation Keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes contentReveal {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-    filter: blur(1px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes textAppear {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes errorShake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-2px);
-  }
-  75% {
-    transform: translateX(2px);
-  }
-}
-
-@keyframes errorPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
-@keyframes bounceSubtle {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes pulseWave {
-  0% {
-    opacity: 0.6;
-    transform: scale(0.95);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 0.6;
-    transform: scale(0.95);
-  }
-}
-
-/* Utility Animation Classes */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-
-.animate-slide-in-up {
-  animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.animate-slide-in-down {
-  animation: slideInDown 0.3s ease-out;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.3s ease-out;
-}
-
-.animate-content-reveal {
-  animation: contentReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.animate-text-appear {
-  animation: textAppear 0.5s ease-out;
-}
-
-.animate-error-shake {
-  animation: errorShake 0.5s ease-in-out;
-}
-
-.animate-error-pulse {
-  animation: errorPulse 1s ease-in-out infinite;
-}
-
-.animate-bounce-subtle {
-  animation: bounceSubtle 2s ease-in-out infinite;
-}
-
-.animate-pulse-wave {
-  animation: pulseWave 2s ease-in-out infinite;
-}
-
-.animate-skeleton-shimmer {
-  animation: skeletonShimmer 1.5s ease-in-out infinite;
-}
-
-/* Enhanced Variant-specific styles with micro-interactions */
-.message-content-simple {
-  @apply text-sm;
-  transition: all 0.2s ease;
-}
-
-.message-content-simple:hover {
-  transform: translateY(-0.5px);
-}
-
-.message-content-simple .prose {
-  @apply prose-sm;
-}
-
-.message-content-enhanced {
-  @apply relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message-content-enhanced:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.message-content-improved {
-  @apply relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* 加载动画 */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.message-content-improved:hover {
-  transform: translateY(-1px) scale(1.005);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid hsl(var(--border));
+  border-top: 2px solid hsl(var(--primary));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.message-content-thumbnail .image-attachment {
-  @apply aspect-square transition-all duration-300;
+/* 淡入动画 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.message-content-thumbnail .image-attachment:hover {
-  transform: scale(1.02) rotate(0.5deg);
+.fade-in {
+  animation: fade-in 0.3s ease-out;
 }
 
-.message-content-compact {
-  @apply text-sm space-y-1 transition-all duration-200;
+/* 成功状态动画 */
+@keyframes success-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
 }
 
-.message-content-compact:hover {
-  transform: translateY(-1px);
-}
-
-.prose-compact {
-  @apply prose-sm leading-snug;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .attachments-grid {
-    @apply grid-cols-1 gap-2;
-  }
-
-  .overlay-btn {
-    @apply scale-90;
-  }
-}
-</style>
-
-<style>
-/* Global styles for rendered content */
-.message-content .prose {
-  @apply text-inherit;
-  color: inherit !important;
-}
-
-.message-content .prose * {
-  color: inherit !important;
-}
-
-.message-content .prose a {
-  @apply text-primary hover:underline;
-}
-
-.message-content .prose strong {
-  @apply font-semibold;
-}
-
-.message-content .prose pre {
-  @apply bg-muted/30 border border-border rounded-lg p-0 my-4 overflow-hidden;
-}
-
-.message-content .prose pre code {
-  @apply bg-transparent p-4 block overflow-x-auto text-sm;
-}
-
-.message-content .prose :not(pre) > code {
-  @apply bg-muted/50 px-1.5 py-0.5 rounded text-sm font-mono before:content-[''] after:content-[''];
-}
-
-.message-content .prose blockquote {
-  @apply border-l-4 border-primary/30 pl-4 italic opacity-80;
-}
-
-.message-content .prose h1,
-.message-content .prose h2,
-.message-content .prose h3,
-.message-content .prose h4,
-.message-content .prose h5,
-.message-content .prose h6 {
-  @apply font-semibold mt-6 mb-3 first:mt-0;
-}
-
-.message-content .prose ul,
-.message-content .prose ol {
-  @apply pl-6 my-4;
-}
-
-.message-content .prose li {
-  @apply mb-1;
-}
-
-.message-content .prose img {
-  @apply max-w-full h-auto rounded-lg my-4;
-}
-
-.message-content .prose hr {
-  @apply border-border my-6;
-}
-
-.message-content .prose table {
-  @apply border-collapse w-full my-4;
-}
-
-.message-content .prose th,
-.message-content .prose td {
-  @apply border border-border px-3 py-2;
-}
-
-.message-content .prose th {
-  @apply bg-muted/50 font-semibold;
-}
-
-/* Code block styling */
-.message-content .code-block-wrapper {
-  @apply rounded-lg overflow-hidden border border-border my-4;
-}
-
-.message-content .code-header {
-  @apply text-xs bg-muted/30;
-}
-
-.message-content .copy-button {
-  @apply opacity-0 group-hover:opacity-100 transition-opacity;
-}
-
-/* Syntax highlighting */
-.message-content .hljs {
-  @apply bg-transparent;
-  color: inherit !important;
-}
-
-.message-content .hljs-comment,
-.message-content .hljs-quote {
-  @apply text-muted-foreground italic;
-}
-
-.message-content .hljs-keyword,
-.message-content .hljs-selector-tag {
-  @apply text-primary font-medium;
-}
-
-.message-content .hljs-string,
-.message-content .hljs-number {
-  @apply text-mono-700 dark:text-mono-300;
-}
-
-.message-content .hljs-title,
-.message-content .hljs-section {
-  @apply text-mono-black dark:text-mono-white font-bold;
-}
-
-.message-content .hljs-attribute,
-.message-content .hljs-variable {
-  @apply text-mono-600 dark:text-mono-400;
-}
-</style>
+.success-animation {
+  animation: success-bounce 1s ease;
+}</style>

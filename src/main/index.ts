@@ -1,21 +1,12 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { MCPManager } from './mcp/mcpManager'
-import { getAllServers } from './mcp/servers'
-import { LocalDatabase } from './db/database'
-import { PluginManager } from './plugins/pluginManager'
-import { registerShortcuts } from './shortcuts'
 import { registerIPCHandlers } from './ipcHandlers'
 import { logger } from './utils/Logger'
-import { memoryMonitor } from './performance/MemoryMonitor'
 
 let mainWindow: BrowserWindow | null = null
-const mcpManager = new MCPManager()
-const pluginManager = new PluginManager()
-let db: LocalDatabase
 
-// Make mainWindow globally accessible for LLM manager
+// Make mainWindow globally accessible
 declare global {
   var mainWindow: BrowserWindow | null
 }
@@ -48,8 +39,7 @@ function createWindow(): void {
   // Make mainWindow globally accessible
   global.mainWindow = mainWindow
 
-  // Register shortcuts
-  registerShortcuts(mainWindow)
+  // No shortcuts needed for simplified version
 
   mainWindow.webContents.setWindowOpenHandler(details => {
     shell.openExternal(details.url)
@@ -67,22 +57,10 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.miaoda.chat')
 
   // Log application startup
-  logger.logStartup()
+  logger.info('MiaoDa Chat v1.0 启动中...', 'Main')
 
-  // Initialize database first
-  try {
-    logger.time('database-init')
-    db = new LocalDatabase()
-    logger.timeEnd('database-init')
-    logger.info('Database initialized successfully', 'Main')
-  } catch (error) {
-    logger.error('Failed to initialize database', 'Main', error)
-    app.quit()
-    return
-  }
-
-  // Register all IPC handlers after db is initialized
-  registerIPCHandlers(db, mcpManager, pluginManager)
+  // Register IPC handlers (simplified)
+  registerIPCHandlers(null as any, null as any, null as any)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -90,29 +68,11 @@ app.whenReady().then(() => {
 
   createWindow()
 
-  // Debug: Log when window is created
-  logger.info('Window created with preload', 'Main', join(__dirname, '../preload/index.js'))
+  logger.info('MiaoDa Chat 启动成功', 'Main')
+})
 
-  // Initialize plugin manager
-  pluginManager
-    .initialize()
-    .catch(error => logger.error('Plugin manager initialization failed', 'Main', error))
-
-  // Connect plugin manager to MCP
-  mcpManager.setPluginManager(pluginManager)
-
-  // Initialize MCP after window is created
-  initializeMCP().catch(error => logger.error('MCP initialization failed', 'Main', error))
-
-  // Start memory monitoring in production
-  if (!is.dev) {
-    memoryMonitor.startMonitoring()
-    logger.info('Memory monitoring started', 'Main')
-  }
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
+app.on('activate', function () {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
 app.on('window-all-closed', () => {
@@ -120,17 +80,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-// All IPC handlers have been moved to ipcHandlers.ts and are registered in app.whenReady()
-
-// Initialize MCP servers on app ready
-async function initializeMCP() {
-  const servers = getAllServers()
-  for (const server of servers) {
-    try {
-      await mcpManager.connectServer(server)
-    } catch (error) {
-      logger.error(`Failed to connect to ${server.name}`, 'MCP', error)
-    }
-  }
-}

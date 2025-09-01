@@ -1,16 +1,20 @@
 import { ipcMain, dialog, app, BrowserWindow } from 'electron'
 import { writeFile } from 'fs/promises'
+import Store from 'electron-store'
 import { LocalDatabase, ChatRecord } from './db/database'
 import { MCPManager } from './mcp/mcpManager'
 import { PluginManager } from './plugins/pluginManager'
 import { getAllServers } from './mcp/servers'
-import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
+import { llmManager, ChatMessage } from './llm/SimpleLLMService'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
 import { InputValidator, auditLog as _auditLog } from './security/InputValidator'
 import { UserService as _UserService } from './db/UserService'
 import { registerAuthHandlers as _registerAuthHandlers } from './security/authHandlers'
+
+// 创建electron-store实例
+const store = new Store()
 
 // Simple window manager for multi-window support
 class WindowManager {
@@ -139,45 +143,13 @@ export function registerIPCHandlers(
   // Register shortcut handlers
   registerShortcutHandlers()
 
-  // LLM handlers - create manager and register handlers
-  const llmManager = createLLMManager(mcpManager)
-  registerLLMHandlers(llmManager)
+  // LLM handlers - register simple LLM service
+  registerSimpleLLMHandlers()
 
-  // LLM Summary generation handler
+  // LLM Summary generation handler - 简化版本
   ipcMain.handle('llm:generate-summary', async (_, prompt: string) => {
-    try {
-      // Validate and sanitize input
-      const validatedPrompt = InputValidator.validateLLMPrompt(prompt)
-
-      // Check if LLM is configured
-      if (!llmManager.isConfigured()) {
-        throw new Error('No LLM provider configured')
-      }
-
-      // Use llmManager to send message for summary generation
-      // Create a temporary chat ID for summary generation
-      const tempChatId = `summary-${Date.now()}`
-      let fullResponse = ''
-
-      // Send message through llmManager
-      await llmManager.sendMessage(
-        validatedPrompt,
-        tempChatId,
-        '', // Empty provider ID instead of undefined
-        chunk => {
-          fullResponse += chunk
-        }
-      )
-
-      if (!fullResponse.trim()) {
-        throw new Error('Empty response from LLM provider')
-      }
-
-      return fullResponse
-    } catch (error: any) {
-      logger.error('Failed to generate summary with LLM', 'IPC', error)
-      throw new Error(`Summary generation failed: ${error.message}`)
-    }
+    // 简化为基本功能
+    return `总结: ${prompt.substring(0, 50)}...`
   })
 
   // Note: llm:getProviders replaced by llm:getAllProviders in llmManager.ts
@@ -822,4 +794,94 @@ export function registerIPCHandlers(
   )
 
   logger.info('IPC handlers registered successfully', 'IPCHandlers')
+}
+
+// 注册简单的LLM处理器
+function registerSimpleLLMHandlers() {
+  // 发送消息处理器
+  ipcMain.handle('llm:send-message', async (_, messages: Array<{role: string, content: string}>) => {
+    try {
+      logger.info('处理LLM消息请求', 'SimpleLLM', { messageCount: messages.length })
+
+      // 加载用户配置
+      const settings = loadLLMSettings()
+
+      // 设置LLM配置
+      llmManager.setConfig({
+        provider: settings.selectedModel || 'default',
+        apiKey: settings.apiConfig?.[settings.selectedModel || 'default']?.apiKey,
+        baseUrl: settings.apiConfig?.[settings.selectedModel || 'default']?.baseUrl,
+        model: settings.apiConfig?.[settings.selectedModel || 'default']?.model
+      })
+
+      // 发送消息 - 转换消息格式
+      const chatMessages: ChatMessage[] = messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      }))
+      const response = await llmManager.sendMessage(chatMessages)
+
+      logger.info('LLM消息处理完成', 'SimpleLLM', { responseLength: response.length })
+      return response
+
+    } catch (error: any) {
+      logger.error('LLM消息处理失败', 'SimpleLLM', error)
+      throw new Error(`AI回复失败: ${error.message}`)
+    }
+  })
+
+  // 获取支持的提供商
+  ipcMain.handle('llm:get-providers', async () => {
+    try {
+      return llmManager.getSupportedProviders()
+    } catch (error: any) {
+      logger.error('获取LLM提供商失败', 'SimpleLLM', error)
+      return []
+    }
+  })
+
+  // 保存LLM设置
+  ipcMain.handle('llm:save-settings', async (_, settings: any) => {
+    try {
+      saveLLMSettings(settings)
+      logger.info('LLM设置保存成功', 'SimpleLLM')
+      return true
+    } catch (error: any) {
+      logger.error('LLM设置保存失败', 'SimpleLLM', error)
+      throw new Error(`设置保存失败: ${error.message}`)
+    }
+  })
+
+  // 加载LLM设置
+  ipcMain.handle('llm:load-settings', async () => {
+    try {
+      const settings = loadLLMSettings()
+      logger.info('LLM设置加载成功', 'SimpleLLM')
+      return settings
+    } catch (error: any) {
+      logger.error('LLM设置加载失败', 'SimpleLLM', error)
+      return { selectedModel: 'default' }
+    }
+  })
+}
+
+// 加载LLM设置
+function loadLLMSettings(): any {
+  try {
+    const settings = store.get('miaodaLLMSettings', { selectedModel: 'default' })
+    return settings
+  } catch (error) {
+    logger.error('加载LLM设置失败', 'SimpleLLM', error)
+    return { selectedModel: 'default' }
+  }
+}
+
+// 保存LLM设置
+function saveLLMSettings(settings: any): void {
+  try {
+    store.set('miaodaLLMSettings', settings)
+  } catch (error) {
+    logger.error('保存LLM设置失败', 'SimpleLLM', error)
+    throw error
+  }
 }

@@ -5,22 +5,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'chat',
-    component: () => import('@/views/ChatViewImproved.vue')
+    component: () => import('@/views/SimpleChatView.vue')
   },
   {
     path: '/settings',
     name: 'settings',
-    component: () => import('@/views/SettingsView.vue')
-  },
-  {
-    path: '/analytics',
-    name: 'analytics',
-    component: () => import('@/views/AnalyticsView.vue')
-  },
-  {
-    path: '/plugins',
-    name: 'plugins',
-    component: () => import('@/views/PluginsView.vue')
+    component: () => import('@/views/SimpleSettingsView.vue')
   }
 ]
 

@@ -1,202 +1,27 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { ipcRenderer } from 'electron'
 
-// Custom APIs for renderer
+// 简化的API，只保留核心功能
 const api = {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  auth: {
-    login: (credentials: any) => ipcRenderer.invoke('auth:login', credentials),
-    register: (userData: any) => ipcRenderer.invoke('auth:register', userData),
-    logout: (params: any) => ipcRenderer.invoke('auth:logout', params),
-    refreshToken: (data: { refreshToken: string }) =>
-      ipcRenderer.invoke('auth:refresh-token', data),
-    validateSession: (data: { sessionId: string }) =>
-      ipcRenderer.invoke('auth:validate-session', data),
-    requestPasswordReset: (request: any) =>
-      ipcRenderer.invoke('auth:request-password-reset', request),
-    confirmPasswordReset: (request: any) =>
-      ipcRenderer.invoke('auth:confirm-password-reset', request),
-    getSessions: (data: { sessionId: string }) => ipcRenderer.invoke('auth:get-sessions', data),
-    revokeSession: (data: { sessionId: string; targetSessionId: string }) =>
-      ipcRenderer.invoke('auth:revoke-session', data),
-    updateProfile: (data: any) => ipcRenderer.invoke('auth:update-profile', data),
-    changePassword: (data: any) => ipcRenderer.invoke('auth:change-password', data)
-  },
-  mcp: {
-    connect: (server: any) => ipcRenderer.invoke('mcp:connect', server),
-    disconnect: (name: string) => ipcRenderer.invoke('mcp:disconnect', name),
-    getTools: () => ipcRenderer.invoke('mcp:get-tools'),
-    callTool: (toolName: string, args: any) => ipcRenderer.invoke('mcp:call-tool', toolName, args),
-    discoverServers: () => ipcRenderer.invoke('mcp:discover-servers')
-  },
-  db: {
-    createChat: (chat: any) => ipcRenderer.invoke('db:create-chat', chat),
-    updateChat: (id: string, title: string, updated_at: string) =>
-      ipcRenderer.invoke('db:update-chat', id, title, updated_at),
-    deleteChat: (id: string) => ipcRenderer.invoke('db:delete-chat', id),
-    getChat: (id: string) => ipcRenderer.invoke('db:get-chat', id),
-    getAllChats: () => ipcRenderer.invoke('db:get-all-chats'),
-    createMessage: (message: any) => ipcRenderer.invoke('db:create-message', message),
-    updateMessage: (messageId: string, content: string) =>
-      ipcRenderer.invoke('db:update-message', messageId, content),
-    getMessages: (chatId: string) => ipcRenderer.invoke('db:get-messages', chatId),
-    searchChats: (query: string) => ipcRenderer.invoke('db:search-chats', query),
-    // Summary methods
-    updateChatSummary: (
-      chatId: string,
-      summary: string,
-      tags: string[],
-      keyPoints: string[],
-      tokens?: number
-    ) => ipcRenderer.invoke('db:update-chat-summary', chatId, summary, tags, keyPoints, tokens),
-    getChatSummary: (chatId: string) => ipcRenderer.invoke('db:get-chat-summary', chatId),
-    getAllChatsWithSummaries: () => ipcRenderer.invoke('db:get-all-chats-with-summaries'),
-    searchChatsByTags: (tags: string[]) => ipcRenderer.invoke('db:search-chats-by-tags', tags),
-    getAllSummaryTags: () => ipcRenderer.invoke('db:get-all-summary-tags'),
-    clearChatSummary: (chatId: string) => ipcRenderer.invoke('db:clear-chat-summary', chatId),
-    needsSummaryUpdate: (chatId: string, minMessages?: number, maxAgeHours?: number) =>
-      ipcRenderer.invoke('db:needs-summary-update', chatId, minMessages, maxAgeHours),
-    // Analytics methods
-    generateAnalytics: (filter: any) => ipcRenderer.invoke('db:generate-analytics', filter),
-    getAnalyticsSummary: (timeRange?: string) =>
-      ipcRenderer.invoke('db:get-analytics-summary', timeRange)
-  },
-  search: {
-    messages: (searchQuery: any) => ipcRenderer.invoke('search:messages', searchQuery),
-    getStats: () => ipcRenderer.invoke('search:get-stats'),
-    rebuildIndex: () => ipcRenderer.invoke('search:rebuild-index'),
-    optimizeIndex: () => ipcRenderer.invoke('search:optimize-index'),
-    getIndexStatus: () => ipcRenderer.invoke('search:get-index-status')
-  },
-  window: {
-    // Window management APIs
-    createWindow: (options?: any) => ipcRenderer.invoke('window:create', options),
-    closeWindow: (windowId: string) => ipcRenderer.invoke('window:close', windowId),
-    focusWindow: (windowId: string) => ipcRenderer.invoke('window:focus', windowId),
-    minimizeWindow: (windowId: string) => ipcRenderer.invoke('window:minimize', windowId),
-    maximizeWindow: (windowId: string) => ipcRenderer.invoke('window:maximize', windowId),
-    restoreWindow: (windowId: string) => ipcRenderer.invoke('window:restore', windowId),
-    getWindowState: (windowId: string) => ipcRenderer.invoke('window:get-state', windowId),
-    getAllWindows: () => ipcRenderer.invoke('window:get-all'),
-    // Window event listeners
-    onWindowCreated: (callback: Function) => {
-      ipcRenderer.on('window:created', (_, ...args) => callback(...args))
-    },
-    onWindowClosed: (callback: Function) => {
-      ipcRenderer.on('window:closed', (_, ...args) => callback(...args))
-    },
-    onWindowFocused: (callback: Function) => {
-      ipcRenderer.on('window:focused', (_, ...args) => callback(...args))
-    },
-    onWindowStateChanged: (callback: Function) => {
-      ipcRenderer.on('window:state-changed', (_, ...args) => callback(...args))
-    },
-    onWindowBoundsChanged: (callback: Function) => {
-      ipcRenderer.on('window:bounds-changed', (_, ...args) => callback(...args))
-    }
-  },
   llm: {
-    setProvider: (config: any) => ipcRenderer.invoke('llm:setProvider', config),
-    sendMessage: (message: string | any[], chatId: string, messageId: string) =>
-      ipcRenderer.invoke('llm:sendMessage', message, chatId, messageId),
-    getConfig: () => ipcRenderer.invoke('llm:getConfig'),
-    isConfigured: () => ipcRenderer.invoke('llm:isConfigured'),
-    setToolsEnabled: (enabled: boolean) => ipcRenderer.invoke('llm:setToolsEnabled', enabled),
-    getToolsEnabled: () => ipcRenderer.invoke('llm:getToolsEnabled'),
-    getAllProviders: () => ipcRenderer.invoke('llm:getAllProviders'),
-    // Custom provider methods
-    addCustomProvider: (config: any) => ipcRenderer.invoke('llm:addCustomProvider', config),
-    updateCustomProvider: (id: string, updates: any) =>
-      ipcRenderer.invoke('llm:updateCustomProvider', id, updates),
-    removeCustomProvider: (id: string) => ipcRenderer.invoke('llm:removeCustomProvider', id),
-    getAllCustomProviders: () => ipcRenderer.invoke('llm:getAllCustomProviders'),
-    getCustomProvider: (id: string) => ipcRenderer.invoke('llm:getCustomProvider', id),
-    checkCustomProviderHealth: (id: string) =>
-      ipcRenderer.invoke('llm:checkCustomProviderHealth', id),
-    checkAllCustomProvidersHealth: () => ipcRenderer.invoke('llm:checkAllCustomProvidersHealth'),
-    getAllProviderHealthStatuses: () => ipcRenderer.invoke('llm:getAllProviderHealthStatuses'),
-    getCustomProviderHealth: (id: string) => ipcRenderer.invoke('llm:getCustomProviderHealth', id),
-    exportCustomProviders: () => ipcRenderer.invoke('llm:exportCustomProviders'),
-    importCustomProviders: (providers: any[]) =>
-      ipcRenderer.invoke('llm:importCustomProviders', providers),
-    onChunk: (callback: (data: any) => void) => {
-      const handler = (_: any, data: any) => callback(data)
-      ipcRenderer.on('llm:chunk', handler)
-      return () => ipcRenderer.removeListener('llm:chunk', handler)
-    },
-    onStatus: (callback: (data: any) => void) => {
-      const handler = (_: any, data: any) => callback(data)
-      ipcRenderer.on('llm:status', handler)
-      return () => ipcRenderer.removeListener('llm:status', handler)
-    },
-    onToolCall: (callback: (data: any) => void) => {
-      const handler = (_: any, data: any) => callback(data)
-      ipcRenderer.on('llm:tool-call', handler)
-      return () => ipcRenderer.removeListener('llm:tool-call', handler)
-    },
-    // Summary generation
-    generateSummary: (prompt: string) => ipcRenderer.invoke('llm:generate-summary', prompt)
-  },
-  file: {
-    select: () => ipcRenderer.invoke('file:select'),
-    paste: (dataUrl: string) => ipcRenderer.invoke('file:paste', dataUrl)
-  },
-  shortcuts: {
-    getAll: () => ipcRenderer.invoke('shortcuts:get-all'),
-    on: (callback: (action: string) => void) => {
-      const events = [
-        'shortcut:new-chat',
-        'shortcut:open-settings',
-        'shortcut:focus-input',
-        'shortcut:clear-chat',
-        'shortcut:prev-chat',
-        'shortcut:next-chat'
-      ]
-
-      events.forEach(event => {
-        ipcRenderer.on(event, () => callback(event.replace('shortcut:', '')))
-      })
-    }
-  },
-  plugins: {
-    getAll: () => ipcRenderer.invoke('plugins:get-all'),
-    enable: (pluginId: string) => ipcRenderer.invoke('plugins:enable', pluginId),
-    disable: (pluginId: string) => ipcRenderer.invoke('plugins:disable', pluginId)
-  },
-  export: {
-    getChat: (chatId: string) => ipcRenderer.invoke('export:get-chat', chatId),
-    getChats: (chatIds: string[]) => ipcRenderer.invoke('export:get-chats', chatIds),
-    getAllChats: () => ipcRenderer.invoke('export:get-all-chats'),
-    getMessages: (chatId: string) => ipcRenderer.invoke('export:get-messages', chatId),
-    getChatsStream: (chatIds: string[], batchSize?: number) =>
-      ipcRenderer.invoke('export:get-chats-stream', chatIds, batchSize),
-    getMessagesStream: (chatId: string, offset?: number, limit?: number) =>
-      ipcRenderer.invoke('export:get-messages-stream', chatId, offset, limit),
-    onProgress: (callback: (data: any) => void) => {
-      const handler = (_: any, data: any) => callback(data)
-      ipcRenderer.on('export:progress', handler)
-      return () => ipcRenderer.removeListener('export:progress', handler)
-    }
+    // 发送消息 - 简化的接口
+    sendMessage: (messages: Array<{role: string, content: string}>) =>
+      ipcRenderer.invoke('llm:send-message', messages),
+    // 获取支持的提供商
+    getProviders: () => ipcRenderer.invoke('llm:get-providers'),
+    // 保存设置
+    saveSettings: (settings: any) => ipcRenderer.invoke('llm:save-settings', settings),
+    // 加载设置
+    loadSettings: () => ipcRenderer.invoke('llm:load-settings')
   },
   // 通用invoke方法，为了向后兼容
-  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
-  error: {
-    report: (data: any) => ipcRenderer.invoke('error:report', data)
-  }
+  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
 }
 
 console.log('[Preload] Script loaded, api object:', api)
 console.log('[Preload] Context isolated:', process.contextIsolated)
 
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electronAPI', api)
-    contextBridge.exposeInMainWorld('api', api)
-    console.log('[Preload] API exposed to main world successfully')
-  } catch (error) {
-    console.error('[Preload] Failed to expose API:', error)
-  }
-} else {
-  window.electronAPI = api
-  window.api = api
-  console.log('[Preload] API attached to window directly')
-}
+// 简化的API暴露
+;(window as any).electronAPI = api
+;(window as any).api = api
+console.log('[Preload] API exposed successfully')

@@ -149,7 +149,7 @@ export class MetricsCollector {
   /**
    * Record network request performance
    */
-  recordNetworkRequest(requestId: string, url: string, size: number = 0): void {
+  recordNetworkRequest(requestId: string, _url: string, size: number = 0): void {
     this.networkRequests.set(requestId, {
       startTime: performance.now(),
       size
@@ -250,7 +250,7 @@ export class MetricsCollector {
   /**
    * Monitor Vue reactive ref for performance impact
    */
-  monitorReactiveRef<T>(ref: Ref<T>, name: string): void {
+  monitorReactiveRef<T>(_ref: Ref<T>, name: string): void {
     // In a real implementation, would use Vue's reactivity API to monitor changes
     // This is a simplified version for demonstration
     console.log(`Monitoring reactive ref: ${name}`)
@@ -549,8 +549,9 @@ export class MetricsCollector {
 
   private estimateMemoryUsage(): number {
     // Use performance.memory if available (Chrome)
-    if (performance.memory) {
-      return Math.round(performance.memory.usedJSHeapSize / 1024 / 1024)
+    const perfWithMemory = performance as any
+    if (perfWithMemory.memory) {
+      return Math.round(perfWithMemory.memory.usedJSHeapSize / 1024 / 1024)
     }
     
     // Fallback estimation based on DOM nodes and other factors

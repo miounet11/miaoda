@@ -1,85 +1,35 @@
-/* Base styles first */
-@import './animations.css';
-
-/* Layout and positioning styles */
-@import '../../styles/mobile-improvements.css';
-@import '../../styles/macos-titlebar.css';
-@import '../../styles/layout-optimizations.css';
-@import '../../styles/sidebar-enhancements.css';
-@import '../../styles/spacing-layout-fixes.css';
-
-/* Component base styles */
-@import '../../styles/micro-interactions.css';
-@import '../../styles/enhanced-interaction-feedback.css';
-@import '../../styles/ui-optimizations.css';
-@import '../../styles/design-system.css';
-@import '../../styles/component-fixes.css';
-@import '../../styles/input-critical-fixes.css';
-@import '../../styles/button-interactive-fixes.css';
-@import '../../styles/minimal-animations.css';
-@import '../../styles/ui-critical-fixes.css';
-@import '../../styles/performance-accessibility-fixes.css';
-
-/* CRITICAL: Grok monochromatic color system */
-@import '../../styles/grok-monochrome.css';
-
-/* FINAL OVERRIDE: Force all remaining colors to monochromatic - ABSOLUTE LAST IMPORT */
-@import '../../styles/color-override-monochrome.css';
+/* 🏆 MiaoDa Chat - 统一样式系统
+ * 所有样式已整合到 unified-design-system.css 中
+ */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  /* Base variables are now handled by grok-monochrome.css */
-  /* This section provides only additional overrides if needed */
+/* 统一样式系统已接管所有样式定义 */
 
-  :root {
-    /* Ensure radius is defined for components */
-    --radius: 0.75rem;
+/* 滚动条样式已在统一样式系统中定义 */
+
+/* 🎨 全局样式增强 */
+
+/* 全局焦点样式 */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: 2px;
+}
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
-  }
-
-  /* 确保消息内容始终可见 */
-  .message-bubble {
-    color: inherit;
-  }
-
-  .message-bubble.bg-secondary\/50 {
-    color: hsl(var(--foreground));
-  }
-
-  /* 修复暗色模式下的文本对比度 */
-  .dark .message-content-wrapper {
-    color: hsl(var(--foreground)) !important;
-  }
-}
-
-/* Scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/30;
+/* HSL色彩模式支持示例 */
+:root {
+  --primary-hsl: 221.2 83.2% 53.3%;
+  --background-hsl: 0 0% 100%;
+  --foreground-hsl: 222.2 84% 4.9%;
 }

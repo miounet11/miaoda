@@ -1,6 +1,8 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
 
 export default defineConfig({
   main: {
@@ -32,6 +34,26 @@ export default defineConfig({
       }
     },
     plugins: [vue()],
+    css: {
+      postcss: {
+        plugins: [
+          tailwindcss('./tailwind.config.js'),
+          autoprefixer()
+        ]
+      }
+    },
+    server: {
+      host: '127.0.0.1',
+      port: 5174,
+      strictPort: true,
+      hmr: {
+        port: 5174,
+        host: '127.0.0.1'
+      },
+      watch: {
+        usePolling: false
+      }
+    },
     esbuild: {
       logOverride: { 'duplicate-object-key': 'silent' }
     }

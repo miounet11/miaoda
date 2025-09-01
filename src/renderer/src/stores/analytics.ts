@@ -32,7 +32,7 @@ export const useAnalyticsStore = defineStore(
     const isLoaded = computed(() => analyticsData.value !== null)
     const hasError = computed(() => error.value !== null)
     const isStale = computed(() => {
-      if (!lastUpdated.value) return true
+      if (!lastUpdated.value || !(lastUpdated.value instanceof Date)) return true
       const staleThreshold = 5 * 60 * 1000 // 5 minutes
       return Date.now() - lastUpdated.value.getTime() > staleThreshold
     })

@@ -3,15 +3,9 @@ import App from './App.vue'
 import router from './router'
 import { pinia } from './stores'
 import { setupI18n } from './services/i18n'
-import './assets/css/main.css'
-import './styles/micro-interaction-system.css' // 新的统一微交互系统
-import './styles/button-system-enhanced.css' // 按钮系统增强
-import './styles/input-system-enhanced.css' // 输入框系统增强
-import './styles/mobile-improvements.css'
-import './styles/micro-interactions.css'
-import './styles/layout-optimizations.css'
-import './styles/sidebar-enhancements.css' // Enhanced sidebar visibility and interactions
-import './assets/css/stable-animations.css' // Override problematic scale animations
+import './assets/css/main.css' // 🏆 Tailwind CSS 基础样式
+import './styles/unified-design-system.css' // 🏆 统一样式设计系统
+import './styles/z-index-system.css' // 🏆 统一Z-Index管理系统
 
 // Initialize error boundary service early to catch all errors
 import { errorBoundary } from './utils/ErrorBoundary'
