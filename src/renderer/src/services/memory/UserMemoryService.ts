@@ -111,7 +111,7 @@ class UserMemoryService {
     this.memory.value = {
       userId: this.generateUserId(),
       basicInfo: {
-        interests: []
+        interests: [],
       },
       preferences: {
         responseStyle: 'casual',
@@ -121,18 +121,18 @@ class UserMemoryService {
         preferredModels: [],
         voiceEnabled: true,
         autoSuggestions: true,
-        responseLength: 'medium'
+        responseLength: 'medium',
       },
       habits: {
         activeHours: [],
         frequentQueries: new Map(),
         averageSessionLength: 0,
         preferredFeatures: [],
-        interactionStyle: 'quick'
+        interactionStyle: 'quick',
       },
       memories: [],
       lastUpdated: new Date(),
-      version: 1
+      version: 1,
     }
     this.saveMemory()
   }
@@ -145,18 +145,18 @@ class UserMemoryService {
   // 保存记忆到本地
   private async saveMemory() {
     if (!this.memory.value) return
-    
+
     try {
       // 转换Map为数组以便序列化
       const memoryToSave = {
         ...this.memory.value,
         habits: {
           ...this.memory.value.habits,
-          frequentQueries: Array.from(this.memory.value.habits.frequentQueries.entries())
-        }
+          frequentQueries: Array.from(this.memory.value.habits.frequentQueries.entries()),
+        },
       }
       localStorage.setItem('user_memory', JSON.stringify(memoryToSave))
-      
+
       // 触发更新回调
       this.memoryUpdateCallbacks.forEach(callback => {
         callback(this.memory.value!)
@@ -169,14 +169,14 @@ class UserMemoryService {
   // 更新基础信息
   updateBasicInfo(info: Partial<UserBasicInfo>) {
     if (!this.memory.value) return
-    
+
     this.memory.value.basicInfo = {
       ...this.memory.value.basicInfo,
-      ...info
+      ...info,
     }
     this.memory.value.lastUpdated = new Date()
     this.saveMemory()
-    
+
     // 根据新信息生成推荐
     this.generateRecommendations()
   }
@@ -184,10 +184,10 @@ class UserMemoryService {
   // 更新偏好设置
   updatePreferences(preferences: Partial<UserPreferences>) {
     if (!this.memory.value) return
-    
+
     this.memory.value.preferences = {
       ...this.memory.value.preferences,
-      ...preferences
+      ...preferences,
     }
     this.memory.value.lastUpdated = new Date()
     this.saveMemory()
@@ -196,7 +196,7 @@ class UserMemoryService {
   // 记录用户习惯
   recordHabit(habitType: string, value: any) {
     if (!this.memory.value) return
-    
+
     switch (habitType) {
       case 'query':
         this.recordQuery(value)
@@ -211,7 +211,7 @@ class UserMemoryService {
         this.recordSessionLength(value)
         break
     }
-    
+
     this.saveMemory()
   }
 
@@ -220,7 +220,7 @@ class UserMemoryService {
     const queries = this.memory.value!.habits.frequentQueries
     const count = queries.get(query) || 0
     queries.set(query, count + 1)
-    
+
     // 保持最多100个查询记录
     if (queries.size > 100) {
       const entries = Array.from(queries.entries())
@@ -245,7 +245,7 @@ class UserMemoryService {
     if (!features.includes(feature)) {
       features.push(feature)
     }
-    
+
     // 保持最多20个常用功能
     if (features.length > 20) {
       features.shift()
@@ -263,15 +263,15 @@ class UserMemoryService {
   // 添加记忆条目
   addMemory(entry: Omit<MemoryEntry, 'id' | 'timestamp'>) {
     if (!this.memory.value) return
-    
+
     const newEntry: MemoryEntry = {
       ...entry,
       id: this.generateMemoryId(),
-      timestamp: new Date()
+      timestamp: new Date(),
     }
-    
+
     this.memory.value.memories.push(newEntry)
-    
+
     // 限制记忆条目数量
     if (this.memory.value.memories.length > 500) {
       // 按重要性和时间排序，保留重要的和最近的
@@ -282,7 +282,7 @@ class UserMemoryService {
       })
       this.memory.value.memories = this.memory.value.memories.slice(0, 400)
     }
-    
+
     this.memory.value.lastUpdated = new Date()
     this.saveMemory()
   }
@@ -295,7 +295,7 @@ class UserMemoryService {
   // 搜索记忆
   searchMemories(query: string, type?: MemoryEntry['type']): MemoryEntry[] {
     if (!this.memory.value) return []
-    
+
     return this.memory.value.memories.filter(entry => {
       const matchesType = !type || entry.type === type
       const matchesContent = entry.content.toLowerCase().includes(query.toLowerCase()) ||
@@ -307,11 +307,11 @@ class UserMemoryService {
   // 获取相关记忆
   getRelevantMemories(context: string, limit: number = 5): MemoryEntry[] {
     if (!this.memory.value) return []
-    
+
     // 简单的相关性评分算法
     const scored = this.memory.value.memories.map(entry => {
       let score = 0
-      
+
       // 内容匹配
       const words = context.toLowerCase().split(' ')
       words.forEach(word => {
@@ -319,24 +319,24 @@ class UserMemoryService {
           score += 1
         }
       })
-      
+
       // 标签匹配
       entry.tags.forEach(tag => {
         if (context.toLowerCase().includes(tag.toLowerCase())) {
           score += 2
         }
       })
-      
+
       // 重要性加权
       score *= (entry.importance / 10)
-      
+
       // 时间衰减
       const daysSince = (Date.now() - entry.timestamp.getTime()) / (1000 * 60 * 60 * 24)
       score *= Math.exp(-daysSince / 30) // 30天半衰期
-      
+
       return { entry, score }
     })
-    
+
     return scored
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
@@ -346,9 +346,9 @@ class UserMemoryService {
   // 生成智能推荐
   private generateRecommendations() {
     const newRecommendations: SmartRecommendation[] = []
-    
+
     if (!this.memory.value) return
-    
+
     // 基于兴趣的推荐
     if (this.memory.value.basicInfo.interests.length > 0) {
       this.memory.value.basicInfo.interests.forEach(interest => {
@@ -357,18 +357,18 @@ class UserMemoryService {
           type: 'content',
           title: `探索${interest}相关内容`,
           description: `发现更多关于${interest}的精彩内容`,
-          reason: `基于您的兴趣爱好`,
+          reason: '基于您的兴趣爱好',
           confidence: 0.8,
           priority: 'medium',
-          dismissible: true
+          dismissible: true,
         })
       })
     }
-    
+
     // 基于使用习惯的推荐
     const activeHours = this.memory.value.habits.activeHours
     const currentHour = new Date().getHours()
-    
+
     if (activeHours.includes(currentHour)) {
       newRecommendations.push({
         id: 'rec_active_time',
@@ -378,10 +378,10 @@ class UserMemoryService {
         reason: '基于您的使用习惯',
         confidence: 0.9,
         priority: 'low',
-        dismissible: true
+        dismissible: true,
       })
     }
-    
+
     // 基于常用功能的推荐
     if (this.memory.value.habits.preferredFeatures.length > 0) {
       const feature = this.memory.value.habits.preferredFeatures[0]
@@ -393,10 +393,10 @@ class UserMemoryService {
         reason: '基于您的使用频率',
         confidence: 0.85,
         priority: 'medium',
-        dismissible: false
+        dismissible: false,
       })
     }
-    
+
     this.recommendations.value = newRecommendations
   }
 
@@ -425,11 +425,11 @@ class UserMemoryService {
   // 分析用户行为
   private analyzeUserBehavior() {
     if (!this.memory.value) return
-    
+
     // 分析查询模式
     const queries = Array.from(this.memory.value.habits.frequentQueries.entries())
     const topQueries = queries.sort((a, b) => b[1] - a[1]).slice(0, 10)
-    
+
     // 推断兴趣话题
     const topics = new Set<string>()
     topQueries.forEach(([query]) => {
@@ -440,12 +440,12 @@ class UserMemoryService {
       if (query.includes('健康') || query.includes('运动')) topics.add('健康')
       if (query.includes('美食') || query.includes('烹饪')) topics.add('美食')
     })
-    
+
     // 更新偏好话题
     if (topics.size > 0) {
       this.memory.value.preferences.favoriteTopics = Array.from(topics)
     }
-    
+
     // 推断交互风格
     const avgLength = this.memory.value.habits.averageSessionLength
     if (avgLength < 5) {
@@ -502,17 +502,17 @@ class UserMemoryService {
   // 获取用户画像摘要
   getUserProfile(): string {
     if (!this.memory.value) return '新用户'
-    
+
     const { basicInfo, preferences, habits } = this.memory.value
     const profile: string[] = []
-    
+
     if (basicInfo.name) profile.push(`姓名: ${basicInfo.name}`)
     if (basicInfo.occupation) profile.push(`职业: ${basicInfo.occupation}`)
     if (basicInfo.interests.length > 0) profile.push(`兴趣: ${basicInfo.interests.join(', ')}`)
-    
+
     profile.push(`偏好风格: ${preferences.responseStyle}`)
     profile.push(`交互风格: ${habits.interactionStyle}`)
-    
+
     return profile.join('\n')
   }
 }
@@ -523,7 +523,7 @@ export const userMemoryService = UserMemoryService.getInstance()
 // 导出Vue组合式API hook
 export function useUserMemory() {
   const service = userMemoryService
-  
+
   return {
     memory: computed(() => service.getCurrentMemory()),
     recommendations: computed(() => service.getRecommendations()),
@@ -537,6 +537,6 @@ export function useUserMemory() {
     getUserProfile: () => service.getUserProfile(),
     exportMemory: () => service.exportMemory(),
     importMemory: (data: string) => service.importMemory(data),
-    clearMemory: () => service.clearMemory()
+    clearMemory: () => service.clearMemory(),
   }
 }

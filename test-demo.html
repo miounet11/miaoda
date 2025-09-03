@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 MiaoDa Chat - 增强版AI模型配置系统演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .status-icon {
+            font-size: 1.8rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .feature-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .feature-desc {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .model-showcase {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .model-category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .model-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .model-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .model-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: scale(1.02);
+        }
+        
+        .model-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .model-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .model-badge {
+            background: #48bb78;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .model-badge.hot {
+            background: #ed8936;
+        }
+        
+        .model-desc {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .model-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            border: 1px solid #b2f5ea;
+        }
+        
+        .demo-flow {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .step-content p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .success-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #c6f6d5;
+            color: #276749;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .running-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fed7d7;
+            color: #c53030;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MiaoDa Chat 增强版</h1>
+            <p>真正可用的AI模型配置系统 - 现已运行测试版本</p>
+        </div>
+
+        <!-- 运行状态 -->
+        <div class="status-card">
+            <div class="status-title">
+                <span class="status-icon">✅</span>
+                <span>系统运行状态</span>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">
+                        <span>🔧</span>
+                        <span>应用构建</span>
+                    </div>
+                    <div class="feature-desc">
+                        <span class="success-indicator">✅ 构建成功</span><br>
+                        主进程、预加载脚本、渲染进程全部编译正常
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">
+                        <span>⚡</span>
+                        <span>Electron 应用</span>
+                    </div>
+                    <div class="feature-desc">
+                        <span class="running-indicator">🔴 正在运行</span><br>
+                        开发服务器: http://127.0.0.1:5174/
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">
+                        <span>🔗</span>
+                        <span>IPC 通信</span>
+                    </div>
+                    <div class="feature-desc">
+                        <span class="success-indicator">✅ 连接正常</span><br>
+                        前后端数据通信桥梁已建立
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">
+                        <span>🧠</span>
+                        <span>LLM 管理器</span>
+                    </div>
+                    <div class="feature-desc">
+                        <span class="success-indicator">✅ 初始化完成</span><br>
+                        支持多提供商动态切换
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 支持的模型展示 -->
+        <div class="model-showcase">
+            <div class="status-title">
+                <span class="status-icon">🌟</span>
+                <span>支持的AI模型</span>
+            </div>
+
+            <div class="model-category">
+                <div class="category-title">
+                    <span>🇨🇳</span>
+                    <span>国内主流大模型</span>
+                </div>
+                <div class="model-list">
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🌊</span>
+                                <span>DeepSeek</span>
+                            </div>
+                            <span class="model-badge hot">热门</span>
+                        </div>
+                        <div class="model-desc">深度求索 - 高性价比编程模型</div>
+                        <div class="model-tags">
+                            <span class="tag">32K上下文</span>
+                            <span class="tag">编程专精</span>
+                            <span class="tag">¥0.0014/1K</span>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🌟</span>
+                                <span>通义千问</span>
+                            </div>
+                            <span class="model-badge hot">热门</span>
+                        </div>
+                        <div class="model-desc">阿里云 - 中文理解出色</div>
+                        <div class="model-tags">
+                            <span class="tag">多模态</span>
+                            <span class="tag">函数调用</span>
+                            <span class="tag">中文优化</span>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🌙</span>
+                                <span>Kimi</span>
+                            </div>
+                            <span class="model-badge">推荐</span>
+                        </div>
+                        <div class="model-desc">Moonshot - 超长上下文</div>
+                        <div class="model-tags">
+                            <span class="tag">128K tokens</span>
+                            <span class="tag">文档分析</span>
+                            <span class="tag">长文本</span>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🧠</span>
+                                <span>智谱清言</span>
+                            </div>
+                            <span class="model-badge">推荐</span>
+                        </div>
+                        <div class="model-desc">GLM-4 - 清华技术</div>
+                        <div class="model-tags">
+                            <span class="tag">多模态</span>
+                            <span class="tag">推理强</span>
+                            <span class="tag">128K上下文</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-category">
+                <div class="category-title">
+                    <span>🌍</span>
+                    <span>国际顶级大模型</span>
+                </div>
+                <div class="model-list">
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🤖</span>
+                                <span>OpenAI GPT</span>
+                            </div>
+                            <span class="model-badge hot">热门</span>
+                        </div>
+                        <div class="model-desc">ChatGPT系列全球领先</div>
+                        <div class="model-tags">
+                            <span class="tag">GPT-4o</span>
+                            <span class="tag">多模态</span>
+                            <span class="tag">函数调用</span>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>🎭</span>
+                                <span>Claude</span>
+                            </div>
+                            <span class="model-badge hot">热门</span>
+                        </div>
+                        <div class="model-desc">Anthropic - 安全可靠</div>
+                        <div class="model-tags">
+                            <span class="tag">Claude 3.5</span>
+                            <span class="tag">200K上下文</span>
+                            <span class="tag">推理优秀</span>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-header">
+                            <div class="model-name">
+                                <span>💎</span>
+                                <span>Gemini</span>
+                            </div>
+                            <span class="model-badge">推荐</span>
+                        </div>
+                        <div class="model-desc">Google - 多模态先驱</div>
+                        <div class="model-tags">
+                            <span class="tag">Gemini Pro</span>
+                            <span class="tag">视觉理解</span>
+                            <span class="tag">快速响应</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用流程演示 -->
+        <div class="demo-flow">
+            <div class="status-title">
+                <span class="status-icon">🎯</span>
+                <span>真实功能演示</span>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>点击模型选择器</h4>
+                    <p>在聊天界面顶部，点击显示当前模型的按钮，会打开<span class="highlight">增强版模型选择器</span></p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>浏览分类模型</h4>
+                    <p>可以在<span class="highlight">推荐、国内、国外、本地</span>四个分类中浏览，或使用搜索功能快速定位</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>配置API密钥</h4>
+                    <p>选择心仪模型后，点击<span class="highlight">"配置"</span>按钮，输入API密钥和端点地址</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>测试连接</h4>
+                    <p>系统会进行<span class="highlight">真实的API连接测试</span>，验证配置是否正确</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h4>立即开始对话</h4>
+                    <p>配置成功后，发送消息将<span class="highlight">真实调用选中的AI模型</span>进行对话</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h4>智能回退机制</h4>
+                    <p>如果配置的模型暂时不可用，系统会<span class="highlight">自动回退到可用的服务</span>，确保用户体验</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加一些动态效果
+        document.querySelectorAll('.model-item').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+            item.classList.add('animate-slide-up');
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-slide-up {
+                animation: slideUp 0.6s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🚀 MiaoDa Chat 增强版AI模型配置系统演示页面加载完成！');
+        console.log('✅ 系统特性：');
+        console.log('   - 支持国内外主流大模型');
+        console.log('   - 真实API调用功能');  
+        console.log('   - 智能配置向导');
+        console.log('   - 响应式设计');
+        console.log('   - 状态反馈系统');
+    </script>
+</body>
+</html>

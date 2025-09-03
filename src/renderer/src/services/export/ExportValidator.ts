@@ -15,7 +15,7 @@ const ExportOptionsSchema = z.object({
   dateFrom: z.date().optional(),
   dateTo: z.date().optional(),
   title: z.string().max(200, 'Title too long (maximum: 200 characters)').optional(),
-  author: z.string().max(100, 'Author name too long (maximum: 100 characters)').optional()
+  author: z.string().max(100, 'Author name too long (maximum: 100 characters)').optional(),
 })
 
 export class ExportValidator {
@@ -63,19 +63,19 @@ export class ExportValidator {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         return {
           isValid: false,
-          errors: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+          errors: error.errors.map(e => `${e.path.join('.')}: ${e.message}`),
         }
       }
 
       return {
         isValid: false,
-        errors: [`Validation failed: ${error.message}`]
+        errors: [`Validation failed: ${error.message}`],
       }
     }
   }
@@ -139,7 +139,7 @@ export class ExportValidator {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -148,7 +148,7 @@ export class ExportValidator {
    */
   static validateExportSize(
     chatData: any[],
-    format: string
+    format: string,
   ): { isValid: boolean; estimatedSize: number; errors: string[] } {
     const errors: string[] = []
 
@@ -207,11 +207,11 @@ export class ExportValidator {
 
     if (estimatedSize > MAX_SIZE) {
       errors.push(
-        `Estimated export size (${Math.round(estimatedSize / 1024 / 1024)}MB) exceeds maximum limit (100MB)`
+        `Estimated export size (${Math.round(estimatedSize / 1024 / 1024)}MB) exceeds maximum limit (100MB)`,
       )
     } else if (estimatedSize > WARN_SIZE) {
       errors.push(
-        `Warning: Large export size (${Math.round(estimatedSize / 1024 / 1024)}MB) may cause performance issues`
+        `Warning: Large export size (${Math.round(estimatedSize / 1024 / 1024)}MB) may cause performance issues`,
       )
     }
 
@@ -222,7 +222,7 @@ export class ExportValidator {
     return {
       isValid: estimatedSize <= MAX_SIZE && messageCount <= 100000,
       estimatedSize,
-      errors
+      errors,
     }
   }
 
@@ -239,7 +239,7 @@ export class ExportValidator {
       /on\w+\s*=/gi, // Event handlers like onclick=, onload=, etc.
       /data:text\/html/gi,
       /vbscript:/gi,
-      /expression\s*\(/gi // CSS expression()
+      /expression\s*\(/gi, // CSS expression()
     ]
 
     return suspiciousPatterns.some(pattern => pattern.test(content))
@@ -281,7 +281,7 @@ export class ExportValidator {
       csv: ['text/csv', 'application/csv'],
       xlsx: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
       docx: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-      zip: ['application/zip', 'application/x-zip-compressed']
+      zip: ['application/zip', 'application/x-zip-compressed'],
     }
 
     return validMimeTypes[format]?.includes(mimeType) ?? false

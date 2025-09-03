@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewAPI 功能测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .newapi-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .config-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .chat-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .debug-panel {
+            background: #1f2937;
+            color: #e5e7eb;
+            font-family: 'Monaco', 'Menlo', monospace;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .parameter-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+        }
+        .parameter-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">NewAPI 功能测试页面</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧配置面板 -->
+            <div class="lg:col-span-1">
+                <div class="config-panel rounded-xl p-6 shadow-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                        </svg>
+                        模型配置
+                    </h2>
+
+                    <!-- 自定义请求体模式 -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">自定义请求体模式</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" id="customMode">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 分组选择 -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分组</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="groupSelect">
+                            <option value="default">默认分组</option>
+                            <option value="work">工作</option>
+                            <option value="personal">个人</option>
+                            <option value="research">研究</option>
+                        </select>
+                    </div>
+
+                    <!-- 模型选择 -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">模型</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="modelSelect">
+                            <option value="claude-opus-4-1-20250805-thinking">claude-opus-4-1-20250805-thinking</option>
+                            <option value="claude-3-5-sonnet">claude-3-5-sonnet</option>
+                            <option value="gpt-4">gpt-4</option>
+                            <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                            <option value="gemini-pro">gemini-pro</option>
+                        </select>
+                    </div>
+
+                    <!-- 参数设置 -->
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Temperature</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs" id="tempValue">0.7</span>
+                            </div>
+                            <input type="range" min="0.1" max="1" step="0.1" value="0.7" class="parameter-slider" id="temperature">
+                            <p class="text-xs text-gray-500 mt-1">控制输出的随机性和创造性</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Top P</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs" id="topPValue">1</span>
+                            </div>
+                            <input type="range" min="0.1" max="1" step="0.1" value="1" class="parameter-slider" id="topP">
+                            <p class="text-xs text-gray-500 mt-1">核采样，控制词汇选择的多样性</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Frequency Penalty</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs" id="freqValue">0</span>
+                            </div>
+                            <input type="range" min="-2" max="2" step="0.1" value="0" class="parameter-slider" id="frequencyPenalty">
+                            <p class="text-xs text-gray-500 mt-1">频率惩罚，减少重复词汇的出现</p>
+                        </div>
+                    </div>
+
+                    <!-- 流式输出 -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">流式输出</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" id="streamMode" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="mt-6 space-y-2">
+                        <button class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" onclick="exportConfig()">
+                            导出配置
+                        </button>
+                        <button class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors" onclick="importConfig()">
+                            导入配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间聊天区域 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg h-96 flex flex-col">
+                    <!-- 顶部导航 -->
+                    <div class="newapi-gradient px-4 py-3 rounded-t-xl">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-white font-semibold">MiaoDa Chat</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-white/80 text-sm">claude-opus-4-1-20250805-thinking</span>
+                                <button class="text-white/80 hover:text-white" onclick="toggleDebug()" title="调试面板">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M21 12c-1 0-3-1-3-3s2-3 3-3M3 12c1 0 3-1 3-3s-2-3-3-3m18 0v18M3 21V3"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 消息区域 -->
+                    <div class="flex-1 p-4 overflow-y-auto" id="messageArea">
+                        <div class="text-center text-gray-500 py-8">
+                            <p>欢迎使用 MiaoDa Chat</p>
+                            <p class="text-sm mt-2">发送消息开始对话...</p>
+                        </div>
+                    </div>
+
+                    <!-- 输入区域 -->
+                    <div class="p-4 border-t">
+                        <div class="flex space-x-2">
+                            <input
+                                type="text"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="请输入您的问题..."
+                                id="messageInput"
+                                onkeypress="handleKeyPress(event)"
+                            >
+                            <button
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                onclick="sendMessage()"
+                            >
+                                发送
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧调试面板 -->
+            <div class="lg:col-span-1" id="debugPanel" style="display: none;">
+                <div class="debug-panel h-96">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">调试信息</h3>
+                        <button class="text-gray-400 hover:text-white" onclick="toggleDebug()">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- 标签页 -->
+                    <div class="flex border-b border-gray-600 mb-4">
+                        <button class="px-3 py-2 text-sm border-b-2 border-blue-500 text-blue-400" onclick="switchTab('preview')" id="previewTab">
+                            预览请求体
+                        </button>
+                        <button class="px-3 py-2 text-sm text-gray-400" onclick="switchTab('request')" id="requestTab">
+                            实际请求体
+                        </button>
+                        <button class="px-3 py-2 text-sm text-gray-400" onclick="switchTab('response')" id="responseTab">
+                            响应
+                        </button>
+                    </div>
+
+                    <!-- 内容区域 -->
+                    <div id="debugContent" class="text-xs overflow-auto h-64">
+                        <pre id="debugText">{
+  "model": "claude-opus-4-1-20250805-thinking",
+  "group": "default",
+  "messages": [
+    {
+      "role": "user",
+      "content": "你好"
+    }
+  ],
+  "stream": true,
+  "temperature": 0.7,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0
+}</pre>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-600 text-xs text-gray-400">
+                        预览更新: <span id="lastUpdate">刚刚</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let messages = [];
+        let currentConfig = {
+            customRequestMode: false,
+            group: 'default',
+            model: 'claude-opus-4-1-20250805-thinking',
+            temperature: 0.7,
+            topP: 1,
+            frequencyPenalty: 0,
+            presencePenalty: 0,
+            maxTokens: 4096,
+            seed: '',
+            stream: true,
+            imageUrls: []
+        };
+
+        // DOM 元素
+        const messageArea = document.getElementById('messageArea');
+        const messageInput = document.getElementById('messageInput');
+        const debugPanel = document.getElementById('debugPanel');
+        const debugText = document.getElementById('debugText');
+        const lastUpdate = document.getElementById('lastUpdate');
+
+        // 参数滑块事件监听
+        document.getElementById('temperature').addEventListener('input', function(e) {
+            document.getElementById('tempValue').textContent = e.target.value;
+            currentConfig.temperature = parseFloat(e.target.value);
+            updateDebugPreview();
+        });
+
+        document.getElementById('topP').addEventListener('input', function(e) {
+            document.getElementById('topPValue').textContent = e.target.value;
+            currentConfig.topP = parseFloat(e.target.value);
+            updateDebugPreview();
+        });
+
+        document.getElementById('frequencyPenalty').addEventListener('input', function(e) {
+            document.getElementById('freqValue').textContent = e.target.value;
+            currentConfig.frequencyPenalty = parseFloat(e.target.value);
+            updateDebugPreview();
+        });
+
+        // 发送消息
+        function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            // 添加用户消息
+            addMessage('user', content);
+            messageInput.value = '';
+
+            // 模拟AI回复
+            setTimeout(() => {
+                addMessage('assistant', `这是对"${content}"的AI回复示例。\n\n当前配置:\n- 模型: ${currentConfig.model}\n- Temperature: ${currentConfig.temperature}\n- Top P: ${currentConfig.topP}\n- 流式输出: ${currentConfig.stream ? '开启' : '关闭'}`);
+            }, 1000);
+
+            updateDebugPreview();
+        }
+
+        // 处理键盘事件
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 添加消息
+        function addMessage(role, content) {
+            messages.push({ role, content, timestamp: new Date() });
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = role === 'user' ? 'chat-bubble bg-blue-500' : 'chat-bubble';
+            bubbleDiv.textContent = content;
+
+            messageDiv.appendChild(bubbleDiv);
+            messageArea.appendChild(messageDiv);
+
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        // 切换调试面板
+        function toggleDebug() {
+            const isVisible = debugPanel.style.display !== 'none';
+            debugPanel.style.display = isVisible ? 'none' : 'block';
+
+            if (!isVisible) {
+                updateDebugPreview();
+            }
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            // 更新标签页样式
+            document.querySelectorAll('[id$="Tab"]').forEach(tab => {
+                tab.className = 'px-3 py-2 text-sm text-gray-400';
+            });
+            document.getElementById(tabName + 'Tab').className = 'px-3 py-2 text-sm border-b-2 border-blue-500 text-blue-400';
+
+            // 这里可以切换不同标签页的内容
+            updateDebugPreview();
+        }
+
+        // 更新调试预览
+        function updateDebugPreview() {
+            const previewData = {
+                model: currentConfig.model,
+                group: currentConfig.group,
+                messages: messages.slice(-5).map(msg => ({ role: msg.role, content: msg.content })),
+                stream: currentConfig.stream,
+                temperature: currentConfig.temperature,
+                top_p: currentConfig.topP,
+                frequency_penalty: currentConfig.frequencyPenalty,
+                presence_penalty: currentConfig.presencePenalty
+            };
+
+            debugText.textContent = JSON.stringify(previewData, null, 2);
+            lastUpdate.textContent = new Date().toLocaleTimeString('zh-CN');
+        }
+
+        // 导出配置
+        function exportConfig() {
+            const configData = {
+                ...currentConfig,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `model-config-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('配置已导出！');
+        }
+
+        // 导入配置
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const config = JSON.parse(e.target.result);
+                            if (config.version) {
+                                Object.assign(currentConfig, config);
+                                updateUIFromConfig();
+                                alert('配置已导入！');
+                            } else {
+                                alert('无效的配置文件');
+                            }
+                        } catch (error) {
+                            alert('配置文件解析失败');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // 从配置更新UI
+        function updateUIFromConfig() {
+            document.getElementById('customMode').checked = currentConfig.customRequestMode;
+            document.getElementById('groupSelect').value = currentConfig.group;
+            document.getElementById('modelSelect').value = currentConfig.model;
+            document.getElementById('temperature').value = currentConfig.temperature;
+            document.getElementById('topP').value = currentConfig.topP;
+            document.getElementById('frequencyPenalty').value = currentConfig.frequencyPenalty;
+            document.getElementById('streamMode').checked = currentConfig.stream;
+
+            document.getElementById('tempValue').textContent = currentConfig.temperature;
+            document.getElementById('topPValue').textContent = currentConfig.topP;
+            document.getElementById('freqValue').textContent = currentConfig.frequencyPenalty;
+
+            updateDebugPreview();
+        }
+
+        // 初始化
+        updateDebugPreview();
+
+        // 添加一些示例消息
+        setTimeout(() => {
+            addMessage('assistant', '你好！我是AI助手，很高兴为你服务。\n\n你可以在这里测试NewAPI的所有功能：\n• 左侧配置模型参数\n• 发送消息进行对话\n• 查看右侧调试信息\n\n试试发送一条消息吧！');
+        }, 500);
+    </script>
+</body>
+</html>

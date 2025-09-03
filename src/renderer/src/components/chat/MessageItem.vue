@@ -114,10 +114,19 @@
                 </button>
 
                 <button
+                  v-if="message.role === 'assistant'"
+                  @click="$emit('toggle-role')"
+                  class="action-button-modern btn-interactive ripple"
+                  title="切换为System角色"
+                 aria-label="切换为System角色">
+                  <UserCheck :size="14" />
+                </button>
+
+                <button
                   @click="handleDelete"
                   class="action-button-modern action-button-destructive btn-interactive"
                   title="Delete message"
-                 aria-label="按钮">
+                 aria-label="删除">
                   <Trash2 :size="14" />
                 </button>
               </div>
@@ -214,7 +223,8 @@ import {
   Volume2,
   Loader2,
   Paperclip,
-  FileText
+  FileText,
+  UserCheck
 } from 'lucide-vue-next'
 import TypingIndicator from '../loading/TypingIndicator.vue'
 import UnifiedMessageContent from '../UnifiedMessageContent.vue'

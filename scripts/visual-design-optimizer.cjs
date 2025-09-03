@@ -23,7 +23,7 @@ class VisualDesignOptimizer {
       typographyImprovements: 0,
       spacingOptimizations: 0,
       layoutImprovements: 0,
-      responsiveEnhancements: 0
+      responsiveEnhancements: 0,
     }
   }
 
@@ -100,7 +100,7 @@ class VisualDesignOptimizer {
    */
   optimizeColorSystem(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result
@@ -212,7 +212,7 @@ class VisualDesignOptimizer {
    */
   optimizeTypography(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result
@@ -359,7 +359,7 @@ class VisualDesignOptimizer {
    */
   optimizeSpacing(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result
@@ -466,7 +466,7 @@ class VisualDesignOptimizer {
    */
   optimizeLayout(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result
@@ -624,7 +624,7 @@ class VisualDesignOptimizer {
    */
   optimizeResponsiveDesign(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result

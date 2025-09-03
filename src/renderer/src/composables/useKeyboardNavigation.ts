@@ -25,7 +25,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     enableModalNavigation = true,
     enableChatNavigation = true,
     enableFocusTrap = true,
-    autoFocus = true
+    autoFocus = true,
   } = options
 
   // State
@@ -48,7 +48,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     '[role="button"]',
     '[role="link"]',
     '[role="menuitem"]',
-    '[role="option"]'
+    '[role="option"]',
   ].join(', ')
 
   // Global keyboard shortcuts
@@ -87,7 +87,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     // Voice and media
     'ctrl+shift+v': () => emit('toggle-voice-recording'),
     'ctrl+shift+i': () => emit('upload-image'),
-    'ctrl+shift+f': () => emit('upload-file')
+    'ctrl+shift+f': () => emit('upload-file'),
   }
 
   // Focus management
@@ -206,7 +206,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
 
   const focusChatInput = () => {
     const chatInput = document.querySelector(
-      '.chat-input, [data-testid="chat-input"], textarea[placeholder*="消息"]'
+      '.chat-input, [data-testid="chat-input"], textarea[placeholder*="消息"]',
     )
     if (chatInput) {
       ;(chatInput as HTMLElement).focus()
@@ -238,12 +238,12 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     const root =
       container ||
       document.activeElement?.closest(
-        '[role="listbox"], [role="grid"], [role="menu"], .navigation-container'
+        '[role="listbox"], [role="grid"], [role="menu"], .navigation-container',
       )
     if (!root) return
 
     const items = Array.from(
-      root.querySelectorAll('[role="option"], [role="gridcell"], [role="menuitem"], .nav-item')
+      root.querySelectorAll('[role="option"], [role="gridcell"], [role="menuitem"], .nav-item'),
     )
     const currentIndex = items.indexOf(document.activeElement as Element)
 
@@ -285,7 +285,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
         ctrlKey && 'ctrl',
         shiftKey && 'shift',
         altKey && 'alt',
-        key.toLowerCase()
+        key.toLowerCase(),
       ]
         .filter(Boolean)
         .join('+')
@@ -365,7 +365,7 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
   const emit = (eventName: string, ...args: any[]) => {
     const event = new CustomEvent(`keyboard-navigation:${eventName}`, {
       detail: args,
-      bubbles: true
+      bubbles: true,
     })
     document.dispatchEvent(event)
   }
@@ -419,6 +419,6 @@ export const useKeyboardNavigation = (options: KeyboardNavigationOptions = {}) =
     },
     disable: () => {
       isNavigationActive.value = false
-    }
+    },
   }
 }

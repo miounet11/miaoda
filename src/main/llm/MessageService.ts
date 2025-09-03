@@ -20,20 +20,25 @@ export interface ToolCallback {
 export class MessageService {
   constructor(
     private mcpManager: MCPManager,
-    private enableTools: boolean = false
+    private enableTools: boolean = false,
   ) {}
 
   async sendMessage(
     provider: LLMProvider,
     message: string | any[],
     context: MessageContext,
-    onChunk?: ChunkCallback
+    onChunk?: ChunkCallback,
   ): Promise<string> {
+    // 转换单个消息为消息历史格式
+    const messages = typeof message === 'string'
+      ? [{ role: 'user', content: message }]
+      : [{ role: 'user', content: Array.isArray(message) ? message.map(m => m.text || '').join('\n') : String(message) }]
+
     if (this.shouldUseTools(provider)) {
-      return this.sendMessageWithTools(provider, message, context, onChunk)
+      return this.sendMessageWithTools(provider, messages, context, onChunk)
     }
 
-    return this.sendBasicMessage(provider, message, context, onChunk)
+    return this.sendBasicMessage(provider, messages, context, onChunk)
   }
 
   private shouldUseTools(provider: LLMProvider): boolean {
@@ -47,22 +52,22 @@ export class MessageService {
 
   private async sendMessageWithTools(
     provider: LLMProvider,
-    message: string | any[],
+    messages: Array<{role: string, content: string}>,
     context: MessageContext,
-    onChunk?: ChunkCallback
+    onChunk?: ChunkCallback,
   ): Promise<string> {
     const tools = this.mcpManager.getAvailableTools()
 
     this.notifyToolsAvailable(
       context,
-      tools.map(t => t.name)
+      tools.map(t => t.name),
     )
 
     const response = await provider.sendMessageWithTools!(
-      message,
+      messages,
       tools,
       this.createChunkHandler(context, onChunk),
-      this.createToolHandler(context)
+      this.createToolHandler(context),
     )
 
     // Notify that streaming is complete
@@ -73,11 +78,11 @@ export class MessageService {
 
   private async sendBasicMessage(
     provider: LLMProvider,
-    message: string | any[],
+    messages: Array<{role: string, content: string}>,
     context: MessageContext,
-    onChunk?: ChunkCallback
+    onChunk?: ChunkCallback,
   ): Promise<string> {
-    const response = await provider.sendMessage(message, this.createChunkHandler(context, onChunk))
+    const response = await provider.sendMessage(messages, this.createChunkHandler(context, onChunk))
 
     // Notify that streaming is complete
     this.notifyStreamComplete(context, response)
@@ -104,7 +109,7 @@ export class MessageService {
       global.mainWindow.webContents.send('llm:status', {
         ...context,
         status: 'Tools available',
-        tools: toolNames
+        tools: toolNames,
       })
     }
   }
@@ -114,7 +119,7 @@ export class MessageService {
     if (global.mainWindow) {
       global.mainWindow.webContents.send('llm:chunk', {
         ...context,
-        chunk
+        chunk,
       })
     } else {
       console.error('[MessageService] No mainWindow available for chunk sending')
@@ -125,7 +130,7 @@ export class MessageService {
     if (global.mainWindow) {
       global.mainWindow.webContents.send('llm:stream-complete', {
         ...context,
-        finalContent
+        finalContent,
       })
     }
   }
@@ -135,7 +140,7 @@ export class MessageService {
       global.mainWindow.webContents.send('llm:tool-call', {
         ...context,
         tool: toolName,
-        args
+        args,
       })
     }
   }

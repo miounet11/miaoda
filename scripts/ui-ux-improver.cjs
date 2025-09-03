@@ -23,7 +23,7 @@ class UIUXImprover {
       semanticImprovements: 0,
       formImprovements: 0,
       errorStateImprovements: 0,
-      animationImprovements: 0
+      animationImprovements: 0,
     }
   }
 
@@ -100,7 +100,7 @@ class UIUXImprover {
    */
   improveAccessibility(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     // 检查是否已有模板
     const templateMatch = content.match(/<template>([\s\S]*?)<\/template>/)
@@ -186,7 +186,7 @@ class UIUXImprover {
    */
   improveSemanticHTML(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const templateMatch = content.match(/<template>([\s\S]*?)<\/template>/)
     if (!templateMatch) return result
@@ -240,7 +240,7 @@ class UIUXImprover {
    */
   improveFormUX(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const templateMatch = content.match(/<template>([\s\S]*?)<\/template>/)
     if (!templateMatch) return result
@@ -336,12 +336,12 @@ class UIUXImprover {
    */
   improveErrorStates(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const templateMatch = content.match(/<template>([\s\S]*?)<\/template>/)
     if (!templateMatch) return result
 
-    let template = templateMatch[1]
+    const template = templateMatch[1]
 
     // 1. 添加错误状态的视觉反馈
     if (template.includes('error') || template.includes('catch') || componentName.includes('Error')) {
@@ -418,7 +418,7 @@ class UIUXImprover {
    */
   addMicroInteractions(content, componentName) {
     let modified = false
-    let result = { content, modified }
+    const result = { content, modified }
 
     const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
     if (!styleMatch) return result

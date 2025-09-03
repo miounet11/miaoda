@@ -14,7 +14,7 @@ export const useAnalyticsStore = defineStore(
     const lastUpdated = ref<Date | null>(null)
     const currentFilter = ref<AnalyticsFilter>({
       timeRange: '30d',
-      includeArchived: false
+      includeArchived: false,
     })
 
     // Summary data for quick access
@@ -42,12 +42,12 @@ export const useAnalyticsStore = defineStore(
       { value: '7d', label: '7 Days' },
       { value: '30d', label: '30 Days' },
       { value: '90d', label: '90 Days' },
-      { value: '1y', label: '1 Year' }
+      { value: '1y', label: '1 Year' },
     ])
     const exportFormatOptions = computed(() => [
       { value: 'json', label: 'JSON' },
       { value: 'csv', label: 'CSV' },
-      { value: 'xlsx', label: 'Excel' }
+      { value: 'xlsx', label: 'Excel' },
     ])
 
     // Chart data computed properties
@@ -58,18 +58,18 @@ export const useAnalyticsStore = defineStore(
         usage: {
           dailyChats: analyticsData.value.usage.chatsByDay,
           dailyMessages: analyticsData.value.usage.messagesByDay,
-          activeHours: analyticsData.value.usage.activeHours
+          activeHours: analyticsData.value.usage.activeHours,
         },
         content: {
           keywords: analyticsData.value.content.topKeywords,
-          messageLengthDistribution: analyticsData.value.content.messageLengthDistribution
+          messageLengthDistribution: analyticsData.value.content.messageLengthDistribution,
         },
         models: {
-          usage: analyticsData.value.model.modelUsage
+          usage: analyticsData.value.model.modelUsage,
         },
         performance: {
-          errorsByType: analyticsData.value.performance.errorsByType
-        }
+          errorsByType: analyticsData.value.performance.errorsByType,
+        },
       }
     })
 
@@ -236,13 +236,13 @@ export const useAnalyticsStore = defineStore(
       formatPercentage,
       getTimeRangeLabel,
       getTrendIcon,
-      getTrendColor
+      getTrendColor,
     }
   },
   {
     persist: {
       key: 'analytics-store',
-      paths: ['currentFilter'] // Only persist filter settings
-    }
-  } as any
+      paths: ['currentFilter'], // Only persist filter settings
+    },
+  } as any,
 )

@@ -35,7 +35,7 @@ export class PDFExporter {
         allowTaint: true,
         backgroundColor: '#ffffff',
         width: container.scrollWidth,
-        height: container.scrollHeight
+        height: container.scrollHeight,
       })
 
       // Calculate PDF dimensions
@@ -69,7 +69,7 @@ export class PDFExporter {
         size: pdfContent.length,
         messageCount,
         chatCount: chats.length,
-        processingTime: 0 // Will be set by the main export method
+        processingTime: 0, // Will be set by the main export method
       }
     } finally {
       // Clean up temporary container
@@ -213,7 +213,7 @@ export class PDFExporter {
       size: pdfOutput.length,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0 // Will be set by the main export method
+      processingTime: 0, // Will be set by the main export method
     }
   }
 
@@ -304,7 +304,7 @@ export class PDFExporter {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#039;'
+      "'": '&#039;',
     }
     return text.replace(/[&<>"']/g, m => map[m])
   }

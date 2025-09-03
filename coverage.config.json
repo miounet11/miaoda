@@ -1,0 +1,38 @@
+{
+  "branches": 80,
+  "functions": 80,
+  "lines": 80,
+  "statements": 80,
+  "include": [
+    "src/main/**/*.ts",
+    "src/renderer/src/**/*.ts",
+    "src/renderer/src/**/*.vue",
+    "src/shared/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.d.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/__tests__/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/out/**",
+    "src/main/index.ts",
+    "src/test/**/*",
+    "**/*.config.*",
+    "**/coverage/**"
+  ],
+  "reporter": [
+    "text",
+    "text-summary",
+    "html",
+    "lcov",
+    "json-summary"
+  ],
+  "watermarks": {
+    "lines": [80, 95],
+    "functions": [80, 95],
+    "branches": [80, 95],
+    "statements": [80, 95]
+  }
+}

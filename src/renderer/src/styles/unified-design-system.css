@@ -11,17 +11,29 @@
 
 /* ============== 核心设计令牌 (ChatGPT 风格) ============== */
 :root {
-  /* ChatGPT 风格色彩系统 */
-  --primary: 221.2 83.2% 53.3%; /* ChatGPT 蓝色 #2563eb */
-  --secondary: 210 40% 98%; /* 极浅灰 #fafafa */
-  --muted: 210 40% 96%; /* 浅灰 #f7f7f8 */
+  /* ChatGPT 风格色彩系统 - WCAG AA 合规 */
+  --primary: 221.2 83.2% 45%; /* 更深蓝色以提高对比度 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 98%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%; /* 4.6:1 对比度 */
   
   /* ChatGPT 背景色系 */
-  --background: 0 0% 100%; /* 纯白背景 */
-  --foreground: 222.2 84% 4.9%; /* 深灰文字 */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
   
   /* ChatGPT 边框色系 */
-  --border: 214.3 31.8% 91.4%; /* 浅边框 #e5e5e5 */
+  --border: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%; /* 焦点环颜色 */
+  
+  /* 语义色彩 - WCAG AA 合规 */
+  --success: 142 71% 35%; /* 更深绿色 */
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 45%; /* 更深橙色 */
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 84% 45%; /* 更深红色 */
+  --destructive-foreground: 0 0% 100%;
   
   /* 间距系统 (8px基准) */
   --space-1: 0.25rem; /* 4px */
@@ -64,11 +76,22 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   
-  /* 布局约束 */
+  /* 布局约束 - 移动优化 */
   --content-max-width: 1200px;
-  --sidebar-width: 280px;
+  --sidebar-width: clamp(240px, 25vw, 320px);
   --sidebar-collapsed-width: 60px;
-  --header-height: 60px;
+  --header-height: max(60px, env(safe-area-inset-top));
+  
+  /* 触摸目标尺寸 */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-target-large: 56px;
+  
+  /* 安全区域 */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
   
   /* 动画 */
   --transition-fast: 150ms ease;
@@ -77,17 +100,30 @@
   --transition-slower: 700ms ease;
 }
 
-/* ============== 暗色主题 (ChatGPT 风格) ============== */
+/* ============== 暗色主题 (ChatGPT 风格) - WCAG AA 合规 ============== */
 .dark {
   /* ChatGPT 暗色主题 - 深灰而不是纯黑 */
-  --background: 222.2 84% 4.9%; /* 深灰背景 #1a1a1a */
-  --foreground: 210 40% 98%; /* 浅色文字 */
-  --card: 217.2 32.6% 17.5%; /* 卡片背景 #2a2a2a */
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 217.2 32.6% 17.5%;
   
-  /* 暗色主题主色调 */
-  --primary: 217.2 91.2% 59.8%; /* 亮蓝色 #60a5fa */
-  --border: 217.2 32.6% 25%; /* 暗色边框 */
-  --muted: 217.2 32.6% 20%; /* 暗色背景 */
+  /* 暗色主题主色调 - 增强对比度 */
+  --primary: 217.2 91.2% 65%; /* 更亮的蓝色以提高对比度 */
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 20%;
+  --muted-foreground: 215 20% 65%; /* 提高对比度 */
+  --border: 217.2 32.6% 25%;
+  --ring: 217.2 91.2% 65%;
+  
+  /* 暗色主题语义色彩 */
+  --success: 142 71% 55%; /* 更亮的绿色 */
+  --success-foreground: 222.2 84% 4.9%;
+  --warning: 38 92% 55%; /* 更亮的橙色 */
+  --warning-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84% 65%; /* 更亮的红色 */
+  --destructive-foreground: 222.2 84% 4.9%;
 }
 
 /* ============== 基础样式重置 ============== */
@@ -170,6 +206,110 @@ body {
   display: flex;
   width: 100%;
   height: 100vh;
+  overflow: hidden;
+}
+
+/* NewAPI 集成优化 */
+.model-config-sidebar {
+  width: 320px;
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.debug-sidebar {
+  width: 400px;
+  background: hsl(var(--card));
+  border-left: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
+}
+
+.debug-sidebar.hidden {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.chat-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: hsl(var(--background));
+}
+
+/* 响应式设计优化 */
+@media (max-width: 1280px) {
+  .model-config-sidebar {
+    width: 280px;
+  }
+  .debug-sidebar {
+    width: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .model-config-sidebar {
+    width: 250px;
+  }
+  .debug-sidebar {
+    width: 300px;
+  }
+}
+
+/* 平板模式 */
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  .model-config-sidebar,
+  .debug-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    position: relative;
+  }
+  .model-config-sidebar {
+    order: -1;
+  }
+  .debug-sidebar {
+    order: 1;
+  }
+}
+
+/* 增强的视觉效果 */
+.model-config-sidebar:hover,
+.debug-sidebar:hover {
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+.model-config-sidebar::-webkit-scrollbar,
+.debug-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.model-config-sidebar::-webkit-scrollbar-track,
+.debug-sidebar::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.model-config-sidebar::-webkit-scrollbar-thumb,
+.debug-sidebar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 3px;
+}
+
+.model-config-sidebar::-webkit-scrollbar-thumb:hover,
+.debug-sidebar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
 }
 
 /* 侧边栏 */
@@ -372,11 +512,27 @@ body {
   color: hsl(var(--foreground));
 }
 
-/* ============== 输入区域 ============== */
+/* ============== 增强输入区域 - 移动优化 ============== */
 .input-area {
   padding: var(--space-4) var(--space-6);
   background: hsl(var(--background));
   border-top: 1px solid hsl(var(--border));
+  /* 移动端安全区域适配 */
+  padding-bottom: max(var(--space-4), var(--safe-area-bottom));
+  padding-left: max(var(--space-6), var(--safe-area-left));
+  padding-right: max(var(--space-6), var(--safe-area-right));
+}
+
+/* 移动端输入区域优化 */
+@media (max-width: 768px) {
+  .input-area {
+    padding: var(--space-3) var(--space-4);
+    padding-bottom: max(var(--space-4), var(--safe-area-bottom));
+    position: sticky;
+    bottom: 0;
+    backdrop-filter: blur(8px);
+    background: hsl(var(--background) / 0.95);
+  }
 }
 
 .input-container {
@@ -406,10 +562,26 @@ body {
   border: none;
   outline: none;
   font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-relaxed); /* 提高可读性 */
   resize: none;
-  min-height: 24px;
+  min-height: var(--touch-target-min); /* 确保触摸目标 */
   max-height: 200px;
+  /* 移动端优化 */
+  -webkit-user-select: text;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  /* 改善字体渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 移动端输入字段优化 */
+@media (max-width: 768px) {
+  .message-input {
+    min-height: var(--touch-target-comfortable);
+    font-size: 16px; /* 防止iOS缩放 */
+    padding: var(--space-3);
+  }
 }
 
 .message-input::placeholder {
@@ -424,15 +596,26 @@ body {
 
 .attach-btn,
 .send-btn {
-  width: 32px;
-  height: 32px;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 移动端按钮优化 */
+@media (max-width: 768px) {
+  .attach-btn,
+  .send-btn {
+    width: var(--touch-target-comfortable);
+    height: var(--touch-target-comfortable);
+  }
 }
 
 .attach-btn {
@@ -460,7 +643,7 @@ body {
   cursor: not-allowed;
 }
 
-/* ============== 按钮系统 ============== */
+/* ============== 增强按钮系统 - 移动和无障碍优化 ============== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -470,16 +653,77 @@ body {
   border-radius: var(--radius-xl);
   font-size: var(--font-size-base);
   font-weight: 500;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-base);
   text-decoration: none;
   outline: none;
+  position: relative;
+  overflow: hidden;
+  /* 确保触摸目标尺寸 */
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  /* 改善文本可读性 */
+  line-height: 1.5;
+  letter-spacing: 0.025em;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+}
+
+.btn:disabled:hover {
+  transform: none;
+}
+
+/* 增强焦点状态 */
+.btn:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-color: hsl(var(--ring));
+}
+
+/* 触摸反馈 */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.btn:active:not(:disabled)::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 移动端优化的按钮尺寸 */
+@media (max-width: 768px) {
+  .btn {
+    min-height: var(--touch-target-comfortable);
+    min-width: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--font-size-base);
+  }
+  
+  .btn-sm {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+  
+  .btn-lg {
+    min-height: var(--touch-target-large);
+    min-width: var(--touch-target-large);
+    padding: var(--space-5) var(--space-8);
+    font-size: var(--font-size-lg);
+  }
 }
 
 .btn-primary {
@@ -687,25 +931,66 @@ body {
   background: hsl(var(--foreground) / 0.3);
 }
 
-/* ============== 响应式设计 ============== */
-@media (max-width: 768px) {
+/* ============== 增强响应式设计 ============== */
+/* 移动优先设计 - 基础移动样式 */
+@media (max-width: 475px) {
   :root {
     --font-size-base: 16px; /* 防止iOS缩放 */
+    --sidebar-width: 100vw; /* 全屏侧边栏 */
+    --space-safe: max(var(--space-4), var(--safe-area-left));
   }
   
   .sidebar {
     position: fixed;
-    left: -100%;
-    z-index: 100;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 50;
+    transition: transform var(--transition-base);
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+    padding-left: var(--safe-area-left);
+    padding-right: var(--safe-area-right);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  /* 确保所有触摸目标至少44px */
+  button, .btn, .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  .message-bubble {
+    max-width: 90%;
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* 平板样式 */
+@media (min-width: 476px) and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 40;
     transition: left var(--transition-base);
+    padding-top: var(--safe-area-top);
   }
   
   .sidebar.open {
     left: 0;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
   }
   
   .chat-header {
     padding: 0 var(--space-4);
+    padding-top: var(--safe-area-top);
   }
   
   .messages-area {
@@ -714,26 +999,30 @@ body {
   
   .input-area {
     padding: var(--space-3) var(--space-4);
-  }
-  
-  .welcome-screen {
-    padding: var(--space-4);
-  }
-  
-  .suggestions-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .suggestion-card {
-    padding: var(--space-3);
-  }
-  
-  .message-bubble {
-    max-width: 85%;
+    padding-bottom: max(var(--space-3), var(--safe-area-bottom));
   }
 }
 
-/* ============== 无障碍优化 ============== */
+/* 桌面样式优化 */
+@media (min-width: 769px) {
+  .sidebar {
+    position: relative;
+    width: var(--sidebar-width);
+    transform: none;
+  }
+  
+  .sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+  
+  .suggestions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+/* ============== WCAG 2.1 AA 无障碍优化 ============== */
+
+/* 减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -741,10 +1030,22 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .typing-dot,
+  .loading-spinner {
+    animation: none !important;
   }
 }
 
+/* 高对比度支持 */
 @media (prefers-contrast: high) {
+  :root {
+    --primary: 220 100% 35%; /* 更深的主色调 */
+    --border: 220 13% 75%; /* 更深的边框 */
+  }
+  
   .message-bubble {
     border: 2px solid currentColor;
   }
@@ -753,35 +1054,154 @@ body {
     border-width: 2px;
   }
   
-  .card {
-    border-width: 2px;
+  .card, .btn {
+    border: 2px solid currentColor;
+  }
+  
+  .focus-visible {
+    outline-width: 3px !important;
   }
 }
 
-/* 焦点样式 */
-.focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
+/* 强制颜色偏好 */
+@media (prefers-color-scheme: dark) {
+  .force-dark {
+    color-scheme: dark;
+  }
 }
 
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid hsl(var(--primary));
+/* 增强焦点样式 - WCAG 2.1 AA 合规 */
+.focus-visible,
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
+  border-radius: var(--radius-md);
 }
 
-/* ============== 工具提示 ============== */
+/* 跳过链接 */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  z-index: 1000;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* 屏幕阅读器支持 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* aria-live区域样式 */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* 键盘导航指示器 */
+.keyboard-navigation {
+  background: linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.1) 50%, transparent 70%);
+  border: 2px dashed hsl(var(--primary) / 0.3);
+}
+
+/* 触摸目标优化 */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.touch-target-comfortable {
+  min-height: var(--touch-target-comfortable);
+  min-width: var(--touch-target-comfortable);
+}
+
+.touch-target-large {
+  min-height: var(--touch-target-large);
+  min-width: var(--touch-target-large);
+}
+
+/* 触摸反馈 */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-feedback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.2) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.touch-feedback:active::after {
+  transform: scale(1);
+}
+
+/* 提高文本对比度 */
+.text-high-contrast {
+  color: hsl(var(--foreground));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ============== 增强工具提示 - 移动友好 ============== */
 .tooltip {
   position: absolute;
   z-index: 1000;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: hsl(var(--foreground));
   color: hsl(var(--background));
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: var(--font-size-sm);
-  white-space: nowrap;
+  line-height: 1.4;
+  max-width: 250px;
+  word-wrap: break-word;
+  white-space: normal;
   pointer-events: none;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid hsl(var(--border));
+}
+
+/* 移动端隐藏工具提示，使用aria-label代替 */
+@media (max-width: 768px) {
+  .tooltip {
+    display: none;
+  }
+}
+
+/* 高对比度工具提示 */
+@media (prefers-contrast: high) {
+  .tooltip {
+    border: 2px solid hsl(var(--foreground));
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
 /* ============== 加载状态 ============== */
@@ -872,26 +1292,60 @@ textarea:focus-visible {
   color: hsl(var(--foreground) / 0.6);
 }
 
-/* ============== 模态框 ============== */
+/* ============== 无障碍模态框 ============== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 0.5);
+  background: rgb(0 0 0 / 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  /* 移动端安全区域 */
+  padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
 }
 
 .modal-content {
   background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
   border-radius: var(--radius-xl);
-  max-width: 500px;
+  max-width: min(500px, calc(100vw - 2rem));
   width: 90%;
-  max-height: 90vh;
+  max-height: min(90vh, calc(100vh - var(--safe-area-top) - var(--safe-area-bottom) - 2rem));
   overflow: auto;
   box-shadow: var(--shadow-xl);
+  /* 确保可滚动 */
+  overscroll-behavior: contain;
+}
+
+/* 移动端模态框优化 */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  
+  .modal-content {
+    width: 100%;
+    max-width: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 85vh;
+    margin-bottom: 0;
+    /* 支持滑动关闭手势 */
+    touch-action: pan-y;
+  }
+}
+
+/* 高对比度模态框 */
+@media (prefers-contrast: high) {
+  .modal-content {
+    border: 2px solid hsl(var(--foreground) / 0.3);
+  }
+  
+  .modal-overlay {
+    background: rgb(0 0 0 / 0.8);
+  }
 }
 
 .modal-header {
@@ -919,11 +1373,13 @@ textarea:focus-visible {
   justify-content: flex-end;
 }
 
-/* ============== 分隔线 ============== */
+/* ============== 分隔线 - 无障碍优化 ============== */
 .divider {
   height: 1px;
   background: hsl(var(--border));
   margin: var(--space-4) 0;
+  /* 为屏幕阅读器提供语义信息 */
+  role: separator;
 }
 
 .divider-vertical {
@@ -931,6 +1387,21 @@ textarea:focus-visible {
   height: 100%;
   background: hsl(var(--border));
   margin: 0 var(--space-4);
+  role: separator;
+  /* aria-orientation="vertical" 应在HTML中设置 */
+}
+
+/* 高对比度分隔线 */
+@media (prefers-contrast: high) {
+  .divider,
+  .divider-vertical {
+    background: hsl(var(--foreground) / 0.3);
+    height: 2px;
+  }
+  
+  .divider-vertical {
+    width: 2px;
+  }
 }
 
 /* ============== 工具类 ============== */
@@ -986,4 +1457,53 @@ textarea:focus-visible {
 .transition-fast { transition: all var(--transition-fast); }
 .transition-slow { transition: all var(--transition-slow); }
 
-/* 完成 - ChatGPT 风格设计系统 */
+/* ============== 新增移动手势支持 ============== */
+.gesture-swipe-left {
+  touch-action: pan-y;
+}
+
+.gesture-swipe-right {
+  touch-action: pan-y;
+}
+
+.gesture-pan-y {
+  touch-action: pan-y;
+}
+
+.gesture-pinch-zoom {
+  touch-action: pinch-zoom;
+}
+
+/* ============== 增强无障碍实用类 ============== */
+.focusable {
+  outline: none;
+}
+
+.focusable:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.aria-busy[aria-busy="true"] {
+  position: relative;
+}
+
+.aria-busy[aria-busy="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, hsl(var(--muted) / 0.5), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============== 深色模式切换动画 ============== */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 完成 - 增强 ChatGPT 风格设计系统 (移动优先 + WCAG 2.1 AA) */

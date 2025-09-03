@@ -29,7 +29,7 @@ export class SimpleLLMService {
     if (this.config.provider === 'openai' && this.config.apiKey) {
       this.openaiClient = new OpenAI({
         apiKey: this.config.apiKey,
-        baseURL: this.config.baseUrl || 'https://api.openai.com/v1'
+        baseURL: this.config.baseUrl || 'https://api.openai.com/v1',
       })
     }
   }
@@ -65,20 +65,20 @@ export class SimpleLLMService {
   // 默认AI回复（模拟）
   private generateDefaultResponse(userInput: string): string {
     const responses = [
-      "我理解您的问题。让我来帮您解答...",
-      "这是一个很有趣的问题！根据我的理解...",
-      "谢谢您的提问。我来为您详细解释一下...",
-      "您好！关于这个问题，我可以这样回答...",
-      "我收到了您的问题。让我为您提供一些建议..."
+      '我理解您的问题。让我来帮您解答...',
+      '这是一个很有趣的问题！根据我的理解...',
+      '谢谢您的提问。我来为您详细解释一下...',
+      '您好！关于这个问题，我可以这样回答...',
+      '我收到了您的问题。让我为您提供一些建议...',
     ]
 
     // 根据输入内容生成更相关的回复
     if (userInput.includes('天气')) {
-      return "关于天气问题，我建议您查看本地天气预报应用。不过我可以帮您分析一些通用的天气知识..."
+      return '关于天气问题，我建议您查看本地天气预报应用。不过我可以帮您分析一些通用的天气知识...'
     } else if (userInput.includes('电影') || userInput.includes('推荐')) {
-      return "关于电影推荐，我可以根据您的喜好来建议。不过首先我想了解一下您喜欢哪种类型的电影呢？"
+      return '关于电影推荐，我可以根据您的喜好来建议。不过首先我想了解一下您喜欢哪种类型的电影呢？'
     } else if (userInput.includes('工作') || userInput.includes('总结')) {
-      return "工作总结是一个很好的习惯！我可以帮您梳理一下如何写好工作总结。首先，我们可以从以下几个方面来组织..."
+      return '工作总结是一个很好的习惯！我可以帮您梳理一下如何写好工作总结。首先，我们可以从以下几个方面来组织...'
     }
 
     return responses[Math.floor(Math.random() * responses.length)]
@@ -94,10 +94,10 @@ export class SimpleLLMService {
       model: this.config.model || 'gpt-3.5-turbo',
       messages: messages.map(msg => ({
         role: msg.role,
-        content: msg.content
+        content: msg.content,
       })),
       max_tokens: 1000,
-      temperature: 0.7
+      temperature: 0.7,
     })
 
     return response.choices[0]?.message?.content || '抱歉，我没有收到回复。'
@@ -144,7 +144,7 @@ export class LLMManager {
   private static instance: LLMManager
   private currentService?: SimpleLLMService
   private config: LLMConfig = {
-    provider: 'default'
+    provider: 'default',
   }
 
   private constructor() {}
@@ -176,28 +176,28 @@ export class LLMManager {
       {
         value: 'default',
         label: 'MiaoDa AI (免费)',
-        description: '内置免费AI，无需配置'
+        description: '内置免费AI，无需配置',
       },
       {
         value: 'openai',
         label: 'OpenAI GPT',
-        description: 'GPT-4, GPT-3.5-turbo等'
+        description: 'GPT-4, GPT-3.5-turbo等',
       },
       {
         value: 'claude',
         label: 'Anthropic Claude',
-        description: 'Claude 3系列模型'
+        description: 'Claude 3系列模型',
       },
       {
         value: 'gemini',
         label: 'Google Gemini',
-        description: 'Google最新AI模型'
+        description: 'Google最新AI模型',
       },
       {
         value: 'ollama',
         label: 'Ollama (本地)',
-        description: '本地运行的开源模型'
-      }
+        description: '本地运行的开源模型',
+      },
     ]
   }
 

@@ -38,7 +38,7 @@ export function useTheme() {
       text: 'hsl(222, 47%, 11%)',
       textSecondary: 'hsl(215, 20%, 45%)',
       border: 'hsl(214, 32%, 91%)',
-      shadow: 'rgba(0, 0, 0, 0.1)'
+      shadow: 'rgba(0, 0, 0, 0.1)',
     }
 
     const darkColors: ThemeColors = {
@@ -54,7 +54,7 @@ export function useTheme() {
       text: 'hsl(210, 20%, 98%)',
       textSecondary: 'hsl(215, 20%, 65%)',
       border: 'hsl(215, 20%, 25%)',
-      shadow: 'rgba(0, 0, 0, 0.3)'
+      shadow: 'rgba(0, 0, 0, 0.3)',
     }
 
     return theme === 'dark' ? darkColors : lightColors
@@ -99,7 +99,7 @@ export function useTheme() {
   const themeOptions = [
     { value: 'light', label: 'Light', icon: 'sun' },
     { value: 'dark', label: 'Dark', icon: 'moon' },
-    { value: 'system', label: 'System', icon: 'monitor' }
+    { value: 'system', label: 'System', icon: 'monitor' },
   ] as const
 
   // Theme animation
@@ -119,19 +119,19 @@ export function useTheme() {
   const createCustomTheme = (
     name: string,
     lightColors: Partial<ThemeColors>,
-    darkColors: Partial<ThemeColors>
+    darkColors: Partial<ThemeColors>,
   ): ThemeConfig => {
     return {
       name,
       displayName: name,
       colors: {
         light: { ...colors.value, ...lightColors },
-        dark: { ...colors.value, ...darkColors }
+        dark: { ...colors.value, ...darkColors },
       },
       fonts: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace'],
-        display: ['Inter', 'system-ui', 'sans-serif']
+        display: ['Inter', 'system-ui', 'sans-serif'],
       },
       spacing: {
         xs: '0.25rem',
@@ -139,26 +139,26 @@ export function useTheme() {
         md: '1rem',
         lg: '1.5rem',
         xl: '2rem',
-        '2xl': '3rem'
+        '2xl': '3rem',
       },
       borderRadius: {
         sm: '0.25rem',
         md: '0.5rem',
         lg: '0.75rem',
         xl: '1rem',
-        full: '9999px'
+        full: '9999px',
       },
       shadows: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-        xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+        xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
       },
       animations: {
         fast: '0.15s ease-out',
         normal: '0.3s ease-out',
-        slow: '0.5s ease-out'
-      }
+        slow: '0.5s ease-out',
+      },
     }
   }
 
@@ -234,7 +234,7 @@ export function useTheme() {
     generateCSSVariables,
 
     // Constants
-    themeOptions
+    themeOptions,
   }
 }
 

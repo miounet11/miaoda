@@ -23,8 +23,8 @@ class StyleQualityChecker {
         totalProperties: 0,
         totalSelectors: 0,
         accessibilityFeatures: 0,
-        performanceOptimizations: 0
-      }
+        performanceOptimizations: 0,
+      },
     }
   }
 
@@ -66,7 +66,7 @@ class StyleQualityChecker {
           type: 'error',
           message: `发现禁止的样式模式: ${pattern}`,
           file: filePath,
-          matches: matches.length
+          matches: matches.length,
         })
       }
     })
@@ -110,7 +110,7 @@ class StyleQualityChecker {
         warnings.push({
           type: 'warning',
           message: `缺少推荐的样式模式: ${pattern}`,
-          file: filePath
+          file: filePath,
         })
       }
     })
@@ -129,7 +129,7 @@ class StyleQualityChecker {
       'dark', 'light', 'sm', 'md', 'lg', 'xl',
       'group-hover', 'peer-focus', 'peer-hover',
       '--', // CSS变量
-      'content' // 伪元素内容
+      'content', // 伪元素内容
     ])
 
     properties.forEach(prop => {
@@ -151,7 +151,7 @@ class StyleQualityChecker {
         suggestions.push({
           type: 'suggestion',
           message: `属性 "${propName}" 可能需要检查`,
-          file: filePath
+          file: filePath,
         })
       }
     })
@@ -170,7 +170,7 @@ class StyleQualityChecker {
       'top-', 'right-', 'bottom-', 'left-', 'inset-',
       'z-', 'opacity-', 'transform-', 'translate-', 'scale-', 'rotate-',
       'transition-', 'duration-', 'delay-', 'ease-',
-      'animate-', 'spin', 'pulse', 'bounce'
+      'animate-', 'spin', 'pulse', 'bounce',
     ]
 
     return tailwindPrefixes.some(prefix => propName.startsWith(prefix))
@@ -190,7 +190,7 @@ class StyleQualityChecker {
       'cursor', 'pointer-events', 'user-select',
       'overflow', 'overflow-x', 'overflow-y', 'scroll-behavior',
       'box-shadow', 'text-shadow', 'backdrop-filter',
-      'animation', 'transition', 'transform'
+      'animation', 'transition', 'transform',
     ]
 
     return commonProperties.includes(propName)
@@ -228,7 +228,7 @@ class StyleQualityChecker {
       suggestions.push({
         type: 'suggestion',
         message: '考虑使用 will-change 属性优化动画性能',
-        file: filePath
+        file: filePath,
       })
     }
   }
@@ -285,7 +285,7 @@ class StyleQualityChecker {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output'
+      '.nyc_output',
     ]
     return skipDirs.includes(dirName)
   }
@@ -297,7 +297,7 @@ class StyleQualityChecker {
     console.log('🎨 样式质量检查报告 (改进版)')
     console.log('='.repeat(50))
 
-    console.log(`📊 检查结果:`)
+    console.log('📊 检查结果:')
     console.log(`   处理文件数: ${this.results.totalFiles}`)
     console.log(`   通过文件数: ${this.results.passed}`)
     console.log(`   失败文件数: ${this.results.totalFiles - this.results.passed}`)

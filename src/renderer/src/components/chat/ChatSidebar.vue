@@ -6,15 +6,6 @@
     <!-- Header -->
     <div class="sidebar-header p-5 border-b border-border/40">
       <div class="flex flex-col gap-4">
-        <!-- New Chat Button -->
-        <button
-          @click="$emit('new-chat')"
-          class="w-full px-5 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] btn-interactive magnetic-hover ripple min-h-[48px]"
-         aria-label="按钮">
-          <Plus :size="20" class="animate-in" />
-          <span class="tracking-wide text-base">新建聊天</span>
-        </button>
-
         <!-- Quick Search -->
         <div class="relative">
           <Search
@@ -248,7 +239,6 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  'new-chat': []
   'select-chat': [chatId: string]
   'open-settings': []
   'show-context-menu': [chatId: string, event: MouseEvent]

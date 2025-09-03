@@ -93,7 +93,7 @@ export default {
     available: 'Available',
     unavailable: 'Unavailable',
     required: 'Required',
-    optional: 'Optional'
+    optional: 'Optional',
   },
 
   // Application
@@ -109,7 +109,7 @@ export default {
     reconnecting: 'Reconnecting...',
     updateAvailable: 'Update available',
     updateRequired: 'Update required',
-    maintenance: 'Under maintenance'
+    maintenance: 'Under maintenance',
   },
 
   // Navigation
@@ -126,7 +126,7 @@ export default {
     logout: 'Logout',
     menu: 'Menu',
     sidebar: 'Sidebar',
-    toolbar: 'Toolbar'
+    toolbar: 'Toolbar',
   },
 
   // Chat
@@ -182,7 +182,7 @@ export default {
     typing: 'Typing...',
     online: 'Online',
     lastSeen: 'Last seen',
-    never: 'Never'
+    never: 'Never',
   },
 
   // Messages
@@ -211,7 +211,7 @@ export default {
     warning: 'Warning',
     info: 'Information',
     debug: 'Debug',
-    trace: 'Trace'
+    trace: 'Trace',
   },
 
   // Search
@@ -322,7 +322,7 @@ export default {
     pageInfo: 'Page {current} of {total}',
     toggleFullscreen: 'Toggle Fullscreen',
     goToChat: 'Go to Chat',
-    metadata: 'Metadata'
+    metadata: 'Metadata',
   },
 
   // Voice
@@ -410,7 +410,7 @@ export default {
     noMatch: 'No match',
     notAllowed: 'Not allowed',
     serviceNotAllowed: 'Service not allowed',
-    networkFailure: 'Network failure'
+    networkFailure: 'Network failure',
   },
 
   // Plugin System
@@ -523,7 +523,7 @@ export default {
       error: 'Error',
       loading: 'Loading',
       installing: 'Installing',
-      updating: 'Updating'
+      updating: 'Updating',
     },
     pluginCategory: {
       productivity: 'Productivity',
@@ -533,7 +533,7 @@ export default {
       education: 'Education',
       social: 'Social',
       customization: 'Customization',
-      integration: 'Integration'
+      integration: 'Integration',
     },
     permission: {
       storage: 'Storage Access',
@@ -548,7 +548,7 @@ export default {
       'search.read': 'Read Search Data',
       'search.write': 'Modify Search Index',
       'voice.use': 'Use Voice Features',
-      'mcp.use': 'Use MCP Tools'
+      'mcp.use': 'Use MCP Tools',
     },
     sortByName: 'Sort by Name',
     sortByCategory: 'Sort by Category',
@@ -567,7 +567,7 @@ export default {
     pluginConsole: 'Plugin Console',
     pluginLogs: 'Plugin Logs',
     clearLogs: 'Clear Logs',
-    exportLogs: 'Export Logs'
+    exportLogs: 'Export Logs',
   },
 
   // Settings
@@ -726,7 +726,7 @@ export default {
     openSource: 'Open Source',
     thirdParty: 'Third Party',
     copyright: 'Copyright',
-    trademark: 'Trademark'
+    trademark: 'Trademark',
   },
 
   // Time and Date
@@ -761,7 +761,7 @@ export default {
     evening: 'Evening',
     night: 'Night',
     midnight: 'Midnight',
-    noon: 'Noon'
+    noon: 'Noon',
   },
 
   // Errors
@@ -810,7 +810,7 @@ export default {
     contactSupport: 'Contact Support',
     tryAgain: 'Try Again',
     reload: 'Reload',
-    restart: 'Restart'
+    restart: 'Restart',
   },
 
   // Validation
@@ -845,6 +845,6 @@ export default {
     validationFailed: 'Validation failed',
     checkFailed: 'Check failed',
     verificationFailed: 'Verification failed',
-    confirmationRequired: 'Confirmation required'
-  }
+    confirmationRequired: 'Confirmation required',
+  },
 }

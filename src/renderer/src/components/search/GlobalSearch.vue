@@ -1,1260 +1,605 @@
 <template>
-  <div class="global-search-overlay" v-if="isVisible" @click.self="close">
-    <div class="global-search-modal" :class="modalClasses">
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <div class="header-content">
-          <Search :size="20" class="header-icon" />
-          <h2 class="modal-title">{{ $t('search.globalSearch') }}</h2>
-        </div>
-
-        <div class="header-actions">
-          <button
-            @click="toggleFullscreen"
-            class="action-btn"
-            :title="$t('search.toggleFullscreen')"
-           aria-label="按钮">
-            <component :is="fullscreenIcon" :size="18" />
-          </button>
-
-          <button @click="close" class="action-btn close-btn" :title="$t('common.close')" aria-label="按钮">
-            <X :size="18" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Search Interface -->
-      <div class="search-content">
-        <MessageSearch
-          ref="searchRef"
-          :auto-focus="true"
-          :show-quick-filters="true"
-          :max-height="searchMaxHeight"
-          @message-click="onMessageClick"
-          @chat-click="onChatClick"
-          @search-complete="onSearchComplete"
-          @search-clear="onSearchClear"
-        />
-      </div>
-
-      <!-- Search Stats -->
-      <div v-if="showStats" class="search-stats">
-        <div class="stats-content">
-          <div class="stat-item">
-            <Database :size="14" />
-            <span
-              >{{ $t('search.indexedMessages') }}: {{ searchStats.indexedMessages }}/{{
-                searchStats.totalMessages
-              }}</span
-            >
-            <div
-              v-if="indexStatus.needsRebuild"
-              class="status-indicator warning"
-              title="搜索索引需要重建"
-            >
-              !
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="isVisible"
+        class="global-search-overlay fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/60 backdrop-blur-sm"
+        @click="closeIfClickOutside"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="search-title"
+        aria-describedby="search-description"
+      >
+        <div
+          ref="modalRef"
+          class="global-search-modal w-full max-w-2xl mt-16 sm:mt-20 bg-background border border-border rounded-xl shadow-2xl overflow-hidden"
+          @click.stop
+        >
+          <!-- Search Header -->
+          <div class="search-header p-4 border-b border-border">
+            <div class="flex items-center gap-3">
+              <Search :size="20" class="text-muted-foreground" aria-hidden="true" />
+              <div class="flex-1">
+                <label for="global-search-input" class="sr-only">Search conversations and messages</label>
+                <input
+                  id="global-search-input"
+                  ref="searchInputRef"
+                  v-model="searchQuery"
+                  type="search"
+                  placeholder="Search conversations and messages..."
+                  class="w-full text-lg bg-transparent border-0 outline-none placeholder:text-muted-foreground focus-visible:outline-none"
+                  @keydown="handleKeydown"
+                  @input="handleSearchInput"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+              <button
+                @click="$emit('close')"
+                class="touch-target p-2 hover:bg-muted rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Close search"
+              >
+                <X :size="18" aria-hidden="true" />
+              </button>
+            </div>
+            
+            <div id="search-description" class="mt-2 text-sm text-muted-foreground">
+              Search through all your conversations and messages
             </div>
           </div>
 
-          <div class="stat-item">
-            <Clock :size="14" />
-            <span>{{ $t('search.lastUpdated') }}: {{ formatTime(searchStats.lastUpdated) }}</span>
-          </div>
+          <!-- Search Results -->
+          <div class="search-results max-h-96 overflow-y-auto">
+            <!-- Loading State -->
+            <div v-if="isSearching" class="p-8 text-center" role="status" aria-label="Searching">
+              <div class="inline-flex items-center gap-2">
+                <div class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" aria-hidden="true" />
+                <span class="text-sm text-muted-foreground">Searching...</span>
+              </div>
+            </div>
 
-          <div v-if="searchStats.performanceMetrics?.avgSearchTime" class="stat-item">
-            <TrendingUp :size="14" />
-            <span
-              >{{ $t('search.avgSearchTime') }}:
-              {{ Math.round(searchStats.performanceMetrics.avgSearchTime) }}ms</span
+            <!-- Search Results -->
+            <div v-else-if="hasResults" role="region" aria-label="Search results">
+              <!-- Chat Results -->
+              <div v-if="chatResults.length > 0" class="search-section">
+                <h3 class="text-sm font-semibold text-muted-foreground px-4 py-2 bg-muted/30">
+                  Conversations ({{ chatResults.length }})
+                </h3>
+                <div role="list">
+                  <button
+                    v-for="(chat, index) in chatResults"
+                    :key="`chat-${chat.id}`"
+                    @click="handleChatClick(chat.id)"
+                    @keydown="handleResultKeydown($event, 'chat', index)"
+                    class="search-result-item w-full text-left p-4 hover:bg-muted/50 transition-colors focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    role="listitem"
+                    :aria-label="`Conversation: ${chat.title}. ${chat.messageCount} messages. Last updated ${formatTime(chat.updatedAt)}`"
+                    :data-index="index"
+                    :data-type="'chat'"
+                  >
+                    <div class="flex items-start gap-3">
+                      <MessageSquare :size="16" class="text-muted-foreground mt-1 flex-shrink-0" aria-hidden="true" />
+                      <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-sm truncate" v-html="highlightMatch(chat.title, searchQuery)" />
+                        <p class="text-xs text-muted-foreground mt-1">
+                          {{ chat.messageCount }} messages • {{ formatTime(chat.updatedAt) }}
+                        </p>
+                        <p v-if="chat.preview" class="text-xs text-muted-foreground mt-1 line-clamp-2" v-html="highlightMatch(chat.preview, searchQuery)" />
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Message Results -->
+              <div v-if="messageResults.length > 0" class="search-section">
+                <h3 class="text-sm font-semibold text-muted-foreground px-4 py-2 bg-muted/30">
+                  Messages ({{ messageResults.length }})
+                </h3>
+                <div role="list">
+                  <button
+                    v-for="(message, index) in messageResults"
+                    :key="`message-${message.id}`"
+                    @click="handleMessageClick(message.id, message.chatId)"
+                    @keydown="handleResultKeydown($event, 'message', index + chatResults.length)"
+                    class="search-result-item w-full text-left p-4 hover:bg-muted/50 transition-colors focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+                    role="listitem"
+                    :aria-label="`Message from ${message.role === 'user' ? 'you' : 'assistant'} in conversation ${message.chatTitle}. Sent ${formatTime(message.timestamp)}`"
+                    :data-index="index + chatResults.length"
+                    :data-type="'message'"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 mt-1">
+                        <User v-if="message.role === 'user'" :size="16" class="text-primary" aria-hidden="true" />
+                        <Bot v-else :size="16" class="text-green-600" aria-hidden="true" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                          <span class="text-xs font-medium">
+                            {{ message.role === 'user' ? 'You' : 'Assistant' }}
+                          </span>
+                          <span class="text-xs text-muted-foreground">in {{ message.chatTitle }}</span>
+                        </div>
+                        <p class="text-sm line-clamp-3" v-html="highlightMatch(message.content, searchQuery)" />
+                        <p class="text-xs text-muted-foreground mt-1">{{ formatTime(message.timestamp) }}</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div 
+              v-else-if="searchQuery && !isSearching" 
+              class="empty-state p-8 text-center"
+              role="status"
+              aria-live="polite"
             >
-          </div>
+              <Search :size="48" class="mx-auto mb-4 text-muted-foreground/30" aria-hidden="true" />
+              <h3 class="text-lg font-medium mb-2">No results found</h3>
+              <p class="text-sm text-muted-foreground">
+                Try adjusting your search terms or check the spelling
+              </p>
+            </div>
 
-          <div class="stat-actions">
-            <button
-              @click="rebuildIndex"
-              :disabled="isIndexing"
-              class="stat-action-btn"
-              title="重建搜索索引"
-             aria-label="按钮">
-              <component
-                :is="isIndexing ? Clock : Database"
-                :size="12"
-                :class="{ 'animate-spin': isIndexing }"
-              />
-              {{ isIndexing ? '重建中...' : '重建索引' }}
-            </button>
-
-            <button
-              @click="optimizeIndex"
-              :disabled="isOptimizing"
-              class="stat-action-btn"
-              title="优化搜索性能"
-             aria-label="按钮">
-              <component
-                :is="isOptimizing ? Clock : TrendingUp"
-                :size="12"
-                :class="{ 'animate-spin': isOptimizing }"
-              />
-              {{ isOptimizing ? '优化中...' : '优化索引' }}
-            </button>
+            <!-- Initial State -->
+            <div v-else class="initial-state p-8 text-center">
+              <Search :size="48" class="mx-auto mb-4 text-muted-foreground/30" aria-hidden="true" />
+              <h3 class="text-lg font-medium mb-2">Search your conversations</h3>
+              <p class="text-sm text-muted-foreground mb-4">
+                Find messages, conversations, or specific topics
+              </p>
+              <div class="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
+                <kbd class="kbd">↑↓</kbd> <span>Navigate</span>
+                <kbd class="kbd">Enter</kbd> <span>Open</span>
+                <kbd class="kbd">Esc</kbd> <span>Close</span>
+              </div>
+            </div>
           </div>
         </div>
-
-        <button @click="showStats = false" class="stats-close" aria-label="按钮">
-          <ChevronUp :size="14" />
-        </button>
-      </div>
-
-      <!-- Keyboard Shortcuts Help -->
-      <div v-if="showKeyboardHelp" class="keyboard-shortcuts">
-        <div class="shortcuts-header">
-          <Keyboard :size="16" />
-          <span>{{ $t('search.keyboardShortcuts') }}</span>
-          <button @click="showKeyboardHelp = false" class="shortcuts-close" aria-label="按钮">
-            <X :size="14" />
-          </button>
-        </div>
-
-        <div class="shortcuts-list">
-          <div class="shortcut-item">
-            <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + K</kbd>
-            <span>{{ $t('search.openGlobalSearch') }}</span>
-          </div>
-
-          <div class="shortcut-item">
-            <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + F</kbd>
-            <span>{{ $t('search.focusSearchInput') }}</span>
-          </div>
-
-          <div class="shortcut-item">
-            <kbd>Esc</kbd>
-            <span>{{ $t('search.closeSearch') }}</span>
-          </div>
-
-          <div class="shortcut-item">
-            <kbd>↑ ↓</kbd>
-            <span>{{ $t('search.navigateResults') }}</span>
-          </div>
-
-          <div class="shortcut-item">
-            <kbd>Enter</kbd>
-            <span>{{ $t('search.openResult') }}</span>
-          </div>
-
-          <div class="shortcut-item">
-            <kbd>{{ isMac ? '⌘' : 'Ctrl' }} + Enter</kbd>
-            <span>{{ $t('search.openInNewTab') }}</span>
-          </div>
+        
+        <!-- Live region for announcements -->
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          class="sr-only"
+          role="status"
+        >
+          {{ currentAnnouncement }}
         </div>
       </div>
-
-      <!-- Footer -->
-      <div class="modal-footer">
-        <div class="footer-left">
-          <button @click="showStats = !showStats" class="footer-btn" :class="{ active: showStats }" aria-label="按钮">
-            <BarChart3 :size="14" />
-            {{ $t('search.statistics') }}
-          </button>
-
-          <button
-            @click="showKeyboardHelp = !showKeyboardHelp"
-            class="footer-btn"
-            :class="{ active: showKeyboardHelp }"
-           aria-label="按钮">
-            <Keyboard :size="14" />
-            {{ $t('search.shortcuts') }}
-          </button>
-        </div>
-
-        <div class="footer-right">
-          <span class="footer-text">
-            {{ resultSummary }}
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import {
-  Search,
-  X,
-  Database,
-  Clock,
-  TrendingUp,
-  ChevronUp,
-  Keyboard,
-  BarChart3,
-  Maximize2,
-  Minimize2
-} from 'lucide-vue-next'
-import { useI18n } from 'vue-i18n'
-import { debounce } from '@renderer/src/utils/performance'
-import { backendSearchService } from '@renderer/src/services/search/BackendSearchService'
-import type { SearchResult, SearchStats } from '@main/db/searchTypes'
-import MessageSearch from './MessageSearch.vue'
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import { Search, X, MessageSquare, User, Bot } from 'lucide-vue-next'
 
-// Props
 interface Props {
-  visible?: boolean
-  fullscreenByDefault?: boolean
+  isVisible: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  visible: false,
-  fullscreenByDefault: false
-})
+interface SearchResult {
+  id: string
+  type: 'chat' | 'message'
+  chatId?: string
+  chatTitle?: string
+  title?: string
+  content: string
+  role?: 'user' | 'assistant'
+  timestamp: Date
+  messageCount?: number
+  preview?: string
+  updatedAt?: Date
+}
 
-// Emits
+const props = defineProps<Props>()
+
 const emit = defineEmits<{
-  'update:visible': [visible: boolean]
-  'message-select': [messageId: string, chatId: string]
-  'chat-select': [chatId: string]
   close: []
+  'message-click': [messageId: string, chatId: string]
+  'chat-click': [chatId: string]
 }>()
 
-// Composables
-const { t } = useI18n()
-
-// Refs
-const searchRef = ref<InstanceType<typeof MessageSearch>>()
-const isVisible = ref(props.visible)
-const isFullscreen = ref(props.fullscreenByDefault)
-const showStats = ref(false)
-const showKeyboardHelp = ref(false)
-
-// Enhanced search state with performance tracking
-const searchResults = ref<SearchResult[]>([])
+// Reactive state
 const searchQuery = ref('')
 const isSearching = ref(false)
-const searchError = ref<string | null>(null)
-const searchCache = ref(new Map<string, { results: SearchResult[]; timestamp: number }>())
-const searchPerformance = ref({
-  searchStartTime: 0,
-  lastSearchTime: 0,
-  averageSearchTime: 0,
-  searchCount: 0
-})
-const searchStats = ref<SearchStats>({
-  totalMessages: 0,
-  indexedMessages: 0,
-  searchTime: 0,
-  resultCount: 0,
-  lastUpdated: new Date()
-})
+const selectedIndex = ref(-1)
+const currentAnnouncement = ref('')
 
-const indexStatus = ref({
-  needsRebuild: false,
-  messageCount: 0,
-  indexedCount: 0
-})
+// Refs
+const searchInputRef = ref<HTMLInputElement>()
+const modalRef = ref<HTMLElement>()
 
-const isIndexing = ref(false)
-const isOptimizing = ref(false)
-
-// Platform detection
-const isMac = ref(false)
-
-// Computed properties
-const modalClasses = computed(() => ({
-  'modal-fullscreen': isFullscreen.value,
-  'modal-windowed': !isFullscreen.value
-}))
-
-const fullscreenIcon = computed(() => {
-  return isFullscreen.value ? Minimize2 : Maximize2
-})
-
-const searchMaxHeight = computed(() => {
-  if (isFullscreen.value) {
-    return 'calc(100vh - 200px)'
+// Mock data - replace with actual store/service
+const mockChats = [
+  {
+    id: '1',
+    title: 'JavaScript Best Practices',
+    messages: [
+      { id: '1-1', role: 'user', content: 'What are JavaScript best practices?', timestamp: new Date() },
+      { id: '1-2', role: 'assistant', content: 'Here are some key JavaScript best practices...', timestamp: new Date() }
+    ],
+    updatedAt: new Date()
   }
-  return '70vh'
-})
+]
 
-const resultSummary = computed(() => {
-  if (searchResults.value.length === 0) {
-    return t('search.noResultsSelected')
-  }
+// Computed
+const searchResults = computed(() => {
+  if (!searchQuery.value.trim()) return []
 
-  return t('search.resultsSelected', {
-    count: searchResults.value.length,
-    indexed: searchStats.value.indexedMessages
+  const query = searchQuery.value.toLowerCase().trim()
+  const results: SearchResult[] = []
+
+  // Search through chats
+  mockChats.forEach(chat => {
+    // Check chat title
+    if (chat.title?.toLowerCase().includes(query)) {
+      results.push({
+        id: chat.id,
+        type: 'chat',
+        title: chat.title,
+        content: chat.title,
+        timestamp: chat.updatedAt || new Date(),
+        messageCount: chat.messages?.length || 0,
+        preview: chat.messages?.[chat.messages.length - 1]?.content?.substring(0, 100),
+        updatedAt: chat.updatedAt
+      })
+    }
+
+    // Search through messages
+    if (chat.messages) {
+      chat.messages.forEach(message => {
+        if (message.content.toLowerCase().includes(query)) {
+          results.push({
+            id: message.id,
+            type: 'message',
+            chatId: chat.id,
+            chatTitle: chat.title || 'Untitled',
+            content: message.content,
+            role: message.role,
+            timestamp: message.timestamp || new Date()
+          })
+        }
+      })
+    }
   })
+
+  return results.slice(0, 20) // Limit results
 })
+
+const chatResults = computed(() => 
+  searchResults.value.filter(result => result.type === 'chat')
+)
+
+const messageResults = computed(() => 
+  searchResults.value.filter(result => result.type === 'message')
+)
+
+const hasResults = computed(() => searchResults.value.length > 0)
+
+const totalResults = computed(() => searchResults.value.length)
 
 // Methods
-const open = () => {
-  isVisible.value = true
-  emit('update:visible', true)
-
-  nextTick(() => {
-    // Auto-focus is handled by the MessageSearch component
-    updateStats()
-  })
+const handleSearchInput = () => {
+  isSearching.value = true
+  selectedIndex.value = -1
+  
+  // Debounce search
+  setTimeout(() => {
+    isSearching.value = false
+  }, 300)
 }
 
-const close = () => {
-  isVisible.value = false
-  emit('update:visible', false)
-  showStats.value = false
-  showKeyboardHelp.value = false
-  emit('close')
-}
-
-const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
-}
-
-const onMessageClick = (message: any) => {
-  emit('message-select', message.id, message.chatId)
-
-  // Optionally close modal after selection
-  if (!isFullscreen.value) {
-    close()
-  }
-}
-
-const onChatClick = (chatId: string) => {
-  emit('chat-select', chatId)
-
-  // Optionally close modal after selection
-  if (!isFullscreen.value) {
-    close()
-  }
-}
-
-const onSearchComplete = (results: SearchResult[], query?: string, searchTime?: number) => {
-  searchResults.value = results
-  isSearching.value = false
-  searchError.value = null
-
-  // Update performance metrics
-  if (searchTime !== undefined) {
-    updateSearchPerformance(searchTime)
-  }
-
-  // Cache results for faster subsequent access
-  if (query && query.trim()) {
-    searchCache.value.set(query.toLowerCase().trim(), {
-      results: [...results],
-      timestamp: Date.now()
-    })
-
-    // Limit cache size
-    if (searchCache.value.size > 50) {
-      const entries = Array.from(searchCache.value.entries())
-      searchCache.value.clear()
-      // Keep most recent 25 entries
-      entries.slice(-25).forEach(([k, v]) => searchCache.value.set(k, v))
-    }
-  }
-
-  updateStats()
-
-  // Announce results for accessibility
-  announceSearchResults(results.length)
-}
-
-const updateSearchPerformance = (searchTime: number) => {
-  searchPerformance.value.lastSearchTime = searchTime
-  searchPerformance.value.searchCount++
-
-  // Calculate rolling average
-  const currentAvg = searchPerformance.value.averageSearchTime
-  const count = searchPerformance.value.searchCount
-  searchPerformance.value.averageSearchTime = (currentAvg * (count - 1) + searchTime) / count
-}
-
-const announceSearchResults = (count: number) => {
-  // For screen readers
-  const message =
-    count === 0 ? 'No results found' : `Found ${count} result${count !== 1 ? 's' : ''}`
-
-  console.log(`Search announcement: ${message}`)
-}
-
-const onSearchClear = () => {
-  searchResults.value = []
-  searchQuery.value = ''
-  isSearching.value = false
-  searchError.value = null
-  updateStats()
-
-  // Focus back to search input for better UX
-  nextTick(() => {
-    searchRef.value?.$refs?.searchInputRef?.focus()
-  })
-}
-
-const updateStats = async () => {
-  try {
-    searchStats.value = await backendSearchService.getSearchStats()
-    indexStatus.value = await backendSearchService.getSearchIndexStatus()
-  } catch (error) {
-    console.error('Failed to update search stats:', error)
-  }
-}
-
-const rebuildIndex = async () => {
-  if (isIndexing.value) return
-
-  try {
-    isIndexing.value = true
-    await backendSearchService.rebuildSearchIndex()
-    await updateStats()
-
-    // Show success message (could use toast service)
-    console.log('Search index rebuilt successfully')
-  } catch (error) {
-    console.error('Failed to rebuild search index:', error)
-    // Show error message
-  } finally {
-    isIndexing.value = false
-  }
-}
-
-const optimizeIndex = async () => {
-  if (isOptimizing.value) return
-
-  try {
-    isOptimizing.value = true
-    await backendSearchService.optimizeSearchIndex()
-    await updateStats()
-
-    // Show success message
-    console.log('Search index optimized successfully')
-  } catch (error) {
-    console.error('Failed to optimize search index:', error)
-    // Show error message
-  } finally {
-    isOptimizing.value = false
-  }
-}
-
-const formatTime = (date: Date): string => {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-
-  if (diff < 60000) {
-    return t('time.justNow')
-  } else if (diff < 3600000) {
-    return t('time.minutesAgo', { minutes: Math.floor(diff / 60000) })
-  } else if (diff < 86400000) {
-    return t('time.hoursAgo', { hours: Math.floor(diff / 3600000) })
-  } else {
-    return date.toLocaleDateString()
-  }
-}
-
-// Keyboard shortcuts
 const handleKeydown = (event: KeyboardEvent) => {
-  // Only handle shortcuts when modal is visible
-  if (!isVisible.value) return
-
-  const { key, ctrlKey, metaKey, shiftKey } = event
-  const cmdKey = isMac.value ? metaKey : ctrlKey
-
-  // Escape to close
-  if (key === 'Escape') {
-    event.preventDefault()
-    close()
-    return
-  }
-
-  // Ctrl/Cmd + F to focus search
-  if (cmdKey && key === 'f') {
-    event.preventDefault()
-    searchRef.value?.$refs.searchInputRef?.focus()
-    return
-  }
-
-  // F11 or Ctrl/Cmd + Shift + F to toggle fullscreen
-  if (key === 'F11' || (cmdKey && shiftKey && key === 'F')) {
-    event.preventDefault()
-    toggleFullscreen()
-    return
-  }
-
-  // Ctrl/Cmd + / to show keyboard shortcuts
-  if (cmdKey && key === '/') {
-    event.preventDefault()
-    showKeyboardHelp.value = !showKeyboardHelp.value
-    return
-  }
-
-  // Ctrl/Cmd + I to show stats
-  if (cmdKey && key === 'i') {
-    event.preventDefault()
-    showStats.value = !showStats.value
-    return
+  switch (event.key) {
+    case 'Escape':
+      event.preventDefault()
+      emit('close')
+      break
+    
+    case 'ArrowDown':
+      event.preventDefault()
+      navigateResults(1)
+      break
+    
+    case 'ArrowUp':
+      event.preventDefault()
+      navigateResults(-1)
+      break
+    
+    case 'Enter':
+      event.preventDefault()
+      selectCurrentResult()
+      break
   }
 }
 
-// Global keyboard shortcut to open search
-const handleGlobalKeydown = (event: KeyboardEvent) => {
-  const { key, ctrlKey, metaKey } = event
-  const cmdKey = isMac.value ? metaKey : ctrlKey
-
-  // Ctrl/Cmd + K to open global search
-  if (cmdKey && key === 'k') {
-    event.preventDefault()
-    if (!isVisible.value) {
-      open()
-    }
-    return
+const handleResultKeydown = (event: KeyboardEvent, type: string, index: number) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault()
+      if (type === 'chat') {
+        handleChatClick(chatResults.value[index].id)
+      } else {
+        const result = messageResults.value[index - chatResults.value.length]
+        handleMessageClick(result.id, result.chatId!)
+      }
+      break
   }
+}
 
-  // If modal is visible, handle modal-specific shortcuts
-  if (isVisible.value) {
-    handleKeydown(event)
+const navigateResults = (direction: number) => {
+  const maxIndex = totalResults.value - 1
+  
+  if (direction > 0) {
+    selectedIndex.value = selectedIndex.value >= maxIndex ? 0 : selectedIndex.value + 1
+  } else {
+    selectedIndex.value = selectedIndex.value <= 0 ? maxIndex : selectedIndex.value - 1
+  }
+  
+  // Focus the selected result
+  focusSelectedResult()
+}
+
+const focusSelectedResult = () => {
+  nextTick(() => {
+    const resultElements = modalRef.value?.querySelectorAll('.search-result-item')
+    const selectedElement = resultElements?.[selectedIndex.value] as HTMLElement
+    selectedElement?.focus()
+  })
+}
+
+const selectCurrentResult = () => {
+  const selectedResult = searchResults.value[selectedIndex.value]
+  if (!selectedResult) return
+
+  if (selectedResult.type === 'chat') {
+    handleChatClick(selectedResult.id)
+  } else {
+    handleMessageClick(selectedResult.id, selectedResult.chatId!)
+  }
+}
+
+const handleChatClick = (chatId: string) => {
+  emit('chat-click', chatId)
+  announceToScreenReader('Opening conversation')
+}
+
+const handleMessageClick = (messageId: string, chatId: string) => {
+  emit('message-click', messageId, chatId)
+  announceToScreenReader('Jumping to message')
+}
+
+const closeIfClickOutside = (event: MouseEvent) => {
+  if (event.target === event.currentTarget) {
+    emit('close')
+  }
+}
+
+const highlightMatch = (text: string, query: string) => {
+  if (!query.trim()) return text
+  
+  const regex = new RegExp(`(${escapeRegex(query.trim())})`, 'gi')
+  return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800/50 px-1 rounded">$1</mark>')
+}
+
+const escapeRegex = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')
+}
+
+const formatTime = (date: Date | string | undefined) => {
+  if (!date) return ''
+  const d = new Date(date)
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
+}
+
+// Screen reader announcements
+const announceToScreenReader = (message: string) => {
+  currentAnnouncement.value = message
+  setTimeout(() => {
+    currentAnnouncement.value = ''
+  }, 1000)
+}
+
+// Trap focus within modal
+const trapFocus = (event: KeyboardEvent) => {
+  if (!props.isVisible) return
+  
+  const focusableElements = modalRef.value?.querySelectorAll(
+    'input, button, textarea, select, a[href], [tabindex]:not([tabindex="-1"])'
+  )
+  
+  if (!focusableElements?.length) return
+  
+  const firstElement = focusableElements[0] as HTMLElement
+  const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+  
+  if (event.key === 'Tab') {
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    }
   }
 }
 
 // Lifecycle
 onMounted(() => {
-  // Detect platform
-  isMac.value = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-
-  // Add global keyboard listener
-  document.addEventListener('keydown', handleGlobalKeydown)
-
-  // Update initial stats
-  updateStats()
+  document.addEventListener('keydown', trapFocus)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleGlobalKeydown)
+  document.removeEventListener('keydown', trapFocus)
 })
 
-// Watch for prop changes
-watch(
-  () => props.visible,
-  newValue => {
-    if (newValue !== isVisible.value) {
-      if (newValue) {
-        open()
-      } else {
-        close()
-      }
-    }
+// Watchers
+watch(() => props.isVisible, (visible) => {
+  if (visible) {
+    nextTick(() => {
+      searchInputRef.value?.focus()
+    })
+    document.body.style.overflow = 'hidden'
+    announceToScreenReader('Search dialog opened')
+  } else {
+    searchQuery.value = ''
+    selectedIndex.value = -1
+    document.body.style.overflow = ''
+    announceToScreenReader('Search dialog closed')
   }
-)
+})
 
-// Expose methods for parent components
-defineExpose({
-  open,
-  close,
-  toggle: () => (isVisible.value ? close() : open())
+watch(searchQuery, () => {
+  if (searchQuery.value.trim()) {
+    announceToScreenReader(`Searching for: ${searchQuery.value}`)
+  }
+})
+
+watch(totalResults, (count) => {
+  if (searchQuery.value.trim() && !isSearching.value) {
+    announceToScreenReader(`Found ${count} result${count === 1 ? '' : 's'}`)
+  }
 })
 </script>
 
 <style scoped>
-
-/* 🎨 响应式设计系统 */
-:root {
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
+/* Modal animations */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
 }
 
-/* 🎨 响应式实用类 */
-.container-sm { max-width: var(--breakpoint-sm); }
-.container-md { max-width: var(--breakpoint-md); }
-.container-lg { max-width: var(--breakpoint-lg); }
-.container-xl { max-width: var(--breakpoint-xl); }
-
-/* 响应式显示 */
-.hidden-sm { display: none; }
-.hidden-md { display: none; }
-.hidden-lg { display: none; }
-
-@media (min-width: 640px) {
-  .hidden-sm { display: block; }
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
-@media (min-width: 768px) {
-  .hidden-md { display: block; }
+.modal-enter-from .global-search-modal,
+.modal-leave-to .global-search-modal {
+  transform: translateY(-20px) scale(0.95);
 }
 
-@media (min-width: 1024px) {
-  .hidden-lg { display: block; }
+/* Search result highlighting */
+.search-result-item {
+  border-radius: 0.5rem;
 }
 
-/* 响应式文本 */
-.text-responsive-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
-.text-responsive-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
-.text-responsive-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
-.text-responsive-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
-
-/* 响应式间距 */
-.space-responsive-sm { gap: clamp(0.5rem, 2vw, 1rem); }
-.space-responsive-md { gap: clamp(1rem, 3vw, 1.5rem); }
-.space-responsive-lg { gap: clamp(1.5rem, 4vw, 2rem); }
-
-/* 响应式网格 */
-.grid-responsive-sm {
-  grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 25vw, 300px), 1fr));
+.search-result-item:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }
 
-.grid-responsive-md {
-  grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 30vw, 350px), 1fr));
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
-.grid-responsive-lg {
-  grid-template-columns: repeat(auto-fit, minmax(clamp(300px, 35vw, 400px), 1fr));
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
-/* 响应式布局调整 */
-@media (max-width: 640px) {
-  .flex-col-mobile { flex-direction: column; }
-  .grid-1-mobile { grid-template-columns: 1fr; }
-  .gap-2-mobile { gap: var(--space-2); }
-  .p-4-mobile { padding: var(--space-4); }
+/* Keyboard shortcut styling */
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .flex-col-tablet { flex-direction: column; }
-  .grid-2-tablet { grid-template-columns: repeat(2, 1fr); }
-  .gap-4-tablet { gap: var(--space-4); }
-  .p-6-tablet { padding: var(--space-6); }
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@media (max-width: 1024px) {
-  .sidebar-layout {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: static;
-  }
-}
-
-/* 🎨 现代布局系统 */
-.flex-center {
+/* Touch target optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.flex-between {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.flex-start {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.flex-end {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.flex-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-wrap {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-/* 🎨 网格系统 */
-.grid-auto-fit {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-4);
-}
-
-.grid-auto-fill {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--space-4);
-}
-
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-
-.grid-gap-2 { gap: var(--space-2); }
-.grid-gap-4 { gap: var(--space-4); }
-.grid-gap-6 { gap: var(--space-6); }
-
-/* 🎨 卡片布局 */
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-
-.card-interactive:hover {
-  cursor: pointer;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* 🎨 页面布局 */
-.page-layout {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-}
-
-.page-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: white;
-  border-bottom: 1px solid var(--color-gray-200);
-}
-
-.page-main {
-  padding: var(--space-6) 0;
-}
-
-.page-footer {
-  border-top: 1px solid var(--color-gray-200);
-  background: var(--color-gray-50);
-}
-
-/* 🎨 侧边栏布局 */
-.sidebar-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: var(--space-6);
-}
-
-.sidebar {
-  position: sticky;
-  top: var(--space-6);
-  height: fit-content;
-}
-
-.sidebar-content {
-  padding: var(--space-6);
-  background: white;
-  border-radius: 12px;
-  border: 1px solid var(--color-gray-200);
-}
-
-/* 🎨 响应式工具 */
-@media (max-width: 768px) {
-  .sidebar-layout {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .global-search-modal {
+    margin: 1rem;
+    margin-top: 2rem;
+    max-height: calc(100vh - 4rem);
   }
-
-  .hidden-mobile { display: none; }
-  .flex-mobile-col { flex-direction: column; }
-  .grid-mobile-1 { grid-template-columns: 1fr; }
-}
-
-/* 🎨 完整间距系统 - 基于4px网格 */
-:root {
-  --space-0: 0;
-  --space-1: 0.25rem;    /* 4px */
-  --space-2: 0.5rem;     /* 8px */
-  --space-3: 0.75rem;    /* 12px */
-  --space-4: 1rem;       /* 16px */
-  --space-5: 1.25rem;    /* 20px */
-  --space-6: 1.5rem;     /* 24px */
-  --space-8: 2rem;       /* 32px */
-  --space-10: 2.5rem;    /* 40px */
-  --space-12: 3rem;      /* 48px */
-  --space-16: 4rem;      /* 64px */
-  --space-20: 5rem;      /* 80px */
-  --space-24: 6rem;      /* 96px */
-  --space-32: 8rem;      /* 128px */
-
-  /* 负间距 */
-  --space-neg-1: -0.25rem;
-  --space-neg-2: -0.5rem;
-  --space-neg-4: -1rem;
-}
-
-/* 🎨 间距实用类 */
-.m-1 { margin: var(--space-1); }
-.m-2 { margin: var(--space-2); }
-.m-3 { margin: var(--space-3); }
-.m-4 { margin: var(--space-4); }
-.m-6 { margin: var(--space-6); }
-.m-8 { margin: var(--space-8); }
-
-.p-1 { padding: var(--space-1); }
-.p-2 { padding: var(--space-2); }
-.p-3 { padding: var(--space-3); }
-.p-4 { padding: var(--space-4); }
-.p-6 { padding: var(--space-6); }
-.p-8 { padding: var(--space-8); }
-
-.mx-auto { margin-left: auto; margin-right: auto; }
-.my-auto { margin-top: auto; margin-bottom: auto; }
-
-.px-1 { padding-left: var(--space-1); padding-right: var(--space-1); }
-.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
-.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
-.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
-.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
-
-.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
-.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
-.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
-.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
-
-/* 🎨 容器和布局间距 */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: var(--space-4);
-  padding-right: var(--space-4);
-}
-
-.section-spacing {
-  padding-top: var(--space-12);
-  padding-bottom: var(--space-12);
-}
-
-.card-spacing {
-  padding: var(--space-6);
-}
-
-.stack-sm > * + * { margin-top: var(--space-2); }
-.stack-md > * + * { margin-top: var(--space-4); }
-.stack-lg > * + * { margin-top: var(--space-6); }
-.stack-xl > * + * { margin-top: var(--space-8); }
-
-.inline-sm > * + * { margin-left: var(--space-2); }
-.inline-md > * + * { margin-left: var(--space-4); }
-.inline-lg > * + * { margin-left: var(--space-6); }
-
-/* 🎨 完整字体系统 */
-:root {
-  /* 字体族 */
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
-
-  /* 字体大小 - 基于1.25的倍数比例 */
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
-  --font-size-5xl: 3rem;      /* 48px */
-
-  /* 字体权重 */
-  --font-weight-thin: 100;
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-
-  /* 行高 */
-  --line-height-tight: 1.25;
-  --line-height-snug: 1.375;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.625;
-  --line-height-loose: 2;
-
-  /* 字母间距 */
-  --letter-spacing-tighter: -0.05em;
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.025em;
-  --letter-spacing-wider: 0.05em;
-  --letter-spacing-widest: 0.1em;
-}
-
-/* 🎨 字体实用类 */
-.font-sans { font-family: var(--font-family-sans); }
-.font-mono { font-family: var(--font-family-mono); }
-
-.text-xs { font-size: var(--font-size-xs); line-height: var(--line-height-tight); }
-.text-sm { font-size: var(--font-size-sm); line-height: var(--line-height-snug); }
-.text-base { font-size: var(--font-size-base); line-height: var(--line-height-normal); }
-.text-lg { font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
-.text-xl { font-size: var(--font-size-xl); line-height: var(--line-height-relaxed); }
-.text-2xl { font-size: var(--font-size-2xl); line-height: var(--line-height-loose); }
-.text-3xl { font-size: var(--font-size-3xl); line-height: var(--line-height-loose); }
-
-.font-thin { font-weight: var(--font-weight-thin); }
-.font-light { font-weight: var(--font-weight-light); }
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
-
-.leading-tight { line-height: var(--line-height-tight); }
-.leading-snug { line-height: var(--line-height-snug); }
-.leading-normal { line-height: var(--line-height-normal); }
-.leading-relaxed { line-height: var(--line-height-relaxed); }
-
-.tracking-tight { letter-spacing: var(--letter-spacing-tight); }
-.tracking-normal { letter-spacing: var(--letter-spacing-normal); }
-.tracking-wide { letter-spacing: var(--letter-spacing-wide); }
-
-/* 🎨 文本层次优化 */
-.heading-1 {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tighter);
-  margin-bottom: 1rem;
-}
-
-.heading-2 {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tighter);
-  margin-bottom: 0.875rem;
-}
-
-.heading-3 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-snug);
-  letter-spacing: var(--letter-spacing-tight);
-  margin-bottom: 0.75rem;
-}
-
-.body-large {
-  font-size: var(--font-size-lg);
-  line-height: var(--line-height-relaxed);
-  letter-spacing: var(--letter-spacing-normal);
-}
-
-.body-regular {
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-  letter-spacing: var(--letter-spacing-normal);
-}
-
-.body-small {
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-normal);
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.caption {
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-snug);
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-gray-600);
-}
-
-/* 🎨 高级色彩系统 */
-:root {
-  /* 基础色彩 */
-  --color-primary: hsl(221 83% 53%);
-  --color-primary-hover: hsl(221 83% 48%);
-  --color-primary-active: hsl(221 83% 43%);
-
-  /* 语义色彩 */
-  --color-success: hsl(142 71% 45%);
-  --color-warning: hsl(38 92% 50%);
-  --color-error: hsl(0 84% 60%);
-  --color-info: hsl(217 91% 60%);
-
-  /* 中性色彩 */
-  --color-gray-50: hsl(210 20% 98%);
-  --color-gray-100: hsl(210 15% 95%);
-  --color-gray-200: hsl(210 10% 89%);
-  --color-gray-300: hsl(210 8% 75%);
-  --color-gray-400: hsl(210 8% 56%);
-  --color-gray-500: hsl(210 6% 43%);
-  --color-gray-600: hsl(210 8% 35%);
-  --color-gray-700: hsl(210 10% 28%);
-  --color-gray-800: hsl(210 12% 21%);
-  --color-gray-900: hsl(210 15% 15%);
-
-  /* 透明度变体 */
-  --color-primary-10: hsl(221 83% 53% / 0.1);
-  --color-primary-20: hsl(221 83% 53% / 0.2);
-  --color-primary-30: hsl(221 83% 53% / 0.3);
-  --color-success-10: hsl(142 71% 45% / 0.1);
-  --color-error-10: hsl(0 84% 60% / 0.1);
-}
-
-/* 🎨 色彩实用类 */
-.text-primary { color: var(--color-primary); }
-.text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
-.text-error { color: var(--color-error); }
-.text-gray-500 { color: var(--color-gray-500); }
-.text-gray-600 { color: var(--color-gray-600); }
-.text-gray-700 { color: var(--color-gray-700); }
-
-.bg-primary { background-color: var(--color-primary); }
-.bg-primary-hover:hover { background-color: var(--color-primary-hover); }
-.bg-success { background-color: var(--color-success); }
-.bg-warning { background-color: var(--color-warning); }
-.bg-error { background-color: var(--color-error); }
-
-.border-primary { border-color: var(--color-primary); }
-.border-success { border-color: var(--color-success); }
-.border-error { border-color: var(--color-error); }
-
-/* 🎨 对比度增强 */
-.high-contrast {
-  --color-primary: hsl(221 100% 40%);
-  --color-gray-900: hsl(210 20% 10%);
-  --color-gray-100: hsl(210 15% 95%);
-}
-
-/* 🎨 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-gray-50: hsl(210 15% 15%);
-    --color-gray-100: hsl(210 12% 21%);
-    --color-gray-200: hsl(210 10% 28%);
-    --color-gray-300: hsl(210 8% 35%);
-    --color-gray-400: hsl(210 6% 43%);
-    --color-gray-500: hsl(210 8% 56%);
-    --color-gray-600: hsl(210 8% 75%);
-    --color-gray-700: hsl(210 10% 89%);
-    --color-gray-800: hsl(210 15% 95%);
-    --color-gray-900: hsl(210 20% 98%);
+  
+  .search-results {
+    max-height: calc(100vh - 12rem);
   }
-}
-.global-search-overlay {
-  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.global-search-modal {
-  @apply bg-background border border-border rounded-lg shadow-2xl overflow-hidden flex flex-col;
-  animation: slideUp 0.3s ease-out;
-}
-
-.modal-windowed {
-  @apply w-full max-w-4xl h-[80vh];
-}
-
-.modal-fullscreen {
-  @apply w-full h-full max-w-none rounded-none;
-}
-
-.modal-header {
-  @apply flex items-center justify-between p-4 border-b border-border bg-muted/30;
-}
-
-.header-content {
-  @apply flex items-center gap-3;
-}
-
-.header-icon {
-  @apply text-primary;
-}
-
-.modal-title {
-  @apply text-lg font-semibold;
-}
-
-.header-actions {
-  @apply flex items-center gap-1;
-}
-
-.action-btn {
-  @apply p-2 rounded-md hover:bg-accent transition-colors;
-}
-
-.close-btn {
-  @apply text-muted-foreground hover:text-destructive;
-}
-
-.search-content {
-  @apply flex-1 overflow-hidden;
-}
-
-.search-stats {
-  @apply flex items-center justify-between p-3 border-t border-border bg-muted/20;
-}
-
-.stats-content {
-  @apply flex items-center gap-6 text-sm text-muted-foreground;
-}
-
-.stat-item {
-  @apply flex items-center gap-2 relative;
-}
-
-.status-indicator {
-  @apply w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold;
-}
-
-.status-indicator.warning {
-  @apply bg-yellow-500 text-yellow-900;
-}
-
-.stat-actions {
-  @apply flex items-center gap-2 ml-auto;
-}
-
-.stat-action-btn {
-  @apply flex items-center gap-1 px-2 py-1 text-xs rounded border border-border 
-         hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.stats-close {
-  @apply p-1 rounded hover:bg-accent transition-colors;
-}
-
-.keyboard-shortcuts {
-  @apply border-t border-border bg-muted/20;
-}
-
-.shortcuts-header {
-  @apply flex items-center justify-between p-3 border-b border-border;
-}
-
-.shortcuts-close {
-  @apply p-1 rounded hover:bg-accent transition-colors;
-}
-
-.shortcuts-list {
-  @apply p-4 grid grid-cols-1 md:grid-cols-2 gap-3;
-}
-
-.shortcut-item {
-  @apply flex items-center justify-between text-sm;
-}
-
-.shortcut-item kbd {
-  @apply px-2 py-1 bg-muted border border-border rounded text-xs font-mono font-medium;
-}
-
-.modal-footer {
-  @apply flex items-center justify-between p-4 border-t border-border bg-muted/30;
-}
-
-.footer-left {
-  @apply flex items-center gap-2;
-}
-
-.footer-btn {
-  @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors hover:bg-accent;
-}
-
-.footer-btn.active {
-  @apply bg-primary text-primary-foreground;
-}
-
-.footer-right {
-  @apply flex items-center gap-2;
-}
-
-.footer-text {
-  @apply text-xs text-muted-foreground;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+  
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
   }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .global-search-overlay {
-    @apply p-2;
-  }
-
-  .modal-windowed {
-    @apply w-full h-[90vh];
-  }
-
-  .modal-header {
-    @apply p-3;
-  }
-
-  .shortcuts-list {
-    @apply grid-cols-1;
-  }
-
-  .footer-left {
-    @apply flex-col items-start gap-1;
-  }
-
-  .modal-footer {
-    @apply flex-col items-start gap-3;
-  }
-}
-
-/* High contrast mode */
+/* High contrast support */
 @media (prefers-contrast: high) {
-  .global-search-modal {
-    @apply border-2;
+  .search-result-item:hover,
+  .search-result-item:focus {
+    background: hsl(var(--foreground) / 0.1);
+    border: 2px solid hsl(var(--foreground) / 0.3);
   }
-
-  .action-btn:focus {
-    @apply ring-2 ring-primary;
+  
+  .global-search-modal {
+    border: 2px solid hsl(var(--foreground) / 0.3);
   }
 }
 
-/* Reduced motion */
+/* Dark theme enhancements */
+.dark mark {
+  background: rgba(250, 204, 21, 0.3);
+  color: rgb(254, 240, 138);
+}
+
+/* Animation performance optimization */
 @media (prefers-reduced-motion: reduce) {
-  .global-search-overlay {
-    animation: none;
+  .modal-enter-active,
+  .modal-leave-active {
+    transition: opacity 0.2s ease;
   }
-
-  .global-search-modal {
+  
+  .modal-enter-from,
+  .modal-leave-to {
+    opacity: 0;
+    transform: none;
+  }
+  
+  .animate-spin {
     animation: none;
   }
 }
-
-
-/* 焦点样式 */
-:focus-visible {
-  outline: 2px solid hsl(var(--ring, 59 130 230));
-  outline-offset: 2px;
-}</style>
+</style>

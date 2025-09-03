@@ -3,7 +3,7 @@ import type {
   CustomProviderCreateRequest,
   CustomProviderUpdateRequest,
   ProviderHealthStatus,
-  ProviderImportExport
+  ProviderImportExport,
 } from '../types/api'
 import type { CustomProviderFormData } from '@/types/customProvider'
 
@@ -24,7 +24,7 @@ export class CustomProviderService {
    * Add a new custom provider
    */
   async addProvider(
-    config: CustomProviderCreateRequest
+    config: CustomProviderCreateRequest,
   ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       return await window.api.llm.addCustomProvider(config)
@@ -38,7 +38,7 @@ export class CustomProviderService {
    * Create a new provider (alias for addProvider with form data)
    */
   async createProvider(
-    formData: CustomProviderFormData
+    formData: CustomProviderFormData,
   ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const config: CustomProviderCreateRequest = {
@@ -49,7 +49,7 @@ export class CustomProviderService {
         model: formData.model,
         type: formData.type,
         headers: formData.headers,
-        parameters: formData.parameters
+        parameters: formData.parameters,
       }
 
       const result = await window.api.llm.addCustomProvider(config)
@@ -60,13 +60,13 @@ export class CustomProviderService {
         if (getResult.success && getResult.data) {
           return {
             success: true,
-            data: getResult.data
+            data: getResult.data,
           }
         }
         // If we can't get the provider, still return success with basic info
         return {
           success: true,
-          data: { ...config, id: result.id } as CustomProviderConfig
+          data: { ...config, id: result.id } as CustomProviderConfig,
         }
       }
 
@@ -82,7 +82,7 @@ export class CustomProviderService {
    */
   async updateProvider(
     id: string,
-    updates: Partial<CustomProviderFormData>
+    updates: Partial<CustomProviderFormData>,
   ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const updateRequest: CustomProviderUpdateRequest = {
@@ -92,7 +92,7 @@ export class CustomProviderService {
         baseURL: updates.baseURL,
         model: updates.model,
         headers: updates.headers,
-        parameters: updates.parameters
+        parameters: updates.parameters,
       }
 
       const result = await window.api.llm.updateCustomProvider(id, updateRequest)
@@ -103,7 +103,7 @@ export class CustomProviderService {
         return {
           success: !!updated.success,
           data: updated.data || undefined,
-          error: updated.error
+          error: updated.error,
         }
       }
 
@@ -154,7 +154,7 @@ export class CustomProviderService {
    * Get a specific custom provider by ID
    */
   async getProvider(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; data?: CustomProviderConfig; error?: string }> {
     try {
       const provider = await window.api.llm.getCustomProvider(id)
@@ -173,7 +173,7 @@ export class CustomProviderService {
    * Check health of a specific provider
    */
   async checkProviderHealth(
-    id: string
+    id: string,
   ): Promise<{
     status: 'healthy' | 'unhealthy' | 'unknown' | 'error'
     error?: string
@@ -185,7 +185,7 @@ export class CustomProviderService {
         return {
           status: health.isHealthy ? 'healthy' : 'unhealthy',
           error: health.error,
-          responseTime: health.responseTime
+          responseTime: health.responseTime,
         }
       } else {
         return { status: 'unknown', error: 'No health information available' }
@@ -277,7 +277,7 @@ export class CustomProviderService {
 
       return {
         success: allSuccess,
-        error: errors.length > 0 ? errors.join('; ') : undefined
+        error: errors.length > 0 ? errors.join('; ') : undefined,
       }
     } catch (error: any) {
       console.error('Failed to reset providers:', error)
@@ -359,7 +359,7 @@ export class CustomProviderService {
    * Validate provider configuration without saving
    */
   async validateProvider(
-    config: CustomProviderCreateRequest
+    config: CustomProviderCreateRequest,
   ): Promise<{ valid: boolean; error?: string }> {
     // Basic client-side validation
     if (!config.name || config.name.trim() === '') {
@@ -424,18 +424,18 @@ export class CustomProviderService {
       {
         value: 'openai-compatible',
         label: 'OpenAI Compatible',
-        description: 'Use with APIs that follow OpenAI format (GPT, Groq, DeepSeek, etc.)'
+        description: 'Use with APIs that follow OpenAI format (GPT, Groq, DeepSeek, etc.)',
       },
       {
         value: 'anthropic-compatible',
         label: 'Anthropic Compatible',
-        description: 'Use with APIs that follow Anthropic Claude format'
+        description: 'Use with APIs that follow Anthropic Claude format',
       },
       {
         value: 'custom',
         label: 'Custom',
-        description: 'Custom implementation with specific requirements'
-      }
+        description: 'Custom implementation with specific requirements',
+      },
     ]
   }
 
@@ -450,12 +450,12 @@ export class CustomProviderService {
           maxTokens: 4096,
           topP: 1.0,
           frequencyPenalty: 0,
-          presencePenalty: 0
+          presencePenalty: 0,
         }
       case 'anthropic-compatible':
         return {
           temperature: 0.7,
-          maxTokens: 4096
+          maxTokens: 4096,
         }
       default:
         return {}

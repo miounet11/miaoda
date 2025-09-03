@@ -34,7 +34,7 @@ const DEFAULT_SECURITY_POLICY: SecurityPolicy = {
   networkAccess: false,
   fileSystemAccess: false,
   ipcAccess: true,
-  maxEventListeners: 10
+  maxEventListeners: 10,
 }
 
 /**
@@ -74,7 +74,7 @@ export class SecurePluginWrapper extends EventEmitter {
       cpuTime: 0,
       apiCalls: 0,
       eventsFired: 0,
-      lastActivity: Date.now()
+      lastActivity: Date.now(),
     }
   }
 
@@ -91,7 +91,7 @@ export class SecurePluginWrapper extends EventEmitter {
         // Check if API is allowed
         if (!this.policy.allowedAPIs.includes(propName)) {
           throw new Error(
-            `Plugin ${this.plugin.manifest.id} does not have permission to access '${propName}'`
+            `Plugin ${this.plugin.manifest.id} does not have permission to access '${propName}'`,
           )
         }
 
@@ -122,7 +122,7 @@ export class SecurePluginWrapper extends EventEmitter {
 
       deleteProperty: () => {
         throw new Error(`Plugin ${this.plugin.manifest.id} cannot delete API properties`)
-      }
+      },
     })
   }
 
@@ -139,7 +139,7 @@ export class SecurePluginWrapper extends EventEmitter {
       },
       set: () => {
         throw new Error(`Plugin ${this.plugin.manifest.id} cannot modify API objects`)
-      }
+      },
     })
   }
 
@@ -160,8 +160,8 @@ export class SecurePluginWrapper extends EventEmitter {
         setTimeout(() => {
           reject(
             new Error(
-              `Plugin ${this.plugin.manifest.id} execution timeout for operation '${operation}'`
-            )
+              `Plugin ${this.plugin.manifest.id} execution timeout for operation '${operation}'`,
+            ),
           )
         }, this.policy.maxExecutionTime)
       })
@@ -183,7 +183,7 @@ export class SecurePluginWrapper extends EventEmitter {
           type: 'memory-limit',
           plugin: this.plugin.manifest.id,
           current: this.metrics.memoryUsage,
-          limit: this.policy.maxMemoryUsage
+          limit: this.policy.maxMemoryUsage,
         })
         throw new Error(`Plugin ${this.plugin.manifest.id} exceeded memory limit`)
       }
@@ -194,7 +194,7 @@ export class SecurePluginWrapper extends EventEmitter {
         plugin: this.plugin.manifest.id,
         operation,
         error: error.message,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       })
       throw error
     }
@@ -219,7 +219,7 @@ export class SecurePluginWrapper extends EventEmitter {
       this.emit('activation-failed', {
         plugin: this.plugin.manifest.id,
         error: error.message,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       })
       throw error
     }
@@ -242,7 +242,7 @@ export class SecurePluginWrapper extends EventEmitter {
       this.emit('deactivation-error', {
         plugin: this.plugin.manifest.id,
         error: error.message,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       })
     }
   }
@@ -276,7 +276,7 @@ export class SecurePluginWrapper extends EventEmitter {
     if (manifest.permissions?.some(perm => dangerousPermissions.includes(perm))) {
       console.warn(
         `Plugin ${manifest.id} requests dangerous permissions:`,
-        manifest.permissions.filter(perm => dangerousPermissions.includes(perm))
+        manifest.permissions.filter(perm => dangerousPermissions.includes(perm)),
       )
     }
 
@@ -292,7 +292,7 @@ export class SecurePluginWrapper extends EventEmitter {
   getMetrics(): PluginMetrics & { sessionId: string } {
     return {
       ...this.metrics,
-      sessionId: this.sessionId
+      sessionId: this.sessionId,
     }
   }
 
@@ -334,7 +334,7 @@ export class SecurePluginWrapper extends EventEmitter {
       this.emit('force-stopped', {
         plugin: this.plugin.manifest.id,
         sessionId: this.sessionId,
-        reason: 'Security violation or manual intervention'
+        reason: 'Security violation or manual intervention',
       })
     } catch (error) {
       console.error(`Error force stopping plugin ${this.plugin.manifest.id}:`, error)
@@ -378,7 +378,7 @@ export class PluginSecurityAuditor extends EventEmitter {
       pluginId,
       sessionId,
       event,
-      details
+      details,
     }
 
     this.auditLog.push(entry)

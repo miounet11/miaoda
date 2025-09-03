@@ -11,7 +11,7 @@ const __dirname = dirname(__filename)
 // Get the user data directory
 const userDataPath =
   process.env.APPDATA ||
-  (process.platform == 'darwin'
+  (process.platform === 'darwin'
     ? process.env.HOME + '/Library/Application Support'
     : process.env.HOME + '/.local/share')
 const pluginsPath = path.join(userDataPath, 'miaoda-chat', 'plugins')

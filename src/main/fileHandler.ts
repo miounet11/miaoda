@@ -28,7 +28,7 @@ const TEXT_EXTENSIONS = [
   '.html',
   '.xml',
   '.yaml',
-  '.yml'
+  '.yml',
 ]
 
 export async function handleFileSelect(): Promise<FileInfo[]> {
@@ -53,11 +53,11 @@ export async function handleFileSelect(): Promise<FileInfo[]> {
           'html',
           'xml',
           'yaml',
-          'yml'
-        ]
+          'yml',
+        ],
       },
-      { name: 'All Files', extensions: ['*'] }
-    ]
+      { name: 'All Files', extensions: ['*'] },
+    ],
   })
 
   if (result.canceled || result.filePaths.length === 0) {
@@ -77,7 +77,7 @@ export async function handleFileSelect(): Promise<FileInfo[]> {
         path: filePath,
         name,
         size,
-        type: getFileType(ext)
+        type: getFileType(ext),
       }
 
       if (IMAGE_EXTENSIONS.includes(ext)) {
@@ -118,7 +118,7 @@ export async function handleFilePaste(dataUrl: string): Promise<FileInfo> {
     name,
     size: buffer.length,
     type: 'image',
-    data: dataUrl
+    data: dataUrl,
   }
 }
 

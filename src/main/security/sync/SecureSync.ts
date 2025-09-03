@@ -97,7 +97,7 @@ export class SecureSyncManager extends EventEmitter {
       conflictCount: 0,
       isOnline: false,
       syncInProgress: false,
-      errorCount: 0
+      errorCount: 0,
     }
 
     this.initialize()
@@ -140,7 +140,7 @@ export class SecureSyncManager extends EventEmitter {
       publicKey,
       registeredAt: Date.now(),
       lastSeen: Date.now(),
-      trusted: true
+      trusted: true,
     }
 
     // 安全存储私钥
@@ -180,7 +180,7 @@ export class SecureSyncManager extends EventEmitter {
     dataType: SyncDataType,
     operation: SyncOperation,
     data: any,
-    dependencies: string[] = []
+    dependencies: string[] = [],
   ): Promise<SyncPacket> {
     // 序列化数据
     const serializedData = JSON.stringify(data)
@@ -198,7 +198,7 @@ export class SecureSyncManager extends EventEmitter {
       dataType,
       operation,
       data: encryptedData,
-      dependencies
+      dependencies,
     }
 
     // 计算校验和
@@ -210,7 +210,7 @@ export class SecureSyncManager extends EventEmitter {
     return {
       ...packet,
       signature,
-      checksum
+      checksum,
     }
   }
 
@@ -236,7 +236,7 @@ export class SecureSyncManager extends EventEmitter {
       const isValidSignature = await this.crypto.verifySignature(
         JSON.stringify(packetWithoutSig),
         signature,
-        devicePublicKey
+        devicePublicKey,
       )
 
       if (!isValidSignature) {
@@ -277,7 +277,7 @@ export class SecureSyncManager extends EventEmitter {
         await this.uploadBatch(batch)
         this.emit('syncProgress', {
           uploaded: batch.length,
-          remaining: packets.length - batch.length
+          remaining: packets.length - batch.length,
         })
       }
 
@@ -346,7 +346,7 @@ export class SecureSyncManager extends EventEmitter {
         local =>
           local.dataType === remotePacket.dataType &&
           local.id === remotePacket.id &&
-          local.deviceId !== remotePacket.deviceId
+          local.deviceId !== remotePacket.deviceId,
       )
 
       if (localChange && localChange.timestamp !== remotePacket.timestamp) {
@@ -445,8 +445,8 @@ export class SecureSyncManager extends EventEmitter {
       title: remote.updated_at > local.updated_at ? remote.title : local.title,
       updated_at: Math.max(
         new Date(local.updated_at).getTime(),
-        new Date(remote.updated_at).getTime()
-      ).toString()
+        new Date(remote.updated_at).getTime(),
+      ).toString(),
       // 保持最新的更新时间和标题
     }
   }
@@ -468,7 +468,7 @@ export class SecureSyncManager extends EventEmitter {
       ...remote,
       ...local,
       // 特殊处理某些设置
-      lastModified: Math.max(local.lastModified || 0, remote.lastModified || 0)
+      lastModified: Math.max(local.lastModified || 0, remote.lastModified || 0),
     }
   }
 
@@ -519,7 +519,7 @@ export class SecureSyncManager extends EventEmitter {
       if (!wasOnline && this.syncStatus.isOnline) {
         this.emit('networkOnline')
         this.performFullSync().catch(err =>
-          this.handleSyncError('Sync on network recovery failed', err)
+          this.handleSyncError('Sync on network recovery failed', err),
         )
       } else if (wasOnline && !this.syncStatus.isOnline) {
         this.emit('networkOffline')

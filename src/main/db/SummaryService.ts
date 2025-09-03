@@ -19,7 +19,7 @@ export class SummaryService {
     summary: string,
     tags: string[],
     keyPoints: string[],
-    tokens?: number
+    tokens?: number,
   ): void {
     const updateSummary = this.db.prepare(`
       UPDATE chats 
@@ -38,7 +38,7 @@ export class SummaryService {
       new Date().toISOString(),
       tokens || null,
       JSON.stringify(keyPoints),
-      chatId
+      chatId,
     )
   }
 
@@ -69,7 +69,7 @@ export class SummaryService {
       tags: result.summary_tags ? JSON.parse(result.summary_tags) : [],
       keyPoints: result.key_points ? JSON.parse(result.key_points) : [],
       summaryUpdatedAt: result.summary_updated_at ? new Date(result.summary_updated_at) : undefined,
-      summaryTokens: result.summary_tokens || undefined
+      summaryTokens: result.summary_tokens || undefined,
     }
   }
 
@@ -94,7 +94,7 @@ export class SummaryService {
 
     return chats.map(chat => ({
       ...chat,
-      summaryData: this.getChatSummary(chat.id) || undefined
+      summaryData: this.getChatSummary(chat.id) || undefined,
     }))
   }
 

@@ -2,10 +2,17 @@
   <div
     class="chat-messages flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6"
     ref="messagesContainer"
+    role="log"
+    aria-label="Chat conversation"
+    :aria-busy="isLoading || isGenerating"
+    aria-live="polite"
+    aria-atomic="false"
+    tabindex="0"
+    @keydown="handleChatKeydown"
   >
     <div class="max-w-3xl mx-auto">
       <!-- Empty State -->
-      <div v-if="!messages.length" class="empty-state text-center py-20">
+      <div v-if="!messages.length" class="empty-state text-center py-20" role="status" aria-label="No messages yet">
         <div
           class="inline-flex items-center justify-center w-20 h-20 mb-6 bg-primary/10 rounded-full"
         >
@@ -23,15 +30,16 @@
             v-for="suggestion in quickSuggestions"
             :key="suggestion"
             @click="$emit('send-suggestion', suggestion)"
-            class="text-left p-3 sm:p-4 bg-muted/50 hover:bg-muted rounded-lg transition-colors"
-           aria-label="按钮">
+            class="text-left p-3 sm:p-4 bg-muted/50 hover:bg-muted rounded-lg transition-colors touch-target-comfortable"
+            :aria-label="`Send suggestion: ${suggestion}`"
+            type="button">
             <p class="text-sm">{{ suggestion }}</p>
           </button>
         </div>
       </div>
 
       <!-- Messages -->
-      <div v-else class="messages-list space-y-6">
+      <div v-else class="messages-list space-y-6" role="group" aria-label="Chat messages">
         <MessageItem
           v-for="(message, index) in messages"
           :key="message.id"
@@ -45,7 +53,7 @@
         />
 
         <!-- Loading indicator for new message -->
-        <div v-if="isGenerating" class="message-loading">
+        <div v-if="isGenerating" class="message-loading" role="status" aria-label="AI is generating response">
           <MessageSkeleton />
         </div>
       </div>
@@ -108,6 +116,10 @@ defineEmits<{
 const messagesContainer = ref<HTMLElement>()
 const { showSuccess } = useErrorHandler()
 
+// Keyboard navigation state
+const currentMessageIndex = ref(-1)
+const isKeyboardNavigating = ref(false)
+
 // Auto scroll to bottom
 const scrollToBottom = (smooth = true) => {
   if (!messagesContainer.value) return
@@ -129,6 +141,94 @@ const isNearBottom = () => {
 // Handle scroll events
 const handleScroll = () => {
   // Could emit scroll events for parent component if needed
+  // Reset keyboard navigation when scrolling manually
+  if (!isKeyboardNavigating.value) {
+    currentMessageIndex.value = -1
+  }
+  isKeyboardNavigating.value = false
+}
+
+// Keyboard navigation for chat container
+const handleChatKeydown = (event: KeyboardEvent) => {
+  const { key, ctrlKey, metaKey, shiftKey } = event
+  
+  switch (key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      navigateToMessage(Math.min(currentMessageIndex.value + 1, props.messages.length - 1))
+      break
+    case 'ArrowUp':
+      event.preventDefault()
+      navigateToMessage(Math.max(currentMessageIndex.value - 1, 0))
+      break
+    case 'Home':
+      if (ctrlKey || metaKey) {
+        event.preventDefault()
+        navigateToMessage(0)
+      }
+      break
+    case 'End':
+      if (ctrlKey || metaKey) {
+        event.preventDefault()
+        navigateToMessage(props.messages.length - 1)
+      }
+      break
+    case 'PageDown':
+      event.preventDefault()
+      scrollPageDown()
+      break
+    case 'PageUp':
+      event.preventDefault()
+      scrollPageUp()
+      break
+  }
+}
+
+// Navigate to specific message
+const navigateToMessage = (index: number) => {
+  if (index < 0 || index >= props.messages.length) return
+  
+  currentMessageIndex.value = index
+  isKeyboardNavigating.value = true
+  
+  // Find and focus the message element
+  nextTick(() => {
+    const messageElement = messagesContainer.value?.querySelector(`[data-message-id="${props.messages[index].id}"]`) as HTMLElement
+    if (messageElement) {
+      messageElement.focus()
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      
+      // Announce to screen reader
+      announceToScreenReader(`Message ${index + 1} of ${props.messages.length} focused. ${props.messages[index].role === 'user' ? 'Your message' : 'AI response'}`)
+    }
+  })
+}
+
+// Page-based scrolling
+const scrollPageDown = () => {
+  if (!messagesContainer.value) return
+  const scrollAmount = messagesContainer.value.clientHeight * 0.8
+  messagesContainer.value.scrollBy({ top: scrollAmount, behavior: 'smooth' })
+}
+
+const scrollPageUp = () => {
+  if (!messagesContainer.value) return
+  const scrollAmount = messagesContainer.value.clientHeight * 0.8
+  messagesContainer.value.scrollBy({ top: -scrollAmount, behavior: 'smooth' })
+}
+
+// Screen reader announcements
+const announceToScreenReader = (message: string) => {
+  const announcement = document.createElement('div')
+  announcement.setAttribute('aria-live', 'polite')
+  announcement.setAttribute('aria-atomic', 'true')
+  announcement.className = 'sr-only'
+  announcement.textContent = message
+  document.body.appendChild(announcement)
+  
+  setTimeout(() => {
+    document.body.removeChild(announcement)
+  }, 1000)
 }
 
 // Copy message content
@@ -180,7 +280,10 @@ onUnmounted(() => {
 // Expose methods for parent component
 defineExpose({
   scrollToBottom,
-  isNearBottom
+  isNearBottom,
+  navigateToMessage,
+  focusFirstMessage: () => navigateToMessage(0),
+  focusLastMessage: () => navigateToMessage(props.messages.length - 1)
 })
 </script>
 
@@ -673,6 +776,37 @@ defineExpose({
 }
 .chat-messages {
   scroll-behavior: smooth;
+  outline: none;
+  /* Enhanced touch handling */
+  touch-action: pan-y;
+  /* Better momentum scrolling */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.chat-messages:focus-visible {
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: -2px;
+}
+
+/* Touch target optimization */
+.touch-target-comfortable {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Custom scrollbar */
@@ -760,8 +894,36 @@ defineExpose({
   .empty-state p {
     font-size: 0.875rem;
   }
+  
+  .chat-messages {
+    /* Better mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    /* Safe area support */
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .messages-list {
+    space-y: 1rem; /* Slightly tighter spacing on mobile */
+  }
 }
 
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .chat-messages:focus-visible {
+    outline: 3px solid;
+    outline-offset: -3px;
+  }
+  
+  .empty-state {
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 2rem;
+  }
+}
 
 /* 无障碍支持 */
 @media (prefers-reduced-motion: reduce) {
@@ -771,6 +933,10 @@ defineExpose({
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  
+  .chat-messages {
+    scroll-behavior: auto;
   }
 }
 

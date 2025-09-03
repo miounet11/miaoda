@@ -137,7 +137,7 @@ export const useUIStore = defineStore(
       const newToast: ToastMessage = {
         ...toast,
         id: Date.now().toString(),
-        timestamp: new Date()
+        timestamp: new Date(),
       }
 
       toasts.value.push(newToast)
@@ -501,13 +501,13 @@ export const useUIStore = defineStore(
       setRecording,
       setVoiceEnabled,
       toggleVoice,
-      initialize
+      initialize,
     }
   },
   {
     persist: {
       key: 'miaoda-ui-store',
-      storage: localStorage
-    }
-  }
+      storage: localStorage,
+    },
+  },
 )

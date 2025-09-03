@@ -60,8 +60,8 @@ export class UnifiedSearchService extends BaseDatabaseService {
     options: {
       fuzzySearch: false,
       cacheEnabled: true,
-      maxResults: 100
-    }
+      maxResults: 100,
+    },
   }
 
   constructor(db: Database.Database | string) {
@@ -85,8 +85,8 @@ export class UnifiedSearchService extends BaseDatabaseService {
       ...config,
       options: {
         ...this.currentConfig.options,
-        ...config.options
-      }
+        ...config.options,
+      },
     }
 
     if (config.options?.cacheTimeout) {
@@ -111,7 +111,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
       if (!ftsCount || !messagesCount) {
         logger.warn(
           'Mock database detected, skipping search index initialization',
-          'UnifiedSearchService'
+          'UnifiedSearchService',
         )
         return
       }
@@ -130,7 +130,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   async search(
     query: string | SearchQuery,
-    config?: Partial<UnifiedSearchConfig>
+    config?: Partial<UnifiedSearchConfig>,
   ): Promise<SearchResult[]> {
     const searchConfig = config ? { ...this.currentConfig, ...config } : this.currentConfig
 
@@ -176,7 +176,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   private async basicSearch(
     query: string | SearchQuery,
-    config: UnifiedSearchConfig
+    config: UnifiedSearchConfig,
   ): Promise<SearchResult[]> {
     const searchQuery = typeof query === 'string' ? query : query.text
     const results: SearchResult[] = []
@@ -202,7 +202,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
 
       const messages = messageStmt.all(
         searchQuery,
-        config.options?.maxResults || 100
+        config.options?.maxResults || 100,
       ) as DBSearchResult[]
 
       // Convert to SearchResult format
@@ -216,7 +216,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
           timestamp: msg.created_at,
           score: Math.abs(msg.rank || 0),
           matches: this.extractMatches(msg.content, searchQuery),
-          type: 'message'
+          type: 'message',
         })
       }
 
@@ -231,7 +231,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
 
         const chats = chatStmt.all(
           `%${searchQuery}%`,
-          config.options?.maxResults || 100
+          config.options?.maxResults || 100,
         ) as ChatRecord[]
 
         for (const chat of chats) {
@@ -244,7 +244,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
             timestamp: chat.updated_at,
             score: 0.5, // Lower score for title matches
             matches: [],
-            type: 'chat'
+            type: 'chat',
           })
         }
       }
@@ -261,7 +261,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   private async advancedSearch(
     query: string | SearchQuery,
-    config: UnifiedSearchConfig
+    config: UnifiedSearchConfig,
   ): Promise<SearchResult[]> {
     // Start with basic search
     let results = await this.basicSearch(query, config)
@@ -288,7 +288,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   private async semanticSearch(
     query: string | SearchQuery,
-    config: UnifiedSearchConfig
+    config: UnifiedSearchConfig,
   ): Promise<SearchResult[]> {
     // For now, use advanced search as base
     let results = await this.advancedSearch(query, config)
@@ -311,7 +311,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
    */
   private async multimodalSearch(
     query: string | SearchQuery,
-    config: UnifiedSearchConfig
+    config: UnifiedSearchConfig,
   ): Promise<SearchResult[]> {
     // Start with semantic search
     const results = await this.semanticSearch(query, config)
@@ -364,7 +364,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
     totalIndexedMessages: number
     indexSize: number
     lastRebuild: string | null
-  } {
+    } {
     const messageCount = this.db.prepare('SELECT COUNT(*) as count FROM messages_fts').get() as {
       count: number
     }
@@ -372,7 +372,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
     return {
       totalIndexedMessages: messageCount.count,
       indexSize: messageCount.count * 100, // Rough estimate
-      lastRebuild: new Date().toISOString()
+      lastRebuild: new Date().toISOString(),
     }
   }
 
@@ -395,7 +395,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
         endIndex: index - start + query.length,
         highlighted: content
           .substring(start, end)
-          .replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>')
+          .replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>'),
       })
 
       index = lowerContent.indexOf(lowerQuery, index + 1)
@@ -424,7 +424,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
         result.chatId,
         result.timestamp,
         result.timestamp,
-        result.id
+        result.id,
       ) as MessageRecord[]
 
       // Add context messages with lower scores
@@ -437,7 +437,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
           timestamp: msg.created_at,
           score: result.score * 0.5, // Lower score for context
           matches: [],
-          type: 'context'
+          type: 'context',
         })
       }
     }
@@ -478,7 +478,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
           timestamp: msg.created_at,
           score: 0.3, // Low score for related content
           matches: [],
-          type: 'related'
+          type: 'related',
         })
       }
     }
@@ -520,7 +520,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
 
   private calculateSimilarityScores(
     results: SearchResult[],
-    query: string | SearchQuery
+    query: string | SearchQuery,
   ): SearchResult[] {
     const searchQuery = typeof query === 'string' ? query : query.text
 
@@ -560,7 +560,7 @@ export class UnifiedSearchService extends BaseDatabaseService {
     const key = this.getCacheKey(query)
     this.searchCache.set(key, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     // Limit cache size

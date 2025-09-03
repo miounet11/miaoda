@@ -248,13 +248,13 @@ export class DatabaseInitializer {
       { name: 'summary_tags', sql: 'ALTER TABLE chats ADD COLUMN summary_tags TEXT DEFAULT NULL' },
       {
         name: 'summary_updated_at',
-        sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL'
+        sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL',
       },
       {
         name: 'summary_tokens',
-        sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL'
+        sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL',
       },
-      { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' }
+      { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' },
     ]
 
     for (const column of requiredColumns) {
@@ -296,15 +296,15 @@ export class DatabaseInitializer {
       { name: 'error', sql: 'ALTER TABLE messages ADD COLUMN error TEXT DEFAULT NULL' },
       {
         name: 'error_details',
-        sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL'
-      }
+        sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL',
+      },
     ]
 
     // Only add created_at if it doesn't exist and timestamp doesn't exist either
     if (!columnNames.has('created_at') && !columnNames.has('timestamp')) {
       requiredColumns.push({
         name: 'created_at',
-        sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT'
+        sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT',
       })
     }
 
@@ -327,7 +327,7 @@ export class DatabaseInitializer {
         SELECT name FROM sqlite_master 
         WHERE type='trigger' 
         AND name IN ('search_index_delete', 'search_index_insert', 'search_index_update')
-      `
+      `,
         )
         .all() as Array<{ name: string }>
 
@@ -342,7 +342,7 @@ export class DatabaseInitializer {
           `
         SELECT name, sql FROM sqlite_master 
         WHERE type='table' AND name='search_index'
-      `
+      `,
         )
         .get() as { name: string; sql: string } | undefined
 
@@ -422,16 +422,16 @@ export class DatabaseInitializer {
           const userColumns = [
             {
               name: 'failed_login_attempts',
-              sql: `ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0`
+              sql: 'ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0',
             },
             {
               name: 'locked_until',
-              sql: `ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL`
+              sql: 'ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL',
             },
             {
               name: 'password_changed_at',
-              sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}`
-            }
+              sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}`,
+            },
           ]
           for (const column of userColumns) {
             if (!columnNames.has(column.name)) {
@@ -444,12 +444,12 @@ export class DatabaseInitializer {
           const authMethodColumns = [
             {
               name: 'setup_completed',
-              sql: `ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0`
+              sql: 'ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0',
             },
             {
               name: 'backup_codes_generated',
-              sql: `ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0`
-            }
+              sql: 'ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0',
+            },
           ]
           for (const column of authMethodColumns) {
             if (!columnNames.has(column.name)) {

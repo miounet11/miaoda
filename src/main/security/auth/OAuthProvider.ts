@@ -45,22 +45,22 @@ export const OAUTH_PROVIDERS: Record<string, Partial<OAuthConfig>> = {
     userInfoUrl: 'https://www.googleapis.com/oauth2/v2/userinfo',
     revokeUrl: 'https://oauth2.googleapis.com/revoke',
     scopes: ['openid', 'email', 'profile'],
-    usePKCE: true
+    usePKCE: true,
   },
   microsoft: {
     authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
     tokenUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
     userInfoUrl: 'https://graph.microsoft.com/v1.0/me',
     scopes: ['openid', 'email', 'profile'],
-    usePKCE: true
+    usePKCE: true,
   },
   github: {
     authUrl: 'https://github.com/login/oauth/authorize',
     tokenUrl: 'https://github.com/login/oauth/access_token',
     userInfoUrl: 'https://api.github.com/user',
     scopes: ['user:email'],
-    usePKCE: false
-  }
+    usePKCE: false,
+  },
 }
 
 // 令牌响应
@@ -109,7 +109,7 @@ export class OAuthProvider extends EventEmitter {
 
   constructor(
     private providerId: string,
-    config: Partial<OAuthConfig>
+    config: Partial<OAuthConfig>,
   ) {
     super()
 
@@ -117,7 +117,7 @@ export class OAuthProvider extends EventEmitter {
     const baseConfig = OAUTH_PROVIDERS[providerId] || {}
     this.config = {
       ...baseConfig,
-      ...config
+      ...config,
     } as OAuthConfig
 
     this.validateConfig()
@@ -203,7 +203,7 @@ export class OAuthProvider extends EventEmitter {
     const authState: AuthState = {
       state,
       nonce,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
 
     // 如果使用PKCE，生成PKCE参数
@@ -224,7 +224,7 @@ export class OAuthProvider extends EventEmitter {
     return {
       codeVerifier,
       codeChallenge,
-      codeChallengeMethod: 'S256'
+      codeChallengeMethod: 'S256',
     }
   }
 
@@ -245,7 +245,7 @@ export class OAuthProvider extends EventEmitter {
       response_type: 'code',
       scope: this.config.scopes.join(' '),
       state: authState.state,
-      nonce: authState.nonce
+      nonce: authState.nonce,
     })
 
     // 添加PKCE参数
@@ -278,8 +278,8 @@ export class OAuthProvider extends EventEmitter {
           nodeIntegration: false,
           contextIsolation: true,
           webSecurity: true,
-          allowRunningInsecureContent: false
-        }
+          allowRunningInsecureContent: false,
+        },
       })
 
       // 设置安全headers
@@ -289,8 +289,8 @@ export class OAuthProvider extends EventEmitter {
             ...details.responseHeaders,
             'Content-Security-Policy': ["default-src 'self' 'unsafe-inline'"],
             'X-Frame-Options': ['DENY'],
-            'X-Content-Type-Options': ['nosniff']
-          }
+            'X-Content-Type-Options': ['nosniff'],
+          },
         })
       })
 
@@ -327,7 +327,7 @@ export class OAuthProvider extends EventEmitter {
     url: string,
     resolve: (code: string) => void,
     reject: (error: Error) => void,
-    authWindow: BrowserWindow
+    authWindow: BrowserWindow,
   ): void {
     try {
       const urlObj = new URL(url)
@@ -375,7 +375,7 @@ export class OAuthProvider extends EventEmitter {
       grant_type: 'authorization_code',
       client_id: this.config.clientId,
       code,
-      redirect_uri: this.config.redirectUri
+      redirect_uri: this.config.redirectUri,
     })
 
     // 添加客户端密钥（如果不使用PKCE）
@@ -394,9 +394,9 @@ export class OAuthProvider extends EventEmitter {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
-          'User-Agent': 'MiaoDa-Chat/1.0'
+          'User-Agent': 'MiaoDa-Chat/1.0',
         },
-        body: tokenData
+        body: tokenData,
       })
 
       if (!response.ok) {
@@ -412,7 +412,7 @@ export class OAuthProvider extends EventEmitter {
         idToken: tokens.id_token,
         tokenType: tokens.token_type || 'Bearer',
         expiresIn: tokens.expires_in,
-        scope: tokens.scope
+        scope: tokens.scope,
       }
     } catch (error) {
       throw new Error(`Failed to exchange code for tokens: ${error}`)
@@ -432,8 +432,8 @@ export class OAuthProvider extends EventEmitter {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/json',
-          'User-Agent': 'MiaoDa-Chat/1.0'
-        }
+          'User-Agent': 'MiaoDa-Chat/1.0',
+        },
       })
 
       if (!response.ok) {
@@ -461,7 +461,7 @@ export class OAuthProvider extends EventEmitter {
           picture: userData.picture,
           verified: userData.verified_email,
           locale: userData.locale,
-          provider: 'google'
+          provider: 'google',
         }
 
       case 'microsoft':
@@ -472,7 +472,7 @@ export class OAuthProvider extends EventEmitter {
           picture: userData.photo,
           verified: true, // Microsoft emails are generally verified
           locale: userData.preferredLanguage,
-          provider: 'microsoft'
+          provider: 'microsoft',
         }
 
       case 'github':
@@ -482,7 +482,7 @@ export class OAuthProvider extends EventEmitter {
           name: userData.name || userData.login,
           picture: userData.avatar_url,
           verified: userData.email !== null,
-          provider: 'github'
+          provider: 'github',
         }
 
       default:
@@ -494,7 +494,7 @@ export class OAuthProvider extends EventEmitter {
           picture: userData.picture,
           verified: userData.email_verified || false,
           locale: userData.locale,
-          provider: this.providerId
+          provider: this.providerId,
         }
     }
   }
@@ -510,7 +510,7 @@ export class OAuthProvider extends EventEmitter {
     const tokenData = new URLSearchParams({
       grant_type: 'refresh_token',
       client_id: this.config.clientId,
-      refresh_token: this.currentTokens.refreshToken
+      refresh_token: this.currentTokens.refreshToken,
     })
 
     if (this.config.clientSecret) {
@@ -522,9 +522,9 @@ export class OAuthProvider extends EventEmitter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json'
+          Accept: 'application/json',
         },
-        body: tokenData
+        body: tokenData,
       })
 
       if (!response.ok) {
@@ -539,7 +539,7 @@ export class OAuthProvider extends EventEmitter {
         idToken: tokens.id_token,
         tokenType: tokens.token_type || 'Bearer',
         expiresIn: tokens.expires_in,
-        scope: tokens.scope
+        scope: tokens.scope,
       }
 
       this.currentTokens = refreshedTokens
@@ -563,7 +563,7 @@ export class OAuthProvider extends EventEmitter {
     try {
       const revokeData = new URLSearchParams({
         token: this.currentTokens.accessToken,
-        client_id: this.config.clientId
+        client_id: this.config.clientId,
       })
 
       if (this.config.clientSecret) {
@@ -573,9 +573,9 @@ export class OAuthProvider extends EventEmitter {
       await fetch(this.config.revokeUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: revokeData
+        body: revokeData,
       })
     } catch (error) {
       console.warn('Failed to revoke tokens:', error)

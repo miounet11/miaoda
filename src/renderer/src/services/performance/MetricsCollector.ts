@@ -68,7 +68,7 @@ export class MetricsCollector {
     clicks: 0,
     keystrokes: 0,
     scrollEvents: 0,
-    sessionStart: Date.now()
+    sessionStart: Date.now(),
   }
 
   constructor(thresholds: Partial<PerformanceThresholds> = {}) {
@@ -78,7 +78,7 @@ export class MetricsCollector {
       maxMemoryUsage: 500, // MB
       maxResponseTime: 2000, // ms
       maxDOMNodes: 10000,
-      ...thresholds
+      ...thresholds,
     }
 
     this.setupPerformanceObservers()
@@ -113,7 +113,7 @@ export class MetricsCollector {
     }
 
     this.isCollecting = false
-    
+
     if (this.collectionInterval) {
       clearInterval(this.collectionInterval)
       this.collectionInterval = null
@@ -128,7 +128,7 @@ export class MetricsCollector {
    */
   recordRender(renderTime: number): void {
     this.renderTimes.push(renderTime)
-    
+
     // Keep only recent render times
     if (this.renderTimes.length > 100) {
       this.renderTimes = this.renderTimes.slice(-50)
@@ -141,7 +141,7 @@ export class MetricsCollector {
         metric: 'renderTime',
         value: renderTime,
         threshold: this.thresholds.maxRenderTime,
-        message: `Slow render detected: ${Math.round(renderTime)}ms`
+        message: `Slow render detected: ${Math.round(renderTime)}ms`,
       })
     }
   }
@@ -152,7 +152,7 @@ export class MetricsCollector {
   recordNetworkRequest(requestId: string, _url: string, size: number = 0): void {
     this.networkRequests.set(requestId, {
       startTime: performance.now(),
-      size
+      size,
     })
   }
 
@@ -175,7 +175,7 @@ export class MetricsCollector {
         metric: 'responseTime',
         value: duration,
         threshold: this.thresholds.maxResponseTime,
-        message: `Slow network response: ${Math.round(duration)}ms`
+        message: `Slow network response: ${Math.round(duration)}ms`,
       })
     }
 
@@ -187,31 +187,31 @@ export class MetricsCollector {
    */
   measureComponentRender<T>(
     componentName: string,
-    renderFunction: () => T
+    renderFunction: () => T,
   ): { result: T; renderTime: number } {
     const startTime = performance.now()
-    
+
     try {
       const result = renderFunction()
       const renderTime = performance.now() - startTime
-      
+
       this.recordRender(renderTime)
-      
+
       console.debug(`Component ${componentName} rendered in ${Math.round(renderTime)}ms`)
-      
+
       return { result, renderTime }
     } catch (error) {
       const renderTime = performance.now() - startTime
       this.recordRender(renderTime)
-      
+
       this.createAlert({
         type: 'error',
         metric: 'componentRender',
         value: renderTime,
         threshold: this.thresholds.maxRenderTime,
-        message: `Component ${componentName} render failed after ${Math.round(renderTime)}ms`
+        message: `Component ${componentName} render failed after ${Math.round(renderTime)}ms`,
       })
-      
+
       throw error
     }
   }
@@ -221,28 +221,28 @@ export class MetricsCollector {
    */
   async measureAsyncOperation<T>(
     operationName: string,
-    operation: () => Promise<T>
+    operation: () => Promise<T>,
   ): Promise<{ result: T; duration: number }> {
     const startTime = performance.now()
-    
+
     try {
       const result = await operation()
       const duration = performance.now() - startTime
-      
+
       console.debug(`Operation ${operationName} completed in ${Math.round(duration)}ms`)
-      
+
       return { result, duration }
     } catch (error) {
       const duration = performance.now() - startTime
-      
+
       this.createAlert({
         type: 'error',
         metric: 'asyncOperation',
         value: duration,
         threshold: this.thresholds.maxResponseTime,
-        message: `Operation ${operationName} failed after ${Math.round(duration)}ms`
+        message: `Operation ${operationName} failed after ${Math.round(duration)}ms`,
       })
-      
+
       throw error
     }
   }
@@ -288,7 +288,7 @@ export class MetricsCollector {
     this.renderTimes.length = 0
     this.frameTimestamps.length = 0
     this.networkRequests.clear()
-    
+
     console.log('Performance history cleared')
   }
 
@@ -300,14 +300,14 @@ export class MetricsCollector {
     alerts: PerformanceAlert[]
     thresholds: PerformanceThresholds
     summary: any
-  } {
+    } {
     const summary = this.calculatePerformanceSummary()
-    
+
     return {
       metrics: [...this.metrics],
       alerts: [...this.alerts],
       thresholds: this.thresholds,
-      summary
+      summary,
     }
   }
 
@@ -318,7 +318,7 @@ export class MetricsCollector {
     healthy: boolean
     issues: string[]
     score: number // 0-100
-  } {
+    } {
     const issues: string[] = []
     let score = 100
 
@@ -328,7 +328,7 @@ export class MetricsCollector {
     }
 
     // Check average render time
-    const avgRenderTime = this.renderTimes.length > 0 
+    const avgRenderTime = this.renderTimes.length > 0
       ? this.renderTimes.reduce((sum, time) => sum + time, 0) / this.renderTimes.length
       : 0
 
@@ -369,7 +369,7 @@ export class MetricsCollector {
     return {
       healthy: issues.length === 0,
       issues,
-      score: Math.max(0, score)
+      score: Math.max(0, score),
     }
   }
 
@@ -377,14 +377,14 @@ export class MetricsCollector {
 
   private collectMetrics(): FrontendMetrics {
     const timestamp = Date.now()
-    
+
     // Collect performance metrics
     const performanceMetrics = {
       renderTime: this.getAverageRenderTime(),
       fps: this.calculateCurrentFPS(),
       domNodes: this.countDOMNodes(),
       eventListeners: this.countEventListeners(),
-      memoryUsage: this.estimateMemoryUsage()
+      memoryUsage: this.estimateMemoryUsage(),
     }
 
     // Collect UI metrics
@@ -393,7 +393,7 @@ export class MetricsCollector {
       scrollPosition: window.scrollY,
       visibleMessages: this.countVisibleMessages(),
       activeAnimations: this.countActiveAnimations(),
-      lastInteractionTime: this.getLastInteractionTime()
+      lastInteractionTime: this.getLastInteractionTime(),
     }
 
     // Collect network metrics
@@ -401,7 +401,7 @@ export class MetricsCollector {
       activeRequests: this.networkRequests.size,
       requestQueue: 0, // Would need more sophisticated tracking
       responseTime: this.getAverageResponseTime(),
-      bytesTransferred: this.calculateBytesTransferred()
+      bytesTransferred: this.calculateBytesTransferred(),
     }
 
     // Collect user interaction metrics
@@ -409,7 +409,7 @@ export class MetricsCollector {
       clicks: this.userInteractions.clicks,
       keystrokes: this.userInteractions.keystrokes,
       scrollEvents: this.userInteractions.scrollEvents,
-      sessionDuration: timestamp - this.userInteractions.sessionStart
+      sessionDuration: timestamp - this.userInteractions.sessionStart,
     }
 
     const metrics: FrontendMetrics = {
@@ -417,12 +417,12 @@ export class MetricsCollector {
       performance: performanceMetrics,
       ui: uiMetrics,
       network: networkMetrics,
-      user: userMetrics
+      user: userMetrics,
     }
 
     // Store metrics
     this.metrics.push(metrics)
-    
+
     // Limit stored metrics
     if (this.metrics.length > 1000) {
       this.metrics = this.metrics.slice(-500)
@@ -446,7 +446,7 @@ export class MetricsCollector {
             }
           })
         })
-        
+
         perfObserver.observe({ entryTypes: ['measure'] })
         this.observers.set('performance', perfObserver)
       } catch (error) {
@@ -466,11 +466,11 @@ export class MetricsCollector {
               metric: 'domNodes',
               value: nodeCount,
               threshold: this.thresholds.maxDOMNodes,
-              message: `High DOM node count: ${nodeCount}`
+              message: `High DOM node count: ${nodeCount}`,
             })
           }
         })
-        
+
         resizeObserver.observe(document.body)
         this.observers.set('resize', resizeObserver)
       } catch (error) {
@@ -499,7 +499,7 @@ export class MetricsCollector {
       if (scrollTimeout) {
         clearTimeout(scrollTimeout)
       }
-      
+
       scrollTimeout = window.setTimeout(() => {
         this.userInteractions.scrollEvents++
       }, 100) // Debounce scroll counting
@@ -509,16 +509,16 @@ export class MetricsCollector {
   private startFPSMonitoring(): void {
     const trackFrame = () => {
       this.frameTimestamps.push(performance.now())
-      
+
       // Keep only last second of frame data
       const oneSecondAgo = performance.now() - 1000
       this.frameTimestamps = this.frameTimestamps.filter(timestamp => timestamp > oneSecondAgo)
-      
+
       if (this.isCollecting) {
         requestAnimationFrame(trackFrame)
       }
     }
-    
+
     requestAnimationFrame(trackFrame)
   }
 
@@ -529,10 +529,10 @@ export class MetricsCollector {
 
   private calculateCurrentFPS(): number {
     if (this.frameTimestamps.length < 2) return 60 // Assume 60fps if no data
-    
+
     const recentFrames = this.frameTimestamps.slice(-60) // Last 60 frames
     if (recentFrames.length < 2) return 60
-    
+
     const timespan = recentFrames[recentFrames.length - 1] - recentFrames[0]
     return Math.round((recentFrames.length - 1) * 1000 / timespan)
   }
@@ -553,7 +553,7 @@ export class MetricsCollector {
     if (perfWithMemory.memory) {
       return Math.round(perfWithMemory.memory.usedJSHeapSize / 1024 / 1024)
     }
-    
+
     // Fallback estimation based on DOM nodes and other factors
     const nodeCount = this.countDOMNodes()
     const estimatedMB = (nodeCount * 0.5) + (this.metrics.length * 0.1) + 10
@@ -567,14 +567,14 @@ export class MetricsCollector {
   private countVisibleMessages(): number {
     const messages = document.querySelectorAll('[data-message-id]')
     let visibleCount = 0
-    
+
     messages.forEach(message => {
       const rect = message.getBoundingClientRect()
       if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
         visibleCount++
       }
     })
-    
+
     return visibleCount
   }
 
@@ -586,7 +586,7 @@ export class MetricsCollector {
     // Return most recent interaction time
     return Math.max(
       Date.now() - 1000, // Fallback to 1 second ago
-      this.userInteractions.sessionStart
+      this.userInteractions.sessionStart,
     )
   }
 
@@ -608,7 +608,7 @@ export class MetricsCollector {
         metric: 'renderTime',
         value: metrics.performance.renderTime,
         threshold: this.thresholds.maxRenderTime,
-        message: `High average render time: ${Math.round(metrics.performance.renderTime)}ms`
+        message: `High average render time: ${Math.round(metrics.performance.renderTime)}ms`,
       })
     }
 
@@ -619,7 +619,7 @@ export class MetricsCollector {
         metric: 'fps',
         value: metrics.performance.fps,
         threshold: this.thresholds.minFPS,
-        message: `Low FPS: ${Math.round(metrics.performance.fps)}`
+        message: `Low FPS: ${Math.round(metrics.performance.fps)}`,
       })
     }
 
@@ -630,7 +630,7 @@ export class MetricsCollector {
         metric: 'memoryUsage',
         value: metrics.performance.memoryUsage,
         threshold: this.thresholds.maxMemoryUsage,
-        message: `High memory usage: ${Math.round(metrics.performance.memoryUsage)}MB`
+        message: `High memory usage: ${Math.round(metrics.performance.memoryUsage)}MB`,
       })
     }
 
@@ -641,7 +641,7 @@ export class MetricsCollector {
         metric: 'domNodes',
         value: metrics.performance.domNodes,
         threshold: this.thresholds.maxDOMNodes,
-        message: `High DOM node count: ${metrics.performance.domNodes}`
+        message: `High DOM node count: ${metrics.performance.domNodes}`,
       })
     }
   }
@@ -650,11 +650,11 @@ export class MetricsCollector {
     const alert: PerformanceAlert = {
       id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
-      ...alertData
+      ...alertData,
     }
 
     this.alerts.push(alert)
-    
+
     // Limit stored alerts
     if (this.alerts.length > 500) {
       this.alerts = this.alerts.slice(-250)
@@ -676,7 +676,7 @@ export class MetricsCollector {
         averageFPS: 60,
         averageMemoryUsage: 0,
         totalAlerts: 0,
-        healthScore: 100
+        healthScore: 100,
       }
     }
 
@@ -692,7 +692,7 @@ export class MetricsCollector {
       averageMemoryUsage: Math.round(avgMemoryUsage),
       totalAlerts: this.alerts.length,
       healthScore: health.score,
-      issues: health.issues
+      issues: health.issues,
     }
   }
 

@@ -26,8 +26,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Backend search failed', 'BackendSearchService', error)
@@ -43,7 +43,7 @@ export class BackendSearchService {
       const stats = await window.api.search.getStats()
       return {
         ...stats,
-        lastUpdated: new Date(stats.lastSearchAt || Date.now())
+        lastUpdated: new Date(stats.lastSearchAt || Date.now()),
       }
     } catch (error) {
       logger.error('Failed to get search stats', 'BackendSearchService', error)
@@ -101,8 +101,8 @@ export class BackendSearchService {
       options: {
         maxResults,
         sortBy: 'relevance',
-        highlightMatches: true
-      }
+        highlightMatches: true,
+      },
     })
   }
 
@@ -113,7 +113,7 @@ export class BackendSearchService {
     return this.searchMessages({
       text: '',
       filters: { roles: [role] },
-      options: { sortBy: 'date', sortOrder: 'desc' }
+      options: { sortBy: 'date', sortOrder: 'desc' },
     })
   }
 
@@ -126,10 +126,10 @@ export class BackendSearchService {
       filters: {
         dateRange: {
           start: start.toISOString(),
-          end: end.toISOString()
-        }
+          end: end.toISOString(),
+        },
       },
-      options: { sortBy: 'date', sortOrder: 'desc' }
+      options: { sortBy: 'date', sortOrder: 'desc' },
     })
   }
 
@@ -159,8 +159,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Semantic search failed', 'BackendSearchService', error)
@@ -181,8 +181,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Hybrid search failed', 'BackendSearchService', error)
@@ -204,8 +204,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Failed to find similar messages', 'BackendSearchService', error)
@@ -274,8 +274,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Multimodal search failed', 'BackendSearchService', error)
@@ -288,7 +288,7 @@ export class BackendSearchService {
    */
   async searchImages(
     query: string,
-    options: { useOCR?: boolean; useDescriptions?: boolean } = {}
+    options: { useOCR?: boolean; useDescriptions?: boolean } = {},
   ): Promise<SearchResult[]> {
     try {
       const results = await window.api.search?.images?.(query, options)
@@ -299,8 +299,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Image search failed', 'BackendSearchService', error)
@@ -321,8 +321,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Document search failed', 'BackendSearchService', error)
@@ -343,8 +343,8 @@ export class BackendSearchService {
         ...result,
         message: {
           ...result.message,
-          timestamp: new Date(result.message.timestamp)
-        }
+          timestamp: new Date(result.message.timestamp),
+        },
       }))
     } catch (error) {
       logger.error('Audio search failed', 'BackendSearchService', error)
@@ -396,7 +396,7 @@ export class BackendSearchService {
       return (
         (await window.api.search?.optimizePerformance?.()) || {
           optimizationsApplied: [],
-          estimatedImprovement: 'No optimizations available'
+          estimatedImprovement: 'No optimizations available',
         }
       )
     } catch (error) {
@@ -411,7 +411,7 @@ export class BackendSearchService {
   async advancedSearch(
     text: string,
     filters: Partial<SearchQuery['filters']>,
-    options: Partial<SearchQuery['options']> = {}
+    options: Partial<SearchQuery['options']> = {},
   ): Promise<SearchResult[]> {
     // Convert Date objects to ISO strings for date range
     const processedFilters = { ...filters }
@@ -424,7 +424,7 @@ export class BackendSearchService {
         end:
           filters.dateRange.end instanceof Date
             ? filters.dateRange.end.toISOString()
-            : filters.dateRange.end
+            : filters.dateRange.end,
       }
     }
 
@@ -435,8 +435,8 @@ export class BackendSearchService {
         maxResults: 50,
         sortBy: 'relevance',
         highlightMatches: true,
-        ...options
-      }
+        ...options,
+      },
     })
   }
 }

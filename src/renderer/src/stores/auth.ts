@@ -16,7 +16,7 @@ export const useAuthStore = defineStore(
     const preferences = ref<UserPreferences>({
       theme: 'light',
       language: 'zh-CN',
-      fontSize: 'medium'
+      fontSize: 'medium',
     })
 
     const isLoading = ref(false)
@@ -54,7 +54,7 @@ export const useAuthStore = defineStore(
       preferences.value = {
         theme: 'light',
         language: 'zh-CN',
-        fontSize: 'medium'
+        fontSize: 'medium',
       }
       localStorage.removeItem('miaoda-preferences')
     }
@@ -70,14 +70,14 @@ export const useAuthStore = defineStore(
       // Actions
       updatePreferences,
       loadPreferences,
-      resetPreferences
+      resetPreferences,
     }
   },
   {
     persist: {
       key: 'miaoda-preferences-store',
       paths: ['preferences'],
-      storage: localStorage
-    }
-  } as any
+      storage: localStorage,
+    },
+  } as any,
 )

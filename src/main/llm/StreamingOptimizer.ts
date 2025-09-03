@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { EventEmitter } from 'events'
 import { logger } from '../utils/Logger'
 
@@ -57,7 +56,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
       enableCompression: false, // Disabled for now to avoid complexity
       enableAdaptiveBuffering: true,
       metricsCollectionInterval: 1000, // 1 second
-      ...settings
+      ...settings,
     }
 
     this.globalMetrics = this.initializeMetrics()
@@ -88,7 +87,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
       onChunk?: (chunk: string, metadata: ChunkMetadata) => void
       onComplete?: (finalContent: string) => void
       onError?: (error: Error) => void
-    } = {}
+    } = {},
   ): OptimizedStreamHandler {
     const context = new StreamContext(streamId, this.settings, options)
     this.activeStreams.set(streamId, context)
@@ -96,7 +95,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
     logger.debug('Created optimized stream', 'StreamingOptimizer', {
       streamId,
       expectedSize: options.expectedSize,
-      priority: options.priority || 'normal'
+      priority: options.priority || 'normal',
     })
 
     return new OptimizedStreamHandler(context, this)
@@ -108,12 +107,12 @@ export class LLMStreamingOptimizer extends EventEmitter {
   public processChunk(
     streamId: string,
     chunk: string,
-    metadata: Partial<ChunkMetadata> = {}
+    metadata: Partial<ChunkMetadata> = {},
   ): boolean {
     const context = this.activeStreams.get(streamId)
     if (!context) {
       logger.warn('Attempted to process chunk for unknown stream', 'StreamingOptimizer', {
-        streamId
+        streamId,
       })
       return false
     }
@@ -142,7 +141,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
         size: processedChunk.length,
         sequence: context.sequenceNumber,
         isComplete: metadata.isComplete || false,
-        ...metadata
+        ...metadata,
       }
 
       // Update context
@@ -251,13 +250,13 @@ export class LLMStreamingOptimizer extends EventEmitter {
         streamId,
         totalChunks: context.chunkCount,
         totalSize: context.totalSize,
-        duration: Date.now() - context.startTime
+        duration: Date.now() - context.startTime,
       })
 
       this.emit('stream-complete', streamId, {
         totalChunks: context.chunkCount,
         totalSize: context.totalSize,
-        duration: Date.now() - context.startTime
+        duration: Date.now() - context.startTime,
       })
     } catch (error) {
       this.handleStreamError(streamId, error as Error)
@@ -338,7 +337,7 @@ export class LLMStreamingOptimizer extends EventEmitter {
   private preallocateChunkBuffers(): void {
     const bufferCount = Math.min(
       10,
-      Math.floor(this.settings.maxBufferSize / this.settings.chunkThreshold)
+      Math.floor(this.settings.maxBufferSize / this.settings.chunkThreshold),
     )
 
     for (let i = 0; i < bufferCount; i++) {
@@ -348,12 +347,6 @@ export class LLMStreamingOptimizer extends EventEmitter {
     logger.debug('Pre-allocated chunk buffers', 'StreamingOptimizer', { count: bufferCount })
   }
 
-  /**
-   * Get buffer from pool or create new one
-   */
-  private getBufferFromPool(): ChunkBuffer {
-    return this.chunkPool.pop() || new ChunkBuffer(this.settings.chunkThreshold)
-  }
 
   /**
    * Return buffers to pool
@@ -401,8 +394,8 @@ export class LLMStreamingOptimizer extends EventEmitter {
       latency: {
         first: 0,
         average: 0,
-        p95: 0
-      }
+        p95: 0,
+      },
     }
   }
 
@@ -515,12 +508,12 @@ class StreamContext {
   constructor(
     public readonly id: string,
     private settings: StreamingOptimizationSettings,
-    public readonly options: any
+    public readonly options: any,
   ) {
     this.maxBufferSize = settings.maxBufferSize
   }
 
-  addChunk(chunk: string, metadata: ChunkMetadata): void {
+  addChunk(chunk: string, _metadata: ChunkMetadata): void {
     this.buffer.push(chunk)
     this.bufferSize += chunk.length
     this.chunkCount++
@@ -592,7 +585,7 @@ class StreamContext {
       chunkCount: this.chunkCount,
       totalSize: this.totalSize,
       bufferUtilization: this.getBufferUtilization(),
-      duration: Date.now() - this.startTime
+      duration: Date.now() - this.startTime,
     }
   }
 
@@ -610,7 +603,7 @@ class StreamContext {
 class OptimizedStreamHandler {
   constructor(
     private context: StreamContext,
-    private optimizer: LLMStreamingOptimizer
+    private optimizer: LLMStreamingOptimizer,
   ) {}
 
   write(chunk: string, metadata?: Partial<ChunkMetadata>): boolean {

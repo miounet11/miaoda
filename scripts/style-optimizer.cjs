@@ -21,7 +21,7 @@ class StyleOptimizer {
       filesModified: 0,
       hslAdded: 0,
       focusVisibleAdded: 0,
-      reducedMotionAdded: 0
+      reducedMotionAdded: 0,
     }
   }
 
@@ -170,7 +170,7 @@ class StyleOptimizer {
       '#9ca3af': 'hsl(0, 0%, 62%)',
       '#6b7280': 'hsl(0, 0%, 44%)',
       '#374151': 'hsl(0, 0%, 24%)',
-      '#111827': 'hsl(0, 0%, 10%)'
+      '#111827': 'hsl(0, 0%, 10%)',
     }
 
     let converted = content
@@ -225,7 +225,7 @@ class StyleOptimizer {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output'
+      '.nyc_output',
     ]
     return skipDirs.includes(dirName)
   }
@@ -236,7 +236,7 @@ class StyleOptimizer {
   generateReport() {
     console.log('\n🎨 样式优化报告')
     console.log('='.repeat(50))
-    console.log(`📊 处理结果:`)
+    console.log('📊 处理结果:')
     console.log(`   处理文件数: ${this.stats.filesProcessed}`)
     console.log(`   修改文件数: ${this.stats.filesModified}`)
     console.log(`   添加HSL色彩: ${this.stats.hslAdded}`)

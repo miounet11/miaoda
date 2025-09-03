@@ -9,7 +9,7 @@ const PRECACHE_URLS = [
   '/manifest.json',
   '/favicon.ico',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
 ]
 
 // Assets to cache on install (critical resources)
@@ -23,7 +23,7 @@ const CACHE_FIRST_PATTERNS = [
   /\.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|ico|webp)$/,
   /\/assets\//,
   /\/fonts\//,
-  /\/images\//
+  /\/images\//,
 ]
 
 // Stale-while-revalidate patterns (frequently updated but cacheable)
@@ -47,12 +47,12 @@ self.addEventListener('install', event => {
         return cache.addAll(CRITICAL_ASSETS).catch(err => {
           console.warn('[SW] Failed to cache some critical assets:', err)
         })
-      })
+      }),
     ]).then(() => {
       console.log('[SW] Service worker installed successfully')
       // Force activation
       return self.skipWaiting()
-    })
+    }),
   )
 })
 
@@ -70,15 +70,15 @@ self.addEventListener('activate', event => {
               console.log('[SW] Deleting old cache:', cacheName)
               return caches.delete(cacheName)
             }
-          })
+          }),
         )
       }),
 
       // Take control of all clients
-      self.clients.claim()
+      self.clients.claim(),
     ]).then(() => {
       console.log('[SW] Service worker activated successfully')
-    })
+    }),
   )
 })
 
@@ -133,20 +133,20 @@ self.addEventListener('push', event => {
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: 1,
     },
     actions: [
       {
         action: 'open',
         title: 'Open Chat',
-        icon: '/icons/action-open.png'
+        icon: '/icons/action-open.png',
       },
       {
         action: 'close',
         title: 'Dismiss',
-        icon: '/icons/action-close.png'
-      }
-    ]
+        icon: '/icons/action-close.png',
+      },
+    ],
   }
 
   if (event.data) {
@@ -183,7 +183,7 @@ self.addEventListener('notificationclick', event => {
         if (clients.openWindow) {
           return clients.openWindow('/')
         }
-      })
+      }),
     )
   }
 })
@@ -247,7 +247,7 @@ async function networkFirst(request) {
         caches.match('/offline.html') ||
         new Response('Offline - Please check your internet connection', {
           status: 503,
-          statusText: 'Service Unavailable'
+          statusText: 'Service Unavailable',
         })
       )
     }
@@ -311,9 +311,9 @@ async function syncMessages() {
         const response = await fetch('/api/messages', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(message.data)
+          body: JSON.stringify(message.data),
         })
 
         if (response.ok) {
@@ -390,7 +390,7 @@ async function queueMessage(messageData) {
   const message = {
     data: messageData,
     timestamp: Date.now(),
-    retries: 0
+    retries: 0,
   }
 
   return new Promise((resolve, reject) => {
@@ -430,7 +430,7 @@ setInterval(
       // Implementation for cache cleanup based on age/size
     })
   },
-  24 * 60 * 60 * 1000
+  24 * 60 * 60 * 1000,
 ) // Daily cleanup
 
 console.log('[SW] Service worker script loaded')

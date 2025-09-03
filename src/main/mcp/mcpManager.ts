@@ -38,20 +38,20 @@ export class MCPManager {
       const transport = new StdioClientTransport({
         command: server.command,
         args: server.args || [],
-        env: server.env
+        env: server.env,
       })
 
       const client = new Client(
         {
           name: `miaoda-chat-${server.name}`,
-          version: '0.1.0'
+          version: '0.1.0',
         },
         {
           capabilities: {
             tools: {},
-            resources: {}
-          }
-        }
+            resources: {},
+          },
+        },
       )
 
       await client.connect(transport)
@@ -62,7 +62,7 @@ export class MCPManager {
       try {
         const toolsResponse = await client.listTools()
         console.log(
-          `[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`
+          `[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`,
         )
         if (toolsResponse?.tools) {
           toolsResponse.tools.forEach(tool => {
@@ -79,7 +79,7 @@ export class MCPManager {
     } catch (error) {
       console.error(`Failed to connect to MCP server ${server?.name || 'unknown'}:`, error)
       throw new Error(
-        `MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`
+        `MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`,
       )
     }
   }
@@ -123,19 +123,19 @@ export class MCPManager {
             content: [
               {
                 type: 'text',
-                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
-              }
-            ]
+                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
+              },
+            ],
           }
         } catch (error: any) {
           return {
             content: [
               {
                 type: 'text',
-                text: `Plugin error: ${error.message}`
-              }
+                text: `Plugin error: ${error.message}`,
+              },
             ],
-            isError: true
+            isError: true,
           }
         }
       }
@@ -165,9 +165,9 @@ export class MCPManager {
         content: [
           {
             type: 'text',
-            text: `Test tool ${actualToolName} executed (placeholder)`
-          }
-        ]
+            text: `Test tool ${actualToolName} executed (placeholder)`,
+          },
+        ],
       }
     }
 

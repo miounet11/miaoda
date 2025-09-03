@@ -63,7 +63,7 @@ export const useSettingsStore = defineStore(
       nextChat: 'cmd+down',
       prevChat: 'cmd+up',
       clearChat: 'cmd+shift+c',
-      exportChat: 'cmd+e'
+      exportChat: 'cmd+e',
     })
 
     // Advanced Settings
@@ -98,7 +98,7 @@ export const useSettingsStore = defineStore(
       spellCheck: spellCheck.value,
       showTimestamps: showTimestamps.value,
       showAvatars: showAvatars.value,
-      compactMode: compactMode.value
+      compactMode: compactMode.value,
     }))
 
     const llmSettings = computed(() => ({
@@ -108,7 +108,7 @@ export const useSettingsStore = defineStore(
       model: modelName.value,
       temperature: temperature.value,
       maxTokens: maxTokens.value,
-      streaming: streamingEnabled.value
+      streaming: streamingEnabled.value,
     }))
 
     const uiSettings = computed(() => ({
@@ -116,7 +116,7 @@ export const useSettingsStore = defineStore(
       fontFamily: fontFamily.value,
       lineHeight: lineHeight.value,
       messageSpacing: messageSpacing.value,
-      animationsEnabled: animationsEnabled.value
+      animationsEnabled: animationsEnabled.value,
     }))
 
     const privacySettings = computed(() => ({
@@ -128,7 +128,7 @@ export const useSettingsStore = defineStore(
       sendAnalytics: sendAnalytics.value,
       shareUsageData: shareUsageData.value,
       storeChatHistory: storeChatHistory.value,
-      allowAutoUpdates: allowAutoUpdates.value
+      allowAutoUpdates: allowAutoUpdates.value,
     }))
 
     const voiceSettings = computed(() => ({
@@ -137,7 +137,7 @@ export const useSettingsStore = defineStore(
       rate: voiceRate.value,
       pitch: voicePitch.value,
       volume: voiceVolume.value,
-      autoPlay: voiceAutoPlay.value
+      autoPlay: voiceAutoPlay.value,
     }))
 
     // Custom Providers integration
@@ -148,12 +148,12 @@ export const useSettingsStore = defineStore(
         { id: 'openai', name: 'OpenAI', displayName: 'OpenAI', isCustom: false },
         { id: 'anthropic', name: 'Anthropic', displayName: 'Claude', isCustom: false },
         { id: 'google', name: 'Google', displayName: 'Google Gemini', isCustom: false },
-        { id: 'local', name: 'Local', displayName: 'Local (Ollama)', isCustom: false }
+        { id: 'local', name: 'Local', displayName: 'Local (Ollama)', isCustom: false },
       ]
 
       const customProviders = customProvidersStore.providerOptions.map(provider => ({
         ...provider,
-        isCustom: true
+        isCustom: true,
       }))
 
       return [...standardProviders, ...customProviders]
@@ -267,7 +267,7 @@ export const useSettingsStore = defineStore(
         nextChat: 'cmd+down',
         prevChat: 'cmd+up',
         clearChat: 'cmd+shift+c',
-        exportChat: 'cmd+e'
+        exportChat: 'cmd+e',
       }
     }
 
@@ -331,14 +331,14 @@ export const useSettingsStore = defineStore(
         shortcuts: keyboardShortcuts.value,
         plugins: {
           enabled: enabledPlugins.value,
-          settings: Object.fromEntries(pluginSettings.value)
+          settings: Object.fromEntries(pluginSettings.value),
         },
         advanced: {
           debugMode: debugMode.value,
           developmentMode: developmentMode.value,
           experimentalFeatures: experimentalFeatures.value,
-          betaFeatures: betaFeatures.value
-        }
+          betaFeatures: betaFeatures.value,
+        },
       }
 
       return JSON.stringify(settings, null, 2)
@@ -604,13 +604,13 @@ export const useSettingsStore = defineStore(
       initialize,
       refreshCustomProviders,
       getProviderForSelection,
-      validateProviderConfiguration
+      validateProviderConfiguration,
     }
   },
   {
     persist: {
       key: 'miaoda-settings-store',
-      storage: localStorage
-    }
-  }
+      storage: localStorage,
+    },
+  },
 )

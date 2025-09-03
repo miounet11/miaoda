@@ -3,7 +3,17 @@
     ref="containerRef"
     class="virtual-scroll-container"
     :style="{ height: containerHeight + 'px' }"
+    role="log"
+    :aria-label="ariaLabel || 'Virtual scrollable list'"
+    :aria-busy="isScrolling"
+    :aria-live="ariaLive"
+    :aria-rowcount="items.length"
+    tabindex="0"
     @scroll="handleScroll"
+    @keydown="handleKeydown"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
   >
     <!-- Spacer for items before visible range -->
     <div v-if="startIndex > 0" :style="{ height: startOffset + 'px' }" class="virtual-spacer-top" />
@@ -13,8 +23,14 @@
       v-for="(item, index) in visibleItems"
       :key="getItemKey(item, startIndex + index)"
       :data-index="startIndex + index"
-      class="virtual-item"
+      class="virtual-item touch-target-comfortable"
       :style="getItemStyle(startIndex + index)"
+      role="listitem"
+      :aria-posinset="startIndex + index + 1"
+      :aria-setsize="items.length"
+      :aria-labelledby="getItemAriaId(startIndex + index)"
+      tabindex="-1"
+      @focus="handleItemFocus(startIndex + index)"
     >
       <slot :item="item" :index="startIndex + index" :is-visible="true" />
     </div>
@@ -54,6 +70,12 @@ interface Props {
   hasMore?: boolean
   loadThreshold?: number
   estimatedItemHeight?: number
+  // Accessibility props
+  ariaLabel?: string
+  ariaLive?: 'off' | 'polite' | 'assertive'
+  // Mobile props
+  enableTouchGestures?: boolean
+  swipeThreshold?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -61,13 +83,19 @@ const props = withDefaults(defineProps<Props>(), {
   keyField: 'id',
   hasMore: false,
   loadThreshold: 10,
-  estimatedItemHeight: 50
+  estimatedItemHeight: 50,
+  ariaLive: 'polite',
+  enableTouchGestures: true,
+  swipeThreshold: 50
 })
 
 const emit = defineEmits<{
   'load-more': []
   scroll: [scrollTop: number, scrollHeight: number, clientHeight: number]
   'item-rendered': [item: any, index: number]
+  'item-focus': [item: any, index: number]
+  'item-activate': [item: any, index: number]
+  'swipe': [direction: 'left' | 'right' | 'up' | 'down', item: any, index: number]
 }>()
 
 // Refs
@@ -80,6 +108,18 @@ const isScrolling = ref(false)
 const scrollTimer = ref<NodeJS.Timeout>()
 const renderCache = ref(new OptimizedCache<string, any>(500, 5 * 60 * 1000)) // 5 minutes cache
 const isInitialized = ref(false)
+
+// Mobile touch state
+const touchState = ref({
+  startX: 0,
+  startY: 0,
+  startTime: 0,
+  isTracking: false
+})
+
+// Keyboard navigation state
+const focusedIndex = ref(-1)
+const lastAnnouncedIndex = ref(-1)
 
 // Computed properties
 const totalHeight = computed(() => {
@@ -169,6 +209,24 @@ const getItemKey = (item: any, index: number) => {
   return index
 }
 
+const getItemAriaId = (index: number) => {
+  return `virtual-item-${index}`
+}
+
+const announceToScreenReader = (message: string) => {
+  // Create a temporary element for screen reader announcements
+  const announcement = document.createElement('div')
+  announcement.setAttribute('aria-live', 'polite')
+  announcement.setAttribute('aria-atomic', 'true')
+  announcement.className = 'sr-only'
+  announcement.textContent = message
+  document.body.appendChild(announcement)
+  
+  setTimeout(() => {
+    document.body.removeChild(announcement)
+  }, 1000)
+}
+
 const getItemStyle = (index: number) => {
   const style: Record<string, string> = {}
 
@@ -217,7 +275,7 @@ const measureItems = () => {
   // Cache will automatically clean up old entries based on OptimizedCache settings
 }
 
-// Optimized scroll handler with better performance
+// Enhanced scroll handler with accessibility announcements
 const handleScroll = rafThrottle((event: Event) => {
   const target = event.target as HTMLElement
   const newScrollTop = target.scrollTop
@@ -242,7 +300,13 @@ const handleScroll = rafThrottle((event: Event) => {
     isScrolling.value = false
     // Trigger measurement after scrolling stops
     nextTick(() => measureItems())
-  }, 100) // Reduced timeout for better responsiveness
+    
+    // Announce scroll position for screen readers (throttled)
+    if (lastAnnouncedIndex.value !== startIndex.value) {
+      announceToScreenReader(`Showing items ${startIndex.value + 1} to ${Math.min(endIndex.value + 1, props.items.length)} of ${props.items.length}`)
+      lastAnnouncedIndex.value = startIndex.value
+    }
+  }, 100)
 
   // Emit scroll event (throttled)
   emit('scroll', newScrollTop, target.scrollHeight, target.clientHeight)
@@ -254,6 +318,152 @@ const handleScroll = rafThrottle((event: Event) => {
 
   isInitialized.value = true
 })
+
+// Keyboard navigation handler
+const handleKeydown = (event: KeyboardEvent) => {
+  if (!containerRef.value) return
+
+  const { key, ctrlKey, metaKey } = event
+  let handled = true
+
+  switch (key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      navigateToItem(Math.min(focusedIndex.value + 1, props.items.length - 1))
+      break
+    case 'ArrowUp':
+      event.preventDefault()
+      navigateToItem(Math.max(focusedIndex.value - 1, 0))
+      break
+    case 'PageDown':
+      event.preventDefault()
+      navigateToItem(Math.min(focusedIndex.value + Math.floor(props.containerHeight / props.estimatedItemHeight), props.items.length - 1))
+      break
+    case 'PageUp':
+      event.preventDefault()
+      navigateToItem(Math.max(focusedIndex.value - Math.floor(props.containerHeight / props.estimatedItemHeight), 0))
+      break
+    case 'Home':
+      if (ctrlKey || metaKey) {
+        event.preventDefault()
+        navigateToItem(0)
+      } else {
+        handled = false
+      }
+      break
+    case 'End':
+      if (ctrlKey || metaKey) {
+        event.preventDefault()
+        navigateToItem(props.items.length - 1)
+      } else {
+        handled = false
+      }
+      break
+    case 'Enter':
+    case ' ':
+      if (focusedIndex.value >= 0) {
+        event.preventDefault()
+        const item = props.items[focusedIndex.value]
+        emit('item-activate', item, focusedIndex.value)
+      } else {
+        handled = false
+      }
+      break
+    default:
+      handled = false
+  }
+
+  if (!handled) {
+    // Allow other handlers to process the event
+    return
+  }
+}
+
+// Touch gesture handlers
+const handleTouchStart = (event: TouchEvent) => {
+  if (!props.enableTouchGestures || event.touches.length !== 1) return
+
+  const touch = event.touches[0]
+  touchState.value = {
+    startX: touch.clientX,
+    startY: touch.clientY,
+    startTime: Date.now(),
+    isTracking: true
+  }
+}
+
+const handleTouchMove = (event: TouchEvent) => {
+  if (!touchState.value.isTracking || event.touches.length !== 1) return
+
+  // Prevent default scrolling behavior for horizontal swipes
+  const touch = event.touches[0]
+  const deltaX = Math.abs(touch.clientX - touchState.value.startX)
+  const deltaY = Math.abs(touch.clientY - touchState.value.startY)
+
+  // If horizontal movement is greater than vertical, it might be a swipe
+  if (deltaX > deltaY && deltaX > 10) {
+    event.preventDefault()
+  }
+}
+
+const handleTouchEnd = (event: TouchEvent) => {
+  if (!touchState.value.isTracking) return
+
+  const touch = event.changedTouches[0]
+  const deltaX = touch.clientX - touchState.value.startX
+  const deltaY = touch.clientY - touchState.value.startY
+  const deltaTime = Date.now() - touchState.value.startTime
+
+  touchState.value.isTracking = false
+
+  // Detect swipe gestures (fast movement over threshold)
+  if (deltaTime < 300 && (Math.abs(deltaX) > props.swipeThreshold || Math.abs(deltaY) > props.swipeThreshold)) {
+    const target = event.target as HTMLElement
+    const itemElement = target.closest('.virtual-item')
+    
+    if (itemElement) {
+      const index = parseInt(itemElement.getAttribute('data-index') || '0', 10)
+      const item = props.items[index]
+      
+      let direction: 'left' | 'right' | 'up' | 'down'
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        direction = deltaX > 0 ? 'right' : 'left'
+      } else {
+        direction = deltaY > 0 ? 'down' : 'up'
+      }
+      
+      emit('swipe', direction, item, index)
+      announceToScreenReader(`Swiped ${direction} on item ${index + 1}`)
+    }
+  }
+}
+
+// Focus management
+const navigateToItem = (index: number) => {
+  if (index < 0 || index >= props.items.length) return
+
+  focusedIndex.value = index
+  
+  // Ensure item is visible
+  if (index < startIndex.value || index > endIndex.value) {
+    scrollToIndex(index, 'smooth')
+  }
+
+  // Focus the item element after ensuring it's in the DOM
+  nextTick(() => {
+    const itemElement = containerRef.value?.querySelector(`[data-index="${index}"]`) as HTMLElement
+    if (itemElement) {
+      itemElement.focus()
+      emit('item-focus', props.items[index], index)
+      announceToScreenReader(`Item ${index + 1} of ${props.items.length} focused`)
+    }
+  })
+}
+
+const handleItemFocus = (index: number) => {
+  focusedIndex.value = index
+  emit('item-focus', props.items[index], index)
+}
 
 // Public methods
 const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
@@ -357,7 +567,10 @@ defineExpose({
   scrollToIndex,
   scrollToTop,
   scrollToBottom,
-  measureItems
+  measureItems,
+  navigateToItem,
+  focusItem: (index: number) => navigateToItem(index),
+  getCurrentFocus: () => focusedIndex.value
 })
 </script>
 
@@ -786,6 +999,61 @@ defineExpose({
   overscroll-behavior: contain;
   /* Reduce layout thrashing */
   backface-visibility: hidden;
+  
+  /* Enhanced mobile touch handling */
+  touch-action: pan-y;
+  
+  /* Accessibility improvements */
+  outline: none;
+}
+
+.virtual-scroll-container:focus-visible {
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: 2px;
+}
+
+/* Touch target optimization */
+.touch-target-comfortable {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .virtual-scroll-container {
+    /* Better momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent bounce on edges */
+    overscroll-behavior-y: contain;
+    /* Better touch response */
+    touch-action: pan-y;
+  }
+  
+  .virtual-item {
+    /* Ensure touch targets are accessible */
+    min-height: 44px;
+    padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .virtual-scroll-container:focus-visible {
+    outline: 3px solid;
+    outline-offset: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .virtual-scroll-container {
+    scroll-behavior: auto;
+  }
+  
+  .virtual-item {
+    transition: none;
+  }
 }
 
 .virtual-item {
@@ -799,6 +1067,38 @@ defineExpose({
   /* Better text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Accessibility enhancements */
+  outline: none;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.virtual-item:focus {
+  background-color: hsl(var(--accent, 210 40% 98%));
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+.virtual-item:focus-visible {
+  background-color: hsl(var(--accent, 210 40% 98%));
+  outline: 2px solid hsl(var(--ring, 59 130 230));
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .virtual-spacer-top,

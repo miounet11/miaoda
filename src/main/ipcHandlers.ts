@@ -5,13 +5,14 @@ import { LocalDatabase, ChatRecord } from './db/database'
 import { MCPManager } from './mcp/mcpManager'
 import { PluginManager } from './plugins/pluginManager'
 import { getAllServers } from './mcp/servers'
-import { llmManager, ChatMessage } from './llm/SimpleLLMService'
+import { llmManager } from './llm/SimpleLLMService'
 import { registerFileHandlers } from './fileHandler'
 import { registerShortcutHandlers } from './shortcuts'
 import { logger } from './utils/Logger'
 import { InputValidator, auditLog as _auditLog } from './security/InputValidator'
 import { UserService as _UserService } from './db/UserService'
 import { registerAuthHandlers as _registerAuthHandlers } from './security/authHandlers'
+import { createLLMManager, registerLLMHandlers } from './llm/llmManager'
 
 // 创建electron-store实例
 const store = new Store()
@@ -30,8 +31,8 @@ class WindowManager {
       show: false,
       webPreferences: {
         nodeIntegration: false,
-        contextIsolation: true
-      }
+        contextIsolation: true,
+      },
     })
 
     this.windows.set(windowId, window)
@@ -103,7 +104,7 @@ class WindowManager {
         isMaximized: window.isMaximized(),
         isMinimized: window.isMinimized(),
         isVisible: window.isVisible(),
-        bounds: window.getBounds()
+        bounds: window.getBounds(),
       }
     }
     return null
@@ -115,7 +116,7 @@ class WindowManager {
       title: window.getTitle(),
       isMaximized: window.isMaximized(),
       isMinimized: window.isMinimized(),
-      isVisible: window.isVisible()
+      isVisible: window.isVisible(),
     }))
   }
 }
@@ -125,7 +126,7 @@ const windowManager = new WindowManager()
 export function registerIPCHandlers(
   db: LocalDatabase,
   mcpManager: MCPManager,
-  pluginManager: PluginManager
+  pluginManager: PluginManager,
 ) {
   logger.info('Registering IPC handlers', 'IPC', { dbInitialized: !!db })
 
@@ -143,8 +144,15 @@ export function registerIPCHandlers(
   // Register shortcut handlers
   registerShortcutHandlers()
 
-  // LLM handlers - register simple LLM service
+  // LLM handlers - register LLM manager
+  const llmManager = createLLMManager(mcpManager)
+  registerLLMHandlers(llmManager)
+
+  // LLM handlers - register simple LLM service (legacy)
   registerSimpleLLMHandlers()
+
+  // 注册增强模型配置处理器
+  registerEnhancedModelConfigHandlers()
 
   // LLM Summary generation handler - 简化版本
   ipcMain.handle('llm:generate-summary', async (_, prompt: string) => {
@@ -244,7 +252,7 @@ export function registerIPCHandlers(
           id: windowId,
           title: 'MiaoDa Chat',
           isMaximized: false,
-          error: 'Window not found'
+          error: 'Window not found',
         }
       )
     } catch (error: any) {
@@ -271,7 +279,7 @@ export function registerIPCHandlers(
       description: p.manifest.description,
       author: p.manifest.author,
       capabilities: p.manifest.capabilities,
-      enabled: p.enabled
+      enabled: p.enabled,
     }))
   })
 
@@ -292,7 +300,7 @@ export function registerIPCHandlers(
     const chatRecord = {
       ...validatedChat,
       created_at: validatedChat.created_at.toString(),
-      updated_at: validatedChat.updated_at.toString()
+      updated_at: validatedChat.updated_at.toString(),
     }
     db.createChat(chatRecord)
   })
@@ -302,12 +310,12 @@ export function registerIPCHandlers(
       id,
       title,
       updated_at,
-      created_at: Date.now()
+      created_at: Date.now(),
     })
     db.updateChat(
       validatedUpdate.id,
       validatedUpdate.title,
-      updated_at?.toString() || new Date().toISOString()
+      updated_at?.toString() || new Date().toISOString(),
     )
   })
 
@@ -333,7 +341,7 @@ export function registerIPCHandlers(
       created_at: validatedMessage.created_at?.toString() || new Date().toISOString(),
       attachments: validatedMessage.attachments
         ? JSON.stringify(validatedMessage.attachments)
-        : undefined
+        : undefined,
     }
     db.createMessage(messageRecord)
   })
@@ -344,7 +352,7 @@ export function registerIPCHandlers(
       chat_id: 'temp-chat-id',
       role: 'user',
       content,
-      created_at: Date.now()
+      created_at: Date.now(),
     })
     db.updateMessage(validatedUpdate.id, validatedUpdate.content)
   })
@@ -433,7 +441,7 @@ export function registerIPCHandlers(
       logger.debug('Analytics generated successfully', 'IPC', {
         timeRange: result.timeRange,
         totalChats: result.chat.totalChats,
-        totalMessages: result.chat.totalMessages
+        totalMessages: result.chat.totalMessages,
       })
       return result
     } catch (error: any) {
@@ -709,7 +717,7 @@ export function registerIPCHandlers(
     try {
       const result = await dialog.showSaveDialog({
         defaultPath: fileName,
-        filters: filters || [{ name: 'All Files', extensions: ['*'] }]
+        filters: filters || [{ name: 'All Files', extensions: ['*'] }],
       })
 
       if (!result.canceled && result.filePath) {
@@ -740,13 +748,13 @@ export function registerIPCHandlers(
           messages: chunk,
           hasMore,
           total: messages.length,
-          offset: offset + chunk.length
+          offset: offset + chunk.length,
         }
       } catch (error: any) {
         logger.error('Failed to stream messages for chat', 'IPCHandlers', error)
         throw new Error(`Failed to stream messages: ${error.message}`)
       }
-    }
+    },
   )
 
   ipcMain.handle('export:get-all-chats', async () => {
@@ -778,7 +786,7 @@ export function registerIPCHandlers(
           event.sender.send('export:progress', {
             processed: Math.min(i + batchSize, chatIds.length),
             total: chatIds.length,
-            stage: 'loading-chats'
+            stage: 'loading-chats',
           })
 
           // Small delay to prevent blocking
@@ -790,7 +798,7 @@ export function registerIPCHandlers(
         logger.error('Failed to stream chats', 'IPCHandlers', error)
         throw new Error(`Failed to stream chats: ${error.message}`)
       }
-    }
+    },
   )
 
   logger.info('IPC handlers registered successfully', 'IPCHandlers')
@@ -800,33 +808,67 @@ export function registerIPCHandlers(
 function registerSimpleLLMHandlers() {
   // 发送消息处理器
   ipcMain.handle('llm:send-message', async (_, messages: Array<{role: string, content: string}>) => {
+    // 在try块外面声明变量，以便在catch块中使用
+    let llmConfig: any = {
+      provider: 'default',
+      model: 'gpt-3.5-turbo',
+    }
+
     try {
       logger.info('处理LLM消息请求', 'SimpleLLM', { messageCount: messages.length })
 
       // 加载用户配置
       const settings = loadLLMSettings()
 
-      // 设置LLM配置
-      llmManager.setConfig({
-        provider: settings.selectedModel || 'default',
-        apiKey: settings.apiConfig?.[settings.selectedModel || 'default']?.apiKey,
-        baseUrl: settings.apiConfig?.[settings.selectedModel || 'default']?.baseUrl,
-        model: settings.apiConfig?.[settings.selectedModel || 'default']?.model
-      })
+      // 确定要使用的provider - 默认使用fallback
+      const selectedProvider = settings.selectedModel || 'fallback'
 
-      // 发送消息 - 转换消息格式
-      const chatMessages: ChatMessage[] = messages.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      }))
-      const response = await llmManager.sendMessage(chatMessages)
+      // 获取API配置
+      const apiConfig = settings.apiConfig?.[selectedProvider] || {}
+
+      // 设置LLM配置 - 如果没有配置，使用默认的OpenAI配置
+      llmConfig = {
+        provider: selectedProvider,
+        apiKey: apiConfig.apiKey || 'sk-test',
+        baseURL: apiConfig.baseUrl,
+        model: apiConfig.model || 'gpt-3.5-turbo',
+      }
+
+      logger.info('设置LLM配置', 'SimpleLLM', { provider: llmConfig.provider, model: llmConfig.model })
+
+      llmManager.setConfig(llmConfig)
+
+      // 发送消息 - 获取最后一条用户消息
+      const lastUserMessage = messages[messages.length - 1].content
+
+      // 调用llmManager发送消息
+      const response = await llmManager.sendMessage([{role: 'user', content: lastUserMessage}])
 
       logger.info('LLM消息处理完成', 'SimpleLLM', { responseLength: response.length })
       return response
 
     } catch (error: any) {
-      logger.error('LLM消息处理失败', 'SimpleLLM', error)
-      throw new Error(`AI回复失败: ${error.message}`)
+      logger.error('LLM消息处理失败', 'SimpleLLM', {
+        error: error.message,
+        stack: error.stack,
+        provider: llmConfig.provider,
+        model: llmConfig.model,
+      })
+
+      // 返回详细的错误信息，让前端能够显示具体的错误
+      const errorInfo = {
+        type: 'LLM_ERROR',
+        message: error.message || '未知错误',
+        details: {
+          provider: llmConfig.provider,
+          model: llmConfig.model,
+          timestamp: new Date().toISOString(),
+          stack: error.stack,
+        },
+        suggestion: '请检查API配置或网络连接',
+      }
+
+      throw errorInfo
     }
   })
 
@@ -884,4 +926,162 @@ function saveLLMSettings(settings: any): void {
     logger.error('保存LLM设置失败', 'SimpleLLM', error)
     throw error
   }
+}
+
+// 增强模型配置处理器 - 桥接EnhancedModelConfigService和后端LLM系统
+function registerEnhancedModelConfigHandlers() {
+  // 获取所有可用的提供商（包含国内大模型）
+  ipcMain.handle('enhanced-model:get-all-providers', async () => {
+    try {
+      // 从ProviderFactory获取所有内置提供商
+      const { ProviderFactory } = await import('./llm/ProviderFactory')
+      return ProviderFactory.getBuiltInProviders()
+    } catch (error: any) {
+      logger.error('获取提供商列表失败', 'EnhancedModel', error)
+      return []
+    }
+  })
+
+  // 测试提供商连接
+  ipcMain.handle('enhanced-model:test-connection', async (_, providerConfig: any) => {
+    try {
+      const { ProviderFactory } = await import('./llm/ProviderFactory')
+
+      // 转换EnhancedModelConfigService格式到LLMConfig格式
+      const llmConfig = {
+        provider: providerConfig.providerId,
+        apiKey: providerConfig.apiKey,
+        baseURL: providerConfig.baseUrl,
+        model: providerConfig.model,
+        secretKey: providerConfig.secretKey, // 百度文心需要
+        headers: providerConfig.headers,
+        parameters: providerConfig.parameters,
+      }
+
+      // 创建提供商实例来测试连接
+      const provider = ProviderFactory.createProvider(llmConfig)
+
+      // 如果提供商有验证连接方法，使用它
+      if (provider.validateConnection) {
+        const result = await provider.validateConnection()
+        return {
+          success: result.success,
+          message: result.success ? '连接成功' : result.error || '连接失败',
+          error: result.error,
+        }
+      }
+
+      // 否则尝试发送一个简单的测试消息
+      try {
+        await provider.sendMessage([{role: 'user', content: 'test'}], () => {})
+        return { success: true, message: '连接成功' }
+      } catch (error: any) {
+        return { success: false, message: error.message || '连接测试失败' }
+      }
+    } catch (error: any) {
+      logger.error('测试提供商连接失败', 'EnhancedModel', error)
+      return { success: false, message: error.message || '连接测试失败' }
+    }
+  })
+
+  // 使用增强模型配置发送消息
+  ipcMain.handle('enhanced-model:send-message', async (_, messages: Array<{role: string, content: string}>, modelConfig: any) => {
+    try {
+      logger.info('处理增强模型消息请求', 'EnhancedModel', {
+        messageCount: messages.length,
+        provider: modelConfig.providerId,
+        model: modelConfig.model,
+      })
+
+      const { ProviderFactory } = await import('./llm/ProviderFactory')
+
+      // 转换配置格式
+      const llmConfig = {
+        provider: modelConfig.providerId,
+        apiKey: modelConfig.apiKey,
+        baseURL: modelConfig.baseUrl,
+        model: modelConfig.model,
+        secretKey: modelConfig.secretKey, // 百度文心需要
+        headers: modelConfig.headers,
+        parameters: modelConfig.parameters,
+      }
+
+      // 创建提供商实例
+      const provider = ProviderFactory.createProvider(llmConfig)
+
+      let fullResponse = ''
+
+      // 发送完整消息历史并收集响应
+      const response = await provider.sendMessage(messages, (chunk: string) => {
+        fullResponse += chunk
+      })
+
+      // 如果没有通过回调收集到响应，使用返回值
+      if (!fullResponse && response) {
+        fullResponse = response
+      }
+
+      logger.info('增强模型消息处理完成', 'EnhancedModel', {
+        responseLength: fullResponse.length,
+        provider: modelConfig.providerId,
+      })
+
+      return fullResponse || '抱歉，没有收到回复。'
+
+    } catch (error: any) {
+      logger.error('增强模型消息处理失败', 'EnhancedModel', error)
+      throw new Error(`AI回复失败: ${error.message}`)
+    }
+  })
+
+  // 保存增强模型配置
+  ipcMain.handle('enhanced-model:save-config', async (_, config: any) => {
+    try {
+      // 将配置保存到electron-store
+      store.set('enhanced_model_config', config)
+      logger.info('增强模型配置保存成功', 'EnhancedModel')
+      return { success: true }
+    } catch (error: any) {
+      logger.error('增强模型配置保存失败', 'EnhancedModel', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 加载增强模型配置
+  ipcMain.handle('enhanced-model:load-config', async () => {
+    try {
+      const config = store.get('enhanced_model_config', {})
+      logger.info('增强模型配置加载成功', 'EnhancedModel')
+      return config
+    } catch (error: any) {
+      logger.error('增强模型配置加载失败', 'EnhancedModel', error)
+      return {}
+    }
+  })
+
+  // 获取当前激活的模型配置
+  ipcMain.handle('enhanced-model:get-active-config', async () => {
+    try {
+      const config = store.get('enhanced_model_active_config', null)
+      return config
+    } catch (error: any) {
+      logger.error('获取激活模型配置失败', 'EnhancedModel', error)
+      return null
+    }
+  })
+
+  // 设置当前激活的模型配置
+  ipcMain.handle('enhanced-model:set-active-config', async (_, activeConfig: any) => {
+    try {
+      store.set('enhanced_model_active_config', activeConfig)
+      logger.info('激活模型配置设置成功', 'EnhancedModel', {
+        provider: activeConfig.providerId,
+        model: activeConfig.model,
+      })
+      return { success: true }
+    } catch (error: any) {
+      logger.error('激活模型配置设置失败', 'EnhancedModel', error)
+      return { success: false, error: error.message }
+    }
+  })
 }

@@ -113,7 +113,7 @@ class ShortcutService {
 
     return Array.from(groups.entries()).map(([name, shortcuts]) => ({
       name,
-      shortcuts: shortcuts.sort((a, b) => a.description.localeCompare(b.description))
+      shortcuts: shortcuts.sort((a, b) => a.description.localeCompare(b.description)),
     }))
   }
 
@@ -156,7 +156,7 @@ export default {
   install(app: App) {
     app.config.globalProperties.$shortcuts = shortcutService
     app.provide('shortcuts', shortcutService)
-  }
+  },
 }
 
 // Composable

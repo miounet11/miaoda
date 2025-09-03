@@ -254,7 +254,7 @@ export class PluginManager extends EventEmitter<{
         context: this.context,
         settings: await this.loadPluginSettings(manifest.id),
         enabled: false,
-        loaded: true
+        loaded: true,
       }
 
       // Register plugin
@@ -450,7 +450,7 @@ export class PluginManager extends EventEmitter<{
 
       storage: this.createPluginStorage(),
       http: this.createPluginHttpClient(),
-      utils: this.createPluginUtils()
+      utils: this.createPluginUtils(),
     }
   }
 
@@ -482,7 +482,7 @@ export class PluginManager extends EventEmitter<{
         return Object.keys(localStorage)
           .filter(k => k.startsWith('plugin-storage:'))
           .map(k => k.replace('plugin-storage:', ''))
-      }
+      },
     }
   }
 
@@ -492,8 +492,8 @@ export class PluginManager extends EventEmitter<{
         ...options,
         headers: {
           'Content-Type': 'application/json',
-          ...options.headers
-        }
+          ...options.headers,
+        },
       })
 
       if (!response.ok) {
@@ -510,16 +510,16 @@ export class PluginManager extends EventEmitter<{
         request<T>(url, {
           ...options,
           method: 'POST',
-          body: data ? JSON.stringify(data) : undefined
+          body: data ? JSON.stringify(data) : undefined,
         }),
       put: <T>(url: string, data?: any, options?: RequestInit) =>
         request<T>(url, {
           ...options,
           method: 'PUT',
-          body: data ? JSON.stringify(data) : undefined
+          body: data ? JSON.stringify(data) : undefined,
         }),
       delete: <T>(url: string, options?: RequestInit) =>
-        request<T>(url, { ...options, method: 'DELETE' })
+        request<T>(url, { ...options, method: 'DELETE' }),
     }
   }
 
@@ -575,7 +575,7 @@ export class PluginManager extends EventEmitter<{
 
       escapeRegex: (text: string) => {
         return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      }
+      },
     }
   }
 
@@ -589,7 +589,7 @@ export class PluginManager extends EventEmitter<{
 
     if (!/^[a-z0-9-_]+$/.test(manifest.id)) {
       throw new Error(
-        'Plugin ID must contain only lowercase letters, numbers, hyphens, and underscores'
+        'Plugin ID must contain only lowercase letters, numbers, hyphens, and underscores',
       )
     }
 
@@ -621,7 +621,7 @@ export class PluginManager extends EventEmitter<{
       'onAppInit',
       'onAppDestroy',
       'onThemeChange',
-      'onSettingsChange'
+      'onSettingsChange',
     ]
 
     for (const hookName of hookNames) {

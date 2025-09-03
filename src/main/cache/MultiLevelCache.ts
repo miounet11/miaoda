@@ -65,7 +65,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         ttl: 5 * 60 * 1000, // 5 minutes
         strategy: 'adaptive',
         compressionEnabled: false,
-        encryptionEnabled: false
+        encryptionEnabled: false,
       },
       l2: {
         maxSize: 200 * 1024 * 1024, // 200MB
@@ -73,12 +73,12 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         ttl: 60 * 60 * 1000, // 1 hour
         strategy: 'lru',
         compressionEnabled: true,
-        encryptionEnabled: false
+        encryptionEnabled: false,
       },
       enableMetrics: true,
       metricsInterval: 30000, // 30 seconds
       autoOptimization: true,
-      ...config
+      ...config,
     }
 
     this.initialize()
@@ -165,7 +165,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         key,
         hit: result !== undefined,
         sourceLevel,
-        duration: totalTime
+        duration: totalTime,
       })
     }
   }
@@ -182,7 +182,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
       skipL2?: boolean
       skipL3?: boolean
       priority?: 'low' | 'normal' | 'high'
-    } = {}
+    } = {},
   ): Promise<void> {
     const startTime = performance.now()
 
@@ -200,7 +200,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         promises.push(
           this.l1Cache.set(key, value, { ttl: options.ttl }).catch(error => {
             logger.warn('L1 cache write failed', 'MultiLevelCache', { key, error })
-          })
+          }),
         )
       }
 
@@ -209,7 +209,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         promises.push(
           this.l2Cache.set(key, value, { ttl: options.ttl }).catch(error => {
             logger.warn('L2 cache write failed', 'MultiLevelCache', { key, error })
-          })
+          }),
         )
       }
 
@@ -218,7 +218,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         promises.push(
           this.l3Cache.set(key, value, { ttl: options.ttl }).catch(error => {
             logger.warn('L3 cache write failed', 'MultiLevelCache', { key, error })
-          })
+          }),
         )
       }
 
@@ -314,8 +314,8 @@ export class MultiLevelCache<T = any> extends EventEmitter {
         size: 0,
         itemCount: 0,
         evictions: 0,
-        memoryUsage: 0
-      }
+        memoryUsage: 0,
+      },
     }
     return stats
   }
@@ -354,18 +354,18 @@ export class MultiLevelCache<T = any> extends EventEmitter {
 
     exports.push({
       level: 'memory' as CacheLevel,
-      data: await this.l1Cache.export()
+      data: await this.l1Cache.export(),
     })
 
     exports.push({
       level: 'persistent' as CacheLevel,
-      data: await this.l2Cache.export()
+      data: await this.l2Cache.export(),
     })
 
     if (this.l3Cache) {
       exports.push({
         level: 'network' as CacheLevel,
-        data: await this.l3Cache.export()
+        data: await this.l3Cache.export(),
       })
     }
 
@@ -445,7 +445,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
     this.stats = {
       memory: this.createEmptyStats(),
       persistent: this.createEmptyStats(),
-      network: this.createEmptyStats()
+      network: this.createEmptyStats(),
     }
   }
 
@@ -457,7 +457,7 @@ export class MultiLevelCache<T = any> extends EventEmitter {
       size: 0,
       itemCount: 0,
       evictions: 0,
-      memoryUsage: 0
+      memoryUsage: 0,
     }
   }
 
@@ -608,7 +608,7 @@ class MemoryCache<T> extends EventEmitter {
       accessCount: 0,
       lastAccessed: Date.now(),
       size: this.estimateSize(value),
-      ttl: options.ttl || this.config.ttl
+      ttl: options.ttl || this.config.ttl,
     }
 
     // Evict if necessary
@@ -646,7 +646,7 @@ class MemoryCache<T> extends EventEmitter {
       size: totalSize,
       itemCount: this.cache.size,
       evictions: 0, // Could track this
-      memoryUsage: totalSize
+      memoryUsage: totalSize,
     }
   }
 
@@ -815,7 +815,7 @@ class PersistentCache<T> extends EventEmitter {
       accessCount: 0,
       lastAccessed: Date.now(),
       size: this.estimateSize(value),
-      ttl: options.ttl || this.config.ttl
+      ttl: options.ttl || this.config.ttl,
     }
 
     this.cache.set(key, entry)
@@ -844,7 +844,7 @@ class PersistentCache<T> extends EventEmitter {
       size: totalSize,
       itemCount: this.cache.size,
       evictions: 0,
-      memoryUsage: totalSize
+      memoryUsage: totalSize,
     }
   }
 

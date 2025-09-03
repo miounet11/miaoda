@@ -3,6 +3,9 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIPCHandlers } from './ipcHandlers'
 import { logger } from './utils/Logger'
+import { LocalDatabase } from './db/database'
+import { MCPManager } from './mcp/mcpManager'
+import { PluginManager } from './plugins/pluginManager'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -23,8 +26,8 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   })
 
   mainWindow.on('ready-to-show', () => {
@@ -59,8 +62,13 @@ app.whenReady().then(() => {
   // Log application startup
   logger.info('MiaoDa Chat v1.0 启动中...', 'Main')
 
-  // Register IPC handlers (simplified)
-  registerIPCHandlers(null as any, null as any, null as any)
+  // Initialize dependencies
+  const db = new LocalDatabase()
+  const mcpManager = new MCPManager()
+  const pluginManager = new PluginManager()
+
+  // Register IPC handlers
+  registerIPCHandlers(db, mcpManager, pluginManager)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -71,7 +79,7 @@ app.whenReady().then(() => {
   logger.info('MiaoDa Chat 启动成功', 'Main')
 })
 
-app.on('activate', function () {
+app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 

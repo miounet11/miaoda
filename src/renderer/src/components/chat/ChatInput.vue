@@ -10,8 +10,8 @@
         <span class="text-sm">Please configure an LLM provider in settings to start chatting.</span>
         <button
           @click="$emit('open-settings')"
-          class="ml-auto text-sm font-medium text-primary hover:underline"
-         aria-label="按钮">
+          class="ml-auto text-sm font-medium text-primary hover:underline touch-target-comfortable px-2 py-1 rounded focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Configure LLM provider settings now">
           Configure now →
         </button>
       </div>
@@ -55,16 +55,16 @@
           </p>
           <button
             @click="$emit('open-settings')"
-            class="mt-2 text-xs text-yellow-700 dark:text-yellow-300 hover:text-yellow-800 dark:hover:text-yellow-200 underline"
-           aria-label="按钮">
+            class="mt-2 text-xs text-yellow-700 dark:text-yellow-300 hover:text-yellow-800 dark:hover:text-yellow-200 underline touch-target-comfortable px-2 py-1 rounded focus-visible:ring-2 focus-visible:ring-yellow-600"
+            aria-label="Switch to a model that supports image analysis">
             切换模型 →
           </button>
         </div>
         <button
           @click="dismissVisionWarning"
-          class="p-1 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded transition-colors"
-         aria-label="按钮">
-          <X :size="14" class="text-yellow-600 dark:text-yellow-400" />
+          class="touch-target p-1.5 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded transition-colors focus-visible:ring-2 focus-visible:ring-yellow-600"
+          aria-label="Dismiss vision capability warning">
+          <X :size="14" class="text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
         </button>
       </div>
 
@@ -78,13 +78,14 @@
           <div class="input-actions flex gap-1 pb-0.5">
             <button
               @click="selectFiles"
-              class="action-btn btn-interactive ripple p-2.5 hover:bg-background rounded-xl transition-all duration-200 group hover:scale-105 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              class="action-btn touch-target-comfortable btn-interactive ripple p-2.5 hover:bg-background rounded-xl transition-all duration-200 group hover:scale-105 active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring"
               title="Attach files (images, documents)"
               :disabled="disabled"
-             aria-label="按钮">
+              aria-label="Attach files. Supports images and documents">
               <Paperclip
                 :size="18"
                 class="group-hover:text-primary transition-colors sm:w-[20px] sm:h-[20px]"
+                aria-hidden="true"
               />
             </button>
 
@@ -113,7 +114,10 @@
             @blur="handleBlur"
             :placeholder="placeholder"
             :disabled="disabled"
-            class="chat-input-field flex-1 min-h-[40px] sm:min-h-[44px] max-h-[160px] sm:max-h-[240px] px-3 py-2.5 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-sm sm:text-base leading-relaxed"
+            :aria-label="getInputAriaLabel()"
+            :aria-describedby="getInputAriaDescribedBy()"
+            :aria-invalid="inputText.length > (maxLength || 4000) ? 'true' : 'false'"
+            class="chat-input-field flex-1 min-h-[44px] sm:min-h-[48px] max-h-[160px] sm:max-h-[240px] px-3 py-3 bg-transparent resize-none outline-none placeholder:text-muted-foreground/60 text-base leading-relaxed focus-visible:outline-none"
             style="
               font-family:
                 system-ui,
@@ -130,18 +134,40 @@
             "
             rows="1"
             data-chat-input
+            autocomplete="off"
+            spellcheck="true"
+            autocapitalize="sentences"
+            autocorrect="on"
           />
+          
+          <!-- Hidden instructions for screen readers -->
+          <div id="input-instructions" class="sr-only">
+            Type your message here. Press Enter to send, Shift+Enter for new line.
+            {{ maxLength ? `Maximum ${maxLength} characters allowed.` : '' }}
+          </div>
+          
+          <!-- Character count warning for screen readers -->
+          <div 
+            v-if="inputText.length > (maxLength ? maxLength * 0.8 : 3200)" 
+            id="char-count-warning" 
+            class="sr-only"
+            aria-live="polite"
+          >
+            {{ getCharacterCountWarning() }}
+          </div>
 
           <!-- Send Button -->
           <div class="send-button-container pb-0.5">
             <button
               @click="handleSend"
               :disabled="!canSend"
-              class="send-button btn-interactive elastic-click p-2.5 sm:p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              class="send-button touch-target-comfortable btn-interactive elastic-click p-2.5 sm:p-3 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-105 active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring"
               :class="[sendButtonClasses, sendButtonAnimationClass]"
               :title="sendButtonTooltip"
-             aria-label="按钮">
-              <Send :size="18" class="sm:w-[20px] sm:h-[20px]" />
+              :aria-label="getSendButtonAriaLabel()"
+              type="submit">
+              <Send :size="18" class="sm:w-[20px] sm:h-[20px]" aria-hidden="true" />
+              <span class="sr-only">{{ getSendButtonAriaLabel() }}</span>
             </button>
           </div>
         </div>
@@ -172,13 +198,19 @@
           </span>
         </div>
 
-        <!-- Character Count -->
+        <!-- Character Count - Enhanced for Accessibility -->
         <div
           v-if="showCharCount && inputText.length > 0"
           class="char-count absolute -bottom-6 right-0 text-xs transition-all duration-300"
           :class="[charCountClasses, charCountAnimationClass]"
+          role="status"
+          :aria-live="inputText.length > (maxLength ? maxLength * 0.8 : 3200) ? 'polite' : 'off'"
+          :aria-label="getCharacterCountLabel()"
         >
           {{ inputText.length }}{{ maxLength ? `/${maxLength}` : '' }}
+          <span v-if="inputText.length > (maxLength || 4000)" class="sr-only">
+            Character limit exceeded by {{ inputText.length - (maxLength || 4000) }} characters
+          </span>
         </div>
       </div>
     </div>
@@ -380,11 +412,6 @@ const inputWrapperClasses = computed(() => ({
   'text-highlight': textHighlight.value
 }))
 
-const sendButtonClasses = computed(() => ({
-  'bg-primary text-primary-foreground hover:bg-primary/90': canSend.value,
-  'bg-muted-foreground/20 text-muted-foreground': !canSend.value,
-  'sent-success': sendButtonState.value === 'success'
-}))
 
 const charCountAnimationClass = computed(() => {
   if (charCountPulse.value) return 'char-count-pulse'

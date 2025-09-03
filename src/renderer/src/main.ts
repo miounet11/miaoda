@@ -41,7 +41,7 @@ app.use(router)
 
 logger.info('Application initializing', 'Main', {
   errorBoundaryActive: true,
-  version: import.meta.env.VITE_APP_VERSION || 'development'
+  version: import.meta.env.VITE_APP_VERSION || 'development',
 })
 
 app.mount('#app')

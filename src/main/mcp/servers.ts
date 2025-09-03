@@ -1,29 +1,26 @@
 // @ts-nocheck
 import { MCPServer } from './mcpManager'
-import { join, dirname } from 'path'
+import { join } from 'path'
 import { homedir } from 'os'
-import { fileURLToPath } from 'url'
 import { getOptimizedServerConfig } from './serverConfig'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Built-in MCP servers configuration
 export const builtInServers: MCPServer[] = [
   {
     name: 'filesystem',
     command: 'npx',
-    args: ['-y', '@modelcontextprotocol/server-filesystem', join(homedir(), 'Documents')]
+    args: ['-y', '@modelcontextprotocol/server-filesystem', join(homedir(), 'Documents')],
   },
   {
     name: 'memory',
     command: 'npx',
-    args: ['-y', '@modelcontextprotocol/server-memory']
+    args: ['-y', '@modelcontextprotocol/server-memory'],
   },
   {
     name: 'context7',
     command: 'npx',
-    args: ['-y', '@upstash/context7-mcp']
-  }
+    args: ['-y', '@upstash/context7-mcp'],
+  },
 ]
 
 // User can add custom servers via settings

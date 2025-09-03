@@ -23,7 +23,7 @@ export const SHORTCUT_CATEGORIES = {
   CHAT: '聊天',
   SEARCH: '搜索',
   EDITING: '编辑',
-  WINDOW: '窗口'
+  WINDOW: '窗口',
 } as const
 
 // 默认快捷键配置
@@ -36,7 +36,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '新建聊天',
     category: SHORTCUT_CATEGORIES.GENERAL,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'open-settings',
@@ -45,7 +45,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '打开设置',
     category: SHORTCUT_CATEGORIES.GENERAL,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'toggle-theme',
@@ -55,7 +55,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '切换主题',
     category: SHORTCUT_CATEGORIES.GENERAL,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'quit-app',
@@ -64,7 +64,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '退出应用',
     category: SHORTCUT_CATEGORIES.GENERAL,
     action: () => {},
-    global: true
+    global: true,
   },
 
   // 导航快捷键
@@ -74,7 +74,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '聚焦输入框',
     category: SHORTCUT_CATEGORIES.NAVIGATION,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'toggle-sidebar',
@@ -82,7 +82,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '切换侧边栏',
     category: SHORTCUT_CATEGORIES.NAVIGATION,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'next-chat',
@@ -90,7 +90,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '下一个聊天',
     category: SHORTCUT_CATEGORIES.NAVIGATION,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'prev-chat',
@@ -99,7 +99,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     shift: true,
     description: '上一个聊天',
     category: SHORTCUT_CATEGORIES.NAVIGATION,
-    action: () => {}
+    action: () => {},
   },
 
   // 聊天快捷键
@@ -108,7 +108,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     key: 'Enter',
     description: '发送消息',
     category: SHORTCUT_CATEGORIES.CHAT,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'new-line',
@@ -116,7 +116,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     shift: true,
     description: '换行',
     category: SHORTCUT_CATEGORIES.CHAT,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'clear-chat',
@@ -124,7 +124,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '清空聊天',
     category: SHORTCUT_CATEGORIES.CHAT,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'regenerate',
@@ -132,7 +132,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '重新生成回复',
     category: SHORTCUT_CATEGORIES.CHAT,
-    action: () => {}
+    action: () => {},
   },
 
   // 搜索快捷键
@@ -143,7 +143,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '全局搜索',
     category: SHORTCUT_CATEGORIES.SEARCH,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'search-in-chat',
@@ -151,7 +151,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '在当前聊天中搜索',
     category: SHORTCUT_CATEGORIES.SEARCH,
-    action: () => {}
+    action: () => {},
   },
 
   // 编辑快捷键
@@ -162,7 +162,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     shift: true,
     description: '复制最后一条消息',
     category: SHORTCUT_CATEGORIES.EDITING,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'paste',
@@ -170,7 +170,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '粘贴',
     category: SHORTCUT_CATEGORIES.EDITING,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'select-all',
@@ -178,7 +178,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '全选',
     category: SHORTCUT_CATEGORIES.EDITING,
-    action: () => {}
+    action: () => {},
   },
   {
     id: 'undo',
@@ -186,7 +186,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     meta: true,
     description: '撤销',
     category: SHORTCUT_CATEGORIES.EDITING,
-    action: () => {}
+    action: () => {},
   },
 
   // 窗口快捷键
@@ -197,7 +197,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '最小化窗口',
     category: SHORTCUT_CATEGORIES.WINDOW,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'close-window',
@@ -206,7 +206,7 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '关闭窗口',
     category: SHORTCUT_CATEGORIES.WINDOW,
     action: () => {},
-    global: true
+    global: true,
   },
   {
     id: 'toggle-fullscreen',
@@ -216,8 +216,8 @@ const defaultShortcuts: ShortcutConfig[] = [
     description: '切换全屏',
     category: SHORTCUT_CATEGORIES.WINDOW,
     action: () => {},
-    global: true
-  }
+    global: true,
+  },
 ]
 
 export function useEnhancedShortcuts() {
@@ -229,7 +229,7 @@ export function useEnhancedShortcuts() {
     ctrl: false,
     meta: false,
     shift: false,
-    alt: false
+    alt: false,
   })
 
   // 快捷键映射表，用于快速查找
@@ -344,7 +344,7 @@ export function useEnhancedShortcuts() {
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
       // 在输入框中只允许特定的快捷键
       return ['global-search', 'send-message', 'new-line'].some(id =>
-        shortcutMap.get(generateShortcutKey({ key: '', ctrl: false, meta: false, shift: false, alt: false, ...target } as any))?.id === id
+        shortcutMap.get(generateShortcutKey({ key: '', ctrl: false, meta: false, shift: false, alt: false, ...target } as any))?.id === id,
       )
     }
 
@@ -436,7 +436,7 @@ export function useEnhancedShortcuts() {
         const parsed = JSON.parse(saved)
         shortcuts.value = parsed.map((config: any) => ({
           ...config,
-          action: () => {} // 动作需要在组件中重新注册
+          action: () => {}, // 动作需要在组件中重新注册
         }))
       }
     } catch (error) {
@@ -449,7 +449,7 @@ export function useEnhancedShortcuts() {
     try {
       const toSave = shortcuts.value.map(config => ({
         ...config,
-        action: undefined // 不保存函数
+        action: undefined, // 不保存函数
       }))
       localStorage.setItem('miaoda-shortcuts', JSON.stringify(toSave))
     } catch (error) {
@@ -531,6 +531,6 @@ export function useEnhancedShortcuts() {
 
     // 工具方法
     checkConflicts: () => checkConflicts(),
-    updateShortcutMap: () => updateShortcutMap()
+    updateShortcutMap: () => updateShortcutMap(),
   }
 }

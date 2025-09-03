@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { EventEmitter } from 'events'
 import { BrowserWindow } from 'electron'
 import { logger } from '../utils/Logger'
@@ -79,11 +78,11 @@ export class MemoryLeakDetector extends EventEmitter {
         heapGrowthRate: 1024 * 1024, // 1MB per second
         externalGrowthRate: 512 * 1024, // 512KB per second
         totalMemoryLimit: 500 * 1024 * 1024, // 500MB
-        consecutiveGrowthPeriods: 5
+        consecutiveGrowthPeriods: 5,
       },
       enableGCTrigger: true,
       enableDetailedAnalysis: true,
-      ...config
+      ...config,
     }
 
     this.initialize()
@@ -127,7 +126,7 @@ export class MemoryLeakDetector extends EventEmitter {
       arrayBuffers: memoryUsage.arrayBuffers,
       total: memoryUsage.heapUsed + memoryUsage.external,
       processId: process.pid,
-      windowId
+      windowId,
     }
 
     this.snapshots.push(snapshot)
@@ -148,7 +147,7 @@ export class MemoryLeakDetector extends EventEmitter {
         healthScore: 100,
         recommendations: [],
         totalMemoryUsage: this.getCurrentMemoryUsage(),
-        growthTrend: 'stable'
+        growthTrend: 'stable',
       }
     }
 
@@ -185,7 +184,7 @@ export class MemoryLeakDetector extends EventEmitter {
       healthScore,
       recommendations,
       totalMemoryUsage: this.getCurrentMemoryUsage(),
-      growthTrend
+      growthTrend,
     }
 
     this.emit('analysis-complete', result)
@@ -253,7 +252,7 @@ export class MemoryLeakDetector extends EventEmitter {
       return {
         trend: 'stable',
         growthRate: 0,
-        samples: recentSnapshots
+        samples: recentSnapshots,
       }
     }
 
@@ -272,7 +271,7 @@ export class MemoryLeakDetector extends EventEmitter {
     return {
       trend,
       growthRate,
-      samples: recentSnapshots
+      samples: recentSnapshots,
     }
   }
 
@@ -289,7 +288,7 @@ export class MemoryLeakDetector extends EventEmitter {
     leaks: MemoryLeak[]
     snapshots: MemorySnapshot[]
     recommendations: string[]
-  } {
+    } {
     const analysis = this.analyzeMemoryLeaks()
     const criticalLeaks = analysis.leaks.filter(leak => leak.severity === 'critical').length
 
@@ -298,11 +297,11 @@ export class MemoryLeakDetector extends EventEmitter {
         totalLeaks: analysis.leaks.length,
         criticalLeaks,
         totalMemoryUsage: analysis.totalMemoryUsage,
-        healthScore: analysis.healthScore
+        healthScore: analysis.healthScore,
       },
       leaks: [...this.detectedLeaks],
       snapshots: [...this.snapshots].slice(-50), // Last 50 snapshots
-      recommendations: analysis.recommendations
+      recommendations: analysis.recommendations,
     }
   }
 
@@ -313,7 +312,7 @@ export class MemoryLeakDetector extends EventEmitter {
     actionsPerformed: string[]
     memoryFreed: number
     success: boolean
-  } {
+    } {
     const initialMemory = this.getCurrentMemoryUsage()
     const actionsPerformed: string[] = []
 
@@ -344,7 +343,7 @@ export class MemoryLeakDetector extends EventEmitter {
           resolve({
             actionsPerformed,
             memoryFreed,
-            success: memoryFreed > 0
+            success: memoryFreed > 0,
           })
         }, 2000)
       }) as any
@@ -353,7 +352,7 @@ export class MemoryLeakDetector extends EventEmitter {
       return {
         actionsPerformed,
         memoryFreed: 0,
-        success: false
+        success: false,
       }
     }
   }
@@ -383,7 +382,7 @@ export class MemoryLeakDetector extends EventEmitter {
       if (result.healthScore < 30) {
         logger.warn('Low memory health score, attempting cleanup', 'MemoryLeakDetector', {
           healthScore: result.healthScore,
-          leaksCount: result.leaks.length
+          leaksCount: result.leaks.length,
         })
         this.attemptMemoryCleanup()
       }
@@ -395,7 +394,7 @@ export class MemoryLeakDetector extends EventEmitter {
       () => {
         this.cleanupOldData()
       },
-      60 * 60 * 1000
+      60 * 60 * 1000,
     ) // Every hour
   }
 
@@ -469,8 +468,8 @@ export class MemoryLeakDetector extends EventEmitter {
         recommendations: [
           'Check for objects not being properly garbage collected',
           'Review closure usage and event listener cleanup',
-          'Consider implementing weak references for large objects'
-        ]
+          'Consider implementing weak references for large objects',
+        ],
       }
 
       leaks.push(leak)
@@ -502,8 +501,8 @@ export class MemoryLeakDetector extends EventEmitter {
         recommendations: [
           'Check for Buffer objects not being freed',
           'Review native addon memory usage',
-          'Monitor ArrayBuffer and TypedArray usage'
-        ]
+          'Monitor ArrayBuffer and TypedArray usage',
+        ],
       }
 
       leaks.push(leak)
@@ -531,8 +530,8 @@ export class MemoryLeakDetector extends EventEmitter {
           recommendations: [
             'Remove unused event listeners',
             'Use WeakMap for event handler references',
-            'Implement proper cleanup in component lifecycle'
-          ]
+            'Implement proper cleanup in component lifecycle',
+          ],
         }
 
         leaks.push(leak)
@@ -546,7 +545,7 @@ export class MemoryLeakDetector extends EventEmitter {
     // Update existing leaks or add new ones
     for (const newLeak of newLeaks) {
       const existingIndex = this.detectedLeaks.findIndex(
-        existing => existing.type === newLeak.type && existing.source === newLeak.source
+        existing => existing.type === newLeak.type && existing.source === newLeak.source,
       )
 
       if (existingIndex >= 0) {
@@ -683,8 +682,8 @@ export class MemoryLeakDetector extends EventEmitter {
       recommendations: [
         'Check for EventEmitter memory leaks',
         'Remove unused event listeners',
-        'Use once() instead of on() where appropriate'
-      ]
+        'Use once() instead of on() where appropriate',
+      ],
     }
 
     this.detectedLeaks.push(leak)
@@ -712,7 +711,7 @@ export class MemoryLeakDetector extends EventEmitter {
         if (window.webContents && !window.webContents.isDestroyed()) {
           await window.webContents.session.clearCache()
           await window.webContents.session.clearStorageData({
-            storages: ['indexdb', 'websql']
+            storages: ['indexdb', 'websql'],
           })
         }
       } catch (error) {
@@ -742,7 +741,7 @@ export class MemoryLeakDetector extends EventEmitter {
 
     logger.debug('Memory leak detector data cleanup', 'MemoryLeakDetector', {
       snapshots: this.snapshots.length,
-      leaks: this.detectedLeaks.length
+      leaks: this.detectedLeaks.length,
     })
   }
 

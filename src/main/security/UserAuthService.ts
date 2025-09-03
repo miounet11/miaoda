@@ -122,7 +122,7 @@ export class UserAuthService {
         success: false,
         details: { email },
         ip_address: request.ipAddress,
-        user_agent: request.userAgent
+        user_agent: request.userAgent,
       })
       throw new Error('An account with this email already exists')
     }
@@ -138,8 +138,8 @@ export class UserAuthService {
         preferences: {
           theme: 'system',
           language: 'en',
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        }
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
       })
 
       // Create initial session
@@ -150,7 +150,7 @@ export class UserAuthService {
         device_type: request.deviceType,
         ip_address: request.ipAddress,
         user_agent: request.userAgent,
-        location: request.location
+        location: request.location,
       })
 
       // Log successful registration
@@ -161,14 +161,14 @@ export class UserAuthService {
         success: true,
         details: { email, device_id: deviceId },
         ip_address: request.ipAddress,
-        user_agent: request.userAgent
+        user_agent: request.userAgent,
       })
 
       return this.buildAuthResponse(user, session, {
         setup_required: {
           email_verification: true,
-          profile_completion: false
-        }
+          profile_completion: false,
+        },
       })
     } catch (error) {
       // Log registration failure
@@ -177,7 +177,7 @@ export class UserAuthService {
         success: false,
         details: { email, error: error instanceof Error ? error.message : 'Unknown error' },
         ip_address: request.ipAddress,
-        user_agent: request.userAgent
+        user_agent: request.userAgent,
       })
       throw error
     }
@@ -203,7 +203,7 @@ export class UserAuthService {
         details: { email, reason: 'user_not_found' },
         ip_address: request.ipAddress,
         user_agent: request.userAgent,
-        risk_score: 30
+        risk_score: 30,
       })
       throw new Error('Invalid email or password')
     }
@@ -217,7 +217,7 @@ export class UserAuthService {
         details: { email, reason: 'account_locked' },
         ip_address: request.ipAddress,
         user_agent: request.userAgent,
-        risk_score: 50
+        risk_score: 50,
       })
       const lockUntil = user.locked_until ? new Date(user.locked_until) : new Date()
       const minutesRemaining = Math.ceil((lockUntil.getTime() - Date.now()) / 60000)
@@ -243,7 +243,7 @@ export class UserAuthService {
           details: { email, attempts: newAttempts },
           ip_address: request.ipAddress,
           user_agent: request.userAgent,
-          risk_score: 80
+          risk_score: 80,
         })
 
         throw new Error('Too many failed attempts. Account has been locked for 30 minutes.')
@@ -258,11 +258,11 @@ export class UserAuthService {
           details: { email, attempts: newAttempts, reason: 'invalid_password' },
           ip_address: request.ipAddress,
           user_agent: request.userAgent,
-          risk_score: 40
+          risk_score: 40,
         })
 
         throw new Error(
-          `Invalid email or password. ${this.MAX_LOGIN_ATTEMPTS - newAttempts} attempts remaining.`
+          `Invalid email or password. ${this.MAX_LOGIN_ATTEMPTS - newAttempts} attempts remaining.`,
         )
       }
     }
@@ -275,7 +275,7 @@ export class UserAuthService {
     // Check if 2FA is required
     const authMethods = this.userService.getAuthMethods(user.id)
     const has2FA = authMethods.some(
-      method => method.method_type === 'totp' && method.is_enabled && method.setup_completed
+      method => method.method_type === 'totp' && method.is_enabled && method.setup_completed,
     )
 
     // Create session
@@ -287,7 +287,7 @@ export class UserAuthService {
       ip_address: request.ipAddress,
       user_agent: request.userAgent,
       location: request.location,
-      remember_me: request.rememberMe
+      remember_me: request.rememberMe,
     })
 
     // Update user activity
@@ -301,11 +301,11 @@ export class UserAuthService {
       success: true,
       details: { email, device_id: deviceId, has_2fa: has2FA },
       ip_address: request.ipAddress,
-      user_agent: request.userAgent
+      user_agent: request.userAgent,
     })
 
     return this.buildAuthResponse(user, session, {
-      requires_2fa: has2FA
+      requires_2fa: has2FA,
     })
   }
 
@@ -326,7 +326,7 @@ export class UserAuthService {
         user_id: session.user_id,
         session_id: sessionId,
         action: 'logout_all',
-        success: true
+        success: true,
       })
     } else {
       // Log out from current session only
@@ -336,7 +336,7 @@ export class UserAuthService {
         user_id: session.user_id,
         session_id: sessionId,
         action: 'logout',
-        success: true
+        success: true,
       })
     }
   }
@@ -365,7 +365,7 @@ export class UserAuthService {
       device_name: sessions.device_name,
       device_type: sessions.device_type,
       ip_address: sessions.ip_address,
-      user_agent: sessions.user_agent
+      user_agent: sessions.user_agent,
     })
 
     // Invalidate old session
@@ -376,7 +376,7 @@ export class UserAuthService {
       user_id: user.id,
       session_id: newSession.id,
       action: 'token_refresh',
-      success: true
+      success: true,
     })
 
     return this.buildAuthResponse(user, newSession)
@@ -404,7 +404,7 @@ export class UserAuthService {
         token_hash: tokenHash,
         expires_at: Date.now() + this.PASSWORD_RESET_TOKEN_DURATION,
         ip_address: request.ipAddress,
-        user_agent: request.userAgent
+        user_agent: request.userAgent,
       })
 
       // Log password reset request
@@ -414,7 +414,7 @@ export class UserAuthService {
         success: true,
         details: { email },
         ip_address: request.ipAddress,
-        user_agent: request.userAgent
+        user_agent: request.userAgent,
       })
 
       // TODO: Send reset email with token
@@ -427,7 +427,7 @@ export class UserAuthService {
         details: { email, reason: 'user_not_found' },
         ip_address: request.ipAddress,
         user_agent: request.userAgent,
-        risk_score: 20
+        risk_score: 20,
       })
     }
   }
@@ -455,7 +455,7 @@ export class UserAuthService {
         details: { reason: 'invalid_token' },
         ip_address: request.ipAddress,
         user_agent: request.userAgent,
-        risk_score: 60
+        risk_score: 60,
       })
       throw new Error('Invalid or expired reset token')
     }
@@ -475,7 +475,7 @@ export class UserAuthService {
       action: 'password_reset_confirm',
       success: true,
       ip_address: request.ipAddress,
-      user_agent: request.userAgent
+      user_agent: request.userAgent,
     })
   }
 
@@ -512,7 +512,7 @@ export class UserAuthService {
       session_id: requestingSessionId,
       action: 'session_revoke',
       success: true,
-      details: { revoked_session_id: sessionId }
+      details: { revoked_session_id: sessionId },
     })
   }
 
@@ -572,7 +572,7 @@ export class UserAuthService {
       access_token_hash: accessTokenHash,
       refresh_token_hash: refreshTokenHash,
       expires_at: Date.now() + sessionDuration,
-      location: sessionData.location
+      location: sessionData.location,
     })
 
     // Store the actual tokens (not hashes) for returning to client
@@ -591,7 +591,7 @@ export class UserAuthService {
         email_verification?: boolean
         profile_completion?: boolean
       }
-    } = {}
+    } = {},
   ): AuthResponse {
     return {
       user: {
@@ -601,17 +601,17 @@ export class UserAuthService {
         avatar_url: user.avatar_url,
         preferences: user.preferences ? JSON.parse(user.preferences) : undefined,
         created_at: user.created_at,
-        email_verified: user.email_verified === 1
+        email_verified: user.email_verified === 1,
       },
       session: {
         id: session.id,
         access_token: session.access_token!,
         refresh_token: session.refresh_token!,
         expires_at: session.expires_at,
-        device_id: session.device_id
+        device_id: session.device_id,
       },
       requires_2fa: options.requires_2fa,
-      setup_required: options.setup_required
+      setup_required: options.setup_required,
     }
   }
 
@@ -652,7 +652,7 @@ export class UserAuthService {
       () => {
         this.userService.cleanupExpiredData()
       },
-      60 * 60 * 1000
+      60 * 60 * 1000,
     )
   }
 }

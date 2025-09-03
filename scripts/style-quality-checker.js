@@ -22,7 +22,7 @@ class StyleQualityChecker {
       passed: 0,
       issues: [],
       warnings: [],
-      suggestions: []
+      suggestions: [],
     }
   }
 
@@ -80,7 +80,7 @@ class StyleQualityChecker {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output'
+      '.nyc_output',
     ]
     return skipDirs.includes(dirName)
   }
@@ -92,7 +92,7 @@ class StyleQualityChecker {
     console.log('🎨 样式质量检查报告')
     console.log('='.repeat(50))
 
-    console.log(`📊 检查结果:`)
+    console.log('📊 检查结果:')
     console.log(`   总文件数: ${this.results.totalFiles}`)
     console.log(`   通过文件: ${this.results.passed}`)
     console.log(`   失败文件: ${this.results.totalFiles - this.results.passed}`)

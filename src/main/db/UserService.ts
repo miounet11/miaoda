@@ -152,7 +152,7 @@ export class UserService extends BaseDatabaseService {
       getSession: this.db.prepare('SELECT * FROM user_sessions WHERE id = ? AND is_active = 1'),
 
       getSessionsByUser: this.db.prepare(
-        'SELECT * FROM user_sessions WHERE user_id = ? AND is_active = 1'
+        'SELECT * FROM user_sessions WHERE user_id = ? AND is_active = 1',
       ),
 
       updateSession: this.db.prepare(`
@@ -164,7 +164,7 @@ export class UserService extends BaseDatabaseService {
       deleteSession: this.db.prepare('UPDATE user_sessions SET is_active = 0 WHERE id = ?'),
 
       deleteUserSessions: this.db.prepare(
-        'UPDATE user_sessions SET is_active = 0 WHERE user_id = ?'
+        'UPDATE user_sessions SET is_active = 0 WHERE user_id = ?',
       ),
 
       // Authentication methods
@@ -176,7 +176,7 @@ export class UserService extends BaseDatabaseService {
       `),
 
       getAuthMethods: this.db.prepare(
-        'SELECT * FROM auth_methods WHERE user_id = ? AND is_enabled = 1'
+        'SELECT * FROM auth_methods WHERE user_id = ? AND is_enabled = 1',
       ),
 
       updateAuthMethod: this.db.prepare(`
@@ -200,7 +200,7 @@ export class UserService extends BaseDatabaseService {
       `),
 
       usePasswordResetToken: this.db.prepare(
-        'UPDATE password_reset_tokens SET used_at = ? WHERE id = ?'
+        'UPDATE password_reset_tokens SET used_at = ? WHERE id = ?',
       ),
 
       // Security features
@@ -227,7 +227,7 @@ export class UserService extends BaseDatabaseService {
         UPDATE users SET 
           failed_login_attempts = 0, locked_until = NULL, updated_at = ?
         WHERE id = ?
-      `)
+      `),
     }
   }
 
@@ -266,7 +266,7 @@ export class UserService extends BaseDatabaseService {
       preferences: userData.preferences ? JSON.stringify(userData.preferences) : undefined,
       encryption_key_id: keyId,
       failed_login_attempts: 0,
-      password_changed_at: now
+      password_changed_at: now,
     }
 
     this.statements.createUser.run(
@@ -284,7 +284,7 @@ export class UserService extends BaseDatabaseService {
       user.preferences,
       user.encryption_key_id,
       user.failed_login_attempts,
-      user.password_changed_at
+      user.password_changed_at,
     )
 
     // Log user registration
@@ -292,7 +292,7 @@ export class UserService extends BaseDatabaseService {
       user_id: user.id,
       action: 'register',
       success: true,
-      details: { email: user.email }
+      details: { email: user.email },
     })
 
     return user
@@ -321,7 +321,7 @@ export class UserService extends BaseDatabaseService {
       name?: string
       avatar_url?: string
       preferences?: Record<string, any>
-    }
+    },
   ): void {
     const current = this.getUserById(id)
     if (!current) throw new Error('User not found')
@@ -335,7 +335,7 @@ export class UserService extends BaseDatabaseService {
       updates.avatar_url ?? current.avatar_url,
       preferences,
       Date.now(),
-      id
+      id,
     )
   }
 
@@ -376,7 +376,7 @@ export class UserService extends BaseDatabaseService {
       ...sessionData,
       last_used_at: now,
       created_at: now,
-      is_active: 1
+      is_active: 1,
     }
 
     this.statements.createSession.run(
@@ -393,7 +393,7 @@ export class UserService extends BaseDatabaseService {
       session.last_used_at,
       session.created_at,
       session.is_active,
-      session.location
+      session.location,
     )
 
     return session
@@ -421,7 +421,7 @@ export class UserService extends BaseDatabaseService {
     updates: {
       ip_address?: string
       location?: string
-    }
+    },
   ): void {
     this.statements.updateSession.run(Date.now(), updates.ip_address, updates.location, id)
   }
@@ -456,7 +456,7 @@ export class UserService extends BaseDatabaseService {
       is_enabled: 1,
       created_at: now,
       setup_completed: 0,
-      backup_codes_generated: 0
+      backup_codes_generated: 0,
     }
 
     this.statements.createAuthMethod.run(
@@ -467,7 +467,7 @@ export class UserService extends BaseDatabaseService {
       method.is_enabled,
       method.created_at,
       method.setup_completed,
-      method.backup_codes_generated
+      method.backup_codes_generated,
     )
 
     return method
@@ -488,7 +488,7 @@ export class UserService extends BaseDatabaseService {
     updates: {
       method_data?: string
       setup_completed?: boolean
-    }
+    },
   ): void {
     const current = this.statements.getAuthMethods.get() as AuthMethodRecord
 
@@ -496,7 +496,7 @@ export class UserService extends BaseDatabaseService {
       updates.method_data ?? current.method_data,
       Date.now(),
       updates.setup_completed ? 1 : 0,
-      id
+      id,
     )
   }
 
@@ -520,7 +520,7 @@ export class UserService extends BaseDatabaseService {
   }): PasswordResetTokenRecord {
     const token: PasswordResetTokenRecord = {
       ...tokenData,
-      created_at: Date.now()
+      created_at: Date.now(),
     }
 
     this.statements.createPasswordResetToken.run(
@@ -530,7 +530,7 @@ export class UserService extends BaseDatabaseService {
       token.expires_at,
       token.created_at,
       token.ip_address,
-      token.user_agent
+      token.user_agent,
     )
 
     return token
@@ -577,7 +577,7 @@ export class UserService extends BaseDatabaseService {
       logData.user_agent,
       logData.success ? 1 : 0,
       Date.now(),
-      logData.risk_score ?? 0
+      logData.risk_score ?? 0,
     )
   }
 
@@ -635,7 +635,7 @@ export class UserService extends BaseDatabaseService {
       UPDATE users SET 
         password_hash = ?, salt = ?, password_changed_at = ?, updated_at = ?
       WHERE id = ?
-    `
+    `,
       )
       .run(passwordHash, salt.toString('base64'), Date.now(), Date.now(), userId)
 
@@ -643,7 +643,7 @@ export class UserService extends BaseDatabaseService {
     await this.logAuthAction({
       user_id: userId,
       action: 'password_change',
-      success: true
+      success: true,
     })
   }
 

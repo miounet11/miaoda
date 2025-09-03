@@ -17,8 +17,8 @@ export class CustomProviderManager {
       encryptionKey: 'miaoda-chat-custom-providers-key',
       defaults: {
         providers: {},
-        healthStatus: {}
-      }
+        healthStatus: {},
+      },
     })
 
     this.loadProviders()
@@ -29,7 +29,7 @@ export class CustomProviderManager {
    * Add a new custom provider
    */
   async addProvider(
-    config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>
+    config: Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       const id = this.generateProviderId(config.name)
@@ -39,7 +39,7 @@ export class CustomProviderManager {
         ...config,
         id,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       }
 
       // Validate connection before adding
@@ -49,7 +49,7 @@ export class CustomProviderManager {
       if (!validationResult.success) {
         return {
           success: false,
-          error: `Connection validation failed: ${validationResult.error}`
+          error: `Connection validation failed: ${validationResult.error}`,
         }
       }
 
@@ -61,7 +61,7 @@ export class CustomProviderManager {
       this.healthStatus.set(id, {
         providerName: config.displayName,
         isHealthy: true,
-        lastChecked: now
+        lastChecked: now,
       })
       this.saveHealthStatus()
 
@@ -70,7 +70,7 @@ export class CustomProviderManager {
       return { success: true, id }
     } catch (error: any) {
       logger.error('Failed to add custom provider', 'CustomProviderManager', {
-        error: error.message
+        error: error.message,
       })
       return { success: false, error: error.message }
     }
@@ -81,7 +81,7 @@ export class CustomProviderManager {
    */
   async updateProvider(
     id: string,
-    updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>
+    updates: Partial<Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>>,
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const existingConfig = this.providers.get(id)
@@ -92,7 +92,7 @@ export class CustomProviderManager {
       const updatedConfig: CustomProviderConfig = {
         ...existingConfig,
         ...updates,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }
 
       // Validate connection if API details changed
@@ -104,7 +104,7 @@ export class CustomProviderManager {
         if (!validationResult.success) {
           return {
             success: false,
-            error: `Connection validation failed: ${validationResult.error}`
+            error: `Connection validation failed: ${validationResult.error}`,
           }
         }
       }
@@ -115,14 +115,14 @@ export class CustomProviderManager {
       logger.info(
         `Custom provider updated: ${updatedConfig.displayName}`,
         'CustomProviderManager',
-        { id }
+        { id },
       )
 
       return { success: true }
     } catch (error: any) {
       logger.error('Failed to update custom provider', 'CustomProviderManager', {
         error: error.message,
-        id
+        id,
       })
       return { success: false, error: error.message }
     }
@@ -150,7 +150,7 @@ export class CustomProviderManager {
     } catch (error: any) {
       logger.error('Failed to remove custom provider', 'CustomProviderManager', {
         error: error.message,
-        id
+        id,
       })
       return { success: false, error: error.message }
     }
@@ -205,7 +205,7 @@ export class CustomProviderManager {
         isHealthy: result.success,
         lastChecked: new Date().toISOString(),
         error: result.error,
-        responseTime
+        responseTime,
       }
 
       this.healthStatus.set(id, healthStatus)
@@ -218,7 +218,7 @@ export class CustomProviderManager {
         isHealthy: false,
         lastChecked: new Date().toISOString(),
         error: error.message,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       }
 
       this.healthStatus.set(id, healthStatus)
@@ -240,7 +240,7 @@ export class CustomProviderManager {
         results.push(health)
       } catch (error: any) {
         logger.error(`Health check failed for provider ${id}`, 'CustomProviderManager', {
-          error: error.message
+          error: error.message,
         })
       }
     }
@@ -259,7 +259,7 @@ export class CustomProviderManager {
    * Import providers configuration
    */
   async importProviders(
-    providers: CustomProviderConfig[]
+    providers: CustomProviderConfig[],
   ): Promise<{ success: number; failed: number; errors: string[] }> {
     let success = 0
     let failed = 0
@@ -320,7 +320,7 @@ export class CustomProviderManager {
       console.log('[CustomProviderManager] Loaded providers:', Array.from(this.providers.keys()))
     } catch (error: any) {
       logger.error('Failed to load custom providers', 'CustomProviderManager', {
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -334,7 +334,7 @@ export class CustomProviderManager {
       this.store.set('providers', providersObj)
     } catch (error: any) {
       logger.error('Failed to save custom providers', 'CustomProviderManager', {
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -348,7 +348,7 @@ export class CustomProviderManager {
       this.store.set('healthStatus', healthObj)
     } catch (error: any) {
       logger.error('Failed to save health status', 'CustomProviderManager', {
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -364,11 +364,11 @@ export class CustomProviderManager {
           await this.checkAllProvidersHealth()
         } catch (error: any) {
           logger.error('Periodic health check failed', 'CustomProviderManager', {
-            error: error.message
+            error: error.message,
           })
         }
       },
-      5 * 60 * 1000
+      5 * 60 * 1000,
     )
 
     logger.info('Started health monitoring for custom providers', 'CustomProviderManager')

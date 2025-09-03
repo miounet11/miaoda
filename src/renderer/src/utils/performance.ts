@@ -8,7 +8,7 @@ import { nextTick } from 'vue'
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
-  immediate = false
+  immediate = false,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null
 
@@ -30,7 +30,7 @@ export function debounce<T extends (...args: any[]) => any>(
 // Throttle function with proper typing
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean
 
@@ -45,7 +45,7 @@ export function throttle<T extends (...args: any[]) => any>(
 
 // RequestAnimationFrame-based throttle for smooth animations
 export function rafThrottle<T extends (...args: any[]) => any>(
-  func: T
+  func: T,
 ): (...args: Parameters<T>) => void {
   let rafId: number | null = null
   let lastArgs: Parameters<T> | null = null
@@ -70,7 +70,7 @@ export function smoothScrollTo(
   element: HTMLElement,
   target: number,
   duration = 300,
-  easing: 'ease-out' | 'ease-in-out' | 'linear' = 'ease-out'
+  easing: 'ease-out' | 'ease-in-out' | 'linear' = 'ease-out',
 ): Promise<void> {
   return new Promise(resolve => {
     const start = element.scrollTop
@@ -80,7 +80,7 @@ export function smoothScrollTo(
     const easingFunctions = {
       'ease-out': (t: number) => 1 - Math.pow(1 - t, 3),
       'ease-in-out': (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
-      linear: (t: number) => t
+      linear: (t: number) => t,
     }
 
     const easingFunction = easingFunctions[easing]
@@ -124,8 +124,8 @@ export class LazyLoader {
       {
         rootMargin: '50px',
         threshold: 0.1,
-        ...options
-      }
+        ...options,
+      },
     )
   }
 
@@ -155,7 +155,7 @@ export interface VirtualScrollOptions {
 export function calculateVirtualScrollRange(
   scrollTop: number,
   totalItems: number,
-  options: VirtualScrollOptions
+  options: VirtualScrollOptions,
 ) {
   const { itemHeight, containerHeight, buffer = 5 } = options
 
@@ -169,7 +169,7 @@ export function calculateVirtualScrollRange(
     startIndex,
     endIndex,
     offsetY: startIndex * itemHeight,
-    visibleItems: endIndex - startIndex + 1
+    visibleItems: endIndex - startIndex + 1,
   }
 }
 
@@ -337,7 +337,7 @@ export class WorkerPool {
 
   constructor(
     private workerScript: string,
-    private poolSize: number = navigator.hardwareConcurrency || 4
+    private poolSize: number = navigator.hardwareConcurrency || 4,
   ) {
     this.initializeWorkers()
   }
@@ -433,7 +433,7 @@ export class PerformanceMonitor {
       max: sorted[sorted.length - 1],
       avg: sum / durations.length,
       median: sorted[Math.floor(sorted.length / 2)],
-      p95: sorted[Math.floor(sorted.length * 0.95)]
+      p95: sorted[Math.floor(sorted.length * 0.95)],
     }
   }
 
@@ -472,14 +472,14 @@ export function createLazyComponent<T>(
   loadingComponent?: any,
   errorComponent?: any,
   delay = 200,
-  timeout = 10000
+  timeout = 10000,
 ) {
   return {
     component: loader,
     loading: loadingComponent,
     error: errorComponent,
     delay,
-    timeout
+    timeout,
   }
 }
 
@@ -656,7 +656,7 @@ export class OptimizedCache<K, V> {
   constructor(
     maxSize = 1000,
     maxAge = 5 * 60 * 1000, // 5 minutes
-    cleanupThreshold = 0.8
+    cleanupThreshold = 0.8,
   ) {
     this.maxSize = maxSize
     this.maxAge = maxAge

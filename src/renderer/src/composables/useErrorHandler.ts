@@ -30,7 +30,7 @@ export function useErrorHandler() {
       title: 'Success',
       message,
       severity: 'info',
-      duration
+      duration,
     })
   }
 
@@ -38,7 +38,7 @@ export function useErrorHandler() {
     showError({
       title: context,
       message,
-      severity: 'warning'
+      severity: 'warning',
     })
   }
 
@@ -46,7 +46,7 @@ export function useErrorHandler() {
     showError({
       title: context,
       message,
-      severity: 'info'
+      severity: 'info',
     })
   }
 
@@ -54,7 +54,7 @@ export function useErrorHandler() {
     showError({
       title: context,
       message,
-      severity: 'info'
+      severity: 'info',
     })
   }
 
@@ -82,7 +82,7 @@ export function useErrorHandler() {
     showError({
       title: context || 'Error',
       message,
-      severity: 'error'
+      severity: 'error',
     })
 
     return { message, details }
@@ -104,7 +104,7 @@ export function useErrorHandler() {
       delay?: number
       onRetry?: (attempt: number) => void
       context?: string
-    } = {}
+    } = {},
   ): Promise<T | null> => {
     const { maxAttempts = 3, delay = 1000, onRetry, context } = options
 
@@ -144,6 +144,6 @@ export function useErrorHandler() {
     clearErrors,
     withErrorHandler,
     withRetry,
-    isRetrying
+    isRetrying,
   }
 }

@@ -127,7 +127,7 @@ export class VoiceError extends Error {
   constructor(
     message: string,
     public code: VoiceErrorCode,
-    public details?: any
+    public details?: any,
   ) {
     super(message)
     this.name = 'VoiceError'
@@ -154,14 +154,14 @@ export const SUPPORTED_LANGUAGES: VoiceLanguage[] = [
     name: 'English',
     nativeName: 'English (US)',
     region: 'United States',
-    quality: 'high'
+    quality: 'high',
   },
   {
     code: 'en-GB',
     name: 'English',
     nativeName: 'English (UK)',
     region: 'United Kingdom',
-    quality: 'high'
+    quality: 'high',
   },
   { code: 'zh-CN', name: 'Chinese', nativeName: '中文 (简体)', region: 'China', quality: 'high' },
   { code: 'zh-TW', name: 'Chinese', nativeName: '中文 (繁體)', region: 'Taiwan', quality: 'high' },
@@ -172,14 +172,14 @@ export const SUPPORTED_LANGUAGES: VoiceLanguage[] = [
     name: 'Spanish',
     nativeName: 'Español (España)',
     region: 'Spain',
-    quality: 'high'
+    quality: 'high',
   },
   {
     code: 'es-MX',
     name: 'Spanish',
     nativeName: 'Español (México)',
     region: 'Mexico',
-    quality: 'high'
+    quality: 'high',
   },
   { code: 'fr-FR', name: 'French', nativeName: 'Français', region: 'France', quality: 'high' },
   { code: 'de-DE', name: 'German', nativeName: 'Deutsch', region: 'Germany', quality: 'high' },
@@ -189,7 +189,7 @@ export const SUPPORTED_LANGUAGES: VoiceLanguage[] = [
     name: 'Portuguese',
     nativeName: 'Português (Brasil)',
     region: 'Brazil',
-    quality: 'high'
+    quality: 'high',
   },
   { code: 'ru-RU', name: 'Russian', nativeName: 'Русский', region: 'Russia', quality: 'medium' },
   {
@@ -197,9 +197,9 @@ export const SUPPORTED_LANGUAGES: VoiceLanguage[] = [
     name: 'Arabic',
     nativeName: 'العربية',
     region: 'Saudi Arabia',
-    quality: 'medium'
+    quality: 'medium',
   },
-  { code: 'hi-IN', name: 'Hindi', nativeName: 'हिन्दी', region: 'India', quality: 'medium' }
+  { code: 'hi-IN', name: 'Hindi', nativeName: 'हिन्दी', region: 'India', quality: 'medium' },
 ]
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
@@ -212,7 +212,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   continuousRecording: false,
   showWaveform: true,
   noiseSupression: true,
-  echoCancellation: true
+  echoCancellation: true,
 }
 
 export const VOICE_RECORDING_CONSTRAINTS: MediaStreamConstraints = {
@@ -221,13 +221,13 @@ export const VOICE_RECORDING_CONSTRAINTS: MediaStreamConstraints = {
     noiseSuppression: true,
     autoGainControl: true,
     sampleRate: 16000,
-    channelCount: 1
-  }
+    channelCount: 1,
+  },
 }
 
 export const AUDIO_ANALYSIS_CONFIG = {
   fftSize: 256,
   smoothingTimeConstant: 0.8,
   minDecibels: -90,
-  maxDecibels: -10
+  maxDecibels: -10,
 }

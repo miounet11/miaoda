@@ -1,36 +1,67 @@
 <template>
   <div class="chat-view">
-    <!-- 顶部导航栏 -->
-    <div class="top-nav">
-      <div class="nav-content">
-        <div class="brand-section">
-          <h1 class="brand">MiaoDa Chat</h1>
-          <div class="model-info">
-            <span class="model-indicator">
-              <span class="model-dot" :class="getModelStatusClass(currentModel)"></span>
-              {{ getModelDisplayName(currentModel) }}
-            </span>
+    <!-- NewAPI 风格的三栏布局 -->
+    <div class="main-layout">
+      <!-- 左侧侧边栏 - 模型配置面板 -->
+      <aside class="model-config-sidebar">
+        <ModelConfigPanel
+          v-model:config="modelConfig"
+          @export-config="handleExportConfig"
+          @import-config="handleImportConfig"
+        />
+      </aside>
+
+      <!-- 中间主内容区 - 聊天界面 -->
+      <main class="chat-main-content">
+        <!-- 顶部导航栏 -->
+        <div class="top-nav">
+          <div class="nav-content">
+            <div class="brand-section">
+              <h1 class="brand">MiaoDa Chat</h1>
+              <div class="model-info">
+                <span class="model-indicator">
+                  <span class="model-dot" :class="getModelStatusClass(currentModel)"></span>
+                  {{ getModelDisplayName(currentModel) }}
+                </span>
+                <!-- API状态指示器 -->
+                <div class="api-status" v-if="showApiStatus">
+                  <span
+                    class="api-status-dot"
+                    :class="apiStatusClass"
+                    title="API连接状态"
+                  ></span>
+                  <span class="api-status-text">{{ apiStatusText }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="nav-actions">
+              <button @click="toggleDebugPanel" class="nav-btn" title="调试面板">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4"></path>
+                  <path d="M21 12c-1 0-3-1-3-3s2-3 3-3"></path>
+                  <path d="M3 12c1 0 3-1 3-3s-2-3-3-3"></path>
+                  <path d="M12 3v18"></path>
+                </svg>
+              </button>
+              <SmartModelSelector
+                :current-provider-id="currentProviderId"
+                :current-model-id="currentModelId"
+                :available-providers="availableProviders"
+                @select-model="handleModelSelect"
+              />
+              <button @click="showSettings" class="nav-btn" title="设置">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="nav-actions">
-          <button @click="showModelSwitcher" class="nav-btn" title="切换模型">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-            </svg>
-          </button>
-          <button @click="showSettings" class="nav-btn" title="设置">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- 聊天区域 -->
-    <div class="chat-container">
-      <div class="messages-area" ref="messagesRef">
+        <!-- 聊天区域 -->
+        <div class="chat-container">
+          <div class="messages-area" ref="messagesRef">
         <!-- 欢迎消息 -->
         <div v-if="messages.length === 0" class="welcome-message">
           <div class="welcome-content">
@@ -52,14 +83,25 @@
 
         <!-- 消息列表 -->
         <div v-for="message in messages" :key="message.id" class="message-item"
-             :class="{ 'user-message': message.role === 'user', 'ai-message': message.role === 'assistant' }">
+             :class="{ 'user-message': message.role === 'user', 'ai-message': message.role === 'assistant', 'error-message-item': message.isError }">
           <div class="message-content">
-            <div class="message-text">{{ message.content }}</div>
+            <!-- 错误消息特殊显示 -->
+            <div v-if="message.isError" class="error-message">
+              <div class="error-message-header">
+                <span>⚠️</span>
+                <span>AI 服务错误</span>
+              </div>
+              <div class="error-message-content" v-html="formatErrorMessage(message.content)"></div>
+            </div>
+            <!-- 普通消息 -->
+            <div v-else class="message-text" v-html="formatMessage(message.content)"></div>
+
             <div class="message-meta">
               <span class="message-time">{{ formatTime(message.timestamp) }}</span>
               <span v-if="message.responseTime && message.role === 'assistant'" class="response-time">
                 {{ message.responseTime }}
               </span>
+              <span v-if="message.isError" class="error-badge">错误</span>
             </div>
           </div>
         </div>
@@ -141,12 +183,68 @@
         </div>
       </div>
     </div>
+
+    <!-- 右侧调试面板 -->
+    <aside v-if="showDebugPanel" class="debug-sidebar" :class="{ hidden: !showDebugPanel }">
+      <DebugPanel
+        :request-preview="requestPreview"
+        :actual-request="actualRequest"
+        :response="response"
+        @close="showDebugPanel = false"
+      />
+    </aside>
+  </main>
+</div>
+
+    <!-- 模型切换模态框 -->
+    <div v-if="showModelSwitchModal" class="modal-overlay" @click="showModelSwitchModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>选择AI模型</h3>
+          <button @click="showModelSwitchModal = false" class="modal-close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="model-list">
+            <div
+              v-for="model in availableModels"
+              :key="model.value"
+              @click="switchModel(model.value)"
+              class="model-option"
+              :class="{ active: model.value === currentModel }"
+            >
+              <div class="model-info">
+                <div class="model-name">{{ model.label }}</div>
+                <div class="model-description">{{ model.description }}</div>
+              </div>
+              <div class="model-status">
+                <span :class="getModelStatusClass(model.value)" class="status-dot"></span>
+                <span class="status-text">{{ model.value === 'default' ? '免费' : (model.configured ? '已配置' : '未配置') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全局状态反馈 -->
+    <GlobalStatusFeedback />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import SmartModelSelector from '@/components/chat/SmartModelSelector.vue'
+import GlobalStatusFeedback from '@/components/ui/GlobalStatusFeedback.vue'
+import ModelConfigPanel from '@/components/chat/ModelConfigPanel.vue'
+import DebugPanel from '@/components/chat/DebugPanel.vue'
+import { statusFeedback } from '@/services/StatusFeedbackService'
+import { useEnhancedModelConfig } from '@/services/model/EnhancedModelConfigService'
 
 // 消息接口
 interface Message {
@@ -168,6 +266,130 @@ const responseStartTime = ref<number>(0)
 const lastResponseTime = ref<string>('')
 const currentModel = ref('default')
 const showModelSwitchModal = ref(false)
+const showDebugPanel = ref(false)
+
+// 模型配置数据
+const modelConfig = ref({
+  customRequestMode: false,
+  group: 'default',
+  model: 'claude-opus-4-1-20250805-thinking',
+  temperature: 0.7,
+  topP: 1,
+  frequencyPenalty: 0,
+  presencePenalty: 0,
+  maxTokens: 4096,
+  seed: '',
+  stream: true,
+  imageUrls: [] as string[]
+})
+
+// 调试面板数据
+const requestPreview = ref('')
+const actualRequest = ref('')
+const response = ref('')
+
+// API状态相关
+const showApiStatus = ref(true)
+const apiStatus = ref<'checking' | 'connected' | 'disconnected' | 'error'>('checking')
+
+// SmartModelSelector 所需的数据
+const currentProviderId = ref('builtin')
+const currentModelId = ref('miaoda-chat')
+const currentActiveConfig = ref<any>(null)
+
+// Provider 接口定义
+interface Provider {
+  id: string
+  displayName: string
+  icon: string
+  isHealthy: boolean
+  isCustom: boolean
+  models: Model[]
+}
+
+interface Model {
+  id: string
+  displayName: string
+  description?: string
+  contextLength: number
+  capabilities: {
+    chat: boolean
+    functions: boolean
+    vision: boolean
+    streaming: boolean
+  }
+  performance?: {
+    avgResponseTime: number
+    quality: number
+  }
+  status: 'available' | 'limited' | 'unavailable'
+}
+
+// API状态计算属性
+const apiStatusClass = computed(() => {
+  switch (apiStatus.value) {
+    case 'connected': return 'api-status-connected'
+    case 'disconnected': return 'api-status-disconnected'
+    case 'error': return 'api-status-error'
+    default: return 'api-status-checking'
+  }
+})
+
+const apiStatusText = computed(() => {
+  switch (apiStatus.value) {
+    case 'connected': return '已连接'
+    case 'disconnected': return '未配置'
+    case 'error': return '连接错误'
+    default: return '检查中'
+  }
+})
+
+// 转换现有模型数据为新格式
+const availableProviders = computed<Provider[]>(() => [
+  {
+    id: 'builtin',
+    displayName: 'MiaoDa AI',
+    icon: '🤖',
+    isHealthy: true,
+    isCustom: false,
+    models: [{
+      id: 'miaoda-chat',
+      displayName: 'MiaoDa AI',
+      description: '内置免费AI，快速响应',
+      contextLength: 2048,
+      capabilities: { chat: true, functions: false, vision: false, streaming: false },
+      performance: { avgResponseTime: 100, quality: 5.0 },
+      status: 'available'
+    }]
+  },
+  {
+    id: 'openai',
+    displayName: 'OpenAI',
+    icon: '🔵',
+    isHealthy: apiStatus.value === 'connected',
+    isCustom: false,
+    models: [
+      {
+        id: 'gpt-4-turbo',
+        displayName: 'GPT-4 Turbo',
+        description: '最强大的通用模型',
+        contextLength: 128000,
+        capabilities: { chat: true, functions: true, vision: true, streaming: true },
+        performance: { avgResponseTime: 3000, quality: 9.5 },
+        status: apiStatus.value === 'connected' ? 'available' : 'unavailable'
+      },
+      {
+        id: 'gpt-3.5-turbo',
+        displayName: 'GPT-3.5 Turbo',
+        description: '快速且经济的模型',
+        contextLength: 16385,
+        capabilities: { chat: true, functions: true, vision: false, streaming: true },
+        performance: { avgResponseTime: 1000, quality: 7.5 },
+        status: apiStatus.value === 'connected' ? 'available' : 'unavailable'
+      }
+    ]
+  }
+])
 
 // 可用模型列表
 const availableModels = ref([
@@ -307,17 +529,96 @@ const simulateAIResponse = async (userInput: string) => {
 // 调用LLM服务
 const callLLMService = async (messageHistory: Array<{role: string, content: string}>): Promise<string> => {
   try {
-    // 通过Electron IPC调用主进程的LLM服务
-    const response = await (window as any).api?.llm?.sendMessage(messageHistory)
+    console.log('🚀 调用LLM服务 - 当前配置:', {
+      providerId: currentProviderId.value,
+      modelId: currentModelId.value,
+      hasActiveConfig: !!currentActiveConfig.value
+    })
 
-    if (response && typeof response === 'string') {
-      return response
-    } else {
-      // 如果没有配置LLM服务，使用默认回复
+    const electronAPI = (window as any).electronAPI || (window as any).api
+
+    // 检查 API 是否可用
+    if (!electronAPI?.llm?.sendMessage) {
+      console.warn('⚠️ LLM API 不可用，使用默认回复')
+      apiStatus.value = 'disconnected'
+      statusFeedback.warning('LLM服务未配置', '当前使用内置默认回复，请在设置中配置API密钥')
       return generateFallbackResponse(messageHistory[messageHistory.length - 1].content)
     }
-  } catch (error) {
-    console.error('LLM服务调用失败:', error)
+
+    // 显示加载状态
+    const loadingId = statusFeedback.loading('正在思考中...')
+
+    try {
+      console.log('📡 发送消息到LLM服务...')
+      const response = await electronAPI.llm.sendMessage(messageHistory)
+
+      // 移除加载状态
+      statusFeedback.removeMessage(loadingId)
+
+      console.log('✅ LLM服务响应:', {
+        success: true,
+        responseLength: response?.length || 0,
+        preview: response?.substring(0, 100)
+      })
+
+      if (response && typeof response === 'string' && response.trim()) {
+        apiStatus.value = 'connected'
+        statusFeedback.success('回复生成成功', '已收到AI的智能回复')
+        return response
+      } else {
+        apiStatus.value = 'error'
+        console.warn('⚠️ LLM响应为空，使用默认回复')
+        statusFeedback.warning('LLM响应为空', '使用内置默认回复')
+        return generateFallbackResponse(messageHistory[messageHistory.length - 1].content)
+      }
+    } catch (apiError: any) {
+      // 移除加载状态
+      statusFeedback.removeMessage(loadingId)
+
+      apiStatus.value = 'error'
+      console.error('❌ LLM API 调用失败:', apiError)
+
+      // 检查是否是LLM错误对象
+      if (apiError && typeof apiError === 'object' && apiError.type === 'LLM_ERROR') {
+        const llmError = apiError as any
+        statusFeedback.error(
+          `LLM错误 (${llmError.details?.provider || 'Unknown'})`,
+          `${llmError.message}\n\n建议: ${llmError.suggestion || '请检查配置'}`,
+          8000
+        )
+
+        // 在控制台显示详细错误信息
+        console.error('🔍 LLM 详细错误信息:', {
+          提供商: llmError.details?.provider,
+          模型: llmError.details?.model,
+          时间: llmError.details?.timestamp,
+          错误: llmError.message,
+          堆栈: llmError.details?.stack
+        })
+
+        // 显示错误消息给用户
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `🤖 **AI 服务错误**\n\n❌ **错误类型**: ${llmError.details?.provider || '未知'} API 错误\n❌ **错误信息**: ${llmError.message}\n\n💡 **建议解决方案**:\n${llmError.suggestion || '请检查 API 配置和网络连接'}\n\n🔧 **技术详情**:\n- 提供商: ${llmError.details?.provider || 'N/A'}\n- 模型: ${llmError.details?.model || 'N/A'}\n- 时间: ${new Date(llmError.details?.timestamp).toLocaleString('zh-CN')}`,
+          timestamp: new Date(),
+          isError: true
+        }
+
+        messages.value.push(errorMessage)
+        return '' // 返回空字符串，因为错误信息已经在消息中显示
+      } else {
+        // 普通错误
+        statusFeedback.error('API调用失败', apiError.message || '网络或配置问题')
+        // 返回默认回复
+        return generateFallbackResponse(messageHistory[messageHistory.length - 1].content)
+      }
+    }
+  } catch (error: any) {
+    console.error('❌ LLM服务调用失败:', error)
+    apiStatus.value = 'error'
+    statusFeedback.error('LLM服务错误', error.message || '未知错误')
+
     // 返回默认回复
     return generateFallbackResponse(messageHistory[messageHistory.length - 1].content)
   }
@@ -340,6 +641,10 @@ const generateFallbackResponse = (userInput: string): string => {
     return "关于电影推荐，我可以根据您的喜好来建议。不过首先我想了解一下您喜欢哪种类型的电影呢？"
   } else if (userInput.includes('工作') || userInput.includes('总结')) {
     return "工作总结是一个很好的习惯！我可以帮您梳理一下如何写好工作总结。首先，我们可以从以下几个方面来组织..."
+  } else if (userInput.includes('API') || userInput.includes('配置') || userInput.includes('设置')) {
+    return "关于API配置，我建议您在设置页面中配置相应的API密钥。不同的AI服务提供商（如OpenAI、Claude等）需要不同的配置方式。"
+  } else if (userInput.includes('测试') || userInput.includes('检查')) {
+    return "测试功能很重要的！您可以通过发送消息来测试AI的回复质量。如果使用的是真实API，您会看到智能的个性化回复；如果使用默认模式，您会看到预设的通用回复。"
   }
 
   return responses[Math.floor(Math.random() * responses.length)]
@@ -351,6 +656,47 @@ const formatTime = (date: Date): string => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+// 格式化消息内容（支持Markdown风格的格式化）
+const formatMessage = (content: string): string => {
+  if (!content) return ''
+
+  // 简单的Markdown格式化
+  return content
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>')
+}
+
+// 格式化错误消息
+const formatErrorMessage = (content: string): string => {
+  if (!content) return ''
+
+  // 解析错误消息格式
+  const lines = content.split('\n')
+  let formatted = ''
+
+  for (const line of lines) {
+    if (line.startsWith('🤖 **')) {
+      formatted += `<div class="error-title">${line.replace(/\*\*/g, '')}</div>`
+    } else if (line.startsWith('❌ **')) {
+      formatted += `<div class="error-detail">${line.replace(/\*\*/g, '')}</div>`
+    } else if (line.startsWith('💡 **')) {
+      formatted += `<div class="error-suggestion">${line.replace(/\*\*/g, '')}</div>`
+    } else if (line.startsWith('🔧 **')) {
+      formatted += `<div class="error-tech">${line.replace(/\*\*/g, '')}</div>`
+    } else if (line.startsWith('- ')) {
+      formatted += `<div class="error-item">${line}</div>`
+    } else if (line.trim() === '') {
+      formatted += '<br>'
+    } else {
+      formatted += `<div class="error-text">${line}</div>`
+    }
+  }
+
+  return formatted
 }
 
 // 显示设置页面
@@ -388,19 +734,185 @@ const switchModel = (model: string) => {
   // 这里可以添加保存当前模型的逻辑
 }
 
+// 处理 SmartModelSelector 的模型选择事件
+const handleModelSelect = async (providerId: string, modelId: string) => {
+  currentProviderId.value = providerId
+  currentModelId.value = modelId
+
+  // 更新旧的 currentModel 变量以保持兼容性
+  if (providerId === 'builtin') {
+    currentModel.value = 'default'
+  } else {
+    currentModel.value = providerId
+  }
+
+  try {
+    // 从增强模型配置服务获取提供商配置
+    const { getProviderConfig } = useEnhancedModelConfig()
+    const providerConfig = getProviderConfig(providerId)
+    
+    // 构建激活配置
+    const activeConfig = {
+      providerId,
+      modelId,
+      providerConfig,
+      timestamp: Date.now()
+    }
+
+    // 保存到后端作为当前激活配置
+    const electronAPI = (window as any).electronAPI || (window as any).api
+    if (electronAPI?.enhancedModel?.setActiveConfig) {
+      await electronAPI.enhancedModel.setActiveConfig(activeConfig)
+      currentActiveConfig.value = activeConfig
+    }
+
+    console.log('模型选择成功:', { providerId, modelId, activeConfig })
+
+    // 显示成功反馈
+    statusFeedback.success(
+      '模型切换成功',
+      `已切换到 ${availableProviders.value.find(p => p.id === providerId)?.displayName || providerId}`
+    )
+  } catch (error) {
+    console.error('模型切换失败:', error)
+    statusFeedback.error('模型切换失败', '请检查模型配置')
+  }
+}
+
+// 初始化激活配置
+const loadActiveConfig = async () => {
+  try {
+    const electronAPI = (window as any).electronAPI || (window as any).api
+    if (electronAPI?.enhancedModel?.getActiveConfig) {
+      const config = await electronAPI.enhancedModel.getActiveConfig()
+      if (config) {
+        currentActiveConfig.value = config
+        currentProviderId.value = config.providerId || 'builtin'
+        currentModelId.value = config.modelId || 'miaoda-chat'
+        console.log('加载激活配置成功:', config)
+      }
+    }
+  } catch (error) {
+    console.error('加载激活配置失败:', error)
+  }
+}
+
+// 切换调试面板
+const toggleDebugPanel = () => {
+  showDebugPanel.value = !showDebugPanel.value
+}
+
+// 处理配置导出
+const handleExportConfig = () => {
+  const configData = {
+    ...modelConfig.value,
+    timestamp: new Date().toISOString(),
+    version: '1.0'
+  }
+
+  const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `model-config-${new Date().toISOString().slice(0, 10)}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+// 处理配置导入
+const handleImportConfig = () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const config = JSON.parse(e.target?.result as string)
+          if (config.version && config.timestamp) {
+            // 合并配置，保留现有配置中未包含的字段
+            modelConfig.value = { ...modelConfig.value, ...config }
+            alert('配置导入成功')
+          } else {
+            alert('无效的配置文件')
+          }
+        } catch (error) {
+          alert('配置文件解析失败')
+        }
+      }
+      reader.readAsText(file)
+    }
+  }
+  input.click()
+}
+
+// 更新请求预览
+const updateRequestPreview = () => {
+  const messages = [
+    ...messages.value.map(msg => ({ role: msg.role, content: msg.content })),
+    { role: 'user', content: inputText.value }
+  ]
+
+  const preview = {
+    model: modelConfig.value.model,
+    group: modelConfig.value.group,
+    messages: messages,
+    stream: modelConfig.value.stream,
+    temperature: modelConfig.value.temperature,
+    top_p: modelConfig.value.topP,
+    frequency_penalty: modelConfig.value.frequencyPenalty,
+    presence_penalty: modelConfig.value.presencePenalty
+  }
+
+  if (modelConfig.value.maxTokens !== 4096) {
+    preview.max_tokens = modelConfig.value.maxTokens
+  }
+
+  if (modelConfig.value.seed) {
+    preview.seed = modelConfig.value.seed
+  }
+
+  requestPreview.value = JSON.stringify(preview, null, 2)
+}
+
+// 监听输入变化更新预览
+const updatePreviewOnInput = () => {
+  if (showDebugPanel.value && inputText.value.trim()) {
+    updateRequestPreview()
+  }
+}
+
 // 生命周期
-onMounted(() => {
+onMounted(async () => {
   adjustTextareaHeight()
+  await loadActiveConfig()
+})
+
+onUnmounted(() => {
+  // 清理任何可能存在的定时器或事件监听器
+  // 这里主要确保组件卸载时的清理工作
 })
 </script>
 
 <style scoped>
 .chat-view {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: white;
 }
+
+/* NewAPI 风格的三栏布局 */
+.main-layout {
+  display: flex;
+  height: calc(100vh - 60px); /* 减去顶部导航栏高度 */
+  margin-top: 60px;
+}
+
+/* 使用全局样式系统，组件样式已移至 unified-design-system.css */
+
+
 
 /* 顶部导航 */
 .top-nav {
@@ -875,6 +1387,140 @@ onMounted(() => {
 
   .modal-body {
     padding: 20px;
+  }
+
+  /* API状态指示器样式 */
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .api-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .api-status-connected {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  }
+
+  .api-status-disconnected {
+    background: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+  }
+
+  .api-status-error {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+  }
+
+  .api-status-checking {
+    background: #6b7280;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* 错误消息样式 */
+  .error-message {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: #dc2626;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+
+  .error-message-header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-message-content {
+    font-size: 13px;
+    opacity: 0.9;
+  }
+
+  .error-message-details {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #fca5a5;
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  /* 错误消息内部样式 */
+  .error-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #dc2626;
+  }
+
+  .error-detail {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 3px solid #dc2626;
+    border-radius: 4px;
+  }
+
+  .error-suggestion {
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 3px solid #16a34a;
+    border-radius: 4px;
+    color: #16a34a;
+  }
+
+  .error-tech {
+    margin: 8px 0;
+    font-size: 12px;
+    opacity: 0.7;
+    font-family: 'Consolas', monospace;
+  }
+
+  .error-item {
+    margin: 4px 0;
+    margin-left: 12px;
+    font-size: 13px;
+  }
+
+  .error-text {
+    margin: 4px 0;
+    line-height: 1.4;
+  }
+
+  .error-badge {
+    background: #dc2626;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 8px;
+  }
+
+  .error-message-item {
+    border-left: 3px solid #dc2626;
   }
 }
 </style>

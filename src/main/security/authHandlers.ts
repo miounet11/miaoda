@@ -5,7 +5,7 @@ import {
   type LoginRequest,
   type RegisterRequest,
   type PasswordResetRequest,
-  type PasswordResetConfirmRequest
+  type PasswordResetConfirmRequest,
 } from '../security/UserAuthService'
 import { UserService } from '../db/UserService'
 import { InputValidator, rateLimit, auditLog } from './InputValidator'
@@ -38,12 +38,12 @@ export function registerAuthHandlers(userService: UserService) {
       await auditLog('auth:register', 'success', {
         userId: authResponse.user.id,
         email: authResponse.user.email,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
       })
 
       logger.info('User registered successfully', 'Auth', {
         userId: authResponse.user.id,
-        email: authResponse.user.email
+        email: authResponse.user.email,
       })
 
       return authResponse
@@ -52,7 +52,7 @@ export function registerAuthHandlers(userService: UserService) {
       await auditLog('auth:register', 'error', {
         error: error.message,
         email: request.email,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
       })
 
       logger.error('Registration failed', 'Auth', error)
@@ -79,13 +79,13 @@ export function registerAuthHandlers(userService: UserService) {
         userId: authResponse.user.id,
         email: authResponse.user.email,
         deviceId: request.deviceId,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
       })
 
       logger.info('User logged in successfully', 'Auth', {
         userId: authResponse.user.id,
         email: authResponse.user.email,
-        deviceId: request.deviceId
+        deviceId: request.deviceId,
       })
 
       return authResponse
@@ -95,7 +95,7 @@ export function registerAuthHandlers(userService: UserService) {
         error: error.message,
         email: request.email,
         deviceId: request.deviceId,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
       })
 
       logger.error('Login failed', 'Auth', error)
@@ -126,13 +126,13 @@ export function registerAuthHandlers(userService: UserService) {
         await auditLog('auth:logout', 'success', {
           userId: sessionInfo?.user.id,
           sessionId,
-          allDevices
+          allDevices,
         })
 
         logger.info('User logged out successfully', 'Auth', {
           userId: sessionInfo?.user.id,
           sessionId,
-          allDevices
+          allDevices,
         })
 
         return { success: true }
@@ -140,7 +140,7 @@ export function registerAuthHandlers(userService: UserService) {
         logger.error('Logout failed', 'Auth', error)
         throw new Error(error.message)
       }
-    }
+    },
   )
 
   /**
@@ -157,7 +157,7 @@ export function registerAuthHandlers(userService: UserService) {
       const authResponse = await authService.refreshToken(refreshToken)
 
       logger.info('Token refreshed successfully', 'Auth', {
-        userId: authResponse.user.id
+        userId: authResponse.user.id,
       })
 
       return authResponse
@@ -187,7 +187,7 @@ export function registerAuthHandlers(userService: UserService) {
       return {
         valid: true,
         user: sessionInfo.user,
-        session: sessionInfo.session
+        session: sessionInfo.session,
       }
     } catch (error: any) {
       logger.error('Session validation failed', 'Auth', error)
@@ -213,14 +213,14 @@ export function registerAuthHandlers(userService: UserService) {
       // Audit log password reset request
       await auditLog('auth:password-reset-request', 'success', {
         email: request.email,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
       })
 
       logger.info('Password reset requested', 'Auth', { email: request.email })
 
       return {
         success: true,
-        message: 'If an account with that email exists, a reset link has been sent.'
+        message: 'If an account with that email exists, a reset link has been sent.',
       }
     } catch (error: any) {
       logger.error('Password reset request failed', 'Auth', error)
@@ -247,26 +247,26 @@ export function registerAuthHandlers(userService: UserService) {
 
         // Audit log successful password reset
         await auditLog('auth:password-reset-confirm', 'success', {
-          ipAddress: request.ipAddress
+          ipAddress: request.ipAddress,
         })
 
         logger.info('Password reset completed successfully', 'Auth')
 
         return {
           success: true,
-          message: 'Password has been reset successfully. Please log in with your new password.'
+          message: 'Password has been reset successfully. Please log in with your new password.',
         }
       } catch (error: any) {
         // Audit log failed password reset
         await auditLog('auth:password-reset-confirm', 'error', {
           error: error.message,
-          ipAddress: request.ipAddress
+          ipAddress: request.ipAddress,
         })
 
         logger.error('Password reset confirmation failed', 'Auth', error)
         throw new Error(error.message)
       }
-    }
+    },
   )
 
   /**
@@ -293,7 +293,7 @@ export function registerAuthHandlers(userService: UserService) {
         location: session.location,
         last_used_at: session.last_used_at,
         created_at: session.created_at,
-        is_current: session.id === sessionId
+        is_current: session.id === sessionId,
       }))
 
       return sanitizedSessions
@@ -321,12 +321,12 @@ export function registerAuthHandlers(userService: UserService) {
         // Audit log session revoke
         await auditLog('auth:revoke-session', 'success', {
           requestingSessionId: sessionId,
-          revokedSessionId: targetSessionId
+          revokedSessionId: targetSessionId,
         })
 
         logger.info('Session revoked successfully', 'Auth', {
           requestingSessionId: sessionId,
-          revokedSessionId: targetSessionId
+          revokedSessionId: targetSessionId,
         })
 
         return { success: true }
@@ -334,7 +334,7 @@ export function registerAuthHandlers(userService: UserService) {
         logger.error('Failed to revoke session', 'Auth', error)
         throw new Error(error.message)
       }
-    }
+    },
   )
 
   /**
@@ -351,7 +351,7 @@ export function registerAuthHandlers(userService: UserService) {
           avatar_url?: string
           preferences?: Record<string, any>
         }
-      }
+      },
     ) => {
       try {
         const { sessionId, updates } = data
@@ -378,12 +378,12 @@ export function registerAuthHandlers(userService: UserService) {
         // Audit log profile update
         await auditLog('auth:update-profile', 'success', {
           userId: sessionInfo.user.id,
-          updates: Object.keys(updates)
+          updates: Object.keys(updates),
         })
 
         logger.info('Profile updated successfully', 'Auth', {
           userId: sessionInfo.user.id,
-          updates: Object.keys(updates)
+          updates: Object.keys(updates),
         })
 
         return {
@@ -396,14 +396,14 @@ export function registerAuthHandlers(userService: UserService) {
               ? JSON.parse(updatedUser!.preferences)
               : undefined,
             created_at: updatedUser!.created_at,
-            email_verified: updatedUser!.email_verified === 1
-          }
+            email_verified: updatedUser!.email_verified === 1,
+          },
         }
       } catch (error: any) {
         logger.error('Failed to update profile', 'Auth', error)
         throw new Error(error.message)
       }
-    }
+    },
   )
 
   /**
@@ -417,7 +417,7 @@ export function registerAuthHandlers(userService: UserService) {
         sessionId: string
         currentPassword: string
         newPassword: string
-      }
+      },
     ) => {
       try {
         const { sessionId, currentPassword, newPassword } = data
@@ -430,7 +430,7 @@ export function registerAuthHandlers(userService: UserService) {
         // Validate current password
         const isCurrentPasswordValid = await userService.verifyPassword(
           sessionInfo.user.id,
-          currentPassword
+          currentPassword,
         )
         if (!isCurrentPasswordValid) {
           throw new Error('Current password is incorrect')
@@ -449,22 +449,22 @@ export function registerAuthHandlers(userService: UserService) {
 
         // Audit log password change
         await auditLog('auth:change-password', 'success', {
-          userId: sessionInfo.user.id
+          userId: sessionInfo.user.id,
         })
 
         logger.info('Password changed successfully', 'Auth', {
-          userId: sessionInfo.user.id
+          userId: sessionInfo.user.id,
         })
 
         return {
           success: true,
-          message: 'Password changed successfully. Other sessions have been logged out.'
+          message: 'Password changed successfully. Other sessions have been logged out.',
         }
       } catch (error: any) {
         logger.error('Failed to change password', 'Auth', error)
         throw new Error(error.message)
       }
-    }
+    },
   )
 
   logger.info('Authentication IPC handlers registered successfully', 'Auth')

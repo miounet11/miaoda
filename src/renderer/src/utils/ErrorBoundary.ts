@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Global Error Boundary Service
  * Prevents console spam by throttling repeated errors and implementing circuit breakers
@@ -25,6 +24,7 @@ class ErrorBoundaryService {
   private errorCounts = new Map<string, ErrorTracker>()
   private circuitBreakers = new Map<string, CircuitBreaker>()
   private readonly MAX_ERRORS_PER_MINUTE = 5
+  // Used internally for circuit breaker logic
   private readonly CIRCUIT_BREAKER_THRESHOLD = 10
   private readonly CIRCUIT_BREAKER_RESET_TIME = 60000 // 1 minute
   private readonly ERROR_SPAM_WINDOW = 60000 // 1 minute
@@ -94,7 +94,7 @@ class ErrorBoundaryService {
         count: 0,
         firstOccurrence: now,
         lastOccurrence: now,
-        message
+        message,
       }
       this.errorCounts.set(errorKey, tracker)
     }
@@ -114,6 +114,12 @@ class ErrorBoundaryService {
       return true
     }
 
+    // Check if we should activate circuit breaker due to high failure count
+    if (tracker.count >= this.CIRCUIT_BREAKER_THRESHOLD) {
+      this.activateCircuitBreaker(errorKey, message)
+      return true
+    }
+
     return false
   }
 
@@ -121,7 +127,7 @@ class ErrorBoundaryService {
     const circuitBreaker: CircuitBreaker = {
       isOpen: true,
       failureCount: this.errorCounts.get(errorKey)?.count || 0,
-      lastFailure: Date.now()
+      lastFailure: Date.now(),
     }
 
     this.circuitBreakers.set(errorKey, circuitBreaker)
@@ -130,7 +136,7 @@ class ErrorBoundaryService {
     logger.warn('Circuit breaker activated - suppressing repeated errors', 'ErrorBoundary', {
       errorType: errorKey,
       failureCount: circuitBreaker.failureCount,
-      suppressedMessage: message.substring(0, 200)
+      suppressedMessage: message.substring(0, 200),
     })
 
     // Reset circuit breaker after timeout
@@ -162,7 +168,7 @@ class ErrorBoundaryService {
     logger.error('Global error caught', source, {
       message,
       stack,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
   }
 
@@ -176,7 +182,7 @@ class ErrorBoundaryService {
     logger.error(`Component error in ${componentName}`, 'ErrorBoundary', {
       error: message,
       stack: error instanceof Error ? error.stack : undefined,
-      context
+      context,
     })
   }
 
@@ -189,7 +195,7 @@ class ErrorBoundaryService {
 
     logger.error(`Service error in ${serviceName}.${operation}`, 'ErrorBoundary', {
       error: message,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     })
   }
 
@@ -197,17 +203,17 @@ class ErrorBoundaryService {
     return {
       totalErrors: this.errorCounts.size,
       activeCircuitBreakers: Array.from(this.circuitBreakers.entries()).filter(
-        ([_, cb]) => cb.isOpen
+        ([_, cb]) => cb.isOpen,
       ).length,
       errorSummary: Array.from(this.errorCounts.entries())
         .map(([key, tracker]) => ({
           errorType: key,
           count: tracker.count,
           firstSeen: new Date(tracker.firstOccurrence).toISOString(),
-          lastSeen: new Date(tracker.lastOccurrence).toISOString()
+          lastSeen: new Date(tracker.lastOccurrence).toISOString(),
         }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10) // Top 10 errors
+        .slice(0, 10), // Top 10 errors
     }
   }
 
@@ -215,7 +221,7 @@ class ErrorBoundaryService {
     this.errorCounts.clear()
 
     // Clear circuit breaker timeouts
-    for (const [key, cb] of this.circuitBreakers.entries()) {
+    for (const [, cb] of this.circuitBreakers.entries()) {
       if (cb.resetTimeout) {
         clearTimeout(cb.resetTimeout)
       }
@@ -232,11 +238,11 @@ export const errorBoundary = new ErrorBoundaryService()
 // Export utility functions
 export function withErrorBoundary<T extends (...args: any[]) => any>(
   fn: T,
-  componentName: string
+  componentName: string,
 ): T {
-  return ((...args: any[]) => {
+  return ((...args: any[]): any => {
     try {
-      const result = fn.apply(this, args)
+      const result = fn.apply(null, args)
 
       // Handle async functions
       if (result && typeof result.catch === 'function') {

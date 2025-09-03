@@ -26,7 +26,7 @@
             <div class="setting-item">
               <label class="setting-label">默认AI模型</label>
               <select v-model="selectedModel" class="setting-select">
-                <option value="default">MiaoDa AI (免费)</option>
+                <option value="miaoda-chat">MiaoDa AI (免费)</option>
                 <option value="openai">OpenAI GPT</option>
                 <option value="claude">Anthropic Claude</option>
                 <option value="gemini">Google Gemini</option>
@@ -35,25 +35,45 @@
             </div>
 
             <!-- API配置 -->
-            <div v-if="selectedModel !== 'default'" class="setting-item">
-              <label class="setting-label">API配置</label>
+            <div v-if="selectedModel !== 'miaoda-chat'" class="setting-item">
+              <label class="setting-label">{{ getModelDisplayName(selectedModel) }} 配置</label>
               <div class="api-config">
                 <div class="input-group">
                   <label class="input-label">API密钥</label>
                   <input
                     v-model="apiConfig[selectedModel].apiKey"
                     type="password"
-                    placeholder="请输入API密钥"
+                    :placeholder="getApiKeyPlaceholder(selectedModel)"
                     class="setting-input"
                   >
                 </div>
 
-                <div v-if="selectedModel === 'ollama'" class="input-group">
-                  <label class="input-label">服务地址</label>
+                <div class="input-group">
+                  <label class="input-label">基础URL</label>
                   <input
                     v-model="apiConfig[selectedModel].baseUrl"
                     type="text"
-                    placeholder="http://localhost:11434"
+                    :placeholder="getBaseUrlPlaceholder(selectedModel)"
+                    class="setting-input"
+                  >
+                </div>
+
+                <div v-if="selectedModel === 'openai' || selectedModel === 'claude'" class="input-group">
+                  <label class="input-label">模型名称</label>
+                  <input
+                    v-model="apiConfig[selectedModel].model"
+                    type="text"
+                    :placeholder="getModelPlaceholder(selectedModel)"
+                    class="setting-input"
+                  >
+                </div>
+
+                <div v-if="selectedModel === 'claude'" class="input-group">
+                  <label class="input-label">Secret Key (百度文心)</label>
+                  <input
+                    v-model="apiConfig[selectedModel].secretKey"
+                    type="password"
+                    placeholder="百度文心API Secret Key"
                     class="setting-input"
                   >
                 </div>
@@ -67,8 +87,21 @@
                   </div>
                 </div>
 
+                <div class="config-info">
+                  <div class="info-item">
+                    <strong>配置状态:</strong>
+                    <span :class="getConfigStatusClass(selectedModel)">
+                      {{ getConfigStatusText(selectedModel) }}
+                    </span>
+                  </div>
+                  <div class="info-item">
+                    <strong>最后测试:</strong>
+                    <span>{{ getLastTestTime(selectedModel) }}</span>
+                  </div>
+                </div>
+
                 <p class="setting-help">
-                  API密钥会安全保存在本地，不会上传到服务器
+                  API密钥会安全保存在本地，不会上传到服务器。{{ getModelHelpText(selectedModel) }}
                 </p>
               </div>
             </div>
@@ -226,11 +259,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 // 设置数据
-const selectedModel = ref('default')
+const selectedModel = ref('miaoda-chat')
 const replyStyle = ref('balanced')
 const fontSize = ref('medium')
 const theme = ref('light')
@@ -240,17 +273,53 @@ const enableQuickSwitch = ref(true)
 const connectionStatus = ref<{text: string, class: string} | null>(null)
 const isTestingConnection = ref(false)
 
-// API配置
+// API配置 - 为每个模型提供完整的配置支持
 const apiConfig = ref({
-  openai: { apiKey: '', baseUrl: 'https://api.openai.com/v1' },
-  claude: { apiKey: '', baseUrl: 'https://api.anthropic.com' },
-  gemini: { apiKey: '', baseUrl: 'https://generativelanguage.googleapis.com' },
-  ollama: { apiKey: '', baseUrl: 'http://localhost:11434' }
+  'miaoda-chat': {
+    apiKey: '',
+    baseUrl: '',
+    model: 'miaoda-chat',
+    secretKey: '',
+    lastTestTime: null as Date | null,
+    status: 'available' as 'available' | 'configured' | 'tested' | 'error'
+  },
+  openai: {
+    apiKey: '',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-3.5-turbo',
+    secretKey: '',
+    lastTestTime: null as Date | null,
+    status: 'unconfigured' as 'unconfigured' | 'configured' | 'tested' | 'error'
+  },
+  claude: {
+    apiKey: '',
+    baseUrl: 'https://api.anthropic.com',
+    model: 'claude-3-haiku-20240307',
+    secretKey: '',
+    lastTestTime: null as Date | null,
+    status: 'unconfigured' as 'unconfigured' | 'configured' | 'tested' | 'error'
+  },
+  gemini: {
+    apiKey: '',
+    baseUrl: 'https://generativelanguage.googleapis.com',
+    model: 'gemini-pro',
+    secretKey: '',
+    lastTestTime: null as Date | null,
+    status: 'unconfigured' as 'unconfigured' | 'configured' | 'tested' | 'error'
+  },
+  ollama: {
+    apiKey: '',
+    baseUrl: 'http://localhost:11434',
+    model: 'llama2',
+    secretKey: '',
+    lastTestTime: null as Date | null,
+    status: 'unconfigured' as 'unconfigured' | 'configured' | 'tested' | 'error'
+  }
 })
 
 // 可用模型列表
 const availableModels = ref([
-  { value: 'default', label: 'MiaoDa AI' },
+  { value: 'miaoda-chat', label: 'MiaoDa AI' },
   { value: 'openai', label: 'OpenAI GPT' },
   { value: 'claude', label: 'Claude' },
   { value: 'gemini', label: 'Gemini' },
@@ -261,7 +330,24 @@ const router = useRouter()
 
 // 返回聊天页面
 const goBack = () => {
-  router.push('/')
+  console.log('🔙 返回按钮被点击')
+  console.log('当前路由:', router.currentRoute.value.path)
+  console.log('目标路由: /')
+
+  try {
+    // 使用nextTick确保DOM更新后再导航
+    import('vue').then(({ nextTick }) => {
+      nextTick(() => {
+        router.push('/').then(() => {
+          console.log('✅ 导航成功，当前路由:', router.currentRoute.value.path)
+        }).catch((error) => {
+          console.error('❌ 导航失败:', error)
+        })
+      })
+    })
+  } catch (error) {
+    console.error('❌ 导航过程中发生错误:', error)
+  }
 }
 
 // 测试连接
@@ -272,20 +358,36 @@ const testConnection = async () => {
   connectionStatus.value = { text: '测试中...', class: 'status-testing' }
 
   try {
+    const config = apiConfig.value[selectedModel.value]
+
+    // 验证基本配置
+    if (!config.apiKey && selectedModel.value !== 'ollama') {
+      connectionStatus.value = { text: 'API密钥未配置', class: 'status-warning' }
+      config.status = 'unconfigured'
+      return
+    }
+
     // 这里应该调用实际的连接测试API
     // 暂时模拟测试过程
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    const config = apiConfig.value[selectedModel.value]
-    const hasApiKey = config.apiKey && config.apiKey.trim() !== ''
+    // 模拟不同的测试结果
+    const testResults = ['success', 'error']
+    const result = testResults[Math.floor(Math.random() * testResults.length)]
 
-    if (hasApiKey) {
+    if (result === 'success') {
       connectionStatus.value = { text: '连接成功', class: 'status-success' }
+      config.status = 'tested'
+      config.lastTestTime = new Date()
     } else {
-      connectionStatus.value = { text: 'API密钥未配置', class: 'status-warning' }
+      connectionStatus.value = { text: '连接失败，请检查配置', class: 'status-error' }
+      config.status = 'error'
+      config.lastTestTime = new Date()
     }
   } catch (error) {
-    connectionStatus.value = { text: '连接失败', class: 'status-error' }
+    connectionStatus.value = { text: '测试过程中出错', class: 'status-error' }
+    apiConfig.value[selectedModel.value].status = 'error'
+    apiConfig.value[selectedModel.value].lastTestTime = new Date()
   } finally {
     isTestingConnection.value = false
   }
@@ -293,7 +395,7 @@ const testConnection = async () => {
 
 // 检查是否可以测试连接
 const canTestConnection = computed(() => {
-  if (selectedModel.value === 'default') return false
+  if (selectedModel.value === 'miaoda-chat') return false
   const config = apiConfig.value[selectedModel.value]
   return config.apiKey && config.apiKey.trim() !== ''
 })
@@ -301,7 +403,7 @@ const canTestConnection = computed(() => {
 // 获取模型显示名称
 const getModelDisplayName = (model: string): string => {
   const modelMap: Record<string, string> = {
-    default: 'MiaoDa AI (免费)',
+    'miaoda-chat': 'MiaoDa AI (免费)',
     openai: 'OpenAI GPT',
     claude: 'Anthropic Claude',
     gemini: 'Google Gemini',
@@ -312,14 +414,82 @@ const getModelDisplayName = (model: string): string => {
 
 // 获取模型状态文本
 const getModelStatusText = (model: string): string => {
-  if (model === 'default') return '可用'
+  if (model === 'miaoda-chat') return '可用'
   const config = apiConfig.value[model]
   return config.apiKey ? '已配置' : '未配置'
 }
 
+// 获取API密钥占位符
+const getApiKeyPlaceholder = (model: string): string => {
+  const placeholders: Record<string, string> = {
+    openai: 'sk-...',
+    claude: 'sk-ant-...',
+    gemini: 'AIza...',
+    ollama: '(可选)'
+  }
+  return placeholders[model] || '请输入API密钥'
+}
+
+// 获取基础URL占位符
+const getBaseUrlPlaceholder = (model: string): string => {
+  return apiConfig.value[model]?.baseUrl || '请输入API基础URL'
+}
+
+// 获取模型名称占位符
+const getModelPlaceholder = (model: string): string => {
+  return apiConfig.value[model]?.model || '请输入模型名称'
+}
+
+// 获取模型帮助文本
+const getModelHelpText = (model: string): string => {
+  const helpTexts: Record<string, string> = {
+    openai: 'OpenAI API需要有效的API密钥。',
+    claude: 'Anthropic Claude API需要有效的API密钥。',
+    gemini: 'Google Gemini API需要有效的API密钥。',
+    ollama: 'Ollama需要在本地运行，支持多种开源模型。'
+  }
+  return helpTexts[model] || ''
+}
+
+// 获取配置状态文本
+const getConfigStatusText = (model: string): string => {
+  if (model === 'miaoda-chat') return '无需配置'
+  const config = apiConfig.value[model]
+  const statusTexts: Record<string, string> = {
+    unconfigured: '未配置',
+    configured: '已配置',
+    tested: '已测试',
+    error: '配置错误',
+    available: '可用'
+  }
+  return statusTexts[config.status] || '未知状态'
+}
+
+// 获取配置状态样式
+const getConfigStatusClass = (model: string): string => {
+  if (model === 'miaoda-chat') return 'status-success'
+  const config = apiConfig.value[model]
+  const statusClasses: Record<string, string> = {
+    unconfigured: 'status-warning',
+    configured: 'status-info',
+    tested: 'status-success',
+    error: 'status-error',
+    available: 'status-success'
+  }
+  return statusClasses[config.status] || 'status-warning'
+}
+
+// 获取最后测试时间
+const getLastTestTime = (model: string): string => {
+  if (model === 'miaoda-chat') return '无需测试'
+  const config = apiConfig.value[model]
+  if (!config.lastTestTime) return '未测试'
+  return config.lastTestTime.toLocaleString('zh-CN')
+}
+
 // 获取模型状态样式
 const getModelStatusClass = (model: string): string => {
-  if (model === 'default') return 'status-success'
+  if (model === 'miaoda-chat') return 'status-success'
   const config = apiConfig.value[model]
   return config.apiKey ? 'status-success' : 'status-warning'
 }
@@ -346,34 +516,89 @@ const saveSettings = () => {
     replyStyle: replyStyle.value,
     fontSize: fontSize.value,
     theme: theme.value,
-    apiConfig: apiConfig.value
+    apiConfig: apiConfig.value,
+    lastSaved: new Date().toISOString()
   }
 
   localStorage.setItem('miaodaSettings', JSON.stringify(settings))
+  console.log('设置已保存:', settings)
 }
 
 // 加载设置
 const loadSettings = () => {
   const saved = localStorage.getItem('miaodaSettings')
   if (saved) {
-    const settings = JSON.parse(saved)
-    selectedModel.value = settings.selectedModel || 'default'
-    replyStyle.value = settings.replyStyle || 'balanced'
-    fontSize.value = settings.fontSize || 'medium'
-    theme.value = settings.theme || 'light'
-    apiConfig.value = { ...apiConfig.value, ...settings.apiConfig }
+    try {
+      const settings = JSON.parse(saved)
+      selectedModel.value = settings.selectedModel || 'miaoda-chat'
+      replyStyle.value = settings.replyStyle || 'balanced'
+      fontSize.value = settings.fontSize || 'medium'
+      theme.value = settings.theme || 'light'
+
+      // 合并API配置，支持新旧格式的兼容性
+      if (settings.apiConfig) {
+        Object.keys(apiConfig.value).forEach(modelKey => {
+          if (settings.apiConfig[modelKey]) {
+            // 合并配置，保持现有结构
+            apiConfig.value[modelKey] = {
+              ...apiConfig.value[modelKey],
+              ...settings.apiConfig[modelKey],
+              // 恢复日期对象
+              lastTestTime: settings.apiConfig[modelKey].lastTestTime
+                ? new Date(settings.apiConfig[modelKey].lastTestTime)
+                : null
+            }
+          }
+        })
+      }
+
+      console.log('设置已加载:', settings)
+    } catch (error) {
+      console.error('加载设置失败:', error)
+      // 如果解析失败，使用默认设置
+    }
   }
 }
 
-// 监听设置变化
+// 键盘快捷键处理
+const handleKeydown = (event: KeyboardEvent) => {
+  // ESC键返回
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    goBack()
+  }
+  // Ctrl/Cmd + B 返回
+  if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+    event.preventDefault()
+    goBack()
+  }
+}
+
+// 监听设置变化并自动保存
 const watchSettings = () => {
-  // 这里可以添加设置变化的监听逻辑
+  // 监听主要设置变化
+  watch([selectedModel, replyStyle, fontSize, theme], () => {
+    saveSettings()
+  }, { deep: true })
+
+  // 监听API配置变化
+  watch(apiConfig, () => {
+    saveSettings()
+  }, { deep: true })
 }
 
 // 生命周期
 onMounted(() => {
   loadSettings()
   watchSettings()
+
+  // 添加键盘事件监听
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  // 清理键盘事件监听
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -413,11 +638,21 @@ onMounted(() => {
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .back-btn:hover {
   background: #f1f5f9;
   color: #334155;
+}
+
+.back-btn:active {
+  background: #e2e8f0;
+  transform: scale(0.95);
 }
 
 .nav-title {
@@ -596,6 +831,39 @@ onMounted(() => {
 
 .status-error {
   color: #ef4444;
+}
+
+.status-info {
+  color: #3b82f6;
+}
+
+/* 配置信息 */
+.config-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item strong {
+  color: #374151;
+}
+
+.info-item span {
+  font-weight: 500;
 }
 
 /* 模型状态 */

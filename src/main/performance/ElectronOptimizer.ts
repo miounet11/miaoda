@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { app, BrowserWindow, ipcMain, powerMonitor, systemPreferences } from 'electron'
+import { app, BrowserWindow, ipcMain, powerMonitor } from 'electron'
 import { EventEmitter } from 'events'
 import { logger } from '../utils/Logger'
 
@@ -77,7 +76,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     messageCount: 0,
     responseTimeSum: 0,
     errorCount: 0,
-    startTime: Date.now()
+    startTime: Date.now(),
   }
   private windowOptimizations = new Map<number, WindowOptimizationSettings>()
   private backgroundWindowThrottle = new Map<number, NodeJS.Timeout>()
@@ -95,14 +94,14 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       backgroundThrottling: true,
       v8CacheOptions: {
         enabled: true,
-        maxSize: 50 * 1024 * 1024 // 50MB
+        maxSize: 50 * 1024 * 1024, // 50MB
       },
       processOptimization: {
         enableSandbox: true,
         enableNodeIntegration: false,
-        contextIsolation: true
+        contextIsolation: true,
       },
-      ...config
+      ...config,
     }
 
     this.metrics = this.initializeMetrics()
@@ -146,7 +145,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       if (this.config.v8CacheOptions.enabled) {
         app.commandLine.appendSwitch(
           'js-flags',
-          `--max-old-space-size=${this.config.v8CacheOptions.maxSize / (1024 * 1024)}`
+          `--max-old-space-size=${this.config.v8CacheOptions.maxSize / (1024 * 1024)}`,
         )
         app.commandLine.appendSwitch('disk-cache-size', '50000000') // 50MB disk cache
       }
@@ -193,9 +192,9 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         backgroundThrottling: this.config.backgroundThrottling,
         offscreen: false, // Enable for hidden windows
         spellcheck: false, // Disable for better performance
-        ...options.webPreferences
+        ...options.webPreferences,
       },
-      ...options
+      ...options,
     }
 
     const window = new BrowserWindow(optimizedOptions)
@@ -208,7 +207,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
 
     logger.debug('Created optimized window', 'ElectronOptimizer', {
       id: window.id,
-      options: Object.keys(optimizedOptions)
+      options: Object.keys(optimizedOptions),
     })
 
     return window
@@ -256,7 +255,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       enableBackgroundThrottling: this.config.backgroundThrottling,
       enableOffscreenRendering: false,
       webSecurity: false,
-      experimentalFeatures: []
+      experimentalFeatures: [],
     }
 
     this.windowOptimizations.set(windowId, settings)
@@ -285,7 +284,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
             logger.warn('Slow IPC call detected', 'ElectronOptimizer', {
               channel,
               duration: Math.round(duration),
-              args: args.length
+              args: args.length,
             })
           }
 
@@ -372,7 +371,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
             `
           if (window.powerSaveMode) window.powerSaveMode(true);
           document.body.classList.add('power-save-mode');
-        `
+        `,
           )
           .catch(() => {})
       } else {
@@ -382,7 +381,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
             `
           if (window.powerSaveMode) window.powerSaveMode(false);
           document.body.classList.remove('power-save-mode');
-        `
+        `,
           )
           .catch(() => {})
       }
@@ -418,7 +417,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
           .executeJavaScript(
             `
           if (window.throttleBackground) window.throttleBackground(true);
-        `
+        `,
           )
           .catch(() => {})
 
@@ -445,7 +444,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         .executeJavaScript(
           `
         if (window.throttleBackground) window.throttleBackground(false);
-      `
+      `,
         )
         .catch(() => {})
 
@@ -464,7 +463,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         .executeJavaScript(
           `
         if (window.setPriority) window.setPriority('high');
-      `
+      `,
         )
         .catch(() => {})
     }
@@ -480,7 +479,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         .executeJavaScript(
           `
         if (window.setPriority) window.setPriority('normal');
-      `
+      `,
         )
         .catch(() => {})
     }
@@ -497,8 +496,8 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       this.emit('window-loaded', windowId)
     })
 
-    window.webContents.on('crashed', () => {
-      logger.error('Window renderer crashed', 'ElectronOptimizer', { windowId })
+    window.webContents.on('render-process-gone', (_, details) => {
+      logger.error('Window renderer process gone', 'ElectronOptimizer', { windowId, details })
       this.emit('window-crashed', windowId)
     })
 
@@ -547,7 +546,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         visible: window.isVisible(),
         focused: window.isFocused(),
         memoryUsage: 0, // Would need additional implementation
-        cpuUsage: 0 // Would need additional implementation
+        cpuUsage: 0, // Would need additional implementation
       }))
 
       // IPC metrics
@@ -561,31 +560,31 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       this.metrics = {
         cpu: {
           usage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to ms
-          loadAverage: [] // Not available in all platforms
+          loadAverage: [], // Not available in all platforms
         },
         memory: {
           total: memoryInfo.heapTotal,
           used: memoryInfo.heapUsed,
           available: memoryInfo.heapTotal - memoryInfo.heapUsed,
-          percentage: (memoryInfo.heapUsed / memoryInfo.heapTotal) * 100
+          percentage: (memoryInfo.heapUsed / memoryInfo.heapTotal) * 100,
         },
         gpu: {
           enabled: !app.commandLine.hasSwitch('disable-gpu'),
           vendor: '',
-          renderer: ''
+          renderer: '',
         },
         windows,
         ipc: {
           totalMessages: this.ipcMetrics.messageCount,
           messagesPerSecond: Math.round(messagesPerSecond),
           averageResponseTime: Math.round(averageResponseTime * 100) / 100,
-          errorRate: Math.round(errorRate * 100) / 100
+          errorRate: Math.round(errorRate * 100) / 100,
         },
         processes: {
           main: process.pid,
           renderer: [], // Would need additional tracking
-          utility: []
-        }
+          utility: [],
+        },
       }
 
       // Check for performance issues
@@ -608,12 +607,12 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     if (memory.percentage > this.config.memoryThreshold) {
       logger.warn('Memory usage high', 'ElectronOptimizer', {
         usage: Math.round(memory.percentage),
-        threshold: this.config.memoryThreshold
+        threshold: this.config.memoryThreshold,
       })
 
       this.emit('memory-warning', {
         usage: memory.percentage,
-        threshold: this.config.memoryThreshold
+        threshold: this.config.memoryThreshold,
       })
 
       // Trigger memory cleanup
@@ -624,12 +623,12 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     if (cpu.usage > this.config.cpuThreshold) {
       logger.warn('CPU usage high', 'ElectronOptimizer', {
         usage: Math.round(cpu.usage),
-        threshold: this.config.cpuThreshold
+        threshold: this.config.cpuThreshold,
       })
 
       this.emit('cpu-warning', {
         usage: cpu.usage,
-        threshold: this.config.cpuThreshold
+        threshold: this.config.cpuThreshold,
       })
     }
   }
@@ -653,7 +652,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
         if (window.triggerMemoryCleanup) {
           window.triggerMemoryCleanup();
         }
-      `
+      `,
         )
         .catch(() => {})
     }
@@ -732,7 +731,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
 
       // Clear storage data for better performance
       await window.webContents.session.clearStorageData({
-        storages: ['indexdb', 'websql']
+        storages: ['indexdb', 'websql'],
       })
 
       // Trigger renderer optimization
@@ -744,7 +743,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     } catch (error) {
       logger.debug('Window optimization failed', 'ElectronOptimizer', {
         windowId: window.id,
-        error
+        error,
       })
     }
   }
@@ -756,7 +755,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
     const windows = BrowserWindow.getAllWindows()
 
     const clearPromises = windows.map(window =>
-      window.webContents.session.clearCache().catch(() => {})
+      window.webContents.session.clearCache().catch(() => {}),
     )
 
     await Promise.all(clearPromises)
@@ -791,7 +790,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
       gpu: { enabled: false, vendor: '', renderer: '' },
       windows: [],
       ipc: { totalMessages: 0, messagesPerSecond: 0, averageResponseTime: 0, errorRate: 0 },
-      processes: { main: 0, renderer: [], utility: [] }
+      processes: { main: 0, renderer: [], utility: [] },
     }
   }
 
@@ -823,7 +822,7 @@ export class ElectronPerformanceOptimizer extends EventEmitter {
  * Global instance factory
  */
 export function createElectronOptimizer(
-  config?: Partial<OptimizationConfig>
+  config?: Partial<OptimizationConfig>,
 ): ElectronPerformanceOptimizer {
   return new ElectronPerformanceOptimizer(config)
 }

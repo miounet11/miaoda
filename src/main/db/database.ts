@@ -133,7 +133,7 @@ export class LocalDatabase {
     summary: string,
     tags: string[],
     keyPoints: string[],
-    tokens?: number
+    tokens?: number,
   ): void {
     this.summaryService.updateChatSummary(chatId, summary, tags, keyPoints, tokens)
   }

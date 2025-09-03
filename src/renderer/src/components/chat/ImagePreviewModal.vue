@@ -7,7 +7,7 @@
         @click="closeModal"
       >
         <!-- Modal Backdrop -->
-        <dialog class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" />
+        <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
         <!-- Modal Content -->
         <div
@@ -73,7 +73,7 @@
           </div>
 
           <!-- Image Container -->
-          <dialog class="modal-body flex-1 flex items-center justify-center p-4 min-h-0 bg-muted/20">
+          <div class="modal-body flex-1 flex items-center justify-center p-4 min-h-0 bg-muted/20">
             <div class="image-container relative max-w-full max-h-full">
               <img
                 ref="imageElement"
@@ -129,7 +129,8 @@
 
                 <button
                   @click="zoomIn"
-                  :disabled="zoomLevel  aria-label="按钮">= 3"
+                  :disabled="zoomLevel >= 3"
+                  aria-label="Zoom in"
                   class="zoom-btn p-1 hover:bg-white/20 rounded-full transition-colors disabled:opacity-50"
                 >
                   <ZoomIn :size="16" />
@@ -140,7 +141,7 @@
                 <button
                   @click="resetZoom"
                   class="zoom-btn p-1 hover:bg-white/20 rounded-full transition-colors"
-                 aria-label="按钮">
+                  aria-label="Reset zoom">
                   <RotateCcw :size="16" />
                 </button>
               </div>

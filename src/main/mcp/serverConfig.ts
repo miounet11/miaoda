@@ -10,8 +10,8 @@ export const serverConfigurations: Record<string, Partial<MCPServer>> = {
       NODE_ENV: 'production',
       // 限制文件系统访问范围
       MCP_FS_ROOT: join(homedir(), 'Documents'),
-      MCP_FS_READONLY: 'false'
-    }
+      MCP_FS_READONLY: 'false',
+    },
   },
   memory: {
     env: {
@@ -19,8 +19,8 @@ export const serverConfigurations: Record<string, Partial<MCPServer>> = {
       // 内存限制和持久化配置
       MCP_MEMORY_MAX_SIZE: '100MB',
       MCP_MEMORY_PERSIST: 'true',
-      MCP_MEMORY_PATH: join(homedir(), '.miaoda-chat', 'memory')
-    }
+      MCP_MEMORY_PATH: join(homedir(), '.miaoda-chat', 'memory'),
+    },
   },
   'code-executor': {
     env: {
@@ -28,8 +28,8 @@ export const serverConfigurations: Record<string, Partial<MCPServer>> = {
       // 代码执行安全配置
       MCP_CODE_TIMEOUT: '30000', // 30秒超时
       MCP_CODE_MEMORY_LIMIT: '512MB',
-      MCP_CODE_SANDBOX: 'true'
-    }
+      MCP_CODE_SANDBOX: 'true',
+    },
   },
   context7: {
     env: {
@@ -37,9 +37,9 @@ export const serverConfigurations: Record<string, Partial<MCPServer>> = {
       // Context7 配置
       MCP_CONTEXT7_API_KEY: process.env.CONTEXT7_API_KEY || '',
       MCP_CONTEXT7_ENDPOINT: process.env.CONTEXT7_ENDPOINT || 'https://api.context7.com',
-      MCP_CONTEXT7_CACHE: 'true'
-    }
-  }
+      MCP_CONTEXT7_CACHE: 'true',
+    },
+  },
 }
 
 // 获取优化后的服务器配置
@@ -52,10 +52,10 @@ export function getOptimizedServerConfig(server: MCPServer): MCPServer {
   return {
     ...server,
     env: {
-      ...process.env,
+      ...Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== undefined)) as Record<string, string>,
       ...config.env,
-      ...server.env
-    }
+      ...server.env,
+    },
   }
 }
 
@@ -82,6 +82,6 @@ export function validateServerConfig(server: MCPServer): { valid: boolean; error
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   }
 }

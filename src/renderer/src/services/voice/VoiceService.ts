@@ -77,24 +77,24 @@ export class VoiceService extends EventEmitter<{
       continuous: true,
       interimResults: true,
       maxAlternatives: 3,
-      noiseSuppressionLevel: 0.8
+      noiseSuppressionLevel: 0.8,
     },
     synthesis: {
       voice: null,
       rate: 1.0,
       pitch: 1.0,
       volume: 1.0,
-      language: 'zh-CN'
+      language: 'zh-CN',
     },
     permissions: {
       microphone: false,
-      autoStart: false
+      autoStart: false,
     },
     ui: {
       showWaveform: true,
       showConfidence: true,
-      highlightKeywords: true
-    }
+      highlightKeywords: true,
+    },
   }
 
   constructor() {
@@ -170,8 +170,8 @@ export class VoiceService extends EventEmitter<{
             .slice(1)
             .map(alt => ({
               transcript: alt.transcript,
-              confidence: alt.confidence
-            }))
+              confidence: alt.confidence,
+            })),
         }
 
         this.emit('recognition-result', result)
@@ -203,7 +203,7 @@ export class VoiceService extends EventEmitter<{
 
     const voices = this.synthesis.getVoices()
     const preferredVoice = voices.find(voice =>
-      voice.lang.startsWith(this.config.synthesis.language)
+      voice.lang.startsWith(this.config.synthesis.language),
     )
 
     if (preferredVoice && !this.config.synthesis.voice) {
@@ -452,7 +452,7 @@ export class VoiceService extends EventEmitter<{
     speechSynthesis: boolean
     mediaDevices: boolean
     permissions: boolean
-  } {
+    } {
     return {
       speechRecognition: this.isRecognitionSupported(),
       speechSynthesis: this.isSynthesisSupported(),
@@ -460,7 +460,7 @@ export class VoiceService extends EventEmitter<{
         'navigator' in window &&
         'mediaDevices' in navigator &&
         'getUserMedia' in navigator.mediaDevices,
-      permissions: 'navigator' in window && 'permissions' in navigator
+      permissions: 'navigator' in window && 'permissions' in navigator,
     }
   }
 
@@ -471,7 +471,7 @@ export class VoiceService extends EventEmitter<{
     isSpeaking: boolean
     currentLanguage: string
     errorMessage?: string
-  } {
+    } {
     const capabilities = this.getCapabilities()
 
     return {
@@ -484,7 +484,7 @@ export class VoiceService extends EventEmitter<{
         ? 'Speech recognition not supported in this browser'
         : !capabilities.mediaDevices
           ? 'Microphone access not available'
-          : undefined
+          : undefined,
     }
   }
 

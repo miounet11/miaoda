@@ -44,7 +44,7 @@ export class PluginManager extends EventEmitter {
             return result || null
           }
           return null
-        }
+        },
       },
 
       messages: {
@@ -59,13 +59,13 @@ export class PluginManager extends EventEmitter {
           if (global.mainWindow) {
             global.mainWindow.webContents.send('plugin:send-message', { chatId, content })
           }
-        }
+        },
       },
 
       storage: {
         get: key => this.store.get(`plugins.${key}`),
         set: (key, value) => this.store.set(`plugins.${key}`, value),
-        delete: key => this.store.delete(`plugins.${key}`)
+        delete: key => this.store.delete(`plugins.${key}`),
       },
 
       ui: {
@@ -80,8 +80,8 @@ export class PluginManager extends EventEmitter {
             return await ipcMain.invoke('dialog:show-input-box', options)
           }
           return null
-        }
-      }
+        },
+      },
     }
   }
 
@@ -125,7 +125,7 @@ export class PluginManager extends EventEmitter {
       const plugin: Plugin = {
         manifest,
         path: pluginPath,
-        enabled
+        enabled,
       }
 
       this.plugins.set(manifest.id, plugin)
@@ -224,7 +224,7 @@ export class PluginManager extends EventEmitter {
         pluginTools.forEach(tool => {
           tools.push({
             ...tool,
-            name: `${plugin.manifest.id}:${tool.name}`
+            name: `${plugin.manifest.id}:${tool.name}`,
           })
         })
       }

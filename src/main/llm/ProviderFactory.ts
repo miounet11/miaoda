@@ -3,8 +3,9 @@ import {
   OpenAIProvider,
   AnthropicProvider,
   OllamaProvider,
-  CustomOpenAIProvider
+  CustomOpenAIProvider,
 } from './provider'
+import { FallbackProvider } from './FallbackProvider'
 import type { CustomProviderManager } from './customProviderManager'
 
 export interface LLMConfig {
@@ -13,6 +14,16 @@ export interface LLMConfig {
   baseURL?: string
   model?: string
   customProviderId?: string // For custom providers
+  // Extended fields for enhanced model config integration
+  secretKey?: string // For Baidu
+  headers?: Record<string, string> // For custom headers
+  parameters?: {
+    temperature?: number
+    maxTokens?: number
+    topP?: number
+    frequencyPenalty?: number
+    presencePenalty?: number
+  }
 }
 
 /**
@@ -35,11 +46,16 @@ export class ProviderFactory {
       // It's a custom provider, use the provider ID as customProviderId
       return this.createCustomProvider({
         ...config,
-        customProviderId: config.provider
+        customProviderId: config.provider,
       })
     }
 
     switch (config.provider) {
+      case 'fallback':
+      case 'builtin':
+      case 'default':
+        return new FallbackProvider()
+
       case 'openai':
         return new OpenAIProvider(config.apiKey!, config.baseURL)
 
@@ -49,12 +65,111 @@ export class ProviderFactory {
       case 'ollama':
         return new OllamaProvider(config.model || 'llama2', config.baseURL)
 
+      // 国内大模型支持
+      case 'deepseek':
+        return this.createOpenAICompatibleProvider('DeepSeek', config, {
+          defaultBaseURL: 'https://api.deepseek.com/v1',
+          defaultModel: 'deepseek-chat',
+        })
+
+      case 'qwen':
+        return this.createOpenAICompatibleProvider('通义千问', config, {
+          defaultBaseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+          defaultModel: 'qwen-turbo',
+        })
+
+      case 'moonshot':
+        return this.createOpenAICompatibleProvider('Kimi', config, {
+          defaultBaseURL: 'https://api.moonshot.cn/v1',
+          defaultModel: 'moonshot-v1-8k',
+        })
+
+      case 'zhipu':
+        return this.createOpenAICompatibleProvider('智谱清言', config, {
+          defaultBaseURL: 'https://open.bigmodel.cn/api/paas/v4',
+          defaultModel: 'glm-4',
+        })
+
+      case 'minimax':
+        return this.createOpenAICompatibleProvider('MiniMax', config, {
+          defaultBaseURL: 'https://api.minimax.chat/v1',
+          defaultModel: 'abab6.5s-chat',
+        })
+
+      case 'baidu':
+        // 百度文心需要特殊处理，使用secretKey
+        if (!config.apiKey || !config.secretKey) {
+          throw new Error('Baidu provider requires both API Key and Secret Key')
+        }
+        return this.createBaiduProvider(config)
+
+      case 'google':
+        return this.createOpenAICompatibleProvider('Gemini', config, {
+          defaultBaseURL: 'https://generativelanguage.googleapis.com/v1',
+          defaultModel: 'gemini-pro',
+        })
+
       case 'custom':
         return this.createCustomProvider(config)
 
       default:
         throw new Error(`Unknown provider: ${config.provider}`)
     }
+  }
+
+  /**
+   * 创建OpenAI兼容的提供商
+   */
+  private static createOpenAICompatibleProvider(
+    displayName: string,
+    config: LLMConfig,
+    defaults: { defaultBaseURL: string; defaultModel: string },
+  ): LLMProvider {
+    if (!config.apiKey) {
+      throw new Error(`${displayName} provider requires API key`)
+    }
+
+    const customConfig = {
+      id: `enhanced-${config.provider}`,
+      name: config.provider,
+      displayName,
+      apiKey: config.apiKey,
+      baseURL: config.baseURL || defaults.defaultBaseURL,
+      model: config.model || defaults.defaultModel,
+      type: 'openai-compatible' as const,
+      headers: config.headers || {},
+      parameters: config.parameters || {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    return new CustomOpenAIProvider(customConfig)
+  }
+
+  /**
+   * 创建百度文心提供商（需要特殊处理）
+   */
+  private static createBaiduProvider(config: LLMConfig): LLMProvider {
+    // 百度文心使用不同的认证方式，但可以通过适配器转换为OpenAI兼容格式
+    const customConfig = {
+      id: 'enhanced-baidu',
+      name: 'baidu',
+      displayName: '百度文心',
+      apiKey: config.apiKey!,
+      baseURL: config.baseURL || 'https://aip.baidubce.com',
+      model: config.model || 'ernie-4.0-8k',
+      type: 'openai-compatible' as const,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Secret-Key': config.secretKey!, // 百度特有的Secret Key
+        ...config.headers,
+      },
+      parameters: config.parameters || {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    return new CustomOpenAIProvider(customConfig)
   }
 
   private static createCustomProvider(config: LLMConfig): LLMProvider {
@@ -74,7 +189,7 @@ export class ProviderFactory {
       const available = this.customProviderManager.getAllProviders()
       console.error(
         '[ProviderFactory] Available custom providers:',
-        available.map(p => p.id)
+        available.map(p => p.id),
       )
       throw new Error(`Custom provider not found: ${config.customProviderId}`)
     }
@@ -104,8 +219,20 @@ export class ProviderFactory {
     switch (config.provider) {
       case 'openai':
       case 'anthropic':
+      case 'deepseek':
+      case 'qwen':
+      case 'moonshot':
+      case 'zhipu':
+      case 'minimax':
+      case 'google':
         if (!config.apiKey) {
           throw new Error(`${config.provider} API key is required`)
+        }
+        break
+
+      case 'baidu':
+        if (!config.apiKey || !config.secretKey) {
+          throw new Error('Baidu provider requires both API Key and Secret Key')
         }
         break
 
@@ -132,9 +259,21 @@ export class ProviderFactory {
    */
   static getBuiltInProviders(): Array<{ id: string; name: string; displayName: string }> {
     return [
+      // 国际大模型
       { id: 'openai', name: 'openai', displayName: 'OpenAI' },
       { id: 'anthropic', name: 'anthropic', displayName: 'Anthropic Claude' },
-      { id: 'ollama', name: 'ollama', displayName: 'Ollama Local' }
+      { id: 'google', name: 'google', displayName: 'Google Gemini' },
+
+      // 国内大模型
+      { id: 'deepseek', name: 'deepseek', displayName: 'DeepSeek' },
+      { id: 'qwen', name: 'qwen', displayName: '通义千问' },
+      { id: 'baidu', name: 'baidu', displayName: '百度文心' },
+      { id: 'zhipu', name: 'zhipu', displayName: '智谱清言' },
+      { id: 'moonshot', name: 'moonshot', displayName: 'Kimi' },
+      { id: 'minimax', name: 'minimax', displayName: 'MiniMax' },
+
+      // 本地模型
+      { id: 'ollama', name: 'ollama', displayName: 'Ollama Local' },
     ]
   }
 
@@ -150,11 +289,11 @@ export class ProviderFactory {
     const builtIn = this.getBuiltInProviders()
     const custom = this.customProviderManager
       ? this.customProviderManager.getAllProviders().map(config => ({
-          id: config.id,
-          name: config.name,
-          displayName: config.displayName,
-          isCustom: true
-        }))
+        id: config.id,
+        name: config.name,
+        displayName: config.displayName,
+        isCustom: true,
+      }))
       : []
 
     return [...builtIn, ...custom]

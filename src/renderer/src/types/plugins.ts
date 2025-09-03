@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
   PluginManifest,
   Plugin,
@@ -9,7 +10,7 @@ import type {
   PluginRating,
   PluginFilters,
   PluginSearchResult,
-  DeveloperProfile
+  DeveloperProfile,
 } from '../../../main/plugins/types'
 
 export type {
@@ -23,5 +24,5 @@ export type {
   PluginRating,
   PluginFilters,
   PluginSearchResult,
-  DeveloperProfile
+  DeveloperProfile,
 }

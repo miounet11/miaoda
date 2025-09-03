@@ -75,7 +75,7 @@ export const useChatStore = defineStore(
           ...chat,
           messages: [],
           createdAt: new Date(chat.created_at),
-          updatedAt: new Date(chat.updated_at)
+          updatedAt: new Date(chat.updated_at),
         }))
 
         // Load messages for all chats to ensure they persist after refresh
@@ -103,7 +103,7 @@ export const useChatStore = defineStore(
                   logger.error(
                     `Failed to parse attachments for message ${msg.id}`,
                     'ChatStore',
-                    error
+                    error,
                   )
                   return []
                 }
@@ -122,7 +122,7 @@ export const useChatStore = defineStore(
               })(),
               error: msg.error,
               errorDetails: msg.error_details,
-              parentId: msg.parent_id
+              parentId: msg.parent_id,
             }))
             // Also store in the messages Map for quick access
             ensureMessagesMap()
@@ -167,7 +167,7 @@ export const useChatStore = defineStore(
           content: msg.content || '', // Ensure content is never undefined
           timestamp: new Date(msg.created_at),
           createdAt: new Date(msg.created_at),
-          chatId: chatId,
+          chatId,
           attachments: (() => {
             try {
               if (!msg.attachments) return []
@@ -194,7 +194,7 @@ export const useChatStore = defineStore(
           })(),
           error: msg.error,
           errorDetails: msg.error_details,
-          parentId: msg.parent_id
+          parentId: msg.parent_id,
         }))
 
         // Update both the chat object and the messages Map
@@ -218,7 +218,7 @@ export const useChatStore = defineStore(
         title: title || 'New Chat',
         messages: [],
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       }
 
       // Save to database
@@ -226,7 +226,7 @@ export const useChatStore = defineStore(
         id: newChat.id,
         title: newChat.title,
         created_at: now.getTime(),
-        updated_at: now.getTime()
+        updated_at: now.getTime(),
       })
 
       chats.value.unshift(newChat)
@@ -257,7 +257,7 @@ export const useChatStore = defineStore(
       const message: Message = {
         ...messageData,
         id: nanoid(),
-        createdAt: now
+        createdAt: now,
       }
 
       // Ensure we have a current chat
@@ -274,7 +274,7 @@ export const useChatStore = defineStore(
           chat_id: chat.id,
           role: message.role,
           content: message.content,
-          created_at: now.getTime()
+          created_at: now.getTime(),
         })
       } catch (error) {
         logger.error('Failed to save message to database', 'ChatStore', error)
@@ -309,7 +309,7 @@ export const useChatStore = defineStore(
       console.log('[ChatStore] Updating message content', {
         messageId,
         contentLength: content?.length,
-        contentPreview: content?.substring(0, 50)
+        contentPreview: content?.substring(0, 50),
       })
 
       if (!currentChat.value) {
@@ -327,7 +327,7 @@ export const useChatStore = defineStore(
 
       console.log('[ChatStore] Found message, updating content', {
         oldContent: message.content?.substring(0, 50),
-        newContent: content?.substring(0, 50)
+        newContent: content?.substring(0, 50),
       })
       message.content = content
 
@@ -338,7 +338,7 @@ export const useChatStore = defineStore(
         // Database update successful
         logger.info('Message content updated in database', 'ChatStore', {
           messageId,
-          contentLength: content.length
+          contentLength: content.length,
         })
       } catch (error) {
         logger.error('Database update failed', 'ChatStore', error)
@@ -369,7 +369,7 @@ export const useChatStore = defineStore(
           role: 'user',
           timestamp: new Date(),
           chatId: ensuredChatId,
-          attachments
+          attachments,
         }
 
         await addMessage(userMessage)
@@ -381,7 +381,7 @@ export const useChatStore = defineStore(
           role: 'assistant',
           timestamp: new Date(),
           chatId: ensuredChatId,
-          pending: true
+          pending: true,
         }
 
         const chat = chats.value.find(c => c.id === ensuredChatId)
@@ -404,13 +404,13 @@ export const useChatStore = defineStore(
                 chat_id: ensuredChatId,
                 role: 'assistant',
                 content: '',
-                created_at: now.getTime()
+                created_at: now.getTime(),
               })
             } catch (dbError) {
               logger.error(
                 'Failed to create initial assistant message in database',
                 'ChatStore',
-                dbError
+                dbError,
               )
             }
 
@@ -661,7 +661,7 @@ export const useChatStore = defineStore(
           isGenerating.value = false
           streamingContent.value = ''
           streamingMessageId.value = null
-        }
+        },
       )
     }
 
@@ -742,7 +742,7 @@ export const useChatStore = defineStore(
       clearDraft,
 
       // Helpers
-      ensureMessagesMap
+      ensureMessagesMap,
     }
   },
   {
@@ -750,7 +750,7 @@ export const useChatStore = defineStore(
     persist: {
       key: 'miaoda-chat-store',
       paths: ['currentChatId'], // Only persist the current chat ID
-      storage: localStorage
-    }
-  } as any
+      storage: localStorage,
+    },
+  } as any,
 )

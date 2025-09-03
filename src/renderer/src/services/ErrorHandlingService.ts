@@ -50,7 +50,7 @@ export class ErrorHandlingService {
     window.addEventListener('unhandledrejection', event => {
       this.handleError(new Error(event.reason), {
         component: 'global',
-        action: 'unhandledRejection'
+        action: 'unhandledRejection',
       })
       event.preventDefault()
     })
@@ -59,7 +59,7 @@ export class ErrorHandlingService {
     window.addEventListener('error', event => {
       this.handleError(event.error || new Error(event.message), {
         component: 'global',
-        action: 'windowError'
+        action: 'windowError',
       })
     })
   }
@@ -77,7 +77,7 @@ export class ErrorHandlingService {
   async handleError(
     error: Error,
     context: ErrorContext = {},
-    recovery?: () => Promise<void>
+    recovery?: () => Promise<void>,
   ): Promise<void> {
     const errorReport = this.createErrorReport(error, context, recovery)
 
@@ -107,7 +107,7 @@ export class ErrorHandlingService {
   private createErrorReport(
     error: Error,
     context: ErrorContext,
-    recovery?: () => Promise<void>
+    recovery?: () => Promise<void>,
   ): ErrorReport {
     const id = this.generateErrorId()
     const severity = this.assessSeverity(error, context)
@@ -119,7 +119,7 @@ export class ErrorHandlingService {
       context,
       severity,
       handled: true,
-      recovery
+      recovery,
     }
   }
 
@@ -160,7 +160,7 @@ export class ErrorHandlingService {
       component: report.context.component,
       action: report.context.action,
       stack: report.error.stack,
-      metadata: report.context.metadata
+      metadata: report.context.metadata,
     }
 
     switch (report.severity) {
@@ -187,7 +187,7 @@ export class ErrorHandlingService {
       network: 'Network connection issue. Please check your internet connection.',
       auth: 'Authentication failed. Please log in again.',
       database: 'Data access error. Please try again.',
-      default: 'An unexpected error occurred. Please try again.'
+      default: 'An unexpected error occurred. Please try again.',
     }
 
     let message = messages.default
@@ -212,7 +212,7 @@ export class ErrorHandlingService {
     if (attempts >= this.maxRetries) {
       logger.error('Max retry attempts reached', report.context.component || 'unknown', {
         errorId: report.id,
-        attempts
+        attempts,
       })
       return
     }
@@ -223,14 +223,14 @@ export class ErrorHandlingService {
       await report.recovery()
       logger.info('Error recovery successful', report.context.component || 'unknown', {
         errorId: report.id,
-        attempts: attempts + 1
+        attempts: attempts + 1,
       })
       this.retryAttempts.delete(report.id)
     } catch (recoveryError) {
       logger.error('Error recovery failed', report.context.component || 'unknown', {
         errorId: report.id,
         attempts: attempts + 1,
-        recoveryError
+        recoveryError,
       })
 
       // Exponential backoff for next retry
@@ -238,7 +238,7 @@ export class ErrorHandlingService {
         () => {
           this.attemptRecovery(report)
         },
-        Math.pow(2, attempts) * 1000
+        Math.pow(2, attempts) * 1000,
       )
     }
   }
@@ -256,7 +256,7 @@ export class ErrorHandlingService {
           message: report.error.message,
           stack: report.error.stack,
           context: report.context,
-          severity: report.severity
+          severity: report.severity,
         })
       }
     } catch (error) {
@@ -282,9 +282,9 @@ export class ErrorHandlingService {
         critical: 0,
         high: 0,
         medium: 0,
-        low: 0
+        low: 0,
       },
-      byComponent: {} as Record<string, number>
+      byComponent: {} as Record<string, number>,
     }
 
     this.errorQueue.forEach(report => {
@@ -323,6 +323,6 @@ export function useErrorHandler() {
     },
     getStats: () => errorHandler.getErrorStats(),
     clearErrors: () => errorHandler.clearErrors(),
-    exportLog: () => errorHandler.exportErrorLog()
+    exportLog: () => errorHandler.exportErrorLog(),
   }
 }

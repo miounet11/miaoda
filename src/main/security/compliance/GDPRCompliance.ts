@@ -199,7 +199,7 @@ export class GDPRComplianceManager extends EventEmitter {
       userAgent?: string
       granular?: boolean
       metadata?: Record<string, any>
-    } = {}
+    } = {},
   ): Promise<string> {
     const consentId = this.generateConsentId()
     const now = Date.now()
@@ -217,7 +217,7 @@ export class GDPRComplianceManager extends EventEmitter {
       consentString: this.generateConsentString(purposes, legalBasis),
       version: '1.0',
       granular: consentDetails.granular || false,
-      metadata: consentDetails.metadata || {}
+      metadata: consentDetails.metadata || {},
     }
 
     this.consentRecords.set(consentId, consentRecord)
@@ -234,7 +234,7 @@ export class GDPRComplianceManager extends EventEmitter {
       thirdCountryTransfers: [],
       retentionPeriod: 365 * 24 * 60 * 60 * 1000,
       securityMeasures: ['encryption', 'access_control', 'audit_logging'],
-      userId
+      userId,
     })
 
     this.emit('consentRecorded', { consentId, userId, purposes })
@@ -297,7 +297,7 @@ export class GDPRComplianceManager extends EventEmitter {
       verificationMethod: string
       responseFormat?: 'json' | 'pdf' | 'csv' | 'xml'
       deliveryMethod?: 'email' | 'portal' | 'mail'
-    }
+    },
   ): Promise<string> {
     const requestId = this.generateRequestId()
     const now = Date.now()
@@ -311,7 +311,7 @@ export class GDPRComplianceManager extends EventEmitter {
       reason: requestDetails.reason,
       verificationMethod: requestDetails.verificationMethod,
       responseFormat: requestDetails.responseFormat || 'json',
-      deliveryMethod: requestDetails.deliveryMethod || 'email'
+      deliveryMethod: requestDetails.deliveryMethod || 'email',
     }
 
     this.subjectRequests.set(requestId, request)
@@ -351,7 +351,7 @@ export class GDPRComplianceManager extends EventEmitter {
         dataRetentionPeriods: this.getDataRetentionPeriods(),
         dataRecipients: this.getDataRecipients(),
         dataTransfers: this.getDataTransfers(),
-        consentHistory: this.getConsentHistory(request.userId)
+        consentHistory: this.getConsentHistory(request.userId),
       }
 
       request.responseData = responseData
@@ -459,7 +459,7 @@ export class GDPRComplianceManager extends EventEmitter {
       remedialActions: [],
       rootCause: breachDetails.rootCause,
       preventiveMeasures: [],
-      status: 'open'
+      status: 'open',
     }
 
     this.breachRecords.set(breachId, breach)
@@ -477,7 +477,7 @@ export class GDPRComplianceManager extends EventEmitter {
     this.emit('dataBreachReported', {
       breachId,
       severity: breach.severity,
-      affectedUsers: breach.affectedUsers
+      affectedUsers: breach.affectedUsers,
     })
 
     return breachId
@@ -496,7 +496,7 @@ export class GDPRComplianceManager extends EventEmitter {
       mitigationMeasures: string[]
       conductedBy: string
       reviewedBy?: string
-    }
+    },
   ): Promise<string> {
     const piaId = this.generatePIAId()
     const now = Date.now()
@@ -516,11 +516,11 @@ export class GDPRComplianceManager extends EventEmitter {
         mitigationMeasures: assessmentDetails.mitigationMeasures,
         residualRisk: this.calculateResidualRisk(
           assessmentDetails.identifiedRisks,
-          assessmentDetails.mitigationMeasures
-        )
+          assessmentDetails.mitigationMeasures,
+        ),
       },
       decision: 'approved', // 简化决策
-      reviewDate: now + 365 * 24 * 60 * 60 * 1000 // 1年后复审
+      reviewDate: now + 365 * 24 * 60 * 60 * 1000, // 1年后复审
     }
 
     this.privacyAssessments.set(piaId, pia)
@@ -528,7 +528,7 @@ export class GDPRComplianceManager extends EventEmitter {
     this.emit('privacyImpactAssessmentCompleted', {
       piaId,
       processingActivityId,
-      riskLevel: pia.riskAssessment.riskLevel
+      riskLevel: pia.riskAssessment.riskLevel,
     })
 
     return piaId
@@ -557,7 +557,7 @@ export class GDPRComplianceManager extends EventEmitter {
     const processingRecord: ProcessingRecord = {
       id: recordId,
       ...activityDetails,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
 
     this.processingRecords.set(recordId, processingRecord)
@@ -590,7 +590,7 @@ export class GDPRComplianceManager extends EventEmitter {
       consent: '6',
       marketing: '7',
       analytics: '8',
-      security: '9'
+      security: '9',
     }
     return flagMap[purpose] || '0'
   }
@@ -605,7 +605,7 @@ export class GDPRComplianceManager extends EventEmitter {
       legal_obligation: 'C',
       vital_interests: 'D',
       public_task: 'E',
-      legitimate_interests: 'F'
+      legitimate_interests: 'F',
     }
     return flagMap[basis] || '0'
   }
@@ -615,7 +615,7 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private async stopConsentBasedProcessing(
     userId: string,
-    purpose: ProcessingPurpose
+    purpose: ProcessingPurpose,
   ): Promise<void> {
     // 标记相关数据包为受限处理
     console.log(`Stopping consent-based processing for user ${userId} and purpose ${purpose}`)
@@ -634,7 +634,7 @@ export class GDPRComplianceManager extends EventEmitter {
     return {
       profile: { id: userId /* 其他个人资料数据 */ },
       chatHistory: [], // 从聊天数据库获取
-      settings: {} // 从设置获取
+      settings: {}, // 从设置获取
       // 其他数据类别
     }
   }
@@ -661,7 +661,7 @@ export class GDPRComplianceManager extends EventEmitter {
     return {
       chat_messages: 365 * 24 * 60 * 60 * 1000, // 1年
       user_preferences: 2 * 365 * 24 * 60 * 60 * 1000, // 2年
-      audit_logs: 7 * 365 * 24 * 60 * 60 * 1000 // 7年
+      audit_logs: 7 * 365 * 24 * 60 * 60 * 1000, // 7年
     }
   }
 
@@ -722,7 +722,7 @@ export class GDPRComplianceManager extends EventEmitter {
    */
   private async formatPortableData(
     data: any,
-    format: 'json' | 'pdf' | 'csv' | 'xml'
+    format: 'json' | 'pdf' | 'csv' | 'xml',
   ): Promise<any> {
     switch (format) {
       case 'json':
@@ -877,18 +877,18 @@ export class GDPRComplianceManager extends EventEmitter {
     completedRequests: number
     dataBreaches: number
     privacyAssessments: number
-  } {
+    } {
     const activeConsents = Array.from(this.consentRecords.values()).filter(
-      c => c.status === 'given'
+      c => c.status === 'given',
     ).length
     const withdrawnConsents = Array.from(this.consentRecords.values()).filter(
-      c => c.status === 'withdrawn'
+      c => c.status === 'withdrawn',
     ).length
     const pendingRequests = Array.from(this.subjectRequests.values()).filter(
-      r => r.status === 'pending'
+      r => r.status === 'pending',
     ).length
     const completedRequests = Array.from(this.subjectRequests.values()).filter(
-      r => r.status === 'completed'
+      r => r.status === 'completed',
     ).length
 
     return {
@@ -898,7 +898,7 @@ export class GDPRComplianceManager extends EventEmitter {
       pendingRequests,
       completedRequests,
       dataBreaches: this.breachRecords.size,
-      privacyAssessments: this.privacyAssessments.size
+      privacyAssessments: this.privacyAssessments.size,
     }
   }
 

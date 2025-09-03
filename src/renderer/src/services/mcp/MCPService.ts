@@ -120,20 +120,20 @@ export class MCPService extends EventEmitter<{
     // Basic MCP events - extended event system not yet implemented
     logger.debug('MCP basic event listeners setup', 'MCPService')
 
-    /* 
+    /*
     // Advanced event listeners to be implemented:
     window.api.mcp.onServerConnect?.((server: MCPServer) => {
       this.handleServerConnect(server)
     })
-    
+
     window.api.mcp.onServerDisconnect?.((serverId: string) => {
       this.handleServerDisconnect(serverId)
     })
-    
+
     window.api.mcp.onToolResult?.((callId: string, result: any) => {
       this.handleToolResult(callId, result)
     })
-    
+
     window.api.mcp.onToolError?.((callId: string, error: Error) => {
       this.handleToolError(callId, error)
     })
@@ -149,7 +149,7 @@ export class MCPService extends EventEmitter<{
       args?: string[]
       env?: Record<string, string>
     },
-    maxRetries: number = 2
+    maxRetries: number = 2,
   ): Promise<boolean> {
     try {
       // Check if we have an MCP API available
@@ -185,7 +185,7 @@ export class MCPService extends EventEmitter<{
         // Only log the final failure, not every retry
         logger.debug(
           `MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`,
-          'MCPService'
+          'MCPService',
         )
         this.connectionRetryDelays.set(serverConfig.id + '_disabled', 999) // Mark as permanently disabled
         this.connectionRetryDelays.delete(serverConfig.id)
@@ -195,7 +195,7 @@ export class MCPService extends EventEmitter<{
       // Only log first retry to reduce spam
       if (currentRetryCount === 0) {
         console.debug(
-          `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`
+          `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`,
         )
       }
 
@@ -275,7 +275,7 @@ export class MCPService extends EventEmitter<{
       /*
       // Advanced resource loading to be implemented:
       const resources = await window.api.mcp.listResources(serverId)
-      
+
       for (const resource of resources) {
         this.resources.set(resource.uri, resource)
         this.emit('resource-updated', resource)
@@ -294,7 +294,7 @@ export class MCPService extends EventEmitter<{
       /*
       // Advanced prompt loading to be implemented:
       const prompts = await window.api.mcp.listPrompts(serverId)
-      
+
       for (const prompt of prompts) {
         this.prompts.set(prompt.name, prompt)
         this.emit('prompt-received', prompt)
@@ -312,7 +312,7 @@ export class MCPService extends EventEmitter<{
       timeout?: number
       retries?: number
       serverId?: string
-    }
+    },
   ): Promise<MCPToolCall> {
     const callId = this.generateCallId()
     const call: MCPToolCall = {
@@ -320,7 +320,7 @@ export class MCPService extends EventEmitter<{
       name: toolName,
       arguments: args,
       timestamp: new Date(),
-      status: 'pending'
+      status: 'pending',
     }
 
     this.activeCalls.set(callId, call)
@@ -332,7 +332,7 @@ export class MCPService extends EventEmitter<{
 
       const result = await window.api.mcp.callTool(toolName, args, {
         timeout: options?.timeout || 30000,
-        serverId: options?.serverId
+        serverId: options?.serverId,
       })
 
       call.status = 'completed'
@@ -357,7 +357,7 @@ export class MCPService extends EventEmitter<{
 
         return this.callTool(toolName, args, {
           ...options,
-          retries: options.retries - 1
+          retries: options.retries - 1,
         })
       }
 
@@ -413,11 +413,11 @@ export class MCPService extends EventEmitter<{
       /*
       // Advanced resource fetching to be implemented:
       const resource = await window.api.mcp.getResource(uri)
-      
+
       if (resource) {
         this.resources.set(uri, resource)
       }
-      
+
       return resource
       */
     } catch (error) {
@@ -539,7 +539,7 @@ export class MCPService extends EventEmitter<{
         tool.name.toLowerCase().includes(searchTerm) ||
         tool.description.toLowerCase().includes(searchTerm) ||
         tool.category?.toLowerCase().includes(searchTerm) ||
-        tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+        tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm)),
     )
   }
 
@@ -567,7 +567,7 @@ export class MCPService extends EventEmitter<{
       failedCalls: 0,
       averageCallTime: 0,
       mostUsedTools: new Map<string, number>(),
-      callsByHour: new Map<number, number>()
+      callsByHour: new Map<number, number>(),
     }
 
     let totalDuration = 0

@@ -19,7 +19,7 @@ class StyleFixer {
       filesModified: 0,
       importantRemoved: 0,
       universalSelectorsOptimized: 0,
-      globalStylesAdded: 0
+      globalStylesAdded: 0,
     }
   }
 
@@ -82,7 +82,7 @@ class StyleFixer {
       // 在媒体查询中的 !important 可以保留
       /(?<!@media[^}]*)\s*!important\s*;/g,
       // 在关键样式中的 !important 可以保留
-      /(?<!prefers-reduced-motion[^}]*)\s*!important\s*;/g
+      /(?<!prefers-reduced-motion[^}]*)\s*!important\s*;/g,
     ]
 
     patterns.forEach(pattern => {
@@ -117,7 +117,7 @@ class StyleFixer {
     const patterns = [
       // * { margin: 0; padding: 0; } 可以保留用于重置
       // 但其他的通用选择器可能需要优化
-      /\*\s*{\s*([^}]*?)}\s*/g
+      /\*\s*{\s*([^}]*?)}\s*/g,
     ]
 
     patterns.forEach(pattern => {
@@ -222,7 +222,7 @@ class StyleFixer {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output'
+      '.nyc_output',
     ]
     return skipDirs.includes(dirName)
   }
@@ -233,7 +233,7 @@ class StyleFixer {
   generateReport() {
     console.log('\n🔧 样式修复报告')
     console.log('='.repeat(50))
-    console.log(`📊 修复结果:`)
+    console.log('📊 修复结果:')
     console.log(`   处理文件数: ${this.stats.filesProcessed}`)
     console.log(`   修改文件数: ${this.stats.filesModified}`)
     console.log(`   移除!important: ${this.stats.importantRemoved}`)
@@ -250,7 +250,7 @@ class StyleFixer {
         console.log(`   - 优化了 ${this.stats.universalSelectorsOptimized} 个通用选择器`)
       }
       if (this.stats.globalStylesAdded > 0) {
-        console.log(`   - 添加了全局样式支持`)
+        console.log('   - 添加了全局样式支持')
       }
     } else {
       console.log('\nℹ️  没有需要修复的问题')
