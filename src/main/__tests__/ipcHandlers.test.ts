@@ -41,7 +41,7 @@ describe('IPC Handlers', () => {
 
       // Verify that ipcMain.handle was called for key handlers
       expect(ipcMain.handle).toHaveBeenCalled()
-      
+
       const handleCalls = (ipcMain.handle as any).mock.calls
       const registeredChannels = handleCalls.map(call => call[0])
 
@@ -118,17 +118,14 @@ describe('IPC Handlers', () => {
 
       if (createChatHandler) {
         const result = await createChatHandler(null, { title: 'Test Chat' })
-        
+
         expect(mockChatService.createChat).toHaveBeenCalledWith({ title: 'Test Chat' })
         expect(result).toEqual(mockChat)
       }
     })
 
     it('handles chat retrieval', async () => {
-      const mockChats = [
-        createMockChat({ id: 'chat-1' }),
-        createMockChat({ id: 'chat-2' })
-      ]
+      const mockChats = [createMockChat({ id: 'chat-1' }), createMockChat({ id: 'chat-2' })]
       mockChatService.getAllChats.mockResolvedValue(mockChats)
 
       await import('../ipcHandlers')
@@ -138,7 +135,7 @@ describe('IPC Handlers', () => {
 
       if (getAllChatsHandler) {
         const result = await getAllChatsHandler()
-        
+
         expect(mockChatService.getAllChats).toHaveBeenCalled()
         expect(result).toEqual(mockChats)
       }
@@ -154,14 +151,14 @@ describe('IPC Handlers', () => {
       const updateChatHandler = handleCalls.find(call => call[0] === 'chat:update')?.[1]
 
       if (updateChatHandler) {
-        const result = await updateChatHandler(null, { 
-          id: 'chat-1', 
-          title: 'Updated Title' 
+        const result = await updateChatHandler(null, {
+          id: 'chat-1',
+          title: 'Updated Title'
         })
-        
-        expect(mockChatService.updateChat).toHaveBeenCalledWith({ 
-          id: 'chat-1', 
-          title: 'Updated Title' 
+
+        expect(mockChatService.updateChat).toHaveBeenCalledWith({
+          id: 'chat-1',
+          title: 'Updated Title'
         })
         expect(result).toEqual(updatedChat)
       }
@@ -177,7 +174,7 @@ describe('IPC Handlers', () => {
 
       if (deleteChatHandler) {
         const result = await deleteChatHandler(null, 'chat-1')
-        
+
         expect(mockChatService.deleteChat).toHaveBeenCalledWith('chat-1')
         expect(result).toEqual({ success: true })
       }
@@ -211,17 +208,14 @@ describe('IPC Handlers', () => {
 
       if (createMessageHandler) {
         const result = await createMessageHandler(null, mockMessage)
-        
+
         expect(mockMessageService.createMessage).toHaveBeenCalledWith(mockMessage)
         expect(result).toEqual(mockMessage)
       }
     })
 
     it('handles message retrieval by chat', async () => {
-      const mockMessages = [
-        createMockMessage({ id: 'msg-1' }),
-        createMockMessage({ id: 'msg-2' })
-      ]
+      const mockMessages = [createMockMessage({ id: 'msg-1' }), createMockMessage({ id: 'msg-2' })]
       mockMessageService.getMessagesByChat.mockResolvedValue(mockMessages)
 
       await import('../ipcHandlers')
@@ -231,7 +225,7 @@ describe('IPC Handlers', () => {
 
       if (getMessagesHandler) {
         const result = await getMessagesHandler(null, 'chat-1')
-        
+
         expect(mockMessageService.getMessagesByChat).toHaveBeenCalledWith('chat-1')
         expect(result).toEqual(mockMessages)
       }
@@ -273,7 +267,7 @@ describe('IPC Handlers', () => {
         }
 
         await streamHandler(mockEvent, streamParams)
-        
+
         expect(mockLLMManager.streamResponse).toHaveBeenCalledWith(streamParams)
       }
     })
@@ -288,7 +282,7 @@ describe('IPC Handlers', () => {
 
       if (stopHandler) {
         const result = await stopHandler()
-        
+
         expect(mockLLMManager.stopGeneration).toHaveBeenCalled()
         expect(result).toEqual({ success: true })
       }
@@ -298,7 +292,7 @@ describe('IPC Handlers', () => {
   describe('File Operation Handlers', () => {
     it('handles file save operations', async () => {
       const mockDialog = await import('electron')
-      
+
       mockDialog.dialog.showSaveDialog = vi.fn().mockResolvedValue({
         canceled: false,
         filePath: '/tmp/test.txt'
@@ -314,14 +308,14 @@ describe('IPC Handlers', () => {
           content: 'test content',
           defaultName: 'test.txt'
         })
-        
+
         expect(mockDialog.dialog.showSaveDialog).toHaveBeenCalled()
       }
     })
 
     it('handles file open operations', async () => {
       const mockDialog = await import('electron')
-      
+
       mockDialog.dialog.showOpenDialog = vi.fn().mockResolvedValue({
         canceled: false,
         filePaths: ['/tmp/test.txt']
@@ -333,10 +327,10 @@ describe('IPC Handlers', () => {
       const openHandler = handleCalls.find(call => call[0] === 'file:open')?.[1]
 
       if (openHandler) {
-        const result = await openHandler(null, { 
-          filters: [{ name: 'Text Files', extensions: ['txt'] }] 
+        const result = await openHandler(null, {
+          filters: [{ name: 'Text Files', extensions: ['txt'] }]
         })
-        
+
         expect(mockDialog.dialog.showOpenDialog).toHaveBeenCalled()
       }
     })
@@ -358,8 +352,7 @@ describe('IPC Handlers', () => {
       const createChatHandler = handleCalls.find(call => call[0] === 'chat:create')?.[1]
 
       if (createChatHandler) {
-        await expect(createChatHandler(null, { title: 'Test' }))
-          .rejects.toThrow('Database error')
+        await expect(createChatHandler(null, { title: 'Test' })).rejects.toThrow('Database error')
       }
     })
 
@@ -371,11 +364,9 @@ describe('IPC Handlers', () => {
 
       if (createChatHandler) {
         // Should handle invalid input
-        await expect(createChatHandler(null, null))
-          .rejects.toThrow()
-        
-        await expect(createChatHandler(null, { title: '' }))
-          .rejects.toThrow()
+        await expect(createChatHandler(null, null)).rejects.toThrow()
+
+        await expect(createChatHandler(null, { title: '' })).rejects.toThrow()
       }
     })
   })
@@ -397,8 +388,7 @@ describe('IPC Handlers', () => {
         }
 
         // Should sanitize or validate input
-        await expect(createMessageHandler(null, maliciousMessage))
-          .resolves.toBeDefined()
+        await expect(createMessageHandler(null, maliciousMessage)).resolves.toBeDefined()
       }
     })
 
@@ -428,10 +418,12 @@ describe('IPC Handlers', () => {
 
       if (getAllChatsHandler) {
         // Make multiple concurrent requests
-        const requests = Array(10).fill(null).map(() => getAllChatsHandler())
-        
+        const requests = Array(10)
+          .fill(null)
+          .map(() => getAllChatsHandler())
+
         const results = await Promise.all(requests)
-        
+
         expect(results).toHaveLength(10)
         expect(mockChatService.getAllChats).toHaveBeenCalledTimes(10)
       }
@@ -440,10 +432,14 @@ describe('IPC Handlers', () => {
     it('handles large data transfers efficiently', async () => {
       const mockMessageService = {
         getMessagesByChat: vi.fn().mockResolvedValue(
-          Array(1000).fill(null).map((_, i) => createMockMessage({ 
-            id: `msg-${i}`,
-            content: `Message ${i}`.repeat(100) // Large content
-          }))
+          Array(1000)
+            .fill(null)
+            .map((_, i) =>
+              createMockMessage({
+                id: `msg-${i}`,
+                content: `Message ${i}`.repeat(100) // Large content
+              })
+            )
         )
       }
 
@@ -494,7 +490,7 @@ describe('IPC Handlers', () => {
 
       if (getPluginsHandler) {
         const result = await getPluginsHandler()
-        
+
         expect(mockPluginManager.getInstalledPlugins).toHaveBeenCalled()
         expect(result).toEqual([])
       }
@@ -529,7 +525,7 @@ describe('IPC Handlers', () => {
           toolName: 'test-tool',
           arguments: { input: 'test' }
         })
-        
+
         expect(mockMCPManager.executeToolTree).toHaveBeenCalled()
         expect(result).toEqual(mockResult)
       }

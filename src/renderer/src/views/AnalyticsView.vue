@@ -4,7 +4,14 @@
     <div class="simple-analytics-content">
       <div class="analytics-header">
         <button @click="$router.push('/')" class="back-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="M19 12H5M12 19l-7-7 7-7"></path>
           </svg>
         </button>
@@ -82,7 +89,10 @@ const loadStats = () => {
   totalChats.value = chats.length
 
   // 简化的统计计算
-  totalMessages.value = chats.reduce((total: number, chat: any) => total + (chat.messages?.length || 0), 0)
+  totalMessages.value = chats.reduce(
+    (total: number, chat: any) => total + (chat.messages?.length || 0),
+    0
+  )
   daysUsed.value = Math.max(1, Math.floor(Math.random() * 30)) // 模拟数据
 }
 </script>

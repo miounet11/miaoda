@@ -34,7 +34,7 @@ vi.mock('better-sqlite3', () => {
     })),
     close: vi.fn(),
     pragma: vi.fn(),
-    transaction: vi.fn((fn) => fn())
+    transaction: vi.fn(fn => fn())
   }
   return {
     default: vi.fn(() => mockDb),
@@ -151,24 +151,26 @@ global.createMockChat = (overrides = {}) => ({
 // Add custom matchers
 expect.extend({
   toBeValidMessage(received) {
-    const pass = received && 
+    const pass =
+      received &&
       typeof received.id === 'string' &&
       typeof received.content === 'string' &&
       ['user', 'assistant', 'system'].includes(received.role) &&
       typeof received.timestamp === 'number'
-    
+
     return {
       message: () => `expected ${received} to be a valid message`,
       pass
     }
   },
-  
+
   toBeValidChat(received) {
-    const pass = received &&
+    const pass =
+      received &&
       typeof received.id === 'string' &&
       typeof received.title === 'string' &&
       Array.isArray(received.messages)
-    
+
     return {
       message: () => `expected ${received} to be a valid chat`,
       pass

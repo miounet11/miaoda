@@ -23,8 +23,8 @@ class StyleQualityChecker {
         totalProperties: 0,
         totalSelectors: 0,
         accessibilityFeatures: 0,
-        performanceOptimizations: 0,
-      },
+        performanceOptimizations: 0
+      }
     }
   }
 
@@ -66,7 +66,7 @@ class StyleQualityChecker {
           type: 'error',
           message: `发现禁止的样式模式: ${pattern}`,
           file: filePath,
-          matches: matches.length,
+          matches: matches.length
         })
       }
     })
@@ -100,9 +100,11 @@ class StyleQualityChecker {
         if (isVueComponent) {
           // Vue组件中缺少某些模式是可以接受的，因为它们可能在全局样式中定义
           const patternStr = pattern.toString()
-          if (patternStr.includes('prefers-reduced-motion') ||
-              patternStr.includes('focus-visible') ||
-              patternStr.includes('hsl')) {
+          if (
+            patternStr.includes('prefers-reduced-motion') ||
+            patternStr.includes('focus-visible') ||
+            patternStr.includes('hsl')
+          ) {
             return // 不报告这些警告，因为它们可能在全局样式中
           }
         }
@@ -110,7 +112,7 @@ class StyleQualityChecker {
         warnings.push({
           type: 'warning',
           message: `缺少推荐的样式模式: ${pattern}`,
-          file: filePath,
+          file: filePath
         })
       }
     })
@@ -125,11 +127,22 @@ class StyleQualityChecker {
 
     const knownProperties = STYLE_QUALITY_CONFIG.bestPractices.organization.propertyOrder
     const customProperties = new Set([
-      'hover', 'focus', 'active', 'visited', 'disabled',
-      'dark', 'light', 'sm', 'md', 'lg', 'xl',
-      'group-hover', 'peer-focus', 'peer-hover',
+      'hover',
+      'focus',
+      'active',
+      'visited',
+      'disabled',
+      'dark',
+      'light',
+      'sm',
+      'md',
+      'lg',
+      'xl',
+      'group-hover',
+      'peer-focus',
+      'peer-hover',
       '--', // CSS变量
-      'content', // 伪元素内容
+      'content' // 伪元素内容
     ])
 
     properties.forEach(prop => {
@@ -151,7 +164,7 @@ class StyleQualityChecker {
         suggestions.push({
           type: 'suggestion',
           message: `属性 "${propName}" 可能需要检查`,
-          file: filePath,
+          file: filePath
         })
       }
     })
@@ -162,15 +175,50 @@ class StyleQualityChecker {
    */
   isTailwindRelated(propName) {
     const tailwindPrefixes = [
-      'text-', 'bg-', 'border-', 'rounded-', 'shadow-',
-      'p-', 'm-', 'px-', 'py-', 'mx-', 'my-',
-      'w-', 'h-', 'min-w-', 'min-h-', 'max-w-', 'max-h-',
-      'flex-', 'grid-', 'items-', 'justify-', 'self-',
-      'gap-', 'space-', 'divide-',
-      'top-', 'right-', 'bottom-', 'left-', 'inset-',
-      'z-', 'opacity-', 'transform-', 'translate-', 'scale-', 'rotate-',
-      'transition-', 'duration-', 'delay-', 'ease-',
-      'animate-', 'spin', 'pulse', 'bounce',
+      'text-',
+      'bg-',
+      'border-',
+      'rounded-',
+      'shadow-',
+      'p-',
+      'm-',
+      'px-',
+      'py-',
+      'mx-',
+      'my-',
+      'w-',
+      'h-',
+      'min-w-',
+      'min-h-',
+      'max-w-',
+      'max-h-',
+      'flex-',
+      'grid-',
+      'items-',
+      'justify-',
+      'self-',
+      'gap-',
+      'space-',
+      'divide-',
+      'top-',
+      'right-',
+      'bottom-',
+      'left-',
+      'inset-',
+      'z-',
+      'opacity-',
+      'transform-',
+      'translate-',
+      'scale-',
+      'rotate-',
+      'transition-',
+      'duration-',
+      'delay-',
+      'ease-',
+      'animate-',
+      'spin',
+      'pulse',
+      'bounce'
     ]
 
     return tailwindPrefixes.some(prefix => propName.startsWith(prefix))
@@ -181,16 +229,47 @@ class StyleQualityChecker {
    */
   isCommonProperty(propName) {
     const commonProperties = [
-      'color', 'background', 'background-color', 'background-image',
-      'font-size', 'font-weight', 'font-family', 'line-height',
-      'padding', 'margin', 'border', 'border-radius',
-      'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height',
-      'display', 'position', 'top', 'left', 'right', 'bottom',
-      'flex', 'flex-direction', 'justify-content', 'align-items',
-      'cursor', 'pointer-events', 'user-select',
-      'overflow', 'overflow-x', 'overflow-y', 'scroll-behavior',
-      'box-shadow', 'text-shadow', 'backdrop-filter',
-      'animation', 'transition', 'transform',
+      'color',
+      'background',
+      'background-color',
+      'background-image',
+      'font-size',
+      'font-weight',
+      'font-family',
+      'line-height',
+      'padding',
+      'margin',
+      'border',
+      'border-radius',
+      'width',
+      'height',
+      'min-width',
+      'max-width',
+      'min-height',
+      'max-height',
+      'display',
+      'position',
+      'top',
+      'left',
+      'right',
+      'bottom',
+      'flex',
+      'flex-direction',
+      'justify-content',
+      'align-items',
+      'cursor',
+      'pointer-events',
+      'user-select',
+      'overflow',
+      'overflow-x',
+      'overflow-y',
+      'scroll-behavior',
+      'box-shadow',
+      'text-shadow',
+      'backdrop-filter',
+      'animation',
+      'transition',
+      'transform'
     ]
 
     return commonProperties.includes(propName)
@@ -228,7 +307,7 @@ class StyleQualityChecker {
       suggestions.push({
         type: 'suggestion',
         message: '考虑使用 will-change 属性优化动画性能',
-        file: filePath,
+        file: filePath
       })
     }
   }
@@ -285,7 +364,7 @@ class StyleQualityChecker {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output',
+      '.nyc_output'
     ]
     return skipDirs.includes(dirName)
   }
@@ -383,11 +462,11 @@ class StyleQualityChecker {
     score -= Math.min(warnings.length * 1, 10)
 
     // 可访问性加分 (15分)
-    const accessibilityScore = Math.min(stats.accessibilityFeatures / totalFiles * 15, 15)
+    const accessibilityScore = Math.min((stats.accessibilityFeatures / totalFiles) * 15, 15)
     score += accessibilityScore
 
     // 性能优化加分 (10分)
-    const performanceScore = Math.min(stats.performanceOptimizations / totalFiles * 10, 10)
+    const performanceScore = Math.min((stats.performanceOptimizations / totalFiles) * 10, 10)
     score += performanceScore
 
     // 属性密度奖励 (15分) - 合理的属性数量

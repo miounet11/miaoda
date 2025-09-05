@@ -20,9 +20,9 @@ describe('DatabaseInitializer', () => {
       })),
       pragma: vi.fn(),
       close: vi.fn(),
-      transaction: vi.fn((fn) => fn())
+      transaction: vi.fn(fn => fn())
     }
-    
+
     initializer = new DatabaseInitializer(mockDb)
   })
 
@@ -36,14 +36,14 @@ describe('DatabaseInitializer', () => {
 
       // Should enable foreign keys
       expect(mockDb.pragma).toHaveBeenCalledWith('foreign_keys = ON')
-      
+
       // Should execute table creation
       expect(mockDb.exec).toHaveBeenCalled()
-      
+
       // Verify that exec was called with CREATE TABLE statements
       const execCalls = mockDb.exec.mock.calls
       const allSql = execCalls.map(call => call[0]).join(' ')
-      
+
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS chats')
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS messages')
     })
@@ -52,7 +52,7 @@ describe('DatabaseInitializer', () => {
       initializer.initialize()
 
       const execCalls = mockDb.exec.mock.calls
-      const chatTableSql = execCalls.find(call => 
+      const chatTableSql = execCalls.find(call =>
         call[0].includes('CREATE TABLE IF NOT EXISTS chats')
       )?.[0]
 
@@ -68,7 +68,7 @@ describe('DatabaseInitializer', () => {
       initializer.initialize()
 
       const execCalls = mockDb.exec.mock.calls
-      const messageTableSql = execCalls.find(call => 
+      const messageTableSql = execCalls.find(call =>
         call[0].includes('CREATE TABLE IF NOT EXISTS messages')
       )?.[0]
 
@@ -163,12 +163,10 @@ describe('DatabaseInitializer', () => {
       initializer.initialize()
 
       const execCalls = mockDb.exec.mock.calls
-      const indexSql = execCalls.filter(call => 
-        call[0].includes('CREATE INDEX')
-      )
+      const indexSql = execCalls.filter(call => call[0].includes('CREATE INDEX'))
 
       expect(indexSql.length).toBeGreaterThan(0)
-      
+
       const allIndexSql = indexSql.map(call => call[0]).join(' ')
       expect(allIndexSql).toContain('messages_chat_id_idx')
       expect(allIndexSql).toContain('chats_updated_at_idx')
@@ -192,11 +190,11 @@ describe('DatabaseInitializer', () => {
       // Core tables
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS chats')
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS messages')
-      
+
       // Auth tables
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS users')
       expect(allSql).toContain('CREATE TABLE IF NOT EXISTS sessions')
-      
+
       // Search tables
       expect(allSql).toContain('messages_fts')
     })
@@ -231,7 +229,7 @@ describe('DatabaseInitializer', () => {
 
     it('handles database connection errors', () => {
       const invalidDb = null as any
-      
+
       expect(() => new DatabaseInitializer(invalidDb)).toThrow()
     })
   })

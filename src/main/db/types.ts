@@ -2,6 +2,16 @@
  * Database type definitions
  */
 
+// 附件类型定义
+export interface Attachment {
+  id: string
+  name: string
+  type: string
+  size: number
+  url?: string
+  content?: string
+}
+
 export interface ChatRecord {
   id: string
   title: string
@@ -24,11 +34,18 @@ export interface MessageRecord {
   role: 'user' | 'assistant' | 'system'
   content: string
   created_at: string
-  attachments?: string
-  metadata?: string
+  attachments?: string // JSON string of attachment array
+  metadata?: string // JSON string of metadata object
   parent_id?: string
   error?: string
   error_details?: string
+  timestamp?: string // For backward compatibility
+}
+
+// 扩展的消息记录类型，包含解析后的 JSON 字段
+export interface MessageRecordParsed extends Omit<MessageRecord, 'attachments' | 'metadata'> {
+  attachments?: Attachment[] | null
+  metadata?: Record<string, unknown> | null
 }
 
 export interface SearchIndex {

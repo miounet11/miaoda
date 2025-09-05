@@ -119,7 +119,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
     classification: DataClassification,
     policy: PrivacyPolicy,
     userId: string,
-    deviceId: string,
+    deviceId: string
   ): Promise<string> {
     try {
       // 生成专用数据加密密钥
@@ -132,7 +132,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
       const processedData = await this.applyPrivacyProtection(
         serializedData,
         policy,
-        classification,
+        classification
       )
 
       // 加密数据
@@ -152,10 +152,10 @@ export class ZeroKnowledgeManager extends EventEmitter {
           originalSize: Buffer.byteLength(serializedData, 'utf8'),
           checksum,
           timestamp: Date.now(),
-          accessLog: [],
+          accessLog: []
         },
         privacyPolicy: policy,
-        keyReference: keyId, // 只存储密钥引用，不存储实际密钥
+        keyReference: keyId // 只存储密钥引用，不存储实际密钥
       }
 
       // 记录创建访问
@@ -185,7 +185,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
     packageId: string,
     userId: string,
     deviceId: string,
-    purpose: string,
+    purpose: string
   ): Promise<any> {
     try {
       const dataPackage = this.encryptedStorage.get(packageId)
@@ -202,7 +202,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
       // 移除隐私保护措施
       const originalData = await this.removePrivacyProtection(
         decryptedData.toString('utf8'),
-        dataPackage.privacyPolicy,
+        dataPackage.privacyPolicy
       )
 
       // 验证数据完整性
@@ -232,7 +232,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
   private async applyPrivacyProtection(
     data: string,
     policy: PrivacyPolicy,
-    classification: DataClassification,
+    classification: DataClassification
   ): Promise<string> {
     let processedData = data
 
@@ -250,7 +250,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
     if (policy.differentialPrivacy) {
       processedData = await this.applyDifferentialPrivacy(
         processedData,
-        this.getDifferentialPrivacyParams(classification),
+        this.getDifferentialPrivacyParams(classification)
       )
     }
 
@@ -381,7 +381,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
    */
   private async applyDifferentialPrivacy(
     data: string,
-    params: DifferentialPrivacyParams,
+    params: DifferentialPrivacyParams
   ): Promise<string> {
     try {
       const parsedData = JSON.parse(data)
@@ -409,7 +409,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
           case 'laplace':
             noisyData[key] = this.addLaplaceNoise(
               noisyData[key],
-              params.sensitivity / params.epsilon,
+              params.sensitivity / params.epsilon
             )
             break
           case 'gaussian':
@@ -417,7 +417,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
               noisyData[key],
               params.sensitivity,
               params.epsilon,
-              params.delta,
+              params.delta
             )
             break
         }
@@ -444,7 +444,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
     value: number,
     sensitivity: number,
     epsilon: number,
-    delta: number,
+    delta: number
   ): number {
     // 计算高斯噪声标准差
     const sigma = (sensitivity * Math.sqrt(2 * Math.log(1.25 / delta))) / epsilon
@@ -507,7 +507,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
       proof: JSON.stringify({ commitment, challenge, response }),
       publicInputs: [commitment],
       verificationKey: 'mock_verification_key',
-      timestamp: Date.now(),
+      timestamp: Date.now()
     }
 
     this.zkProofs.set(packageId, proof)
@@ -541,14 +541,14 @@ export class ZeroKnowledgeManager extends EventEmitter {
     action: 'read' | 'write' | 'delete' | 'share',
     userId: string,
     deviceId: string,
-    purpose: string,
+    purpose: string
   ): void {
     const logEntry: AccessLogEntry = {
       timestamp: Date.now(),
       action,
       userId,
       deviceId,
-      purpose,
+      purpose
     }
 
     const packageLogs = this.accessLogs.get(packageId) || []
@@ -570,7 +570,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
   private async checkAccessPermission(
     dataPackage: EncryptedDataPackage,
     userId: string,
-    purpose: string,
+    purpose: string
   ): Promise<boolean> {
     const policy = dataPackage.privacyPolicy
 
@@ -606,7 +606,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
       'internal',
       'confidential',
       'secret',
-      'top_secret',
+      'top_secret'
     ]
 
     const userLevel = levelHierarchy.indexOf(userClearanceLevel)
@@ -654,7 +654,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
       addNoise: false,
       noiseLevel: 0.1,
       kAnonymity: 2,
-      lDiversity: 2,
+      lDiversity: 2
     }
 
     switch (classification) {
@@ -666,13 +666,13 @@ export class ZeroKnowledgeManager extends EventEmitter {
           addNoise: true,
           noiseLevel: 0.5,
           kAnonymity: 5,
-          lDiversity: 3,
+          lDiversity: 3
         }
       case 'confidential':
         return {
           ...baseConfig,
           addNoise: true,
-          kAnonymity: 3,
+          kAnonymity: 3
         }
       default:
         return baseConfig
@@ -683,7 +683,7 @@ export class ZeroKnowledgeManager extends EventEmitter {
    * 获取差分隐私参数
    */
   private getDifferentialPrivacyParams(
-    classification: DataClassification,
+    classification: DataClassification
   ): DifferentialPrivacyParams {
     switch (classification) {
       case 'top_secret':
@@ -691,21 +691,21 @@ export class ZeroKnowledgeManager extends EventEmitter {
           epsilon: 0.1,
           delta: 1e-6,
           mechanism: 'gaussian',
-          sensitivity: 1.0,
+          sensitivity: 1.0
         }
       case 'secret':
         return {
           epsilon: 0.5,
           delta: 1e-5,
           mechanism: 'laplace',
-          sensitivity: 1.0,
+          sensitivity: 1.0
         }
       default:
         return {
           epsilon: 1.0,
           delta: 1e-4,
           mechanism: 'laplace',
-          sensitivity: 1.0,
+          sensitivity: 1.0
         }
     }
   }

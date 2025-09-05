@@ -22,13 +22,7 @@
     "**/*.config.*",
     "**/coverage/**"
   ],
-  "reporter": [
-    "text",
-    "text-summary",
-    "html",
-    "lcov",
-    "json-summary"
-  ],
+  "reporter": ["text", "text-summary", "html", "lcov", "json-summary"],
   "watermarks": {
     "lines": [80, 95],
     "functions": [80, 95],

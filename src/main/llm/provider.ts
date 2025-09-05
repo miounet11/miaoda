@@ -8,9 +8,12 @@ export interface LLMProvider {
   displayName?: string
   baseURL?: string
   isCustom?: boolean
-  sendMessage(messages: Array<{role: string, content: string}>, onChunk?: (chunk: string) => void): Promise<string>
+  sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    onChunk?: (chunk: string) => void
+  ): Promise<string>
   sendMessageWithTools?(
-    messages: Array<{role: string, content: string}>,
+    messages: Array<{ role: string; content: string }>,
     tools: any[],
     onChunk?: (chunk: string) => void,
     onToolCall?: (tool: string, args: any) => Promise<any>
@@ -58,15 +61,18 @@ export class OpenAIProvider implements LLMProvider {
     this.baseURL = baseURL
     this.client = new OpenAI({
       apiKey,
-      baseURL,
+      baseURL
     })
   }
 
-  async sendMessage(messages: Array<{role: string, content: string}>, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    onChunk?: (chunk: string) => void
+  ): Promise<string> {
     // 准备系统消息
     const systemMessage = {
       role: 'system' as const,
-      content: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
+      content: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。'
     }
 
     // 转换消息格式并添加系统消息
@@ -74,8 +80,8 @@ export class OpenAIProvider implements LLMProvider {
       systemMessage,
       ...messages.map(msg => ({
         role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      })),
+        content: msg.content
+      }))
     ]
 
     // 检测是否需要使用Vision模型（暂时简化，后续可扩展多模态支持）
@@ -84,7 +90,7 @@ export class OpenAIProvider implements LLMProvider {
     const stream = await this.client.chat.completions.create({
       model,
       messages: openaiMessages,
-      stream: true,
+      stream: true
     })
 
     let fullResponse = ''
@@ -103,16 +109,16 @@ export class OpenAIProvider implements LLMProvider {
     message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
-    onToolCall?: (tool: string, args: any) => Promise<any>,
+    onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
     const messageContent = typeof message === 'string' ? message : message
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       {
         role: 'system' as const,
         content:
-          '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
+          '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。'
       },
-      { role: 'user' as const, content: messageContent },
+      { role: 'user' as const, content: messageContent }
     ]
 
     // 检测是否需要使用Vision模型
@@ -126,15 +132,15 @@ export class OpenAIProvider implements LLMProvider {
       function: {
         name: tool.name,
         description: tool.description,
-        parameters: tool.inputSchema,
-      },
+        parameters: tool.inputSchema
+      }
     }))
 
     const response = await this.client.chat.completions.create({
       model,
       messages,
       tools: openAITools,
-      stream: false,
+      stream: false
     })
 
     const responseMessage = response.choices[0].message
@@ -151,7 +157,7 @@ export class OpenAIProvider implements LLMProvider {
           messages.push({
             role: 'tool' as const,
             content: JSON.stringify(result),
-            tool_call_id: toolCall.id,
+            tool_call_id: toolCall.id
           })
         }
       }
@@ -160,7 +166,7 @@ export class OpenAIProvider implements LLMProvider {
       const finalResponse = await this.client.chat.completions.create({
         model,
         messages,
-        stream: true,
+        stream: true
       })
 
       let fullResponse = ''
@@ -187,17 +193,20 @@ export class AnthropicProvider implements LLMProvider {
 
   constructor(apiKey: string) {
     this.client = new Anthropic({
-      apiKey,
+      apiKey
     })
   }
 
-  async sendMessage(messages: Array<{role: string, content: string}>, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    onChunk?: (chunk: string) => void
+  ): Promise<string> {
     const model = 'claude-3-5-sonnet-20241022'
 
     // 转换消息格式给Anthropic API
     const anthropicMessages = messages.map(msg => ({
-      role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
-      content: msg.content,
+      role: msg.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+      content: msg.content
     }))
 
     const stream = await this.client.messages.create({
@@ -205,7 +214,7 @@ export class AnthropicProvider implements LLMProvider {
       system: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
       messages: anthropicMessages,
       max_tokens: 4096,
-      stream: true,
+      stream: true
     })
 
     let fullResponse = ''
@@ -224,13 +233,13 @@ export class AnthropicProvider implements LLMProvider {
     message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
-    onToolCall?: (tool: string, args: any) => Promise<any>,
+    onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
     // Convert MCP tools to Anthropic format
     const anthropicTools = tools.map(tool => ({
       name: tool.name,
       description: tool.description,
-      input_schema: tool.inputSchema,
+      input_schema: tool.inputSchema
     }))
 
     // 处理多模态消息格式
@@ -255,8 +264,8 @@ export class AnthropicProvider implements LLMProvider {
                 source: {
                   type: 'base64',
                   media_type: `image/${match[1]}`,
-                  data: match[2],
-                },
+                  data: match[2]
+                }
               }
             }
           }
@@ -267,7 +276,7 @@ export class AnthropicProvider implements LLMProvider {
     }
 
     const messages: Array<{ role: 'user' | 'assistant'; content: any }> = [
-      { role: 'user' as const, content: messageContent },
+      { role: 'user' as const, content: messageContent }
     ]
 
     // Initial request with tools
@@ -276,7 +285,7 @@ export class AnthropicProvider implements LLMProvider {
       system: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
       messages,
       max_tokens: 4096,
-      tools: anthropicTools,
+      tools: anthropicTools
     })
 
     // Handle tool use
@@ -289,7 +298,7 @@ export class AnthropicProvider implements LLMProvider {
           toolResults.push({
             type: 'tool_result' as const,
             tool_use_id: block.id,
-            content: JSON.stringify(result),
+            content: JSON.stringify(result)
           })
         }
       }
@@ -306,7 +315,7 @@ export class AnthropicProvider implements LLMProvider {
         role: 'user',
         content: toolResults
           .map(result => `Tool ${result.tool_use_id}: ${result.content}`)
-          .join('\n'),
+          .join('\n')
       })
 
       const finalStream = await this.client.messages.create({
@@ -315,7 +324,7 @@ export class AnthropicProvider implements LLMProvider {
           '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
         messages,
         max_tokens: 4096,
-        stream: true,
+        stream: true
       })
 
       let fullResponse = ''
@@ -352,17 +361,20 @@ export class OllamaProvider implements LLMProvider {
     this.model = model
   }
 
-  async sendMessage(messages: Array<{role: string, content: string}>, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    onChunk?: (chunk: string) => void
+  ): Promise<string> {
     // 转换消息格式给Ollama API
     const ollamaMessages = messages.map(msg => ({
       role: msg.role,
-      content: msg.content,
+      content: msg.content
     }))
 
     const response = await this.client.chat({
       model: this.model,
       messages: ollamaMessages,
-      stream: true,
+      stream: true
     })
 
     let fullResponse = ''
@@ -379,7 +391,7 @@ export class OllamaProvider implements LLMProvider {
     message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
-    onToolCall?: (tool: string, args: any) => Promise<any>,
+    onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
     // Convert tools to Ollama format
     const ollamaTools = tools.map(tool => ({
@@ -387,8 +399,8 @@ export class OllamaProvider implements LLMProvider {
       function: {
         name: tool.name,
         description: tool.description,
-        parameters: tool.inputSchema,
-      },
+        parameters: tool.inputSchema
+      }
     }))
 
     // Ollama目前主要支持文本，复杂的多模态消息转换为文本描述
@@ -396,10 +408,10 @@ export class OllamaProvider implements LLMProvider {
       typeof message === 'string'
         ? message
         : message
-          .map(c =>
-            c.type === 'text' ? c.text : c.type === 'image_url' ? '[Image provided]' : '',
-          )
-          .join('\n')
+            .map(c =>
+              c.type === 'text' ? c.text : c.type === 'image_url' ? '[Image provided]' : ''
+            )
+            .join('\n')
 
     const messages = [{ role: 'user', content: messageContent }]
 
@@ -408,7 +420,7 @@ export class OllamaProvider implements LLMProvider {
       model: this.model,
       messages,
       tools: ollamaTools,
-      stream: false,
+      stream: false
     })
 
     // Check if the model wants to use tools
@@ -423,7 +435,7 @@ export class OllamaProvider implements LLMProvider {
 
           messages.push({
             role: 'tool',
-            content: JSON.stringify(result),
+            content: JSON.stringify(result)
           })
         }
       }
@@ -432,7 +444,7 @@ export class OllamaProvider implements LLMProvider {
       const finalResponse = await this.client.chat({
         model: this.model,
         messages,
-        stream: true,
+        stream: true
       })
 
       let fullResponse = ''
@@ -470,7 +482,7 @@ export class CustomOpenAIProvider implements LLMProvider {
     this.client = new OpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseURL,
-      defaultHeaders: config.headers,
+      defaultHeaders: config.headers
     })
   }
 
@@ -481,7 +493,7 @@ export class CustomOpenAIProvider implements LLMProvider {
         model: this.config.model,
         messages: [{ role: 'user', content: 'Hello' }],
         max_tokens: 5,
-        stream: false,
+        stream: false
       })
 
       if (response.choices && response.choices.length > 0) {
@@ -492,30 +504,33 @@ export class CustomOpenAIProvider implements LLMProvider {
     } catch (error: any) {
       return {
         success: false,
-        error: error.message || 'Connection validation failed',
+        error: error.message || 'Connection validation failed'
       }
     }
   }
 
-  async sendMessage(messages: Array<{role: string, content: string}>, onChunk?: (chunk: string) => void): Promise<string> {
+  async sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    onChunk?: (chunk: string) => void
+  ): Promise<string> {
     console.log('[CustomOpenAIProvider] Starting message send:', {
       model: this.config.model,
       baseURL: this.baseURL,
-      hasOnChunk: !!onChunk,
+      hasOnChunk: !!onChunk
     })
 
     // 转换消息格式并添加系统消息
     const systemMessage = {
       role: 'system' as const,
-      content: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。',
+      content: '请用中文回复，除非用户特别要求使用其他语言。请保持回复简洁明了，提供有帮助的信息。'
     }
 
     const openaiMessages = [
       systemMessage,
       ...messages.map(msg => ({
         role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      })),
+        content: msg.content
+      }))
     ]
 
     try {
@@ -527,7 +542,7 @@ export class CustomOpenAIProvider implements LLMProvider {
         top_p: this.config.parameters?.topP,
         frequency_penalty: this.config.parameters?.frequencyPenalty,
         presence_penalty: this.config.parameters?.presencePenalty,
-        stream: true,
+        stream: true
       })
 
       let fullResponse = ''
@@ -555,12 +570,12 @@ export class CustomOpenAIProvider implements LLMProvider {
     message: string | any[],
     tools: any[],
     onChunk?: (chunk: string) => void,
-    onToolCall?: (tool: string, args: any) => Promise<any>,
+    onToolCall?: (tool: string, args: any) => Promise<any>
   ): Promise<string> {
     // 处理多模态输入
     const messageContent = typeof message === 'string' ? message : message
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      { role: 'user' as const, content: messageContent },
+      { role: 'user' as const, content: messageContent }
     ]
 
     // Convert MCP tools to OpenAI format
@@ -569,8 +584,8 @@ export class CustomOpenAIProvider implements LLMProvider {
       function: {
         name: tool.name,
         description: tool.description,
-        parameters: tool.inputSchema,
-      },
+        parameters: tool.inputSchema
+      }
     }))
 
     const response = await this.client.chat.completions.create({
@@ -580,7 +595,7 @@ export class CustomOpenAIProvider implements LLMProvider {
       temperature: this.config.parameters?.temperature,
       max_tokens: this.config.parameters?.maxTokens,
       top_p: this.config.parameters?.topP,
-      stream: false,
+      stream: false
     })
 
     const responseMessage = response.choices[0].message
@@ -597,7 +612,7 @@ export class CustomOpenAIProvider implements LLMProvider {
           messages.push({
             role: 'tool' as const,
             content: JSON.stringify(result),
-            tool_call_id: toolCall.id,
+            tool_call_id: toolCall.id
           })
         }
       }
@@ -609,7 +624,7 @@ export class CustomOpenAIProvider implements LLMProvider {
         temperature: this.config.parameters?.temperature,
         max_tokens: this.config.parameters?.maxTokens,
         top_p: this.config.parameters?.topP,
-        stream: true,
+        stream: true
       })
 
       let fullResponse = ''

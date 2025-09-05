@@ -28,11 +28,11 @@
           <Menu v-if="!sidebarOpen" :size="20" />
           <X v-else :size="20" />
         </button>
-        
+
         <h1 class="text-lg font-semibold truncate mx-3">
           {{ currentChat?.title || 'New Conversation' }}
         </h1>
-        
+
         <button
           @click="toggleTheme"
           class="touch-target-comfortable p-2 hover:bg-muted rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-ring"
@@ -90,9 +90,7 @@
               aria-describedby="search-help"
             />
           </div>
-          <div id="search-help" class="sr-only">
-            Search through your conversation history
-          </div>
+          <div id="search-help" class="sr-only">Search through your conversation history</div>
         </div>
 
         <!-- Chat List -->
@@ -103,12 +101,7 @@
           :aria-describedby="filteredChats.length > 0 ? 'chat-list-title' : 'empty-state-message'"
         >
           <!-- Chat Items -->
-          <div
-            v-for="(chat, index) in filteredChats"
-            :key="chat.id"
-            role="listitem"
-            class="mb-1"
-          >
+          <div v-for="(chat, index) in filteredChats" :key="chat.id" role="listitem" class="mb-1">
             <button
               @click="selectChat(chat.id)"
               @keydown="handleChatItemKeydown($event, chat.id, index)"
@@ -137,7 +130,7 @@
                     </p>
                   </div>
                 </div>
-                
+
                 <button
                   @click.stop="deleteChat(chat.id)"
                   @keydown.stop
@@ -157,7 +150,11 @@
             role="status"
             id="empty-state-message"
           >
-            <MessageSquare :size="48" class="mx-auto mb-4 text-muted-foreground/30" aria-hidden="true" />
+            <MessageSquare
+              :size="48"
+              class="mx-auto mb-4 text-muted-foreground/30"
+              aria-hidden="true"
+            />
             <p class="text-sm text-muted-foreground mb-2">
               {{ searchQuery ? 'No matching conversations found' : 'No conversations yet' }}
             </p>
@@ -168,14 +165,21 @@
         </div>
 
         <!-- Sidebar Footer -->
-        <div class="p-4 border-t border-border/50 space-y-2" :style="{ paddingBottom: isMobile ? 'var(--safe-area-bottom)' : '' }">
+        <div
+          class="p-4 border-t border-border/50 space-y-2"
+          :style="{ paddingBottom: isMobile ? 'var(--safe-area-bottom)' : '' }"
+        >
           <nav role="navigation" aria-label="Application navigation">
             <ul class="space-y-1">
               <li>
                 <router-link
                   to="/analytics"
                   class="nav-link w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all hover:bg-background focus-visible:ring-2 focus-visible:ring-ring"
-                  :class="$route.name === 'analytics' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:text-foreground'"
+                  :class="
+                    $route.name === 'analytics'
+                      ? 'bg-primary/10 text-primary border border-primary/20'
+                      : 'text-muted-foreground hover:text-foreground'
+                  "
                   role="menuitem"
                 >
                   <BarChart3 :size="18" aria-hidden="true" />
@@ -186,7 +190,11 @@
                 <router-link
                   to="/settings"
                   class="nav-link w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all hover:bg-background focus-visible:ring-2 focus-visible:ring-ring"
-                  :class="$route.name === 'settings' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:text-foreground'"
+                  :class="
+                    $route.name === 'settings'
+                      ? 'bg-primary/10 text-primary border border-primary/20'
+                      : 'text-muted-foreground hover:text-foreground'
+                  "
                   role="menuitem"
                 >
                   <Settings :size="18" aria-hidden="true" />
@@ -233,7 +241,7 @@
             >
               <Menu :size="20" />
             </button>
-            
+
             <div class="flex-1 min-w-0">
               <h1 class="text-lg font-semibold truncate">
                 {{ currentChat?.title || 'New Conversation' }}
@@ -253,7 +261,7 @@
             >
               <Search :size="18" />
             </button>
-            
+
             <button
               @click="toggleTheme"
               class="touch-target p-2 hover:bg-muted rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-ring"
@@ -286,7 +294,8 @@
                   <Sparkles :size="48" class="mx-auto text-primary mb-4" aria-hidden="true" />
                   <h2 class="text-2xl font-bold mb-2">Welcome to MiaoDa Chat</h2>
                   <p class="text-muted-foreground text-lg leading-relaxed">
-                    Your intelligent AI assistant, ready to help with questions, coding, translation, and more.
+                    Your intelligent AI assistant, ready to help with questions, coding,
+                    translation, and more.
                   </p>
                 </div>
 
@@ -309,7 +318,9 @@
                       aria-hidden="true"
                     />
                     <h3 class="font-medium mb-1">{{ suggestion.title }}</h3>
-                    <p class="text-sm text-muted-foreground leading-relaxed">{{ suggestion.description }}</p>
+                    <p class="text-sm text-muted-foreground leading-relaxed">
+                      {{ suggestion.description }}
+                    </p>
                   </button>
                 </div>
               </div>
@@ -327,7 +338,9 @@
                 :key="message.id"
                 :class="[
                   'message-wrapper transition-all duration-200',
-                  message.role === 'user' ? 'message-user flex justify-end' : 'message-assistant flex justify-start'
+                  message.role === 'user'
+                    ? 'message-user flex justify-end'
+                    : 'message-assistant flex justify-start'
                 ]"
                 role="article"
                 :aria-label="`${message.role === 'user' ? 'Your' : 'Assistant'} message from ${formatMessageTime(message.timestamp)}`"
@@ -347,10 +360,7 @@
                     <span class="font-medium text-sm">
                       {{ message.role === 'user' ? 'You' : 'Assistant' }}
                     </span>
-                    <time
-                      :datetime="message.timestamp?.toISOString()"
-                      class="text-xs opacity-70"
-                    >
+                    <time :datetime="message.timestamp?.toISOString()" class="text-xs opacity-70">
                       {{ formatMessageTime(message.timestamp) }}
                     </time>
                   </div>
@@ -375,7 +385,7 @@
                     >
                       <Copy :size="14" />
                     </button>
-                    
+
                     <button
                       v-if="message.role === 'assistant'"
                       @click="regenerateMessage(index)"
@@ -435,7 +445,10 @@
                   title="Attach files"
                   :disabled="isLoading"
                 >
-                  <Paperclip :size="18" class="text-muted-foreground hover:text-primary transition-colors" />
+                  <Paperclip
+                    :size="18"
+                    class="text-muted-foreground hover:text-primary transition-colors"
+                  />
                 </button>
 
                 <!-- Message Input -->
@@ -450,9 +463,11 @@
                     :placeholder="getInputPlaceholder()"
                     :disabled="isLoading"
                     class="message-input w-full min-h-[44px] max-h-32 px-3 py-3 bg-transparent border-0 outline-none resize-none placeholder:text-muted-foreground/60 text-base leading-relaxed focus-visible:outline-none"
-                    style="field-sizing: content;"
+                    style="field-sizing: content"
                     rows="1"
-                    :aria-describedby="inputMessage.length > 3500 ? 'char-count-warning' : 'input-help'"
+                    :aria-describedby="
+                      inputMessage.length > 3500 ? 'char-count-warning' : 'input-help'
+                    "
                     :aria-invalid="inputMessage.length > 4000 ? 'true' : 'false'"
                   />
                 </div>
@@ -462,7 +477,11 @@
                   type="submit"
                   :disabled="!canSend"
                   class="send-button touch-target-comfortable p-2.5 rounded-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
-                  :class="canSend ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95' : 'bg-muted text-muted-foreground'"
+                  :class="
+                    canSend
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95'
+                      : 'bg-muted text-muted-foreground'
+                  "
                   :aria-label="canSend ? 'Send message' : 'Type a message to send'"
                 >
                   <Send :size="18" />
@@ -470,13 +489,15 @@
               </div>
 
               <!-- Input Help Text -->
-              <div class="flex items-center justify-between mt-2 px-2 text-xs text-muted-foreground">
+              <div
+                class="flex items-center justify-between mt-2 px-2 text-xs text-muted-foreground"
+              >
                 <div id="input-help" class="flex items-center gap-4">
                   <span>Press Enter to send</span>
                   <span>Shift+Enter for new line</span>
                   <span v-if="!isMobile">Ctrl+K to search</span>
                 </div>
-                
+
                 <div
                   v-if="inputMessage.length > 0"
                   :id="inputMessage.length > 3500 ? 'char-count-warning' : undefined"
@@ -498,13 +519,7 @@
     </div>
 
     <!-- Live Region for Announcements -->
-    <div
-      id="announcements"
-      aria-live="polite"
-      aria-atomic="true"
-      class="sr-only"
-      role="status"
-    >
+    <div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only" role="status">
       {{ currentAnnouncement }}
     </div>
 
@@ -590,14 +605,17 @@ const filteredChats = computed(() => {
   if (!searchQuery.value) return chats.value
 
   const query = searchQuery.value.toLowerCase()
-  return chats.value.filter(chat =>
-    chat.title?.toLowerCase().includes(query) ||
-    chat.messages?.some((msg: Message) => msg.content.toLowerCase().includes(query))
+  return chats.value.filter(
+    chat =>
+      chat.title?.toLowerCase().includes(query) ||
+      chat.messages?.some((msg: Message) => msg.content.toLowerCase().includes(query))
   )
 })
 
 const canSend = computed(() => {
-  return inputMessage.value.trim().length > 0 && !isLoading.value && inputMessage.value.length <= 4000
+  return (
+    inputMessage.value.trim().length > 0 && !isLoading.value && inputMessage.value.length <= 4000
+  )
 })
 
 // Quick Suggestions
@@ -655,7 +673,7 @@ const selectChat = (chatId: string) => {
   chatStore.selectChat(chatId)
   const selectedChat = chats.value.find(chat => chat.id === chatId)
   announceToScreenReader(`Conversation selected: ${selectedChat?.title || 'Untitled'}`)
-  
+
   if (isMobile.value) {
     closeSidebar()
     // Focus input after selecting chat on mobile
@@ -668,8 +686,10 @@ const selectChat = (chatId: string) => {
 const deleteChat = async (chatId: string) => {
   const chatToDelete = chats.value.find(chat => chat.id === chatId)
   if (!chatToDelete) return
-  
-  if (confirm(`Are you sure you want to delete "${chatToDelete.title || 'Untitled conversation'}"?`)) {
+
+  if (
+    confirm(`Are you sure you want to delete "${chatToDelete.title || 'Untitled conversation'}"?`)
+  ) {
     await chatStore.deleteChat(chatId)
     announceToScreenReader('Conversation deleted')
   }
@@ -680,7 +700,7 @@ const sendMessage = async () => {
 
   const message = inputMessage.value.trim()
   inputMessage.value = ''
-  
+
   // Reset textarea height
   if (messageInputRef.value) {
     messageInputRef.value.style.height = 'auto'
@@ -698,7 +718,7 @@ const sendMessage = async () => {
   // Simulate AI response
   isLoading.value = true
   announceToScreenReader('Assistant is responding')
-  
+
   setTimeout(async () => {
     await chatStore.addMessage({
       role: 'assistant',
@@ -923,22 +943,22 @@ const handleOverlayTouchStart = (event: TouchEvent) => {
   // Handle swipe to close gesture
   const startY = event.touches[0].clientY
   const startX = event.touches[0].clientX
-  
+
   const handleTouchMove = (moveEvent: TouchEvent) => {
     const currentX = moveEvent.touches[0].clientX
     const deltaX = currentX - startX
-    
+
     // If swiping left significantly, close sidebar
     if (deltaX < -100) {
       closeSidebar()
     }
   }
-  
+
   const cleanup = () => {
     document.removeEventListener('touchmove', handleTouchMove)
     document.removeEventListener('touchend', cleanup)
   }
-  
+
   document.addEventListener('touchmove', handleTouchMove, { passive: true })
   document.addEventListener('touchend', cleanup, { once: true })
 }
@@ -946,7 +966,7 @@ const handleOverlayTouchStart = (event: TouchEvent) => {
 // Global keyboard shortcuts
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   const isInputFocused = document.activeElement === messageInputRef.value
-  
+
   // Global shortcuts (only when input is not focused)
   if (!isInputFocused) {
     switch (true) {
@@ -971,7 +991,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         break
     }
   }
-  
+
   // Always available shortcuts
   if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D') {
     event.preventDefault()
@@ -982,7 +1002,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 // Platform and device detection
 const detectPlatformAndDevice = () => {
   isMacOS.value = navigator.platform.toLowerCase().includes('mac')
-  
+
   const checkMobile = () => {
     isMobile.value = window.innerWidth < 768
     if (isMobile.value) {
@@ -995,7 +1015,7 @@ const detectPlatformAndDevice = () => {
 
   checkMobile()
   window.addEventListener('resize', checkMobile)
-  
+
   return () => {
     window.removeEventListener('resize', checkMobile)
   }
@@ -1005,13 +1025,13 @@ const detectPlatformAndDevice = () => {
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem('theme')
   const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  
+
   isDark.value = savedTheme === 'dark' || (!savedTheme && systemDark)
-  
+
   if (isDark.value) {
     document.documentElement.classList.add('dark')
   }
-  
+
   // Listen for system theme changes
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
   const handleSystemThemeChange = (e: MediaQueryListEvent) => {
@@ -1020,9 +1040,9 @@ const initializeTheme = () => {
       document.documentElement.classList.toggle('dark', e.matches)
     }
   }
-  
+
   mediaQuery.addListener(handleSystemThemeChange)
-  
+
   return () => {
     mediaQuery.removeListener(handleSystemThemeChange)
   }
@@ -1032,9 +1052,9 @@ const initializeTheme = () => {
 onMounted(() => {
   const cleanupPlatform = detectPlatformAndDevice()
   const cleanupTheme = initializeTheme()
-  
+
   document.addEventListener('keydown', handleGlobalKeydown)
-  
+
   // Announce app ready state
   setTimeout(() => {
     announceToScreenReader('MiaoDa Chat is ready')
@@ -1065,7 +1085,7 @@ watch(searchQuery, () => {
     padding-left: max(1rem, var(--safe-area-left));
     padding-right: max(1rem, var(--safe-area-right));
   }
-  
+
   .sidebar {
     /* Full-screen sidebar on mobile */
     width: 100vw !important;
@@ -1134,11 +1154,11 @@ watch(searchQuery, () => {
   .message-content {
     border: 2px solid currentColor !important;
   }
-  
+
   .input-wrapper {
     border: 2px solid hsl(var(--border)) !important;
   }
-  
+
   .input-wrapper:focus-within {
     border-color: hsl(var(--ring)) !important;
     box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
@@ -1151,12 +1171,12 @@ watch(searchQuery, () => {
     background: hsl(var(--muted));
     transform: scale(0.98);
   }
-  
+
   .suggestion-card:active {
     transform: scale(0.98);
     background: hsl(var(--muted));
   }
-  
+
   .chat-item:active {
     background: hsl(var(--muted));
   }

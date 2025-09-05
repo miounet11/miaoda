@@ -14,14 +14,14 @@ describe('LLM Performance Tests', () => {
   beforeAll(async () => {
     performanceMonitor = new TestingPerformanceMonitor({
       llmFirstToken: 2000,
-      memoryBaseline: 500,
+      memoryBaseline: 500
     })
 
     benchmarkRunner = new BenchmarkRunner({
       thresholds: {
-        llmFirstToken: 2000,
+        llmFirstToken: 2000
       },
-      verbose: true,
+      verbose: true
     })
 
     logger.info('LLM performance test suite initialized', 'LLMPerformanceTest')
@@ -55,7 +55,7 @@ describe('LLM Performance Tests', () => {
       const validation = performanceMonitor.validatePerformance(
         'First Token',
         metrics!.duration,
-        'llmFirstToken',
+        'llmFirstToken'
       )
 
       expect(validation.passed).toBe(true)
@@ -102,13 +102,15 @@ describe('LLM Performance Tests', () => {
 
     it('should maintain performance under concurrent requests', async () => {
       const concurrentRequests = 5
-      const requests = Array(concurrentRequests).fill(null).map((_, index) =>
-        performanceMonitor.measureAsync(
-          () => simulateFirstTokenResponse(),
-          `Concurrent LLM Request ${index + 1}`,
-          5000,
-        ),
-      )
+      const requests = Array(concurrentRequests)
+        .fill(null)
+        .map((_, index) =>
+          performanceMonitor.measureAsync(
+            () => simulateFirstTokenResponse(),
+            `Concurrent LLM Request ${index + 1}`,
+            5000
+          )
+        )
 
       const results = await Promise.all(requests)
 
@@ -166,7 +168,7 @@ describe('LLM Performance Tests', () => {
         await performanceMonitor.measureAsync(
           () => simulateTimeoutError(),
           'Timeout Test',
-          1000, // 1 second timeout
+          1000 // 1 second timeout
         )
       } catch (error) {
         expect(error.message).toContain('timeout')
@@ -209,26 +211,20 @@ describe('LLM Performance Tests', () => {
 
     it('should detect LLM performance regressions', async () => {
       // Baseline benchmark
-      const baseline = await performanceMonitor.benchmark(
-        () => simulateFirstTokenResponse(),
-        {
-          name: 'Baseline LLM Response',
-          iterations: 5,
-          threshold: 2000,
-        },
-      )
+      const baseline = await performanceMonitor.benchmark(() => simulateFirstTokenResponse(), {
+        name: 'Baseline LLM Response',
+        iterations: 5,
+        threshold: 2000
+      })
 
       expect(baseline.status).toBe('pass')
 
       // Simulate regression with slow response
-      const regression = await performanceMonitor.benchmark(
-        () => simulateSlowLLMResponse(),
-        {
-          name: 'Regression LLM Response',
-          iterations: 3,
-          threshold: 2000,
-        },
-      )
+      const regression = await performanceMonitor.benchmark(() => simulateSlowLLMResponse(), {
+        name: 'Regression LLM Response',
+        iterations: 3,
+        threshold: 2000
+      })
 
       expect(regression.status).toBe('fail')
       expect(regression.average).toBeGreaterThan(baseline.average * 1.5) // 50% slower
@@ -238,7 +234,7 @@ describe('LLM Performance Tests', () => {
   describe('Provider-Specific Performance', () => {
     const providers = ['openai', 'anthropic', 'google', 'ollama']
 
-    it.each(providers)('should meet performance requirements for %s provider', async (provider) => {
+    it.each(providers)('should meet performance requirements for %s provider', async provider => {
       const testId = `llm-${provider}-performance`
       performanceMonitor.startTest(testId, `${provider} Provider Performance`)
 
@@ -259,11 +255,14 @@ async function simulateFirstTokenResponse(): Promise<{ firstToken: string; times
 
   return {
     firstToken: 'Hello',
-    timestamp: Date.now(),
+    timestamp: Date.now()
   }
 }
 
-async function simulateTokenStreaming(): Promise<{ totalTokens: number; avgTokenInterval: number }> {
+async function simulateTokenStreaming(): Promise<{
+  totalTokens: number
+  avgTokenInterval: number
+}> {
   const tokenCount = 50 + Math.random() * 100
   const tokens = []
 
@@ -277,11 +276,13 @@ async function simulateTokenStreaming(): Promise<{ totalTokens: number; avgToken
 
   return {
     totalTokens: tokenCount,
-    avgTokenInterval: avgInterval,
+    avgTokenInterval: avgInterval
   }
 }
 
-async function simulateLLMResponse(messageSize: 'short' | 'medium' | 'long'): Promise<{ tokens: number; duration: number }> {
+async function simulateLLMResponse(
+  messageSize: 'short' | 'medium' | 'long'
+): Promise<{ tokens: number; duration: number }> {
   const sizeMultiplier = { short: 1, medium: 2, long: 4 }[messageSize]
   const baseTime = 500 * sizeMultiplier
   const responseTime = baseTime + Math.random() * baseTime * 0.5
@@ -290,11 +291,14 @@ async function simulateLLMResponse(messageSize: 'short' | 'medium' | 'long'): Pr
 
   return {
     tokens: 10 * sizeMultiplier + Math.random() * 20,
-    duration: responseTime,
+    duration: responseTime
   }
 }
 
-async function simulateStreamingWithCleanup(): Promise<{ cleanedUp: boolean; activeConnections: number }> {
+async function simulateStreamingWithCleanup(): Promise<{
+  cleanedUp: boolean
+  activeConnections: number
+}> {
   // Simulate streaming operation
   await new Promise(resolve => setTimeout(resolve, 200))
 
@@ -303,7 +307,7 @@ async function simulateStreamingWithCleanup(): Promise<{ cleanedUp: boolean; act
 
   return {
     cleanedUp: true,
-    activeConnections: 0,
+    activeConnections: 0
   }
 }
 
@@ -319,7 +323,7 @@ async function simulateErrorRecovery(): Promise<{ recovered: boolean; retryCount
 
   return {
     recovered: true,
-    retryCount: 1,
+    retryCount: 1
   }
 }
 
@@ -330,19 +334,21 @@ async function simulateSlowLLMResponse(): Promise<{ tokens: number }> {
   return { tokens: 50 }
 }
 
-async function simulateProviderResponse(provider: string): Promise<{ provider: string; tokens: number }> {
+async function simulateProviderResponse(
+  provider: string
+): Promise<{ provider: string; tokens: number }> {
   const providerTimes = {
     openai: 800 + Math.random() * 600,
     anthropic: 900 + Math.random() * 700,
     google: 700 + Math.random() * 500,
-    ollama: 1200 + Math.random() * 800, // Local model, potentially slower
+    ollama: 1200 + Math.random() * 800 // Local model, potentially slower
   }
 
   await new Promise(resolve => setTimeout(resolve, providerTimes[provider] || 1000))
 
   return {
     provider,
-    tokens: 20 + Math.random() * 30,
+    tokens: 20 + Math.random() * 30
   }
 }
 
@@ -351,7 +357,7 @@ function getProviderThreshold(provider: string): number {
     openai: 2000,
     anthropic: 2200,
     google: 1800,
-    ollama: 3000, // Higher threshold for local models
+    ollama: 3000 // Higher threshold for local models
   }
 
   return thresholds[provider] || 2000

@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { PluginManager } from '../plugins/pluginManager'
+import { logger } from '../utils/Logger'
 
 export interface MCPServer {
   name: string
@@ -18,7 +18,7 @@ export class MCPManager {
 
   constructor() {
     // Test tools removed - using real MCP tools only
-    console.log('MCP Manager initialized')
+    logger.info('MCP Manager initialized', 'MCPManager')
   }
 
   setPluginManager(pluginManager: PluginManager) {
@@ -32,37 +32,38 @@ export class MCPManager {
         throw new Error(`Invalid server configuration: ${JSON.stringify(server)}`)
       }
 
-      console.log(`[MCP] Connecting to server: ${server.name}`)
-      console.log(`[MCP] Command: ${server.command} ${server.args?.join(' ') || 'no args'}`)
+      logger.info(`Connecting to server: ${server.name}`, 'MCP')
+      logger.debug(`Command: ${server.command} ${server.args?.join(' ') || 'no args'}`, 'MCP')
 
       const transport = new StdioClientTransport({
         command: server.command,
         args: server.args || [],
-        env: server.env,
+        env: server.env
       })
 
       const client = new Client(
         {
           name: `miaoda-chat-${server.name}`,
-          version: '0.1.0',
+          version: '0.1.0'
         },
         {
           capabilities: {
             tools: {},
-            resources: {},
-          },
-        },
+            resources: {}
+          }
+        }
       )
 
       await client.connect(transport)
       this.clients.set(server.name, client)
-      console.log(`[MCP] Successfully connected to ${server.name}`)
+      logger.info(`Successfully connected to ${server.name}`, 'MCP')
 
       // List available tools
       try {
         const toolsResponse = await client.listTools()
-        console.log(
-          `[MCP] Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`,
+        logger.info(
+          `Server ${server.name} provides ${toolsResponse?.tools?.length || 0} tools`,
+          'MCP'
         )
         if (toolsResponse?.tools) {
           toolsResponse.tools.forEach(tool => {
@@ -72,14 +73,18 @@ export class MCPManager {
           })
         }
       } catch (toolError) {
-        console.warn(`[MCP] Failed to list tools for ${server.name}:`, toolError)
+        logger.warn(`Failed to list tools for ${server.name}`, 'MCP', toolError)
       }
 
-      console.log(`Connected to MCP server: ${server.name}`)
+      logger.info(`Connected to MCP server: ${server.name}`, 'MCPManager')
     } catch (error) {
-      console.error(`Failed to connect to MCP server ${server?.name || 'unknown'}:`, error)
+      logger.error(
+        `Failed to connect to MCP server ${server?.name || 'unknown'}`,
+        'MCPManager',
+        error
+      )
       throw new Error(
-        `MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`,
+        `MCP server connection failed: ${error instanceof Error ? error.message : String(error)}`
       )
     }
   }
@@ -91,11 +96,10 @@ export class MCPManager {
       this.clients.delete(name)
 
       // Remove tools from this server
-      for (const [toolKey] of this.tools) {
-        if (toolKey.startsWith(`${name}:`)) {
-          this.tools.delete(toolKey)
-        }
-      }
+      const toolKeysToDelete = Array.from(this.tools.keys()).filter(toolKey =>
+        toolKey.startsWith(`${name}:`)
+      )
+      toolKeysToDelete.forEach(toolKey => this.tools.delete(toolKey))
     }
   }
 
@@ -123,19 +127,19 @@ export class MCPManager {
             content: [
               {
                 type: 'text',
-                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-              },
-            ],
+                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
+              }
+            ]
           }
         } catch (error: any) {
           return {
             content: [
               {
                 type: 'text',
-                text: `Plugin error: ${error.message}`,
-              },
+                text: `Plugin error: ${error.message}`
+              }
             ],
-            isError: true,
+            isError: true
           }
         }
       }
@@ -145,7 +149,8 @@ export class MCPManager {
     let serverName: string | null = null
     let actualToolName: string = toolName
 
-    for (const [key] of this.tools) {
+    const toolKeys = Array.from(this.tools.keys())
+    for (const key of toolKeys) {
       if (key.endsWith(`:${toolName}`) || key === toolName) {
         const parts = key.split(':')
         serverName = parts[0]
@@ -160,14 +165,14 @@ export class MCPManager {
 
     // Handle test tools (simplified)
     if (serverName === 'test') {
-      console.log(`Test tool call: ${actualToolName}`)
+      logger.debug(`Test tool call: ${actualToolName}`, 'MCPManager')
       return {
         content: [
           {
             type: 'text',
-            text: `Test tool ${actualToolName} executed (placeholder)`,
-          },
-        ],
+            text: `Test tool ${actualToolName} executed (placeholder)`
+          }
+        ]
       }
     }
 
@@ -180,14 +185,15 @@ export class MCPManager {
       const result = await client.callTool({ name: actualToolName, arguments: args })
       return result
     } catch (error) {
-      console.error(`Error calling tool ${toolName}:`, error)
+      logger.error(`Error calling tool ${toolName}`, 'MCPManager', error)
       const errorMessage = error instanceof Error ? error.message : String(error)
       throw new Error(`Tool call failed: ${errorMessage}`)
     }
   }
 
   async disconnectAll(): Promise<void> {
-    for (const [name] of this.clients) {
+    const clientNames = Array.from(this.clients.keys())
+    for (const name of clientNames) {
       await this.disconnectServer(name)
     }
   }

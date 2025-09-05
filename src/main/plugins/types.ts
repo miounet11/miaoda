@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Plugin system types and interfaces
 import { Tool } from '@modelcontextprotocol/sdk/types.js'
 

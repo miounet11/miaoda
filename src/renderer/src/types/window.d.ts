@@ -1,5 +1,28 @@
 declare global {
   interface Window {
+    api: {
+      getAppVersion: () => Promise<string>
+      db: {
+        createChat: (chat: any) => Promise<any>
+        updateChat: (id: string, title: string, updated_at: string) => Promise<any>
+        deleteChat: (id: string) => Promise<any>
+        getChat: (id: string) => Promise<any>
+        getAllChats: () => Promise<any[]>
+        createMessage: (message: any) => Promise<any>
+        updateMessage: (messageId: string, content: string) => Promise<any>
+        getMessages: (chatId: string) => Promise<any[]>
+        searchChats: (query: string) => Promise<any[]>
+      }
+      llm: {
+        sendMessage: (content: string, chatId: string, messageId: string) => Promise<any>
+        getProviders: () => Promise<any[]>
+        saveSettings: (settings: any) => Promise<any>
+        loadSettings: () => Promise<any>
+        onChunk: (callback: (data: any) => void) => void
+        onStatus: (callback: (data: any) => void) => void
+      }
+      invoke: (channel: string, ...args: any[]) => Promise<any>
+    }
     electronAPI: {
       getAppVersion: () => Promise<string>
       chat: {

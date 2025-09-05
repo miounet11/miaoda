@@ -8,80 +8,80 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
       accelerator: 'CommandOrControl+N',
       action: () => {
         mainWindow.webContents.send('shortcut:new-chat')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+,',
       action: () => {
         mainWindow.webContents.send('shortcut:open-settings')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+K',
       action: () => {
         mainWindow.webContents.send('shortcut:focus-input')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+Shift+K',
       action: () => {
         mainWindow.webContents.send('shortcut:clear-chat')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+[',
       action: () => {
         mainWindow.webContents.send('shortcut:prev-chat')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+]',
       action: () => {
         mainWindow.webContents.send('shortcut:next-chat')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+Shift+?',
       action: () => {
         mainWindow.webContents.send('shortcut:show-help')
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+Tab',
       action: () => {
         mainWindow.webContents.send('shortcut:next-tab')
-      },
+      }
     },
     {
       accelerator: 'Alt+1',
       action: () => {
         mainWindow.webContents.send('shortcut:switch-tab', 0)
-      },
+      }
     },
     {
       accelerator: 'Alt+2',
       action: () => {
         mainWindow.webContents.send('shortcut:switch-tab', 1)
-      },
+      }
     },
     {
       accelerator: 'Alt+3',
       action: () => {
         mainWindow.webContents.send('shortcut:switch-tab', 2)
-      },
+      }
     },
     {
       accelerator: 'CommandOrControl+Shift+I',
       action: () => {
         mainWindow.webContents.toggleDevTools()
-      },
+      }
     },
     {
       accelerator: 'F12',
       action: () => {
         mainWindow.webContents.toggleDevTools()
-      },
-    },
+      }
+    }
   ]
 
   // Register shortcuts when window is focused
@@ -97,7 +97,7 @@ export function registerShortcuts(mainWindow: BrowserWindow) {
         if (!success) {
           logger.warn(`Failed to register shortcut: ${accelerator}`, 'Shortcuts', {
             accelerator,
-            reason: 'Global shortcut registration returned false',
+            reason: 'Global shortcut registration returned false'
           })
         } else {
           logger.debug(`Successfully registered shortcut: ${accelerator}`, 'Shortcuts')
@@ -147,7 +147,7 @@ export function registerShortcutHandlers() {
       { key: 'F12', description: 'Toggle Developer Tools' },
       { key: 'Enter', description: 'Send Message' },
       { key: 'Shift+Enter', description: 'New Line' },
-      { key: 'Cmd/Ctrl+V', description: 'Paste Image' },
+      { key: 'Cmd/Ctrl+V', description: 'Paste Image' }
     ]
   })
 }

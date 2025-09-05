@@ -46,7 +46,7 @@ export const CRYPTO_CONSTANTS = {
   KEY_ROTATION_INTERVAL: 30 * 24 * 60 * 60 * 1000, // 30天
 
   // 版本标识
-  CRYPTO_VERSION: 'v2.0',
+  CRYPTO_VERSION: 'v2.0'
 } as const
 
 // 加密数据结构
@@ -122,7 +122,7 @@ export class CryptoManager {
       randomBytes(32),
       Buffer.from(Date.now().toString()),
       Buffer.from(process.hrtime.bigint().toString()),
-      crypto.randomBytes(32),
+      crypto.randomBytes(32)
     ])
 
     // 混合熵源
@@ -140,7 +140,7 @@ export class CryptoManager {
    */
   async generateMasterKey(
     password: string,
-    options: KeyDerivationOptions = {},
+    options: KeyDerivationOptions = {}
   ): Promise<{ key: Buffer; salt: Buffer; keyId: string }> {
     const salt = options.salt || randomBytes(CRYPTO_CONSTANTS.SALT_LENGTH)
     const algorithm = options.algorithm || 'scrypt'
@@ -152,7 +152,7 @@ export class CryptoManager {
         masterKey = (await scryptAsync(password, salt, CRYPTO_CONSTANTS.AES_KEY_LENGTH, {
           N: CRYPTO_CONSTANTS.SCRYPT_N,
           r: CRYPTO_CONSTANTS.SCRYPT_R,
-          p: CRYPTO_CONSTANTS.SCRYPT_P,
+          p: CRYPTO_CONSTANTS.SCRYPT_P
         })) as Buffer
         break
 
@@ -162,7 +162,7 @@ export class CryptoManager {
           salt,
           options.iterations || CRYPTO_CONSTANTS.PBKDF2_ITERATIONS,
           CRYPTO_CONSTANTS.AES_KEY_LENGTH,
-          'sha512',
+          'sha512'
         )
         break
 
@@ -180,7 +180,7 @@ export class CryptoManager {
       algorithm: `${algorithm}-${CRYPTO_CONSTANTS.HASH_ALGORITHM}`,
       createdAt: Date.now(),
       usage: 'encryption',
-      status: 'active',
+      status: 'active'
     }
 
     this.masterKey = masterKey
@@ -204,7 +204,7 @@ export class CryptoManager {
     const contextData = Buffer.concat([
       Buffer.from(purpose, 'utf8'),
       Buffer.from(context || '', 'utf8'),
-      Buffer.from(Date.now().toString(), 'utf8'),
+      Buffer.from(Date.now().toString(), 'utf8')
     ])
 
     // 使用HKDF派生子密钥
@@ -213,7 +213,7 @@ export class CryptoManager {
       this.masterKey,
       randomBytes(16), // salt
       contextData, // info
-      CRYPTO_CONSTANTS.AES_KEY_LENGTH,
+      CRYPTO_CONSTANTS.AES_KEY_LENGTH
     )
 
     const keyId = this.generateKeyId(derivedKey, contextData)
@@ -226,7 +226,7 @@ export class CryptoManager {
       derivedFrom: this.currentKeyId,
       createdAt: Date.now(),
       usage: 'encryption',
-      status: 'active',
+      status: 'active'
     }
 
     this.keyStore.set(keyId, derivedKey)
@@ -268,7 +268,7 @@ export class CryptoManager {
       authTag: authTag.toString('base64'),
       data: encrypted.toString('base64'),
       keyId: useKeyId,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     }
   }
 
@@ -317,7 +317,7 @@ export class CryptoManager {
         keyPair = crypto.generateKeyPairSync('rsa', {
           modulusLength: CRYPTO_CONSTANTS.RSA_KEY_SIZE,
           publicKeyEncoding: { type: 'spki', format: 'pem' },
-          privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+          privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         })
         break
 
@@ -325,7 +325,7 @@ export class CryptoManager {
         keyPair = crypto.generateKeyPairSync('ec', {
           namedCurve: CRYPTO_CONSTANTS.ECDSA_CURVE,
           publicKeyEncoding: { type: 'spki', format: 'pem' },
-          privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+          privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         })
         break
 
@@ -342,7 +342,7 @@ export class CryptoManager {
       algorithm,
       createdAt: Date.now(),
       usage: 'signing',
-      status: 'active',
+      status: 'active'
     }
 
     this.keyInfo.set(keyId, keyInfo)
@@ -350,7 +350,7 @@ export class CryptoManager {
     return {
       publicKey: keyPair.publicKey,
       privateKey: keyPair.privateKey,
-      keyId,
+      keyId
     }
   }
 
@@ -372,7 +372,7 @@ export class CryptoManager {
   async verifySignature(
     data: string | Buffer,
     signature: string,
-    publicKey: string,
+    publicKey: string
   ): Promise<boolean> {
     try {
       const verifyData = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8')
@@ -538,7 +538,7 @@ export class PasswordStrengthValidator {
     return {
       isStrong: score >= 70 && feedback.length === 0,
       score,
-      feedback,
+      feedback
     }
   }
 
@@ -553,7 +553,7 @@ export class PasswordStrengthValidator {
       'monkey',
       '1234567890',
       'qwerty',
-      'abc123',
+      'abc123'
     ]
 
     return commonPasswords.some(common => password.toLowerCase().includes(common))

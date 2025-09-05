@@ -20,7 +20,7 @@ class UIUXAnalyzer {
       interactions: {},
       accessibility: {},
       performance: {},
-      recommendations: [],
+      recommendations: []
     }
   }
 
@@ -42,7 +42,6 @@ class UIUXAnalyzer {
 
       // 生成组件特定的建议
       this.generateComponentRecommendations(content, componentName)
-
     } catch (error) {
       console.error(`❌ 分析组件失败: ${filePath}`, error.message)
     }
@@ -74,7 +73,18 @@ class UIUXAnalyzer {
    * 检查语义化HTML
    */
   checkSemanticHTML(template, componentName) {
-    const semanticTags = ['header', 'nav', 'main', 'section', 'article', 'aside', 'footer', 'button', 'input', 'label']
+    const semanticTags = [
+      'header',
+      'nav',
+      'main',
+      'section',
+      'article',
+      'aside',
+      'footer',
+      'button',
+      'input',
+      'label'
+    ]
     const foundTags = semanticTags.filter(tag => template.includes(`<${tag}`))
 
     if (foundTags.length === 0) {
@@ -83,7 +93,7 @@ class UIUXAnalyzer {
         type: 'semantic-html',
         priority: 'high',
         message: '建议使用语义化HTML标签来改善可访问性和SEO',
-        suggestion: '使用 <button> 而不是 <div> 作为按钮，使用 <nav> 包装导航元素',
+        suggestion: '使用 <button> 而不是 <div> 作为按钮，使用 <nav> 包装导航元素'
       })
     }
   }
@@ -101,7 +111,7 @@ class UIUXAnalyzer {
         type: 'accessibility',
         priority: 'medium',
         message: '缺少可访问性属性',
-        suggestion: '添加 aria-label、role 等属性来改善屏幕阅读器支持',
+        suggestion: '添加 aria-label、role 等属性来改善屏幕阅读器支持'
       })
     }
   }
@@ -119,7 +129,7 @@ class UIUXAnalyzer {
         type: 'interaction',
         priority: 'high',
         message: '交互元素缺少事件处理',
-        suggestion: '为按钮和表单控件添加适当的事件处理函数',
+        suggestion: '为按钮和表单控件添加适当的事件处理函数'
       })
     }
   }
@@ -145,7 +155,7 @@ class UIUXAnalyzer {
           type: 'visual-hierarchy',
           priority: 'medium',
           message: '标题层级可能有跳跃',
-          suggestion: '确保标题层级连续，避免从 h1 直接跳到 h3',
+          suggestion: '确保标题层级连续，避免从 h1 直接跳到 h3'
         })
       }
     }
@@ -186,7 +196,7 @@ class UIUXAnalyzer {
         type: 'color-system',
         priority: 'medium',
         message: '建议使用设计系统的语义色彩',
-        suggestion: '使用 CSS 变量如 var(--primary) 而不是硬编码颜色值',
+        suggestion: '使用 CSS 变量如 var(--primary) 而不是硬编码颜色值'
       })
     }
 
@@ -198,7 +208,7 @@ class UIUXAnalyzer {
         type: 'color-contrast',
         priority: 'high',
         message: '可能存在低对比度色彩',
-        suggestion: '确保文字色彩与背景有至少 4.5:1 的对比度',
+        suggestion: '确保文字色彩与背景有至少 4.5:1 的对比度'
       })
     }
   }
@@ -217,7 +227,7 @@ class UIUXAnalyzer {
         type: 'typography',
         priority: 'medium',
         message: '字体系统不完整',
-        suggestion: '同时设置 font-size、line-height 和 font-weight 以获得更好的可读性',
+        suggestion: '同时设置 font-size、line-height 和 font-weight 以获得更好的可读性'
       })
     }
   }
@@ -231,14 +241,15 @@ class UIUXAnalyzer {
 
     if (hasSpacing) {
       // 检查是否使用设计系统的间距值
-      const usesDesignTokens = styles.includes('var(--space') || styles.includes('rem)') || styles.includes('em)')
+      const usesDesignTokens =
+        styles.includes('var(--space') || styles.includes('rem)') || styles.includes('em)')
       if (!usesDesignTokens) {
         this.analysisResults.recommendations.push({
           component: componentName,
           type: 'spacing',
           priority: 'low',
           message: '建议使用一致的间距系统',
-          suggestion: '使用 8px 基准的间距系统，如 0.5rem、1rem、1.5rem 等',
+          suggestion: '使用 8px 基准的间距系统，如 0.5rem、1rem、1.5rem 等'
         })
       }
     }
@@ -257,7 +268,7 @@ class UIUXAnalyzer {
         type: 'responsive',
         priority: 'medium',
         message: '可能缺少响应式设计',
-        suggestion: '添加媒体查询来确保在不同屏幕尺寸下的良好体验',
+        suggestion: '添加媒体查询来确保在不同屏幕尺寸下的良好体验'
       })
     }
   }
@@ -275,7 +286,7 @@ class UIUXAnalyzer {
         type: 'loading-states',
         priority: 'medium',
         message: '优化加载状态的用户体验',
-        suggestion: '添加骨架屏或优雅的加载动画，提升用户等待体验',
+        suggestion: '添加骨架屏或优雅的加载动画，提升用户等待体验'
       })
     }
 
@@ -286,7 +297,7 @@ class UIUXAnalyzer {
         type: 'error-states',
         priority: 'high',
         message: '优化错误状态的设计',
-        suggestion: '为错误状态设计友好的UI，包括清晰的错误信息和恢复操作',
+        suggestion: '为错误状态设计友好的UI，包括清晰的错误信息和恢复操作'
       })
     }
 
@@ -297,7 +308,7 @@ class UIUXAnalyzer {
         type: 'form-design',
         priority: 'high',
         message: '优化表单的用户体验',
-        suggestion: '改善表单布局，添加适当的标签、占位符和验证反馈',
+        suggestion: '改善表单布局，添加适当的标签、占位符和验证反馈'
       })
     }
   }
@@ -311,9 +322,15 @@ class UIUXAnalyzer {
 
     // 统计信息
     const totalRecommendations = this.analysisResults.recommendations.length
-    const highPriority = this.analysisResults.recommendations.filter(r => r.priority === 'high').length
-    const mediumPriority = this.analysisResults.recommendations.filter(r => r.priority === 'medium').length
-    const lowPriority = this.analysisResults.recommendations.filter(r => r.priority === 'low').length
+    const highPriority = this.analysisResults.recommendations.filter(
+      r => r.priority === 'high'
+    ).length
+    const mediumPriority = this.analysisResults.recommendations.filter(
+      r => r.priority === 'medium'
+    ).length
+    const lowPriority = this.analysisResults.recommendations.filter(
+      r => r.priority === 'low'
+    ).length
 
     console.log('📊 分析结果:')
     console.log(`   总建议数: ${totalRecommendations}`)

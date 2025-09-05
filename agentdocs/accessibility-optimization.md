@@ -5,6 +5,7 @@
 **核心原则**: "Inclusive Design - 无障碍即优秀设计"
 
 将可访问性融入设计流程，确保所有用户都能平等使用：
+
 - **键盘导航优先**: 支持完整的键盘操作
 - **屏幕阅读器友好**: 语义化标签和ARIA支持
 - **高对比度适配**: 支持系统偏好设置
@@ -17,18 +18,21 @@
 ### 现有可访问性功能
 
 ✅ **已实现**:
+
 - 基础的 ARIA 标签支持
 - 键盘导航框架 (`useKeyboardNavigation.ts`)
 - 主题系统 (浅色/深色模式)
 - 国际化支持 (多语言)
 
 ⚠️ **需要改进**:
+
 - 弹窗和模态框的焦点管理
 - 复杂组件的键盘导航
 - 屏幕阅读器的上下文信息
 - 高对比度模式的支持
 
 ❌ **缺失功能**:
+
 - 减少动画模式的系统支持
 - 语音导航辅助
 - 字体大小调整支持
@@ -106,7 +110,7 @@ export class KeyboardNavigationManager {
 
     // 自动聚焦第一个可聚焦元素
     if (focusableElements.length > 0) {
-      (focusableElements[0] as HTMLElement).focus()
+      ;(focusableElements[0] as HTMLElement).focus()
     }
   }
 
@@ -221,7 +225,7 @@ export class AriaManager {
         class="message-author"
         :aria-label="isUser ? '用户消息' : `AI助手 ${message.model || '默认模型'}`"
       >
-        {{ isUser ? '我' : (message.model || 'AI助手') }}
+        {{ isUser ? '我' : message.model || 'AI助手' }}
       </span>
       <time
         :datetime="message.timestamp.toISOString()"
@@ -239,10 +243,7 @@ export class AriaManager {
       :aria-label="`消息内容: ${getPlainTextContent()}`"
     >
       <!-- 渲染消息内容 -->
-      <MessageContentRenderer
-        :content="message.content"
-        :attachments="message.attachments"
-      />
+      <MessageContentRenderer :content="message.content" :attachments="message.attachments" />
     </div>
 
     <!-- 消息操作 -->
@@ -376,7 +377,7 @@ export class MotionPreferences {
     const mediaQuery = window.matchMedia(this.MOTION_MEDIA_QUERY)
     callback(mediaQuery.matches)
 
-    mediaQuery.addEventListener('change', (event) => {
+    mediaQuery.addEventListener('change', event => {
       callback(event.matches)
     })
   }
@@ -412,8 +413,12 @@ export class FontScaler {
 
     // 更新所有字体大小变量
     const fontVars = [
-      '--text-xs', '--text-sm', '--text-base',
-      '--text-lg', '--text-xl', '--text-2xl'
+      '--text-xs',
+      '--text-sm',
+      '--text-base',
+      '--text-lg',
+      '--text-xl',
+      '--text-2xl'
     ]
 
     fontVars.forEach(varName => {
@@ -481,12 +486,12 @@ export class VoiceNavigation {
 
     // 语音命令映射
     const commandMap: Record<string, () => void> = {
-      '新建聊天': () => this.executeCommand('new-chat'),
-      '搜索': () => this.executeCommand('search'),
-      '设置': () => this.executeCommand('settings'),
-      '关闭': () => this.executeCommand('close-modal'),
-      '下一个': () => this.executeCommand('next-item'),
-      '上一个': () => this.executeCommand('previous-item')
+      新建聊天: () => this.executeCommand('new-chat'),
+      搜索: () => this.executeCommand('search'),
+      设置: () => this.executeCommand('settings'),
+      关闭: () => this.executeCommand('close-modal'),
+      下一个: () => this.executeCommand('next-item'),
+      上一个: () => this.executeCommand('previous-item')
     }
 
     const action = commandMap[command]
@@ -547,7 +552,7 @@ export class AccessibilityTester {
     report.issues.push(...this.checkAriaAttributes())
 
     // 检查键盘导航
-    report.issues.push(...await this.checkKeyboardNavigation())
+    report.issues.push(...(await this.checkKeyboardNavigation()))
 
     // 检查颜色对比度
     report.issues.push(...this.checkColorContrast())
@@ -566,13 +571,17 @@ export class AccessibilityTester {
 
   private static checkAriaAttributes(): AccessibilityIssue[] {
     const issues: AccessibilityIssue[] = []
-    const elements = document.querySelectorAll('[aria-label], [aria-labelledby], [aria-describedby]')
+    const elements = document.querySelectorAll(
+      '[aria-label], [aria-labelledby], [aria-describedby]'
+    )
 
     elements.forEach(element => {
       // 检查 ARIA 标签的有效性
-      if (!element.getAttribute('aria-label') &&
-          !element.getAttribute('aria-labelledby') &&
-          !element.getAttribute('aria-describedby')) {
+      if (
+        !element.getAttribute('aria-label') &&
+        !element.getAttribute('aria-labelledby') &&
+        !element.getAttribute('aria-describedby')
+      ) {
         issues.push({
           type: 'error',
           element: element as HTMLElement,
@@ -599,8 +608,8 @@ export class AccessibilityTester {
 
       // 检查是否有可见的焦点指示器
       const computedStyle = window.getComputedStyle(element)
-      const hasFocusIndicator = computedStyle.outline !== 'none' ||
-                               computedStyle.boxShadow !== 'none'
+      const hasFocusIndicator =
+        computedStyle.outline !== 'none' || computedStyle.boxShadow !== 'none'
 
       if (!hasFocusIndicator) {
         issues.push({
@@ -621,15 +630,13 @@ export class AccessibilityTester {
     // 检查主要颜色组合
     const colorPairs = [
       { fg: '--text-primary', bg: '--bg-primary' },
-      { fg: '--text-secondary', bg: '--bg-secondary' },
+      { fg: '--text-secondary', bg: '--bg-secondary' }
       // ... 更多颜色对
     ]
 
     colorPairs.forEach(pair => {
-      const fgColor = getComputedStyle(document.documentElement)
-        .getPropertyValue(pair.fg).trim()
-      const bgColor = getComputedStyle(document.documentElement)
-        .getPropertyValue(pair.bg).trim()
+      const fgColor = getComputedStyle(document.documentElement).getPropertyValue(pair.fg).trim()
+      const bgColor = getComputedStyle(document.documentElement).getPropertyValue(pair.bg).trim()
 
       if (fgColor && bgColor) {
         const contrast = ContrastDetector.calculateContrast(fgColor, bgColor)
@@ -693,18 +700,21 @@ export class AccessibilityTester {
 ## 成功指标
 
 ### 可访问性合规指标
+
 - **WCAG 2.1 AA 合规**: 100% 通过
 - **键盘导航覆盖**: 100% 功能
 - **屏幕阅读器支持**: 100% 组件
 - **高对比度支持**: 100% 主题
 
 ### 用户体验指标
+
 - **键盘用户完成率**: > 95%
 - **辅助技术兼容性**: 100% 支持
 - **可访问性问题数**: 0 个严重问题
 - **用户满意度**: > 4.5/5.0
 
 ### 技术指标
+
 - **自动化测试覆盖**: > 90%
 - **可访问性评分**: > 95/100
 - **性能影响**: < 5% 额外开销

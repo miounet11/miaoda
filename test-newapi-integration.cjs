@@ -12,7 +12,7 @@ const path = require('path')
 const testResults = {
   passed: 0,
   failed: 0,
-  tests: [],
+  tests: []
 }
 
 function log(message, type = 'info') {
@@ -40,7 +40,7 @@ function testBuildFiles() {
     'out/renderer/index.html',
     'out/renderer/assets/index-C2bUafur.js',
     'out/main/index.js',
-    'out/preload/index.js',
+    'out/preload/index.js'
   ]
 
   buildFiles.forEach(file => {
@@ -63,7 +63,7 @@ function testComponentFiles() {
   const componentFiles = [
     'src/renderer/src/components/chat/ModelConfigPanel.vue',
     'src/renderer/src/components/chat/DebugPanel.vue',
-    'src/renderer/src/views/SimpleChatView.vue',
+    'src/renderer/src/views/SimpleChatView.vue'
   ]
 
   componentFiles.forEach(file => {
@@ -106,7 +106,7 @@ function testConfigurationFeatures() {
       { name: '切换调试面板', check: content.includes('toggleDebugPanel') },
       { name: '三栏布局', check: content.includes('main-layout') },
       { name: '侧边栏样式', check: content.includes('model-config-sidebar') },
-      { name: '调试面板样式', check: content.includes('debug-sidebar') },
+      { name: '调试面板样式', check: content.includes('debug-sidebar') }
     ]
 
     features.forEach(feature => {
@@ -128,7 +128,7 @@ function testStyling() {
       { name: '主布局样式', check: content.includes('main-layout') },
       { name: '侧边栏样式', check: content.includes('model-config-sidebar') },
       { name: '聊天主内容样式', check: content.includes('chat-main-content') },
-      { name: '调试面板样式', check: content.includes('debug-sidebar') },
+      { name: '调试面板样式', check: content.includes('debug-sidebar') }
     ]
 
     styles.forEach(style => {
@@ -141,7 +141,10 @@ function testStyling() {
 function testFeatureCompleteness() {
   log('开始检查功能完整性...')
 
-  const modelConfigFile = path.join(__dirname, 'src/renderer/src/components/chat/ModelConfigPanel.vue')
+  const modelConfigFile = path.join(
+    __dirname,
+    'src/renderer/src/components/chat/ModelConfigPanel.vue'
+  )
   if (fs.existsSync(modelConfigFile)) {
     const content = fs.readFileSync(modelConfigFile, 'utf8')
 
@@ -159,11 +162,15 @@ function testFeatureCompleteness() {
       { name: 'Seed 参数', check: content.includes('Seed') },
       { name: '流式输出', check: content.includes('流式输出') },
       { name: '导出功能', check: content.includes('导出') },
-      { name: '导入功能', check: content.includes('导入') },
+      { name: '导入功能', check: content.includes('导入') }
     ]
 
     features.forEach(feature => {
-      test(`ModelConfigPanel ${feature.name}`, feature.check, feature.check ? '功能存在' : '功能缺失')
+      test(
+        `ModelConfigPanel ${feature.name}`,
+        feature.check,
+        feature.check ? '功能存在' : '功能缺失'
+      )
     })
   }
 
@@ -177,7 +184,7 @@ function testFeatureCompleteness() {
       { name: '实际请求体标签页', check: content.includes('实际请求体') },
       { name: '响应标签页', check: content.includes('响应') },
       { name: 'JSON 格式化', check: content.includes('formatJson') },
-      { name: '复制功能', check: content.includes('copyContent') },
+      { name: '复制功能', check: content.includes('copyContent') }
     ]
 
     debugFeatures.forEach(feature => {
@@ -196,12 +203,12 @@ function testMessageActions() {
 
     // 检查消息操作功能
     const actions = [
-      { name: '重试功能', check: content.includes('$emit(\'retry\')') },
+      { name: '重试功能', check: content.includes("$emit('retry')") },
       { name: '复制功能', check: content.includes('handleCopy') },
-      { name: '编辑功能', check: content.includes('$emit(\'edit\')') },
+      { name: '编辑功能', check: content.includes("$emit('edit')") },
       { name: '删除功能', check: content.includes('handleDelete') },
-      { name: '切换角色功能', check: content.includes('$emit(\'toggle-role\')') },
-      { name: 'UserCheck 图标', check: content.includes('UserCheck') },
+      { name: '切换角色功能', check: content.includes("$emit('toggle-role')") },
+      { name: 'UserCheck 图标', check: content.includes('UserCheck') }
     ]
 
     actions.forEach(action => {
@@ -223,20 +230,22 @@ function generateReport() {
 
   if (testResults.failed > 0) {
     log('\n❌ 失败的测试:')
-    testResults.tests.filter(t => !t.passed).forEach(test => {
-      log(`  - ${test.name}: ${test.message}`)
-    })
+    testResults.tests
+      .filter(t => !t.passed)
+      .forEach(test => {
+        log(`  - ${test.name}: ${test.message}`)
+      })
   }
 
   log('\n📋 功能覆盖情况:')
   const categories = {
-    '构建文件': testResults.tests.filter(t => t.name.includes('构建文件')).length,
-    '组件文件': testResults.tests.filter(t => t.name.includes('组件文件')).length,
-    '配置功能': testResults.tests.filter(t => t.name.includes('配置功能')).length,
-    '样式文件': testResults.tests.filter(t => t.name.includes('样式')).length,
-    'ModelConfigPanel': testResults.tests.filter(t => t.name.includes('ModelConfigPanel')).length,
-    'DebugPanel': testResults.tests.filter(t => t.name.includes('DebugPanel')).length,
-    'MessageItem': testResults.tests.filter(t => t.name.includes('MessageItem')).length,
+    构建文件: testResults.tests.filter(t => t.name.includes('构建文件')).length,
+    组件文件: testResults.tests.filter(t => t.name.includes('组件文件')).length,
+    配置功能: testResults.tests.filter(t => t.name.includes('配置功能')).length,
+    样式文件: testResults.tests.filter(t => t.name.includes('样式')).length,
+    ModelConfigPanel: testResults.tests.filter(t => t.name.includes('ModelConfigPanel')).length,
+    DebugPanel: testResults.tests.filter(t => t.name.includes('DebugPanel')).length,
+    MessageItem: testResults.tests.filter(t => t.name.includes('MessageItem')).length
   }
 
   Object.entries(categories).forEach(([category, count]) => {

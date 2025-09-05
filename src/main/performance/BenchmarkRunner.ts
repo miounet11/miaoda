@@ -1,5 +1,9 @@
 import { EventEmitter } from 'events'
-import { TestingPerformanceMonitor, BenchmarkResult, PerformanceThresholds } from './TestingPerformanceMonitor'
+import {
+  TestingPerformanceMonitor,
+  BenchmarkResult,
+  PerformanceThresholds
+} from './TestingPerformanceMonitor'
 import { PerformanceMonitor } from './PerformanceMonitor'
 import { logger } from '../utils/Logger'
 
@@ -65,13 +69,13 @@ export class BenchmarkRunner extends EventEmitter {
         llmFirstToken: 2000,
         databaseQuery: 50,
         pluginExecution: 500,
-        memoryBaseline: 500,
+        memoryBaseline: 500
       },
       parallel: false,
       maxConcurrency: 4,
       verbose: true,
       reportFormat: 'text',
-      ...options,
+      ...options
     }
 
     this.performanceMonitor = new TestingPerformanceMonitor(this.options.thresholds)
@@ -81,7 +85,7 @@ export class BenchmarkRunner extends EventEmitter {
       this.systemMonitor = new PerformanceMonitor({
         enabled: true,
         metricsInterval: 1000,
-        enableProfiling: true,
+        enableProfiling: true
       })
     }
 
@@ -103,7 +107,7 @@ export class BenchmarkRunner extends EventEmitter {
 
     logger.debug('Benchmark suite registered', 'BenchmarkRunner', {
       name: suite.name,
-      benchmarkCount: suite.benchmarks.length,
+      benchmarkCount: suite.benchmarks.length
     })
   }
 
@@ -119,7 +123,7 @@ export class BenchmarkRunner extends EventEmitter {
     this.results.length = 0
 
     logger.info('Starting all benchmark suites', 'BenchmarkRunner', {
-      suiteCount: this.suites.size,
+      suiteCount: this.suites.size
     })
 
     try {
@@ -130,7 +134,7 @@ export class BenchmarkRunner extends EventEmitter {
         } catch (error) {
           logger.error('Suite execution failed', 'BenchmarkRunner', {
             suiteName,
-            error: error instanceof Error ? error.message : String(error),
+            error: error instanceof Error ? error.message : String(error)
           })
 
           // Create failed result
@@ -143,7 +147,7 @@ export class BenchmarkRunner extends EventEmitter {
             passed: 0,
             failed: 1,
             totalTests: suite.benchmarks.length,
-            status: 'failed',
+            status: 'failed'
           })
         }
       }
@@ -180,9 +184,9 @@ export class BenchmarkRunner extends EventEmitter {
 
       // Run benchmarks
       if (this.options.parallel) {
-        benchmarks.push(...await this.runBenchmarksParallel(suite.benchmarks))
+        benchmarks.push(...(await this.runBenchmarksParallel(suite.benchmarks)))
       } else {
-        benchmarks.push(...await this.runBenchmarksSequential(suite.benchmarks))
+        benchmarks.push(...(await this.runBenchmarksSequential(suite.benchmarks)))
       }
 
       // Suite teardown
@@ -204,7 +208,7 @@ export class BenchmarkRunner extends EventEmitter {
         passed,
         failed,
         totalTests: benchmarks.length,
-        status: failed > 0 ? 'failed' : 'passed',
+        status: failed > 0 ? 'failed' : 'passed'
       }
 
       this.emit('suite-completed', result)
@@ -214,14 +218,14 @@ export class BenchmarkRunner extends EventEmitter {
         duration: result.duration,
         passed,
         failed,
-        status: result.status,
+        status: result.status
       })
 
       return result
     } catch (error) {
       logger.error('Suite execution failed', 'BenchmarkRunner', {
         suiteName,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error.message : String(error)
       })
       throw error
     }
@@ -244,7 +248,7 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 30))
             return { rows: 1 }
           },
-          iterations: 20,
+          iterations: 20
         },
         {
           name: 'Complex JOIN Query',
@@ -255,7 +259,7 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 80))
             return { rows: 100 }
           },
-          iterations: 10,
+          iterations: 10
         },
         {
           name: 'Full-text Search',
@@ -266,9 +270,9 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 120))
             return { rows: 50 }
           },
-          iterations: 10,
-        },
-      ],
+          iterations: 10
+        }
+      ]
     }
   }
 
@@ -289,7 +293,7 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500))
             return { token: 'Hello' }
           },
-          iterations: 5,
+          iterations: 5
         },
         {
           name: 'Small Message Processing',
@@ -300,9 +304,9 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 200))
             return { tokens: 10 }
           },
-          iterations: 10,
-        },
-      ],
+          iterations: 10
+        }
+      ]
     }
   }
 
@@ -323,7 +327,7 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 50))
             return { rendered: true }
           },
-          iterations: 50,
+          iterations: 50
         },
         {
           name: 'Message List Render',
@@ -334,9 +338,9 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 200))
             return { messageCount: 50 }
           },
-          iterations: 20,
-        },
-      ],
+          iterations: 20
+        }
+      ]
     }
   }
 
@@ -357,7 +361,7 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 200))
             return { initialized: true }
           },
-          iterations: 10,
+          iterations: 10
         },
         {
           name: 'Plugin Method Execution',
@@ -368,9 +372,9 @@ export class BenchmarkRunner extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 100))
             return { result: 'success' }
           },
-          iterations: 25,
-        },
-      ],
+          iterations: 25
+        }
+      ]
     }
   }
 
@@ -428,13 +432,15 @@ export class BenchmarkRunner extends EventEmitter {
       passedBenchmarks,
       failedBenchmarks,
       totalDuration,
-      successRate: totalBenchmarks > 0 ? (passedBenchmarks / totalBenchmarks) * 100 : 0,
+      successRate: totalBenchmarks > 0 ? (passedBenchmarks / totalBenchmarks) * 100 : 0
     }
   }
 
   // Private implementation methods
 
-  private async runBenchmarksSequential(benchmarks: BenchmarkDefinition[]): Promise<BenchmarkResult[]> {
+  private async runBenchmarksSequential(
+    benchmarks: BenchmarkDefinition[]
+  ): Promise<BenchmarkResult[]> {
     const results: BenchmarkResult[] = []
 
     for (const benchmark of benchmarks) {
@@ -444,7 +450,7 @@ export class BenchmarkRunner extends EventEmitter {
       } catch (error) {
         logger.error('Benchmark failed', 'BenchmarkRunner', {
           benchmarkName: benchmark.name,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error.message : String(error)
         })
 
         // Create failed result
@@ -459,7 +465,7 @@ export class BenchmarkRunner extends EventEmitter {
           percentiles: { p50: 0, p95: 0, p99: 0 },
           memoryDelta: 0,
           status: 'fail',
-          threshold: benchmark.threshold,
+          threshold: benchmark.threshold
         })
       }
     }
@@ -467,7 +473,9 @@ export class BenchmarkRunner extends EventEmitter {
     return results
   }
 
-  private async runBenchmarksParallel(benchmarks: BenchmarkDefinition[]): Promise<BenchmarkResult[]> {
+  private async runBenchmarksParallel(
+    benchmarks: BenchmarkDefinition[]
+  ): Promise<BenchmarkResult[]> {
     const concurrency = Math.min(this.options.maxConcurrency!, benchmarks.length)
     const results: BenchmarkResult[] = []
 
@@ -482,7 +490,7 @@ export class BenchmarkRunner extends EventEmitter {
           } catch (error) {
             logger.error('Parallel benchmark failed', 'BenchmarkRunner', {
               benchmarkName: benchmark.name,
-              error: error instanceof Error ? error.message : String(error),
+              error: error instanceof Error ? error.message : String(error)
             })
 
             return {
@@ -496,10 +504,10 @@ export class BenchmarkRunner extends EventEmitter {
               percentiles: { p50: 0, p95: 0, p99: 0 },
               memoryDelta: 0,
               status: 'fail' as const,
-              threshold: benchmark.threshold,
+              threshold: benchmark.threshold
             }
           }
-        }),
+        })
       )
 
       results.push(...batchResults)
@@ -522,7 +530,7 @@ export class BenchmarkRunner extends EventEmitter {
         name: benchmark.name,
         iterations: benchmark.iterations || 10,
         threshold: benchmark.threshold,
-        timeout: benchmark.timeout || 5000,
+        timeout: benchmark.timeout || 5000
       })
 
       // Benchmark teardown
@@ -532,11 +540,10 @@ export class BenchmarkRunner extends EventEmitter {
 
       this.emit('benchmark-completed', result)
       return result
-
     } catch (error) {
       logger.error('Benchmark execution failed', 'BenchmarkRunner', {
         benchmarkName: benchmark.name,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error.message : String(error)
       })
       throw error
     }
@@ -606,11 +613,13 @@ export class BenchmarkRunner extends EventEmitter {
       results: this.results,
       thresholds: this.options.thresholds,
       options: this.options,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     }
 
     // In a real implementation, would write to file if outputFile is specified
-    logger.info('JSON report generated', 'BenchmarkRunner', { reportSize: JSON.stringify(report).length })
+    logger.info('JSON report generated', 'BenchmarkRunner', {
+      reportSize: JSON.stringify(report).length
+    })
   }
 
   private async generateHTMLReport(): Promise<void> {

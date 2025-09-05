@@ -109,7 +109,11 @@ export class MCPService extends EventEmitter<{
         await this.connectToServer(serverInfo, 1)
       }
     } catch (error) {
-      logger.debug('MCP server discovery failed (this is normal if MCP is not configured)', 'MCPService', error)
+      logger.debug(
+        'MCP server discovery failed (this is normal if MCP is not configured)',
+        'MCPService',
+        error
+      )
       // Gracefully handle discovery failures
     }
   }
@@ -149,14 +153,17 @@ export class MCPService extends EventEmitter<{
       args?: string[]
       env?: Record<string, string>
     },
-    maxRetries: number = 2,
+    maxRetries: number = 2
   ): Promise<boolean> {
     try {
       // Check if we have an MCP API available
       if (!window.api?.mcp?.connect) {
         // Only log once per server to avoid spam
         if (!this.connectionRetryDelays.has(serverConfig.id + '_api_unavailable')) {
-          logger.warn(`MCP API not available, disabling MCP server ${serverConfig.name}`, 'MCPService')
+          logger.warn(
+            `MCP API not available, disabling MCP server ${serverConfig.name}`,
+            'MCPService'
+          )
           this.connectionRetryDelays.set(serverConfig.id + '_api_unavailable', 999) // Mark as permanently disabled
         }
         return false
@@ -185,7 +192,7 @@ export class MCPService extends EventEmitter<{
         // Only log the final failure, not every retry
         logger.debug(
           `MCP server ${serverConfig.name} permanently disabled after ${maxRetries} failed attempts`,
-          'MCPService',
+          'MCPService'
         )
         this.connectionRetryDelays.set(serverConfig.id + '_disabled', 999) // Mark as permanently disabled
         this.connectionRetryDelays.delete(serverConfig.id)
@@ -195,7 +202,7 @@ export class MCPService extends EventEmitter<{
       // Only log first retry to reduce spam
       if (currentRetryCount === 0) {
         console.debug(
-          `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`,
+          `MCP server ${serverConfig.name} connection failed, will retry ${maxRetries} times`
         )
       }
 
@@ -312,7 +319,7 @@ export class MCPService extends EventEmitter<{
       timeout?: number
       retries?: number
       serverId?: string
-    },
+    }
   ): Promise<MCPToolCall> {
     const callId = this.generateCallId()
     const call: MCPToolCall = {
@@ -320,7 +327,7 @@ export class MCPService extends EventEmitter<{
       name: toolName,
       arguments: args,
       timestamp: new Date(),
-      status: 'pending',
+      status: 'pending'
     }
 
     this.activeCalls.set(callId, call)
@@ -332,7 +339,7 @@ export class MCPService extends EventEmitter<{
 
       const result = await window.api.mcp.callTool(toolName, args, {
         timeout: options?.timeout || 30000,
-        serverId: options?.serverId,
+        serverId: options?.serverId
       })
 
       call.status = 'completed'
@@ -357,7 +364,7 @@ export class MCPService extends EventEmitter<{
 
         return this.callTool(toolName, args, {
           ...options,
-          retries: options.retries - 1,
+          retries: options.retries - 1
         })
       }
 
@@ -539,7 +546,7 @@ export class MCPService extends EventEmitter<{
         tool.name.toLowerCase().includes(searchTerm) ||
         tool.description.toLowerCase().includes(searchTerm) ||
         tool.category?.toLowerCase().includes(searchTerm) ||
-        tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm)),
+        tool.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
     )
   }
 
@@ -567,7 +574,7 @@ export class MCPService extends EventEmitter<{
       failedCalls: 0,
       averageCallTime: 0,
       mostUsedTools: new Map<string, number>(),
-      callsByHour: new Map<number, number>(),
+      callsByHour: new Map<number, number>()
     }
 
     let totalDuration = 0

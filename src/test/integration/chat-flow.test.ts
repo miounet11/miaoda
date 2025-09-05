@@ -67,7 +67,7 @@ const MockChatView = {
 
     const sendMessage = async () => {
       if (!inputValue.value.trim()) return
-      
+
       const message = createMockMessage({
         content: inputValue.value,
         role: 'user',
@@ -97,7 +97,7 @@ describe('Chat Flow Integration Tests', () => {
   beforeEach(() => {
     pinia = createPinia()
     setActivePinia(pinia)
-    
+
     router = createRouter({
       history: createWebHistory(),
       routes: [
@@ -108,7 +108,7 @@ describe('Chat Flow Integration Tests', () => {
 
     chatStore = useChatStore()
     settingsStore = useSettingsStore()
-    
+
     vi.clearAllMocks()
   })
 
@@ -120,7 +120,7 @@ describe('Chat Flow Integration Tests', () => {
     it('creates new chat and sends messages', async () => {
       // Mock IPC responses
       const mockChat = createMockChat({ title: 'Integration Test Chat' })
-      const mockMessage = createMockMessage({ 
+      const mockMessage = createMockMessage({
         content: 'Hello from integration test',
         chatId: mockChat.id
       })
@@ -149,12 +149,13 @@ describe('Chat Flow Integration Tests', () => {
       // 2. Send a message
       const messageInput = wrapper.find('[data-testid="message-input"]')
       await messageInput.setValue('Hello from integration test')
-      
+
       const sendButton = wrapper.find('[data-testid="send-button"]')
       await sendButton.trigger('click')
       await wrapper.vm.$nextTick()
 
-      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('message:create', 
+      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith(
+        'message:create',
         expect.objectContaining({
           content: 'Hello from integration test',
           role: 'user'
@@ -251,7 +252,7 @@ describe('Chat Flow Integration Tests', () => {
 
     it('recovers from partial failures', async () => {
       const chat = createMockChat()
-      
+
       // Chat creation succeeds
       mockIpcRenderer.invoke.mockResolvedValueOnce(chat)
       // Message loading fails
@@ -268,9 +269,9 @@ describe('Chat Flow Integration Tests', () => {
 
   describe('Performance Integration', () => {
     it('handles large chat lists efficiently', async () => {
-      const largeChatList = Array(1000).fill(null).map((_, i) => 
-        createMockChat({ id: `chat-${i}`, title: `Chat ${i}` })
-      )
+      const largeChatList = Array(1000)
+        .fill(null)
+        .map((_, i) => createMockChat({ id: `chat-${i}`, title: `Chat ${i}` }))
 
       mockIpcRenderer.invoke.mockResolvedValue(largeChatList)
 
@@ -306,7 +307,7 @@ describe('Chat Flow Integration Tests', () => {
       for (let i = 0; i < 10; i++) {
         const input = wrapper.find('[data-testid="message-input"]')
         await input.setValue(`Message ${i}`)
-        
+
         const sendButton = wrapper.find('[data-testid="send-button"]')
         await sendButton.trigger('click')
       }
@@ -373,7 +374,7 @@ describe('Chat Flow Integration Tests', () => {
       // Change settings
       settingsStore.updateFontSize(18)
       settingsStore.updateTheme('dark')
-      
+
       await wrapper.vm.$nextTick()
 
       // Settings should be applied
@@ -387,7 +388,8 @@ describe('Chat Flow Integration Tests', () => {
       await settingsStore.updateLLMProvider('anthropic')
       await settingsStore.saveSettings()
 
-      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('settings:save',
+      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith(
+        'settings:save',
         expect.objectContaining({
           llmProvider: 'anthropic'
         })
@@ -445,7 +447,7 @@ describe('Chat Flow Integration Tests', () => {
 
       // Attempt second stream (should handle gracefully)
       chatStore.startStreaming('stream-2')
-      
+
       // Should manage concurrent streams properly
       expect(chatStore.streamingMessageId).toBeDefined()
     })
@@ -478,7 +480,7 @@ describe('Chat Flow Integration Tests', () => {
 
     it('retries failed operations', async () => {
       const chat = createMockChat()
-      
+
       // First call fails, second succeeds
       mockIpcRenderer.invoke
         .mockRejectedValueOnce(new Error('Temporary failure'))
@@ -534,8 +536,8 @@ describe('Chat Flow Integration Tests', () => {
 
       // Mock slow IPC response
       const slowMessage = createMockMessage({ content: 'Slow message' })
-      mockIpcRenderer.invoke.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(slowMessage), 100))
+      mockIpcRenderer.invoke.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(slowMessage), 100))
       )
 
       const input = wrapper.find('[data-testid="message-input"]')
@@ -546,7 +548,7 @@ describe('Chat Flow Integration Tests', () => {
 
       // Message should appear immediately (optimistic update)
       await wrapper.vm.$nextTick()
-      
+
       // Wait for IPC response
       await vi.waitFor(() => {
         expect(mockIpcRenderer.invoke).toHaveBeenCalled()
@@ -557,14 +559,16 @@ describe('Chat Flow Integration Tests', () => {
   describe('Memory and Performance Integration', () => {
     it('handles large conversation history efficiently', async () => {
       const chat = createMockChat()
-      const largeMessageHistory = Array(500).fill(null).map((_, i) => 
-        createMockMessage({
-          id: `msg-${i}`,
-          chatId: chat.id,
-          content: `Message ${i}`,
-          role: i % 2 === 0 ? 'user' : 'assistant'
-        })
-      )
+      const largeMessageHistory = Array(500)
+        .fill(null)
+        .map((_, i) =>
+          createMockMessage({
+            id: `msg-${i}`,
+            chatId: chat.id,
+            content: `Message ${i}`,
+            role: i % 2 === 0 ? 'user' : 'assistant'
+          })
+        )
 
       mockIpcRenderer.invoke.mockResolvedValue(largeMessageHistory)
 
@@ -590,9 +594,9 @@ describe('Chat Flow Integration Tests', () => {
       for (let i = 0; i < 50; i++) {
         const chat = createMockChat({ id: `session-chat-${i}` })
         mockIpcRenderer.invoke.mockResolvedValueOnce(chat)
-        
+
         await chatStore.createChat(`Session Chat ${i}`)
-        
+
         // Switch between chats
         if (i > 0) {
           chatStore.setCurrentChat(`session-chat-${i - 1}`)

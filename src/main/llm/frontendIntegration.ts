@@ -29,7 +29,7 @@ export class FrontendIntegrationService {
     ipcMain.handle('llm:getProviderTemplates', this.getProviderTemplates.bind(this))
     ipcMain.handle(
       'llm:getProviderTemplatesByCategory',
-      this.getProviderTemplatesByCategory.bind(this),
+      this.getProviderTemplatesByCategory.bind(this)
     )
     ipcMain.handle('llm:createProviderFromTemplate', this.createProviderFromTemplate.bind(this))
 
@@ -57,7 +57,7 @@ export class FrontendIntegrationService {
       return PROVIDER_TEMPLATES
     } catch (error: any) {
       logger.error('Failed to get provider templates', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return []
     }
@@ -68,13 +68,13 @@ export class FrontendIntegrationService {
    */
   async getProviderTemplatesByCategory(
     _: any,
-    category: ProviderTemplate['category'],
+    category: ProviderTemplate['category']
   ): Promise<ProviderTemplate[]> {
     try {
       return PROVIDER_TEMPLATES.filter(template => template.category === category)
     } catch (error: any) {
       logger.error('Failed to get templates by category', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return []
     }
@@ -86,7 +86,7 @@ export class FrontendIntegrationService {
   async createProviderFromTemplate(
     _: any,
     templateId: string,
-    overrides: Partial<CustomProviderConfig>,
+    overrides: Partial<CustomProviderConfig>
   ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       const template = PROVIDER_TEMPLATES.find(t => t.id === templateId)
@@ -96,13 +96,13 @@ export class FrontendIntegrationService {
 
       const config = {
         ...template.config,
-        ...overrides,
+        ...overrides
       } as Omit<CustomProviderConfig, 'id' | 'createdAt' | 'updatedAt'>
 
       return await this.customProviderManager.addProvider(config)
     } catch (error: any) {
       logger.error('Failed to create provider from template', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return { success: false, error: error.message }
     }
@@ -113,7 +113,7 @@ export class FrontendIntegrationService {
    */
   async validateProviderConfig(
     _: any,
-    config: Partial<CustomProviderConfig>,
+    config: Partial<CustomProviderConfig>
   ): Promise<ValidationResult> {
     try {
       // Create a temporary full config for validation
@@ -121,13 +121,13 @@ export class FrontendIntegrationService {
         id: 'temp',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        ...config,
+        ...config
       } as CustomProviderConfig
 
       return await this.validator.validateProvider(fullConfig, { detectFeatures: false })
     } catch (error: any) {
       logger.error('Failed to validate provider config', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return { success: false, error: error.message }
     }
@@ -139,14 +139,14 @@ export class FrontendIntegrationService {
   async validateProviderEnhanced(
     _: any,
     config: Partial<CustomProviderConfig>,
-    options: EnhancedValidationOptions = {},
+    options: EnhancedValidationOptions = {}
   ): Promise<ValidationResult> {
     try {
       const fullConfig = {
         id: 'temp',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        ...config,
+        ...config
       } as CustomProviderConfig
 
       const enhancedOptions = {
@@ -154,13 +154,13 @@ export class FrontendIntegrationService {
         testToolCalling: true,
         detectFeatures: true,
         timeout: 30000,
-        ...options,
+        ...options
       }
 
       return await this.validator.validateProvider(fullConfig, enhancedOptions)
     } catch (error: any) {
       logger.error('Failed to validate provider enhanced', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return { success: false, error: error.message }
     }
@@ -172,7 +172,7 @@ export class FrontendIntegrationService {
   async testProviderFeatures(
     _: any,
     providerId: string,
-    features: string[],
+    features: string[]
   ): Promise<{ [feature: string]: boolean }> {
     try {
       const config = this.customProviderManager.getProvider(providerId)
@@ -198,7 +198,7 @@ export class FrontendIntegrationService {
       return results
     } catch (error: any) {
       logger.error('Failed to test provider features', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return {}
     }
@@ -210,7 +210,7 @@ export class FrontendIntegrationService {
   async duplicateProvider(
     _: any,
     sourceId: string,
-    newName: string,
+    newName: string
   ): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
       const sourceConfig = this.customProviderManager.getProvider(sourceId)
@@ -221,7 +221,7 @@ export class FrontendIntegrationService {
       const duplicateConfig = {
         ...sourceConfig,
         name: newName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-        displayName: newName,
+        displayName: newName
       }
 
       // Remove id and timestamps to create new provider
@@ -238,7 +238,7 @@ export class FrontendIntegrationService {
    */
   async getProviderUsageStats(
     _: any,
-    _providerId: string,
+    _providerId: string
   ): Promise<{
     messagesCount: number
     avgResponseTime: number
@@ -252,17 +252,17 @@ export class FrontendIntegrationService {
         messagesCount: 0,
         avgResponseTime: 0,
         successRate: 100,
-        lastUsed: null,
+        lastUsed: null
       }
     } catch (error: any) {
       logger.error('Failed to get provider usage stats', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return {
         messagesCount: 0,
         avgResponseTime: 0,
         successRate: 0,
-        lastUsed: null,
+        lastUsed: null
       }
     }
   }
@@ -273,7 +273,7 @@ export class FrontendIntegrationService {
   async bulkProviderOperation(
     _: any,
     operation: 'delete' | 'export' | 'healthCheck',
-    providerIds: string[],
+    providerIds: string[]
   ): Promise<{
     success: number
     failed: number
@@ -312,7 +312,7 @@ export class FrontendIntegrationService {
    */
   async getProviderConfigSuggestions(
     _: any,
-    baseURL: string,
+    baseURL: string
   ): Promise<{
     suggestedType: CustomProviderConfig['type']
     suggestedHeaders: Record<string, string>
@@ -329,7 +329,7 @@ export class FrontendIntegrationService {
           suggestedType: 'openai-compatible',
           suggestedHeaders: { 'api-version': '2024-02-15-preview' },
           suggestedModel: 'gpt-4',
-          template: 'azure-openai',
+          template: 'azure-openai'
         }
       }
 
@@ -339,7 +339,7 @@ export class FrontendIntegrationService {
           suggestedType: 'openai-compatible',
           suggestedHeaders: { 'Content-Type': 'application/json' },
           suggestedModel: 'microsoft/DialoGPT-medium',
-          template: 'huggingface-endpoints',
+          template: 'huggingface-endpoints'
         }
       }
 
@@ -351,7 +351,7 @@ export class FrontendIntegrationService {
             suggestedType: 'openai-compatible',
             suggestedHeaders: {},
             suggestedModel: 'llama-2-7b-chat',
-            template: 'llamacpp-server',
+            template: 'llamacpp-server'
           }
         }
         if (port === '5000') {
@@ -359,7 +359,7 @@ export class FrontendIntegrationService {
             suggestedType: 'openai-compatible',
             suggestedHeaders: {},
             suggestedModel: 'model-name',
-            template: 'text-generation-webui',
+            template: 'text-generation-webui'
           }
         }
       }
@@ -368,16 +368,16 @@ export class FrontendIntegrationService {
       return {
         suggestedType: 'openai-compatible',
         suggestedHeaders: {},
-        suggestedModel: 'gpt-3.5-turbo',
+        suggestedModel: 'gpt-3.5-turbo'
       }
     } catch (error: any) {
       logger.warn('Failed to get config suggestions', 'FrontendIntegration', {
-        error: error.message,
+        error: error.message
       })
       return {
         suggestedType: 'openai-compatible',
         suggestedHeaders: {},
-        suggestedModel: 'gpt-3.5-turbo',
+        suggestedModel: 'gpt-3.5-turbo'
       }
     }
   }
@@ -387,7 +387,7 @@ export class FrontendIntegrationService {
    */
   async validateProviderUrl(
     _: any,
-    url: string,
+    url: string
   ): Promise<{
     valid: boolean
     accessible?: boolean
@@ -400,18 +400,18 @@ export class FrontendIntegrationService {
       // Test accessibility
       const response = await fetch(url, {
         method: 'HEAD',
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(10000)
       })
 
       return {
         valid: true,
-        accessible: response.ok,
+        accessible: response.ok
       }
     } catch (error: any) {
       return {
         valid: false,
         accessible: false,
-        error: error.message,
+        error: error.message
       }
     }
   }
@@ -421,7 +421,7 @@ export class FrontendIntegrationService {
    */
   async detectProviderType(
     _: any,
-    baseURL: string,
+    baseURL: string
   ): Promise<{
     detectedType: CustomProviderConfig['type']
     confidence: number
@@ -436,7 +436,7 @@ export class FrontendIntegrationService {
         return {
           detectedType: 'openai-compatible',
           confidence: 95,
-          reasoning: 'Azure OpenAI Service URL pattern detected',
+          reasoning: 'Azure OpenAI Service URL pattern detected'
         }
       }
 
@@ -444,7 +444,7 @@ export class FrontendIntegrationService {
         return {
           detectedType: 'anthropic-compatible',
           confidence: 95,
-          reasoning: 'Anthropic API URL detected',
+          reasoning: 'Anthropic API URL detected'
         }
       }
 
@@ -452,14 +452,14 @@ export class FrontendIntegrationService {
       try {
         const response = await fetch(`${baseURL}/v1/models`, {
           method: 'GET',
-          signal: AbortSignal.timeout(10000),
+          signal: AbortSignal.timeout(10000)
         })
 
         if (response.ok) {
           return {
             detectedType: 'openai-compatible',
             confidence: 80,
-            reasoning: 'OpenAI-compatible /v1/models endpoint responded successfully',
+            reasoning: 'OpenAI-compatible /v1/models endpoint responded successfully'
           }
         }
       } catch {
@@ -470,13 +470,13 @@ export class FrontendIntegrationService {
       return {
         detectedType: 'openai-compatible',
         confidence: 50,
-        reasoning: 'Default assumption - most providers are OpenAI-compatible',
+        reasoning: 'Default assumption - most providers are OpenAI-compatible'
       }
     } catch (error: any) {
       return {
         detectedType: 'custom',
         confidence: 0,
-        reasoning: `Could not analyze URL: ${error.message}`,
+        reasoning: `Could not analyze URL: ${error.message}`
       }
     }
   }
@@ -512,7 +512,7 @@ export const FrontendHelpers = {
    */
   formatProviderForUI: (
     config: CustomProviderConfig,
-    health?: ProviderHealthStatus,
+    health?: ProviderHealthStatus
   ): FrontendProviderData => {
     return {
       id: config.id,
@@ -520,19 +520,19 @@ export const FrontendHelpers = {
       health: health || {
         providerName: config.displayName,
         isHealthy: false,
-        lastChecked: new Date().toISOString(),
+        lastChecked: new Date().toISOString()
       },
       features: {
         streaming: false,
         toolCalling: false,
-        multimodal: false,
+        multimodal: false
       },
       usage: {
         messagesCount: 0,
         avgResponseTime: 0,
         successRate: 100,
-        lastUsed: null,
-      },
+        lastUsed: null
+      }
     }
   },
 
@@ -552,5 +552,5 @@ export const FrontendHelpers = {
     if (!ms) return 'Unknown'
     if (ms < 1000) return `${ms}ms`
     return `${(ms / 1000).toFixed(1)}s`
-  },
+  }
 }

@@ -37,20 +37,20 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       model: 'gpt-4',
       type: 'openai-compatible',
       headers: {
-        'api-version': '2024-02-15-preview',
+        'api-version': '2024-02-15-preview'
       },
       parameters: {
         temperature: 0.7,
         maxTokens: 4096,
-        topP: 1.0,
-      },
+        topP: 1.0
+      }
     },
     documentation: 'https://docs.microsoft.com/en-us/azure/cognitive-services/openai/',
     supportedFeatures: {
       streaming: true,
       toolCalling: true,
-      multimodal: true,
-    },
+      multimodal: true
+    }
   },
   {
     id: 'huggingface-endpoints',
@@ -65,19 +65,19 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       model: 'microsoft/DialoGPT-medium',
       type: 'openai-compatible',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       parameters: {
         temperature: 0.9,
-        maxTokens: 1024,
-      },
+        maxTokens: 1024
+      }
     },
     documentation: 'https://huggingface.co/docs/api-inference/',
     supportedFeatures: {
       streaming: false,
       toolCalling: false,
-      multimodal: false,
-    },
+      multimodal: false
+    }
   },
   {
     id: 'cohere-command',
@@ -93,15 +93,15 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       type: 'openai-compatible',
       parameters: {
         temperature: 0.9,
-        maxTokens: 4000,
-      },
+        maxTokens: 4000
+      }
     },
     documentation: 'https://docs.cohere.com/reference/generate',
     supportedFeatures: {
       streaming: true,
       toolCalling: false,
-      multimodal: false,
-    },
+      multimodal: false
+    }
   },
   {
     id: 'aws-bedrock',
@@ -116,19 +116,19 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       model: 'anthropic.claude-v2',
       type: 'custom',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       parameters: {
         temperature: 0.7,
-        maxTokens: 4096,
-      },
+        maxTokens: 4096
+      }
     },
     documentation: 'https://docs.aws.amazon.com/bedrock/',
     supportedFeatures: {
       streaming: true,
       toolCalling: false,
-      multimodal: true,
-    },
+      multimodal: true
+    }
   },
   {
     id: 'local-llama',
@@ -145,15 +145,15 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       parameters: {
         temperature: 0.8,
         maxTokens: 2048,
-        topP: 0.95,
-      },
+        topP: 0.95
+      }
     },
     documentation: 'https://github.com/ggerganov/llama.cpp',
     supportedFeatures: {
       streaming: true,
       toolCalling: false,
-      multimodal: false,
-    },
+      multimodal: false
+    }
   },
   {
     id: 'text-generation-webui',
@@ -172,15 +172,15 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
         maxTokens: 2048,
         topP: 0.9,
         frequencyPenalty: 0.0,
-        presencePenalty: 0.0,
-      },
+        presencePenalty: 0.0
+      }
     },
     documentation: 'https://github.com/oobabooga/text-generation-webui',
     supportedFeatures: {
       streaming: true,
       toolCalling: false,
-      multimodal: false,
-    },
+      multimodal: false
+    }
   },
   {
     id: 'llamacpp-server',
@@ -197,15 +197,15 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
       parameters: {
         temperature: 0.8,
         maxTokens: 1024,
-        topP: 0.95,
-      },
+        topP: 0.95
+      }
     },
     documentation: 'https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md',
     supportedFeatures: {
       streaming: true,
       toolCalling: false,
-      multimodal: false,
-    },
+      multimodal: false
+    }
   },
   {
     id: 'generic-openai',
@@ -224,15 +224,15 @@ export const PROVIDER_TEMPLATES: ProviderTemplate[] = [
         maxTokens: 4096,
         topP: 1.0,
         frequencyPenalty: 0.0,
-        presencePenalty: 0.0,
-      },
+        presencePenalty: 0.0
+      }
     },
     supportedFeatures: {
       streaming: true,
       toolCalling: true,
-      multimodal: false,
-    },
-  },
+      multimodal: false
+    }
+  }
 ]
 
 /**
@@ -254,14 +254,14 @@ export function getTemplatesByCategory(category: ProviderTemplate['category']): 
  */
 export function createConfigFromTemplate(
   templateId: string,
-  overrides: Partial<CustomProviderConfig> = {},
+  overrides: Partial<CustomProviderConfig> = {}
 ): Partial<CustomProviderConfig> | null {
   const template = getTemplate(templateId)
   if (!template) return null
 
   return {
     ...template.config,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -272,18 +272,18 @@ export const VALIDATION_RULES = {
   'openai-compatible': {
     requiredFields: ['name', 'displayName', 'apiKey', 'baseURL', 'model'],
     urlPattern: /^https?:\/\/.+/,
-    modelPattern: /^[a-zA-Z0-9_-]+$/,
+    modelPattern: /^[a-zA-Z0-9_-]+$/
   },
   'anthropic-compatible': {
     requiredFields: ['name', 'displayName', 'apiKey', 'model'],
     urlPattern: /^https?:\/\/.+/,
-    modelPattern: /^claude-.+/,
+    modelPattern: /^claude-.+/
   },
   custom: {
     requiredFields: ['name', 'displayName', 'baseURL'],
     urlPattern: /^https?:\/\/.+/,
-    modelPattern: /.+/,
-  },
+    modelPattern: /.+/
+  }
 }
 
 /**
@@ -294,7 +294,7 @@ export const TEST_MESSAGES = {
   streaming:
     'Please provide a longer response to test streaming functionality. Tell me about the weather in a few sentences.',
   tools: 'Can you help me read a file from the filesystem? This tests tool calling capabilities.',
-  multimodal: 'Describe what you see in this image (if multimodal is supported).',
+  multimodal: 'Describe what you see in this image (if multimodal is supported).'
 }
 
 /**
@@ -307,5 +307,5 @@ export const ERROR_SOLUTIONS = {
   FORBIDDEN: 'Access denied. Your API key may not have the required permissions.',
   TIMEOUT: 'Request timeout. The server may be overloaded or your network connection is slow.',
   INVALID_MODEL: 'The specified model is not available. Please check the model name.',
-  RATE_LIMITED: 'Too many requests. Please wait before trying again.',
+  RATE_LIMITED: 'Too many requests. Please wait before trying again.'
 }

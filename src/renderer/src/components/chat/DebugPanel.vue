@@ -3,16 +3,41 @@
     <!-- 面板头部 -->
     <div class="panel-header flex items-center justify-between mb-6 flex-shrink-0">
       <div class="flex items-center">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code text-white" aria-hidden="true">
+        <div
+          class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center mr-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-code text-white"
+            aria-hidden="true"
+          >
             <path d="m16 18 6-6-6-6"></path>
             <path d="m8 6-6 6 6 6"></path>
           </svg>
         </div>
-        <h5 class="semi-typography mb-0 semi-typography-primary semi-typography-normal semi-typography-h5">调试信息</h5>
+        <h5
+          class="semi-typography mb-0 semi-typography-primary semi-typography-normal semi-typography-h5"
+        >
+          调试信息
+        </h5>
       </div>
       <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -49,34 +74,65 @@
           <div class="viewer-header flex items-center justify-between p-3 bg-gray-800">
             <span class="text-sm font-medium">预览请求体</span>
             <button @click="copyContent(requestPreview)" class="text-gray-400 hover:text-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
               </svg>
             </button>
           </div>
-          <pre class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"><code>{{ formatJson(requestPreview) }}</code></pre>
+          <pre
+            class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"
+          ><code>{{ formatJson(requestPreview) }}</code></pre>
         </div>
       </div>
 
       <!-- 实际请求体 -->
       <div v-else-if="activeTab === 'request'" class="tab-content h-full">
-        <div v-if="actualRequest" class="json-viewer h-full bg-gray-900 text-gray-100 rounded-lg overflow-hidden">
+        <div
+          v-if="actualRequest"
+          class="json-viewer h-full bg-gray-900 text-gray-100 rounded-lg overflow-hidden"
+        >
           <div class="viewer-header flex items-center justify-between p-3 bg-gray-800">
             <span class="text-sm font-medium">实际请求体</span>
             <button @click="copyContent(actualRequest)" class="text-gray-400 hover:text-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
               </svg>
             </button>
           </div>
-          <pre class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"><code>{{ formatJson(actualRequest) }}</code></pre>
+          <pre
+            class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"
+          ><code>{{ formatJson(actualRequest) }}</code></pre>
         </div>
         <div v-else class="empty-state flex items-center justify-center h-full text-gray-500">
           <div class="text-center">
-            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            <svg
+              class="w-12 h-12 mx-auto mb-4 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
             </svg>
             <p class="text-sm">暂无请求数据</p>
           </div>
@@ -85,22 +141,44 @@
 
       <!-- 响应 -->
       <div v-else-if="activeTab === 'response'" class="tab-content h-full">
-        <div v-if="response" class="json-viewer h-full bg-gray-900 text-gray-100 rounded-lg overflow-hidden">
+        <div
+          v-if="response"
+          class="json-viewer h-full bg-gray-900 text-gray-100 rounded-lg overflow-hidden"
+        >
           <div class="viewer-header flex items-center justify-between p-3 bg-gray-800">
             <span class="text-sm font-medium">响应数据</span>
             <button @click="copyContent(response)" class="text-gray-400 hover:text-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
               </svg>
             </button>
           </div>
-          <pre class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"><code>{{ formatJson(response) }}</code></pre>
+          <pre
+            class="json-content p-4 text-xs overflow-auto h-full leading-relaxed"
+          ><code>{{ formatJson(response) }}</code></pre>
         </div>
         <div v-else class="empty-state flex items-center justify-center h-full text-gray-500">
           <div class="text-center">
-            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            <svg
+              class="w-12 h-12 mx-auto mb-4 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
             </svg>
             <p class="text-sm">暂无响应数据</p>
           </div>
@@ -109,7 +187,9 @@
     </div>
 
     <!-- 底部信息 -->
-    <div class="panel-footer flex items-center justify-between text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200">
+    <div
+      class="panel-footer flex items-center justify-between text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200"
+    >
       <span>预览更新: {{ lastUpdate }}</span>
     </div>
   </div>
@@ -153,15 +233,18 @@ const tabs = [
 
 // 图标组件
 const EyeIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+  template:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>'
 }
 
 const SendIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>'
+  template:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>'
 }
 
 const ZapIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>'
+  template:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>'
 }
 
 // 格式化JSON
@@ -194,7 +277,9 @@ const updateLastUpdate = () => {
 
 // 监听props变化
 import { watch } from 'vue'
-watch(() => [props.requestPreview, props.actualRequest, props.response], updateLastUpdate, { deep: true })
+watch(() => [props.requestPreview, props.actualRequest, props.response], updateLastUpdate, {
+  deep: true
+})
 </script>
 
 <style scoped>

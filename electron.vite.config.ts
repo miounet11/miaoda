@@ -36,10 +36,7 @@ export default defineConfig({
     plugins: [vue()],
     css: {
       postcss: {
-        plugins: [
-          tailwindcss('./tailwind.config.js'),
-          autoprefixer()
-        ]
+        plugins: [tailwindcss('./tailwind.config.js'), autoprefixer()]
       }
     },
     build: {
@@ -47,12 +44,12 @@ export default defineConfig({
       target: 'esnext',
       minify: 'terser',
       cssMinify: true,
-      
+
       // Configure rollup for better tree shaking and chunking
       rollupOptions: {
         output: {
           // Manual chunk splitting for better caching
-          manualChunks: (id) => {
+          manualChunks: id => {
             // Vendor chunks
             if (id.includes('node_modules')) {
               if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
@@ -64,13 +61,17 @@ export default defineConfig({
               if (id.includes('@vueuse') || id.includes('lucide')) {
                 return 'ui-vendor'
               }
-              if (id.includes('jspdf') || id.includes('html2canvas') || 
-                  id.includes('docx') || id.includes('xlsx')) {
+              if (
+                id.includes('jspdf') ||
+                id.includes('html2canvas') ||
+                id.includes('docx') ||
+                id.includes('xlsx')
+              ) {
                 return 'export-libs'
               }
               return 'vendor'
             }
-            
+
             // Feature chunks based on actual file paths
             if (id.includes('/analytics/')) {
               return 'analytics'
@@ -84,22 +85,22 @@ export default defineConfig({
             if (id.includes('/locales/')) {
               return 'locales'
             }
-            
+
             return undefined
           },
-          
+
           // Optimize chunk names
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]'
         }
       },
-      
+
       // Terser optimization
       terserOptions: {
         compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ['console.log', 'console.debug'],
+          drop_console: false, // Temporarily disabled for debugging
+          drop_debugger: false, // Temporarily disabled for debugging
+          // pure_funcs: ['console.log', 'console.debug'], // Temporarily disabled
           passes: 2
         },
         mangle: true,
@@ -107,32 +108,17 @@ export default defineConfig({
           comments: false
         }
       },
-      
+
       // CSS code splitting
       cssCodeSplit: true,
-      
+
       // Source map configuration
       sourcemap: false,
-      
+
       // Chunk size warnings
-      chunkSizeWarningLimit: 300,
-      
-      // Optimize dependencies
-      optimizeDeps: {
-        include: [
-          'vue',
-          'vue-router', 
-          'pinia'
-        ],
-        exclude: [
-          'jspdf',
-          'html2canvas', 
-          'docx',
-          'xlsx'
-        ]
-      }
+      chunkSizeWarningLimit: 300
     },
-    
+
     server: {
       host: '127.0.0.1',
       port: 5174,
@@ -145,10 +131,10 @@ export default defineConfig({
         usePolling: false
       }
     },
-    
+
     esbuild: {
-      drop: ['console', 'debugger'],
-      logOverride: { 
+      // drop: ['console', 'debugger'], // Temporarily disabled for debugging
+      logOverride: {
         'duplicate-object-key': 'silent',
         'this-is-undefined-in-esm': 'silent'
       }

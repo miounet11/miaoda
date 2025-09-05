@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3'
+import { logger } from '../utils/Logger'
 
 /**
  * Handles database initialization and schema management
@@ -32,6 +33,9 @@ export class DatabaseInitializer {
 
     // Create authentication tables
     this.createAuthTables()
+
+    // Create provider tables
+    this.createProviderTables()
   }
 
   private createChatTables(): void {
@@ -79,6 +83,81 @@ export class DatabaseInitializer {
         result_count INTEGER NOT NULL,
         search_time_ms INTEGER NOT NULL,
         created_at TEXT NOT NULL
+      );
+    `)
+  }
+
+  private createProviderTables(): void {
+    this.db.exec(`
+      -- Provider configurations table
+      CREATE TABLE IF NOT EXISTS providers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        emoji TEXT,
+        api_key_required INTEGER NOT NULL DEFAULT 1,
+        base_url TEXT,
+        customizable INTEGER DEFAULT 1,
+        description TEXT,
+        configured INTEGER DEFAULT 0,
+        is_active INTEGER DEFAULT 1,
+        display_order INTEGER DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      -- Provider models table
+      CREATE TABLE IF NOT EXISTS provider_models (
+        id TEXT PRIMARY KEY,
+        provider_id TEXT NOT NULL,
+        model_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        version TEXT,
+        description TEXT,
+        type TEXT DEFAULT 'chat', -- 'chat', 'embedding', 'image', 'reasoning'
+        context_window INTEGER,
+        max_tokens INTEGER,
+        vision INTEGER DEFAULT 0,
+        tools INTEGER DEFAULT 0,
+        reasoning INTEGER DEFAULT 0,
+        is_active INTEGER DEFAULT 1,
+        display_order INTEGER DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE,
+        UNIQUE(provider_id, model_id)
+      );
+
+      -- User provider configurations
+      CREATE TABLE IF NOT EXISTS user_provider_configs (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        provider_id TEXT NOT NULL,
+        api_key TEXT, -- encrypted
+        base_url TEXT,
+        custom_headers TEXT, -- JSON, encrypted
+        is_enabled INTEGER DEFAULT 1,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE,
+        UNIQUE(user_id, provider_id)
+      );
+
+      -- Model usage statistics
+      CREATE TABLE IF NOT EXISTS model_usage_stats (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        provider_id TEXT NOT NULL,
+        model_id TEXT NOT NULL,
+        tokens_used INTEGER DEFAULT 0,
+        requests_count INTEGER DEFAULT 0,
+        errors_count INTEGER DEFAULT 0,
+        avg_response_time INTEGER DEFAULT 0,
+        last_used_at INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE
       );
     `)
   }
@@ -225,6 +304,8 @@ export class DatabaseInitializer {
       this.migrateMessageTable()
       this.migrateSearchIndex()
       this.migrateAuthTables()
+      this.migrateProviderTables()
+      this.seedProviderData()
     } catch (error) {
       throw new Error(`Migration failed: ${error}`)
     }
@@ -248,13 +329,13 @@ export class DatabaseInitializer {
       { name: 'summary_tags', sql: 'ALTER TABLE chats ADD COLUMN summary_tags TEXT DEFAULT NULL' },
       {
         name: 'summary_updated_at',
-        sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL',
+        sql: 'ALTER TABLE chats ADD COLUMN summary_updated_at TEXT DEFAULT NULL'
       },
       {
         name: 'summary_tokens',
-        sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL',
+        sql: 'ALTER TABLE chats ADD COLUMN summary_tokens INTEGER DEFAULT NULL'
       },
-      { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' },
+      { name: 'key_points', sql: 'ALTER TABLE chats ADD COLUMN key_points TEXT DEFAULT NULL' }
     ]
 
     for (const column of requiredColumns) {
@@ -296,15 +377,15 @@ export class DatabaseInitializer {
       { name: 'error', sql: 'ALTER TABLE messages ADD COLUMN error TEXT DEFAULT NULL' },
       {
         name: 'error_details',
-        sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL',
-      },
+        sql: 'ALTER TABLE messages ADD COLUMN error_details TEXT DEFAULT NULL'
+      }
     ]
 
     // Only add created_at if it doesn't exist and timestamp doesn't exist either
     if (!columnNames.has('created_at') && !columnNames.has('timestamp')) {
       requiredColumns.push({
         name: 'created_at',
-        sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT',
+        sql: 'ALTER TABLE messages ADD COLUMN created_at TEXT'
       })
     }
 
@@ -327,7 +408,7 @@ export class DatabaseInitializer {
         SELECT name FROM sqlite_master 
         WHERE type='trigger' 
         AND name IN ('search_index_delete', 'search_index_insert', 'search_index_update')
-      `,
+      `
         )
         .all() as Array<{ name: string }>
 
@@ -342,7 +423,7 @@ export class DatabaseInitializer {
           `
         SELECT name, sql FROM sqlite_master 
         WHERE type='table' AND name='search_index'
-      `,
+      `
         )
         .get() as { name: string; sql: string } | undefined
 
@@ -379,7 +460,120 @@ export class DatabaseInitializer {
       }
     } catch (error) {
       // Log error but don't fail initialization
-      console.warn('Search index migration warning:', error)
+      logger.warn('Search index migration warning:', 'DatabaseInitializer', error)
+    }
+  }
+
+  /**
+   * Migrate provider tables - add new columns as needed
+   */
+  private migrateProviderTables(): void {
+    // Check if providers table exists and add missing columns
+    const providerTables = this.db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='providers'")
+      .all()
+    if (providerTables.length > 0) {
+      const columns = this.db.prepare('PRAGMA table_info(providers)').all() as Array<{ name: string }>
+      const columnNames = new Set(columns.map(col => col.name))
+
+      const requiredColumns = [
+        { name: 'emoji', sql: 'ALTER TABLE providers ADD COLUMN emoji TEXT' },
+        { name: 'display_order', sql: 'ALTER TABLE providers ADD COLUMN display_order INTEGER DEFAULT 0' }
+      ]
+
+      for (const column of requiredColumns) {
+        if (!columnNames.has(column.name)) {
+          this.db.exec(column.sql)
+        }
+      }
+    }
+  }
+
+  /**
+   * Seed provider data with initial configurations
+   */
+  private seedProviderData(): void {
+    try {
+      // Check if providers already seeded
+      const count = this.db.prepare('SELECT COUNT(*) as count FROM providers').get() as { count: number }
+      if (count.count > 0) return
+
+      // Import providers config
+      const { providers } = require('../../renderer/src/config/providers')
+      const now = Date.now()
+
+      // Insert providers
+      const insertProvider = this.db.prepare(`
+        INSERT OR IGNORE INTO providers (
+          id, name, emoji, api_key_required, base_url, 
+          customizable, description, configured, is_active,
+          display_order, created_at, updated_at
+        ) VALUES (
+          @id, @name, @emoji, @apiKeyRequired, @baseURL,
+          @customizable, @description, @configured, 1,
+          @order, @now, @now
+        )
+      `)
+
+      // Insert models
+      const insertModel = this.db.prepare(`
+        INSERT OR IGNORE INTO provider_models (
+          id, provider_id, model_id, name, version,
+          description, type, context_window, max_tokens,
+          vision, tools, reasoning, is_active,
+          display_order, created_at, updated_at
+        ) VALUES (
+          @id, @providerId, @modelId, @name, @version,
+          @description, @type, @contextWindow, @maxTokens,
+          @vision, @tools, @reasoning, 1,
+          @order, @now, @now
+        )
+      `)
+
+      // Begin transaction
+      const insertAll = this.db.transaction(() => {
+        providers.forEach((provider: any, providerIndex: number) => {
+          // Insert provider
+          insertProvider.run({
+            id: provider.id,
+            name: provider.name,
+            emoji: provider.emoji || null,
+            apiKeyRequired: provider.apiKeyRequired ? 1 : 0,
+            baseURL: provider.baseURL || null,
+            customizable: provider.customizable !== false ? 1 : 0,
+            description: provider.description || null,
+            configured: provider.configured ? 1 : 0,
+            order: providerIndex,
+            now
+          })
+
+          // Insert models for this provider
+          provider.models?.forEach((model: any, modelIndex: number) => {
+            const modelUuid = `${provider.id}_${model.id}`
+            insertModel.run({
+              id: modelUuid,
+              providerId: provider.id,
+              modelId: model.id,
+              name: model.name,
+              version: model.version || null,
+              description: model.description || null,
+              type: model.type || 'chat',
+              contextWindow: model.contextWindow || null,
+              maxTokens: model.maxTokens || null,
+              vision: model.vision ? 1 : 0,
+              tools: model.tools ? 1 : 0,
+              reasoning: model.reasoning ? 1 : 0,
+              order: modelIndex,
+              now
+            })
+          })
+        })
+      })
+
+      insertAll()
+      logger.info('Provider data seeded successfully', 'DatabaseInitializer')
+    } catch (error) {
+      logger.warn('Provider data seeding failed (non-critical):', 'DatabaseInitializer', error)
     }
   }
 
@@ -418,20 +612,20 @@ export class DatabaseInitializer {
 
       // Add missing columns based on table
       switch (tableName) {
-        case 'users':
+        case 'users': {
           const userColumns = [
             {
               name: 'failed_login_attempts',
-              sql: 'ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0',
+              sql: 'ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0'
             },
             {
               name: 'locked_until',
-              sql: 'ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL',
+              sql: 'ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT NULL'
             },
             {
               name: 'password_changed_at',
-              sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}`,
-            },
+              sql: `ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT ${Date.now()}`
+            }
           ]
           for (const column of userColumns) {
             if (!columnNames.has(column.name)) {
@@ -439,17 +633,18 @@ export class DatabaseInitializer {
             }
           }
           break
+        }
 
-        case 'auth_methods':
+        case 'auth_methods': {
           const authMethodColumns = [
             {
               name: 'setup_completed',
-              sql: 'ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0',
+              sql: 'ALTER TABLE auth_methods ADD COLUMN setup_completed INTEGER DEFAULT 0'
             },
             {
               name: 'backup_codes_generated',
-              sql: 'ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0',
-            },
+              sql: 'ALTER TABLE auth_methods ADD COLUMN backup_codes_generated INTEGER DEFAULT 0'
+            }
           ]
           for (const column of authMethodColumns) {
             if (!columnNames.has(column.name)) {
@@ -457,6 +652,7 @@ export class DatabaseInitializer {
             }
           }
           break
+        }
       }
     }
   }
@@ -515,6 +711,17 @@ export class DatabaseInitializer {
       CREATE INDEX IF NOT EXISTS idx_rate_limits_action ON rate_limits(action);
       CREATE INDEX IF NOT EXISTS idx_rate_limits_window_start ON rate_limits(window_start);
       CREATE INDEX IF NOT EXISTS idx_rate_limits_blocked_until ON rate_limits(blocked_until);
+
+      -- Provider indexes
+      CREATE INDEX IF NOT EXISTS idx_providers_active ON providers(is_active);
+      CREATE INDEX IF NOT EXISTS idx_providers_order ON providers(display_order);
+      CREATE INDEX IF NOT EXISTS idx_provider_models_provider ON provider_models(provider_id);
+      CREATE INDEX IF NOT EXISTS idx_provider_models_active ON provider_models(is_active);
+      CREATE INDEX IF NOT EXISTS idx_user_configs_user ON user_provider_configs(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_configs_provider ON user_provider_configs(provider_id);
+      CREATE INDEX IF NOT EXISTS idx_model_usage_user ON model_usage_stats(user_id);
+      CREATE INDEX IF NOT EXISTS idx_model_usage_provider ON model_usage_stats(provider_id);
+      CREATE INDEX IF NOT EXISTS idx_model_usage_last_used ON model_usage_stats(last_used_at);
     `)
   }
 

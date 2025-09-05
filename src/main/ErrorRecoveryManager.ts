@@ -59,7 +59,7 @@ export class ErrorRecoveryManager {
       error,
       timestamp: new Date(),
       recoverable: context.recoverable ?? true,
-      severity: context.severity || this.calculateSeverity(error),
+      severity: context.severity || this.calculateSeverity(error)
     }
 
     // 记录错误
@@ -144,7 +144,7 @@ export class ErrorRecoveryManager {
           return false
         }
       },
-      maxAttempts: 3,
+      maxAttempts: 3
     })
 
     // 网络错误恢复
@@ -156,7 +156,7 @@ export class ErrorRecoveryManager {
         // Check network connectivity
         return true
       },
-      maxAttempts: 5,
+      maxAttempts: 5
     })
 
     // 内存错误恢复
@@ -177,7 +177,7 @@ export class ErrorRecoveryManager {
         }
 
         return true
-      },
+      }
     })
 
     // 文件系统错误恢复
@@ -187,7 +187,7 @@ export class ErrorRecoveryManager {
         logger.info('Using fallback file operations', 'ErrorRecovery')
         // Implement fallback file operations
         return true
-      },
+      }
     })
   }
 
@@ -202,7 +202,7 @@ export class ErrorRecoveryManager {
         action: async () => {
           logger.info('File not found, using default', 'ErrorRecovery')
           return true
-        },
+        }
       }
     }
 
@@ -221,7 +221,7 @@ export class ErrorRecoveryManager {
         await new Promise(resolve => setTimeout(resolve, 1000))
         return false // Let caller retry
       },
-      maxAttempts: 3,
+      maxAttempts: 3
     }
   }
 
@@ -241,7 +241,7 @@ export class ErrorRecoveryManager {
       message: `A critical error occurred in ${context.module}`,
       detail: context.error.message,
       buttons: ['Restart', 'Quit'],
-      defaultId: 0,
+      defaultId: 0
     })
 
     if (result.response === 0) {
@@ -261,7 +261,7 @@ export class ErrorRecoveryManager {
     // 升级错误严重性
     const escalatedContext = {
       ...context,
-      severity: 'high' as const,
+      severity: 'high' as const
     }
 
     // 通知用户
@@ -286,7 +286,7 @@ export class ErrorRecoveryManager {
       windows[0].webContents.send('error-notification', {
         title: `Error in ${context.module}`,
         message: context.error.message,
-        severity: context.severity,
+        severity: context.severity
       })
     }
   }
@@ -299,7 +299,7 @@ export class ErrorRecoveryManager {
     if (windows.length > 0) {
       windows[0].webContents.send('recovery-success', {
         module: context.module,
-        operation: context.operation,
+        operation: context.operation
       })
     }
   }
@@ -313,7 +313,7 @@ export class ErrorRecoveryManager {
       title: 'Restart Required',
       message: 'The application needs to restart to recover from errors.',
       buttons: ['Restart Now', 'Later'],
-      defaultId: 0,
+      defaultId: 0
     })
 
     return result.response === 0
@@ -342,15 +342,15 @@ export class ErrorRecoveryManager {
         error: {
           name: context.error.name,
           message: context.error.message,
-          stack: context.error.stack,
+          stack: context.error.stack
         },
         severity: context.severity,
         app: {
           version: app.getVersion(),
           platform: process.platform,
-          arch: process.arch,
+          arch: process.arch
         },
-        errorHistory: this.errorHistory.slice(-10), // Last 10 errors
+        errorHistory: this.errorHistory.slice(-10) // Last 10 errors
       }
 
       fs.writeFileSync(filepath, JSON.stringify(report, null, 2))
@@ -370,7 +370,7 @@ export class ErrorRecoveryManager {
         module: 'Global',
         operation: 'uncaughtException',
         severity: 'critical',
-        recoverable: false,
+        recoverable: false
       })
     })
 
@@ -381,7 +381,7 @@ export class ErrorRecoveryManager {
         module: 'Global',
         operation: 'unhandledRejection',
         severity: 'high',
-        recoverable: true,
+        recoverable: true
       })
     })
 
@@ -391,7 +391,7 @@ export class ErrorRecoveryManager {
         module: 'Renderer',
         operation: 'process-gone',
         severity: 'critical',
-        recoverable: true,
+        recoverable: true
       })
     })
 
@@ -400,7 +400,7 @@ export class ErrorRecoveryManager {
         module: 'ChildProcess',
         operation: details.type,
         severity: 'high',
-        recoverable: true,
+        recoverable: true
       })
     })
   }

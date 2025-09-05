@@ -132,7 +132,7 @@ export class ExportService {
    */
   async exportChats(
     options: ExportOptions,
-    progressCallback?: ProgressCallback,
+    progressCallback?: ProgressCallback
   ): Promise<ExportResult> {
     const startTime = performance.now()
 
@@ -160,7 +160,7 @@ export class ExportService {
         totalChats: chatData.length,
         totalMessages: chatData.reduce((sum, chat) => sum + chat.messages.length, 0),
         processedMessages: chatData.reduce((sum, chat) => sum + chat.messages.length, 0),
-        stage: 'generating',
+        stage: 'generating'
       })
 
       let result: ExportResult
@@ -202,7 +202,7 @@ export class ExportService {
         totalChats: chatData.length,
         totalMessages: result.messageCount,
         processedMessages: result.messageCount,
-        stage: 'completed',
+        stage: 'completed'
       })
 
       return result
@@ -216,7 +216,7 @@ export class ExportService {
         totalMessages: 0,
         processedMessages: 0,
         stage: 'completed',
-        error: error.message,
+        error: error.message
       })
       throw new Error(`Export failed: ${error.message}`)
     }
@@ -249,7 +249,7 @@ export class ExportService {
    */
   private async getChatData(
     options: ExportOptions,
-    progressCallback?: ProgressCallback,
+    progressCallback?: ProgressCallback
   ): Promise<ExportChatData[]> {
     const chatData: ExportChatData[] = []
 
@@ -260,7 +260,7 @@ export class ExportService {
       totalChats: 0,
       totalMessages: 0,
       processedMessages: 0,
-      stage: 'fetching',
+      stage: 'fetching'
     })
 
     // 根据选项获取聊天记录
@@ -303,7 +303,7 @@ export class ExportService {
       totalChats: chats.length,
       totalMessages: 0,
       processedMessages: 0,
-      stage: 'fetching',
+      stage: 'fetching'
     })
 
     // 获取每个聊天的消息（分批处理）
@@ -321,7 +321,7 @@ export class ExportService {
           totalChats: chats.length,
           totalMessages,
           processedMessages,
-          stage: 'processing',
+          stage: 'processing'
         })
 
         const messages = await this.getMessagesFromMain(chat.id, options)
@@ -333,7 +333,7 @@ export class ExportService {
           title: chat.title,
           createdAt: chat.created_at,
           updatedAt: chat.updated_at,
-          messages,
+          messages
         })
 
         // Add small delay to prevent UI blocking
@@ -348,7 +348,7 @@ export class ExportService {
           title: chat.title,
           createdAt: chat.created_at,
           updatedAt: chat.updated_at,
-          messages: [],
+          messages: []
         })
       }
     }
@@ -388,7 +388,7 @@ export class ExportService {
 
   private async getMessagesFromMain(
     chatId: string,
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<MessageRecord[]> {
     try {
       let messages = await window.api.export.getMessages(chatId)
@@ -464,7 +464,7 @@ export class ExportService {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0, // Will be set by the main export method
+      processingTime: 0 // Will be set by the main export method
     }
   }
 
@@ -487,12 +487,12 @@ export class ExportService {
           includeTimestamps: options.includeTimestamps,
           includeMetadata: options.includeMetadata,
           dateFrom: options.dateFrom?.toISOString(),
-          dateTo: options.dateTo?.toISOString(),
-        },
+          dateTo: options.dateTo?.toISOString()
+        }
       },
       statistics: {
         chatCount: chats.length,
-        messageCount,
+        messageCount
       },
       chats: chats.map(chat => ({
         id: chat.id,
@@ -504,9 +504,9 @@ export class ExportService {
           id: msg.id,
           role: msg.role,
           content: msg.content,
-          createdAt: msg.created_at,
-        })),
-      })),
+          createdAt: msg.created_at
+        }))
+      }))
     }
 
     const content = JSON.stringify(exportData, null, 2)
@@ -518,7 +518,7 @@ export class ExportService {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0, // Will be set by the main export method
+      processingTime: 0 // Will be set by the main export method
     }
   }
 
@@ -652,15 +652,15 @@ export class ExportService {
                 <span>${messageCount}</span>
             </div>
             ${
-  options.author
-    ? `
+              options.author
+                ? `
             <div class="info-item">
                 <span class="info-label">Author:</span>
                 <span>${this.escapeHtml(options.author)}</span>
             </div>
             `
-    : ''
-}
+                : ''
+            }
         </div>
     </div>
 `
@@ -710,7 +710,7 @@ export class ExportService {
       size: new Blob([html]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0, // Will be set by the main export method
+      processingTime: 0 // Will be set by the main export method
     }
   }
 
@@ -774,7 +774,7 @@ export class ExportService {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0, // Will be set by the main export method
+      processingTime: 0 // Will be set by the main export method
     }
   }
 
@@ -783,7 +783,7 @@ export class ExportService {
    */
   private async exportToPDF(
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<ExportResult> {
     const pdfExporter = PDFExporter.getInstance()
 
@@ -800,7 +800,7 @@ export class ExportService {
    */
   private async exportToCSV(
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<ExportResult> {
     const csvExporter = CSVExporter.getInstance()
     return await csvExporter.exportToCSV(chats, options)
@@ -811,7 +811,7 @@ export class ExportService {
    */
   private async exportToExcel(
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<ExportResult> {
     const csvExporter = CSVExporter.getInstance()
     return await csvExporter.exportToExcel(chats, options)
@@ -822,7 +822,7 @@ export class ExportService {
    */
   private async exportToDOCX(
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<ExportResult> {
     const docxExporter = DOCXExporter.getInstance()
     return await docxExporter.exportToDOCX(chats, options)
@@ -833,7 +833,7 @@ export class ExportService {
    */
   private async exportToZip(
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): Promise<ExportResult> {
     const zipExporter = ZipExporter.getInstance()
     return await zipExporter.exportToZip(chats, options)
@@ -848,7 +848,7 @@ export class ExportService {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#039;',
+      "'": '&#039;'
     }
     return text.replace(/[&<>"']/g, m => map[m])
   }

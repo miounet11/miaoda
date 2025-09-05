@@ -88,8 +88,8 @@ export function useChat() {
         () => chatStore.sendMessage(currentChatId.value!, content, attachments),
         {
           maxAttempts: 3,
-          context: 'Send Message',
-        },
+          context: 'Send Message'
+        }
       )
 
       return messageId
@@ -125,7 +125,7 @@ export function useChat() {
     try {
       await withRetry(() => chatStore.retryMessage(messageId), {
         maxAttempts: 2,
-        context: 'Retry Message',
+        context: 'Retry Message'
       })
     } catch (error) {
       handleError(error, 'Retry Message')
@@ -142,7 +142,7 @@ export function useChat() {
         title: 'Success',
         message: 'Message copied to clipboard',
         severity: 'info',
-        duration: 2000,
+        duration: 2000
       })
     } catch (error) {
       handleError(error, 'Copy Message')
@@ -192,7 +192,7 @@ export function useChat() {
     return targetMessages.filter(
       message =>
         message.content.toLowerCase().includes(lowercaseQuery) ||
-        message.attachments?.some(att => att.name.toLowerCase().includes(lowercaseQuery)),
+        message.attachments?.some(att => att.name.toLowerCase().includes(lowercaseQuery))
     )
   }
 
@@ -204,7 +204,7 @@ export function useChat() {
         showError({
           title: 'Error',
           message: 'Chat not found',
-          severity: 'error',
+          severity: 'error'
         })
         return
       }
@@ -213,7 +213,7 @@ export function useChat() {
 
       // Create and download file
       const blob = new Blob([exportData], {
-        type: format === 'json' ? 'application/json' : 'text/plain',
+        type: format === 'json' ? 'application/json' : 'text/plain'
       })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -228,7 +228,7 @@ export function useChat() {
         title: 'Success',
         message: 'Chat exported successfully',
         severity: 'info',
-        duration: 3000,
+        duration: 3000
       })
     } catch (error) {
       handleError(error, 'Export Chat')
@@ -347,6 +347,6 @@ export function useChat() {
     // Drafts
     saveDraft,
     loadDraft,
-    clearDraft,
+    clearDraft
   }
 }

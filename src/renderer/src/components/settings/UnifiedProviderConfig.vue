@@ -25,7 +25,8 @@
             ]"
             :title="`Select ${provider.name} - Currently: ${selectedProvider === provider.id ? 'Selected' : 'Not selected'}`"
             type="button"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <!-- Selection Indicator -->
             <div
               v-if="selectedProvider === provider.id"
@@ -48,7 +49,8 @@
           <button
             @click="showAddCustomProviderForm = true"
             class="text-xs px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition-colors flex items-center gap-1"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <Plus :size="12" />
             Add Custom Provider
           </button>
@@ -76,7 +78,8 @@
                 : 'border-muted hover:border-muted-foreground/50 hover:bg-muted/30'
             ]"
             type="button"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <!-- Selection and Status Indicators -->
             <div class="absolute top-2 right-2 flex items-center gap-2">
               <div
@@ -111,21 +114,24 @@
                 @click.stop="editCustomProvider(provider)"
                 class="text-xs px-2 py-1 bg-secondary/50 hover:bg-secondary rounded transition-colors"
                 title="Edit provider"
-               aria-label="按钮">
+                aria-label="按钮"
+              >
                 <Edit2 :size="12" />
               </button>
               <button
                 @click.stop="testCustomProvider(provider.id)"
                 class="text-xs px-2 py-1 bg-secondary/50 hover:bg-secondary rounded transition-colors"
                 title="Test connection"
-               aria-label="按钮">
+                aria-label="按钮"
+              >
                 <Zap :size="12" />
               </button>
               <button
                 @click.stop="deleteCustomProvider(provider.id)"
                 class="text-xs px-2 py-1 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded transition-colors ml-auto"
                 title="Delete provider"
-               aria-label="按钮">
+                aria-label="按钮"
+              >
                 <Trash2 :size="12" />
               </button>
             </div>
@@ -147,19 +153,22 @@
             <span class="text-red-500 ml-1">*</span>
           </label>
           <div class="relative">
-            <input id="input-8w8d45ubm"
+            <input
+              id="input-8w8d45ubm"
               :value="apiKey"
               @input="$emit('update:apiKey', ($event.target as HTMLInputElement).value)"
               :type="showApiKey ? 'text' : 'password'"
               placeholder="Enter your API key..."
               class="w-full px-3 py-2.5 pr-10 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               required
-             aria-label="输入框">
+              aria-label="输入框"
+            />
             <button
               @click="showApiKey = !showApiKey"
               type="button"
               class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-accent/50 rounded transition-colors"
-             aria-label="按钮">
+              aria-label="按钮"
+            >
               <Eye v-if="!showApiKey" :size="16" />
               <EyeOff v-else :size="16" />
             </button>
@@ -177,13 +186,15 @@
               >(optional - for custom endpoints)</span
             >
           </label>
-          <input id="input-7qgwvbddt"
+          <input
+            id="input-7qgwvbddt"
             :value="baseUrl"
             @input="$emit('update:baseUrl', ($event.target as HTMLInputElement).value)"
             type="url"
             :placeholder="getDefaultBaseURL(selectedProvider)"
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-           aria-label="输入框">
+            aria-label="输入框"
+          />
           <p class="text-xs text-muted-foreground mt-1">Leave empty to use the default endpoint</p>
         </div>
 
@@ -193,14 +204,16 @@
             Model Name
             <span class="text-red-500 ml-1">*</span>
           </label>
-          <input id="input-tcq1t8xc8"
+          <input
+            id="input-tcq1t8xc8"
             :value="model"
             @input="$emit('update:model', ($event.target as HTMLInputElement).value)"
             type="text"
             placeholder="llama2, mistral, codellama, etc."
             class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             required
-           aria-label="输入框">
+            aria-label="输入框"
+          />
           <p class="text-xs text-muted-foreground mt-1">
             Make sure the model is downloaded in Ollama (e.g., `ollama pull llama2`)
           </p>
@@ -220,18 +233,21 @@
             <option value="custom">Custom Model...</option>
           </select>
           <div v-else class="space-y-2">
-            <input id="input-v04p4jqji"
+            <input
+              id="input-v04p4jqji"
               :value="model"
               @input="$emit('update:model', ($event.target as HTMLInputElement).value)"
               type="text"
               placeholder="Enter custom model name (e.g., gpt-4-1106-preview)"
               class="w-full px-3 py-2 bg-muted/50 border border-muted-foreground/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               autofocus
-             aria-label="输入框">
+              aria-label="输入框"
+            />
             <button
-              @click="showCustomModelInput = false, $emit('update:model', 'gpt-4')"
+              @click="((showCustomModelInput = false), $emit('update:model', 'gpt-4'))"
               class="text-sm text-muted-foreground hover:text-foreground transition-colors"
-             aria-label="按钮">
+              aria-label="按钮"
+            >
               ← Back to preset models
             </button>
           </div>
@@ -269,14 +285,16 @@
           <button
             @click="editCustomProvider(getCustomProvider(selectedProvider))"
             class="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <Edit2 :size="14" class="inline mr-1" />
             Edit Configuration
           </button>
           <button
             @click="testCustomProvider(selectedProvider)"
             class="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <Zap :size="14" class="inline mr-1" />
             Test Connection
           </button>
@@ -301,7 +319,8 @@
           <button
             @click="cancelAddCustomProvider"
             class="p-2 hover:bg-accent/50 rounded-lg transition-colors"
-           aria-label="按钮">
+            aria-label="按钮"
+          >
             <X :size="16" />
           </button>
         </div>
@@ -524,7 +543,6 @@ watch(
 </script>
 
 <style scoped>
-
 /* 🎨 响应式设计系统 */
 :root {
   --breakpoint-sm: 640px;
@@ -535,38 +553,72 @@ watch(
 }
 
 /* 🎨 响应式实用类 */
-.container-sm { max-width: var(--breakpoint-sm); }
-.container-md { max-width: var(--breakpoint-md); }
-.container-lg { max-width: var(--breakpoint-lg); }
-.container-xl { max-width: var(--breakpoint-xl); }
+.container-sm {
+  max-width: var(--breakpoint-sm);
+}
+.container-md {
+  max-width: var(--breakpoint-md);
+}
+.container-lg {
+  max-width: var(--breakpoint-lg);
+}
+.container-xl {
+  max-width: var(--breakpoint-xl);
+}
 
 /* 响应式显示 */
-.hidden-sm { display: none; }
-.hidden-md { display: none; }
-.hidden-lg { display: none; }
+.hidden-sm {
+  display: none;
+}
+.hidden-md {
+  display: none;
+}
+.hidden-lg {
+  display: none;
+}
 
 @media (min-width: 640px) {
-  .hidden-sm { display: block; }
+  .hidden-sm {
+    display: block;
+  }
 }
 
 @media (min-width: 768px) {
-  .hidden-md { display: block; }
+  .hidden-md {
+    display: block;
+  }
 }
 
 @media (min-width: 1024px) {
-  .hidden-lg { display: block; }
+  .hidden-lg {
+    display: block;
+  }
 }
 
 /* 响应式文本 */
-.text-responsive-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
-.text-responsive-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
-.text-responsive-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
-.text-responsive-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+.text-responsive-sm {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+.text-responsive-base {
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+}
+.text-responsive-lg {
+  font-size: clamp(1.125rem, 3vw, 1.25rem);
+}
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+}
 
 /* 响应式间距 */
-.space-responsive-sm { gap: clamp(0.5rem, 2vw, 1rem); }
-.space-responsive-md { gap: clamp(1rem, 3vw, 1.5rem); }
-.space-responsive-lg { gap: clamp(1.5rem, 4vw, 2rem); }
+.space-responsive-sm {
+  gap: clamp(0.5rem, 2vw, 1rem);
+}
+.space-responsive-md {
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+.space-responsive-lg {
+  gap: clamp(1.5rem, 4vw, 2rem);
+}
 
 /* 响应式网格 */
 .grid-responsive-sm {
@@ -583,17 +635,33 @@ watch(
 
 /* 响应式布局调整 */
 @media (max-width: 640px) {
-  .flex-col-mobile { flex-direction: column; }
-  .grid-1-mobile { grid-template-columns: 1fr; }
-  .gap-2-mobile { gap: var(--space-2); }
-  .p-4-mobile { padding: var(--space-4); }
+  .flex-col-mobile {
+    flex-direction: column;
+  }
+  .grid-1-mobile {
+    grid-template-columns: 1fr;
+  }
+  .gap-2-mobile {
+    gap: var(--space-2);
+  }
+  .p-4-mobile {
+    padding: var(--space-4);
+  }
 }
 
 @media (max-width: 768px) {
-  .flex-col-tablet { flex-direction: column; }
-  .grid-2-tablet { grid-template-columns: repeat(2, 1fr); }
-  .gap-4-tablet { gap: var(--space-4); }
-  .p-6-tablet { padding: var(--space-6); }
+  .flex-col-tablet {
+    flex-direction: column;
+  }
+  .grid-2-tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gap-4-tablet {
+    gap: var(--space-4);
+  }
+  .p-6-tablet {
+    padding: var(--space-6);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -653,31 +721,51 @@ watch(
   gap: var(--space-4);
 }
 
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 
-.grid-gap-2 { gap: var(--space-2); }
-.grid-gap-4 { gap: var(--space-4); }
-.grid-gap-6 { gap: var(--space-6); }
+.grid-gap-2 {
+  gap: var(--space-2);
+}
+.grid-gap-4 {
+  gap: var(--space-4);
+}
+.grid-gap-6 {
+  gap: var(--space-6);
+}
 
 /* 🎨 卡片布局 */
 .card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 
 .card-interactive:hover {
   cursor: pointer;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 🎨 页面布局 */
@@ -731,27 +819,33 @@ watch(
     gap: var(--space-4);
   }
 
-  .hidden-mobile { display: none; }
-  .flex-mobile-col { flex-direction: column; }
-  .grid-mobile-1 { grid-template-columns: 1fr; }
+  .hidden-mobile {
+    display: none;
+  }
+  .flex-mobile-col {
+    flex-direction: column;
+  }
+  .grid-mobile-1 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 🎨 完整间距系统 - 基于4px网格 */
 :root {
   --space-0: 0;
-  --space-1: 0.25rem;    /* 4px */
-  --space-2: 0.5rem;     /* 8px */
-  --space-3: 0.75rem;    /* 12px */
-  --space-4: 1rem;       /* 16px */
-  --space-5: 1.25rem;    /* 20px */
-  --space-6: 1.5rem;     /* 24px */
-  --space-8: 2rem;       /* 32px */
-  --space-10: 2.5rem;    /* 40px */
-  --space-12: 3rem;      /* 48px */
-  --space-16: 4rem;      /* 64px */
-  --space-20: 5rem;      /* 80px */
-  --space-24: 6rem;      /* 96px */
-  --space-32: 8rem;      /* 128px */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+  --space-32: 8rem; /* 128px */
 
   /* 负间距 */
   --space-neg-1: -0.25rem;
@@ -760,34 +854,94 @@ watch(
 }
 
 /* 🎨 间距实用类 */
-.m-1 { margin: var(--space-1); }
-.m-2 { margin: var(--space-2); }
-.m-3 { margin: var(--space-3); }
-.m-4 { margin: var(--space-4); }
-.m-6 { margin: var(--space-6); }
-.m-8 { margin: var(--space-8); }
+.m-1 {
+  margin: var(--space-1);
+}
+.m-2 {
+  margin: var(--space-2);
+}
+.m-3 {
+  margin: var(--space-3);
+}
+.m-4 {
+  margin: var(--space-4);
+}
+.m-6 {
+  margin: var(--space-6);
+}
+.m-8 {
+  margin: var(--space-8);
+}
 
-.p-1 { padding: var(--space-1); }
-.p-2 { padding: var(--space-2); }
-.p-3 { padding: var(--space-3); }
-.p-4 { padding: var(--space-4); }
-.p-6 { padding: var(--space-6); }
-.p-8 { padding: var(--space-8); }
+.p-1 {
+  padding: var(--space-1);
+}
+.p-2 {
+  padding: var(--space-2);
+}
+.p-3 {
+  padding: var(--space-3);
+}
+.p-4 {
+  padding: var(--space-4);
+}
+.p-6 {
+  padding: var(--space-6);
+}
+.p-8 {
+  padding: var(--space-8);
+}
 
-.mx-auto { margin-left: auto; margin-right: auto; }
-.my-auto { margin-top: auto; margin-bottom: auto; }
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
-.px-1 { padding-left: var(--space-1); padding-right: var(--space-1); }
-.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
-.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
-.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
-.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.px-1 {
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+}
+.px-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.px-3 {
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+}
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+.px-6 {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
 
-.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
-.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
-.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
-.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.py-1 {
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+.py-2 {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+.py-3 {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+.py-4 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+.py-6 {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+}
 
 /* 🎨 容器和布局间距 */
 .container {
@@ -807,14 +961,28 @@ watch(
   padding: var(--space-6);
 }
 
-.stack-sm > * + * { margin-top: var(--space-2); }
-.stack-md > * + * { margin-top: var(--space-4); }
-.stack-lg > * + * { margin-top: var(--space-6); }
-.stack-xl > * + * { margin-top: var(--space-8); }
+.stack-sm > * + * {
+  margin-top: var(--space-2);
+}
+.stack-md > * + * {
+  margin-top: var(--space-4);
+}
+.stack-lg > * + * {
+  margin-top: var(--space-6);
+}
+.stack-xl > * + * {
+  margin-top: var(--space-8);
+}
 
-.inline-sm > * + * { margin-left: var(--space-2); }
-.inline-md > * + * { margin-left: var(--space-4); }
-.inline-lg > * + * { margin-left: var(--space-6); }
+.inline-sm > * + * {
+  margin-left: var(--space-2);
+}
+.inline-md > * + * {
+  margin-left: var(--space-4);
+}
+.inline-lg > * + * {
+  margin-left: var(--space-6);
+}
 
 /* 🎨 完整字体系统 */
 :root {
@@ -823,15 +991,15 @@ watch(
   --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
 
   /* 字体大小 - 基于1.25的倍数比例 */
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
-  --font-size-5xl: 3rem;      /* 48px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
 
   /* 字体权重 */
   --font-weight-thin: 100;
@@ -859,32 +1027,83 @@ watch(
 }
 
 /* 🎨 字体实用类 */
-.font-sans { font-family: var(--font-family-sans); }
-.font-mono { font-family: var(--font-family-mono); }
+.font-sans {
+  font-family: var(--font-family-sans);
+}
+.font-mono {
+  font-family: var(--font-family-mono);
+}
 
-.text-xs { font-size: var(--font-size-xs); line-height: var(--line-height-tight); }
-.text-sm { font-size: var(--font-size-sm); line-height: var(--line-height-snug); }
-.text-base { font-size: var(--font-size-base); line-height: var(--line-height-normal); }
-.text-lg { font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
-.text-xl { font-size: var(--font-size-xl); line-height: var(--line-height-relaxed); }
-.text-2xl { font-size: var(--font-size-2xl); line-height: var(--line-height-loose); }
-.text-3xl { font-size: var(--font-size-3xl); line-height: var(--line-height-loose); }
+.text-xs {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+}
+.text-sm {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+}
+.text-base {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+.text-xl {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-relaxed);
+}
+.text-2xl {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-loose);
+}
+.text-3xl {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-loose);
+}
 
-.font-thin { font-weight: var(--font-weight-thin); }
-.font-light { font-weight: var(--font-weight-light); }
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
+.font-thin {
+  font-weight: var(--font-weight-thin);
+}
+.font-light {
+  font-weight: var(--font-weight-light);
+}
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
 
-.leading-tight { line-height: var(--line-height-tight); }
-.leading-snug { line-height: var(--line-height-snug); }
-.leading-normal { line-height: var(--line-height-normal); }
-.leading-relaxed { line-height: var(--line-height-relaxed); }
+.leading-tight {
+  line-height: var(--line-height-tight);
+}
+.leading-snug {
+  line-height: var(--line-height-snug);
+}
+.leading-normal {
+  line-height: var(--line-height-normal);
+}
+.leading-relaxed {
+  line-height: var(--line-height-relaxed);
+}
 
-.tracking-tight { letter-spacing: var(--letter-spacing-tight); }
-.tracking-normal { letter-spacing: var(--letter-spacing-normal); }
-.tracking-wide { letter-spacing: var(--letter-spacing-wide); }
+.tracking-tight {
+  letter-spacing: var(--letter-spacing-tight);
+}
+.tracking-normal {
+  letter-spacing: var(--letter-spacing-normal);
+}
+.tracking-wide {
+  letter-spacing: var(--letter-spacing-wide);
+}
 
 /* 🎨 文本层次优化 */
 .heading-1 {
@@ -970,23 +1189,53 @@ watch(
 }
 
 /* 🎨 色彩实用类 */
-.text-primary { color: var(--color-primary); }
-.text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
-.text-error { color: var(--color-error); }
-.text-gray-500 { color: var(--color-gray-500); }
-.text-gray-600 { color: var(--color-gray-600); }
-.text-gray-700 { color: var(--color-gray-700); }
+.text-primary {
+  color: var(--color-primary);
+}
+.text-success {
+  color: var(--color-success);
+}
+.text-warning {
+  color: var(--color-warning);
+}
+.text-error {
+  color: var(--color-error);
+}
+.text-gray-500 {
+  color: var(--color-gray-500);
+}
+.text-gray-600 {
+  color: var(--color-gray-600);
+}
+.text-gray-700 {
+  color: var(--color-gray-700);
+}
 
-.bg-primary { background-color: var(--color-primary); }
-.bg-primary-hover:hover { background-color: var(--color-primary-hover); }
-.bg-success { background-color: var(--color-success); }
-.bg-warning { background-color: var(--color-warning); }
-.bg-error { background-color: var(--color-error); }
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-primary-hover:hover {
+  background-color: var(--color-primary-hover);
+}
+.bg-success {
+  background-color: var(--color-success);
+}
+.bg-warning {
+  background-color: var(--color-warning);
+}
+.bg-error {
+  background-color: var(--color-error);
+}
 
-.border-primary { border-color: var(--color-primary); }
-.border-success { border-color: var(--color-success); }
-.border-error { border-color: var(--color-error); }
+.border-primary {
+  border-color: var(--color-primary);
+}
+.border-success {
+  border-color: var(--color-success);
+}
+.border-error {
+  border-color: var(--color-error);
+}
 
 /* 🎨 对比度增强 */
 .high-contrast {
@@ -1127,7 +1376,6 @@ watch(
   }
 }
 
-
 /* 无障碍支持 */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1210,7 +1458,9 @@ watch(
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
 }
 
 .btn-primary:active::before {
@@ -1220,7 +1470,9 @@ watch(
 
 /* 悬停效果 */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
@@ -1230,8 +1482,12 @@ watch(
 
 /* 加载动画 */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-spinner {
@@ -1246,8 +1502,14 @@ watch(
 
 /* 淡入动画 */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
@@ -1256,11 +1518,22 @@ watch(
 
 /* 成功状态动画 */
 @keyframes success-bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
 
 .success-animation {
   animation: success-bounce 1s ease;
-}</style>
+}
+</style>

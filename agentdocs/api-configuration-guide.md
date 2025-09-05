@@ -14,12 +14,14 @@ MiaoDa Chat 已经集成了完整的 LLM API 支持，但需要正确的配置�
 #### 1. 打开设置页面
 
 在 MiaoDa Chat 主界面中：
+
 1. 点击右上角的 **设置按钮** (⚙️)
 2. 进入设置页面
 
 #### 2. 配置 API 密钥
 
 ##### Option A: 配置 OpenAI API
+
 ```
 API 提供商: OpenAI
 API 密钥: sk-your-openai-api-key-here
@@ -27,6 +29,7 @@ API 密钥: sk-your-openai-api-key-here
 ```
 
 ##### Option B: 配置 Claude API (Anthropic)
+
 ```
 API 提供商: Anthropic
 API 密钥: sk-ant-your-claude-api-key-here
@@ -34,6 +37,7 @@ API 密钥: sk-ant-your-claude-api-key-here
 ```
 
 ##### Option C: 配置 Gemini API (Google)
+
 ```
 API 提供商: Google Gemini
 API 密钥: your-gemini-api-key-here
@@ -43,6 +47,7 @@ API 密钥: your-gemini-api-key-here
 #### 3. 测试配置
 
 配置完成后：
+
 1. 返回聊天页面
 2. 发送一条测试消息（如："你好，请介绍一下你自己"）
 3. 观察顶部状态指示器：
@@ -52,18 +57,21 @@ API 密钥: your-gemini-api-key-here
 ### 📝 获取 API 密钥
 
 #### OpenAI API 密钥
+
 1. 访问: https://platform.openai.com/api-keys
 2. 登录 OpenAI 账户
 3. 创建新的 API Key
 4. 复制密钥并妥善保存
 
 #### Claude API 密钥
+
 1. 访问: https://console.anthropic.com/
 2. 登录 Anthropic 账户
 3. 在 API Keys 页面创建密钥
 4. 复制密钥
 
 #### Gemini API 密钥
+
 1. 访问: https://makersuite.google.com/app/apikey
 2. 登录 Google 账户
 3. 创建新的 API 密钥
@@ -72,6 +80,7 @@ API 密钥: your-gemini-api-key-here
 ### 🔧 高级配置选项
 
 #### 自定义 API 端点
+
 ```json
 {
   "provider": "openai",
@@ -79,11 +88,12 @@ API 密钥: your-gemini-api-key-here
   "baseUrl": "https://api.openai.com/v1", // 自定义端点
   "model": "gpt-3.5-turbo",
   "timeout": 30000, // 超时时间(ms)
-  "maxRetries": 3   // 重试次数
+  "maxRetries": 3 // 重试次数
 }
 ```
 
 #### 本地 Ollama 配置
+
 ```json
 {
   "provider": "ollama",
@@ -95,12 +105,14 @@ API 密钥: your-gemini-api-key-here
 ### 📊 配置验证
 
 #### 成功配置的标志
+
 - ✅ 顶部状态显示 "已连接"
 - ✅ 发送消息后显示 "正在思考中..."
 - ✅ 收到智能、个性化的回复
 - ✅ 回复内容与预设模板不同
 
 #### 配置问题的排查
+
 - ❌ 状态显示 "未配置" → 检查 API 密钥是否正确输入
 - ❌ 状态显示 "连接错误" → 检查网络连接和 API 密钥有效性
 - ❌ 回复内容仍是默认模板 → 检查配置是否保存成功
@@ -108,6 +120,7 @@ API 密钥: your-gemini-api-key-here
 ### 🎮 测试用例
 
 #### 测试消息示例
+
 ```
 1. "请解释什么是机器学习" - 验证专业知识
 2. "写一首关于春天的诗" - 验证创作能力
@@ -116,6 +129,7 @@ API 密钥: your-gemini-api-key-here
 ```
 
 #### 预期结果
+
 - **真实 API**: 获得详细、专业、个性化的回复
 - **默认模式**: 获得通用、简短的预设回复
 
@@ -142,6 +156,7 @@ API 密钥: your-gemini-api-key-here
 
 **Q: 配置了 API 密钥但状态仍显示未连接？**
 A: 请检查：
+
 1. API 密钥格式是否正确
 2. 网络连接是否正常
 3. API 账户是否有余额
@@ -149,6 +164,7 @@ A: 请检查：
 
 **Q: 发送消息后显示网络错误？**
 A: 请检查：
+
 1. 网络连接稳定性
 2. API 服务是否可用
 3. 防火墙设置
@@ -156,6 +172,7 @@ A: 请检查：
 
 **Q: API 调用费用过高？**
 A: 建议：
+
 1. 使用更经济的模型（如 gpt-3.5-turbo）
 2. 设置消息长度限制
 3. 定期检查使用统计

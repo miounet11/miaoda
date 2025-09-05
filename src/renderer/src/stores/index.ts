@@ -27,9 +27,9 @@ pinia.use(
     debug: import.meta.env.DEV,
     serializer: {
       serialize: JSON.stringify,
-      deserialize: JSON.parse,
-    },
-  }),
+      deserialize: JSON.parse
+    }
+  })
 )
 
 // Export store types for better TypeScript support
@@ -57,6 +57,6 @@ export const useStores = () => {
     settings,
     auth,
     customProviders,
-    analytics,
+    analytics
   }
 }

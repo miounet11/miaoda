@@ -28,7 +28,7 @@ export class ZipExporter {
     try {
       // Create archive
       const archive = archiver('zip', {
-        zlib: { level: this.getCompressionLevel(zipOptions.compression) },
+        zlib: { level: this.getCompressionLevel(zipOptions.compression) }
       })
 
       // Track archive size
@@ -72,7 +72,7 @@ export class ZipExporter {
         size: totalSize,
         messageCount,
         chatCount: chats.length,
-        processingTime: 0,
+        processingTime: 0
       }
     } catch (error) {
       throw new Error(`ZIP export failed: ${error.message}`)
@@ -86,7 +86,7 @@ export class ZipExporter {
     archive: archiver.Archiver,
     chats: ExportChatData[],
     options: ExportOptions,
-    zipOptions: ZipExportOptions,
+    zipOptions: ZipExportOptions
   ): Promise<void> {
     const baseOptions = { ...options }
 
@@ -113,21 +113,21 @@ export class ZipExporter {
             ...baseOptions,
             format: format as any,
             chatId: chat.id,
-            chatIds: undefined,
+            chatIds: undefined
           }
 
           await this.addFormatToArchive(
             archive,
             [chat],
             chatOptions,
-            getPath(format, chat.id, chat.title),
+            getPath(format, chat.id, chat.title)
           )
         }
       } else {
         // Create single file with all chats
         const formatOptions = {
           ...baseOptions,
-          format: format as any,
+          format: format as any
         }
 
         await this.addFormatToArchive(archive, chats, formatOptions, getPath(format))
@@ -137,13 +137,13 @@ export class ZipExporter {
     // Add metadata file
     const metadata = this.createMetadata(chats, options, zipOptions)
     archive.append(JSON.stringify(metadata, null, 2), {
-      name: `${getPath('metadata')}export-metadata.json`,
+      name: `${getPath('metadata')}export-metadata.json`
     })
 
     // Add README file
     const readme = this.createReadme(chats, options, zipOptions)
     archive.append(readme, {
-      name: `${getPath('documentation')}README.txt`,
+      name: `${getPath('documentation')}README.txt`
     })
   }
 
@@ -154,7 +154,7 @@ export class ZipExporter {
     archive: archiver.Archiver,
     chats: ExportChatData[],
     options: ExportOptions,
-    folderPath: string,
+    folderPath: string
   ): Promise<void> {
     try {
       let result: ExportResult
@@ -201,7 +201,7 @@ export class ZipExporter {
       console.warn(`Failed to add ${options.format} format:`, error)
       // Add error file instead
       archive.append(`Error generating ${options.format} export: ${error.message}`, {
-        name: `${folderPath}ERROR-${options.format}.txt`,
+        name: `${folderPath}ERROR-${options.format}.txt`
       })
     }
   }
@@ -263,7 +263,7 @@ export class ZipExporter {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -284,12 +284,12 @@ export class ZipExporter {
         options: {
           includeSystemMessages: options.includeSystemMessages,
           includeTimestamps: options.includeTimestamps,
-          includeMetadata: options.includeMetadata,
-        },
+          includeMetadata: options.includeMetadata
+        }
       },
       statistics: {
         chatCount: chats.length,
-        messageCount,
+        messageCount
       },
       chats: chats.map(chat => ({
         id: chat.id,
@@ -303,9 +303,9 @@ export class ZipExporter {
             id: msg.id,
             role: msg.role,
             content: msg.content,
-            createdAt: msg.created_at,
-          })),
-      })),
+            createdAt: msg.created_at
+          }))
+      }))
     }
 
     const content = JSON.stringify(exportData, null, 2)
@@ -320,7 +320,7 @@ export class ZipExporter {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -386,7 +386,7 @@ export class ZipExporter {
       size: new Blob([html]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -424,7 +424,7 @@ export class ZipExporter {
       size: new Blob([content]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -434,7 +434,7 @@ export class ZipExporter {
   private createMetadata(
     chats: ExportChatData[],
     options: ExportOptions,
-    zipOptions: ZipExportOptions,
+    zipOptions: ZipExportOptions
   ): any {
     return {
       exportInfo: {
@@ -442,7 +442,7 @@ export class ZipExporter {
         version: '2.0.0',
         title: options.title || 'Chat Export',
         author: options.author || 'MiaoDa Chat',
-        exportType: 'zip-archive',
+        exportType: 'zip-archive'
       },
       options: {
         formats: zipOptions.includeFormats,
@@ -451,7 +451,7 @@ export class ZipExporter {
         createFolderStructure: zipOptions.createFolderStructure,
         includeSystemMessages: options.includeSystemMessages,
         includeTimestamps: options.includeTimestamps,
-        includeMetadata: options.includeMetadata,
+        includeMetadata: options.includeMetadata
       },
       statistics: {
         totalChats: chats.length,
@@ -463,15 +463,15 @@ export class ZipExporter {
               !earliest || new Date(chat.createdAt) < new Date(earliest)
                 ? chat.createdAt
                 : earliest,
-            null as string | null,
+            null as string | null
           ),
           latest: chats.reduce(
             (latest, chat) =>
               !latest || new Date(chat.updatedAt) > new Date(latest) ? chat.updatedAt : latest,
-            null as string | null,
-          ),
-        },
-      },
+            null as string | null
+          )
+        }
+      }
     }
   }
 
@@ -481,7 +481,7 @@ export class ZipExporter {
   private createReadme(
     chats: ExportChatData[],
     options: ExportOptions,
-    zipOptions: ZipExportOptions,
+    zipOptions: ZipExportOptions
   ): string {
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
 
@@ -507,27 +507,27 @@ ${
 
 File Formats:
 ${zipOptions.includeFormats
-    .map(format => {
-      switch (format) {
-        case 'markdown':
-          return '- .md files: Markdown format with formatting preserved'
-        case 'json':
-          return '- .json files: Structured data format for programmatic access'
-        case 'html':
-          return '- .html files: Web format viewable in browsers'
-        case 'txt':
-          return '- .txt files: Plain text format'
-        case 'pdf':
-          return '- .pdf files: Portable Document Format for printing'
-        case 'csv':
-          return '- .csv files: Comma-separated values for spreadsheet applications'
-        case 'docx':
-          return '- .docx files: Microsoft Word format'
-        default:
-          return `- ${format} files: ${format.toUpperCase()} format`
-      }
-    })
-    .join('\n')}
+  .map(format => {
+    switch (format) {
+      case 'markdown':
+        return '- .md files: Markdown format with formatting preserved'
+      case 'json':
+        return '- .json files: Structured data format for programmatic access'
+      case 'html':
+        return '- .html files: Web format viewable in browsers'
+      case 'txt':
+        return '- .txt files: Plain text format'
+      case 'pdf':
+        return '- .pdf files: Portable Document Format for printing'
+      case 'csv':
+        return '- .csv files: Comma-separated values for spreadsheet applications'
+      case 'docx':
+        return '- .docx files: Microsoft Word format'
+      default:
+        return `- ${format} files: ${format.toUpperCase()} format`
+    }
+  })
+  .join('\n')}
 
 Additional Files:
 - export-metadata.json: Detailed information about the export
@@ -568,7 +568,7 @@ Version: 2.0.0
       compression: 'best',
       includeFormats: ['markdown', 'json', 'html'],
       separateFilePerChat: false,
-      createFolderStructure: true,
+      createFolderStructure: true
     }
   }
 
@@ -593,7 +593,7 @@ Version: 2.0.0
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#039;',
+      "'": '&#039;'
     }
     return text.replace(/[&<>"']/g, m => map[m])
   }

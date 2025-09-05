@@ -20,7 +20,9 @@
             <div class="flex items-center gap-3">
               <Search :size="20" class="text-muted-foreground" aria-hidden="true" />
               <div class="flex-1">
-                <label for="global-search-input" class="sr-only">Search conversations and messages</label>
+                <label for="global-search-input" class="sr-only"
+                  >Search conversations and messages</label
+                >
                 <input
                   id="global-search-input"
                   ref="searchInputRef"
@@ -42,7 +44,7 @@
                 <X :size="18" aria-hidden="true" />
               </button>
             </div>
-            
+
             <div id="search-description" class="mt-2 text-sm text-muted-foreground">
               Search through all your conversations and messages
             </div>
@@ -53,7 +55,10 @@
             <!-- Loading State -->
             <div v-if="isSearching" class="p-8 text-center" role="status" aria-label="Searching">
               <div class="inline-flex items-center gap-2">
-                <div class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" aria-hidden="true" />
+                <div
+                  class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
+                  aria-hidden="true"
+                />
                 <span class="text-sm text-muted-foreground">Searching...</span>
               </div>
             </div>
@@ -78,13 +83,24 @@
                     :data-type="'chat'"
                   >
                     <div class="flex items-start gap-3">
-                      <MessageSquare :size="16" class="text-muted-foreground mt-1 flex-shrink-0" aria-hidden="true" />
+                      <MessageSquare
+                        :size="16"
+                        class="text-muted-foreground mt-1 flex-shrink-0"
+                        aria-hidden="true"
+                      />
                       <div class="flex-1 min-w-0">
-                        <h4 class="font-medium text-sm truncate" v-html="highlightMatch(chat.title, searchQuery)" />
+                        <h4
+                          class="font-medium text-sm truncate"
+                          v-html="highlightMatch(chat.title, searchQuery)"
+                        />
                         <p class="text-xs text-muted-foreground mt-1">
                           {{ chat.messageCount }} messages • {{ formatTime(chat.updatedAt) }}
                         </p>
-                        <p v-if="chat.preview" class="text-xs text-muted-foreground mt-1 line-clamp-2" v-html="highlightMatch(chat.preview, searchQuery)" />
+                        <p
+                          v-if="chat.preview"
+                          class="text-xs text-muted-foreground mt-1 line-clamp-2"
+                          v-html="highlightMatch(chat.preview, searchQuery)"
+                        />
                       </div>
                     </div>
                   </button>
@@ -110,7 +126,12 @@
                   >
                     <div class="flex items-start gap-3">
                       <div class="flex-shrink-0 mt-1">
-                        <User v-if="message.role === 'user'" :size="16" class="text-primary" aria-hidden="true" />
+                        <User
+                          v-if="message.role === 'user'"
+                          :size="16"
+                          class="text-primary"
+                          aria-hidden="true"
+                        />
                         <Bot v-else :size="16" class="text-green-600" aria-hidden="true" />
                       </div>
                       <div class="flex-1 min-w-0">
@@ -118,10 +139,17 @@
                           <span class="text-xs font-medium">
                             {{ message.role === 'user' ? 'You' : 'Assistant' }}
                           </span>
-                          <span class="text-xs text-muted-foreground">in {{ message.chatTitle }}</span>
+                          <span class="text-xs text-muted-foreground"
+                            >in {{ message.chatTitle }}</span
+                          >
                         </div>
-                        <p class="text-sm line-clamp-3" v-html="highlightMatch(message.content, searchQuery)" />
-                        <p class="text-xs text-muted-foreground mt-1">{{ formatTime(message.timestamp) }}</p>
+                        <p
+                          class="text-sm line-clamp-3"
+                          v-html="highlightMatch(message.content, searchQuery)"
+                        />
+                        <p class="text-xs text-muted-foreground mt-1">
+                          {{ formatTime(message.timestamp) }}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -130,8 +158,8 @@
             </div>
 
             <!-- Empty State -->
-            <div 
-              v-else-if="searchQuery && !isSearching" 
+            <div
+              v-else-if="searchQuery && !isSearching"
               class="empty-state p-8 text-center"
               role="status"
               aria-live="polite"
@@ -151,21 +179,15 @@
                 Find messages, conversations, or specific topics
               </p>
               <div class="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
-                <kbd class="kbd">↑↓</kbd> <span>Navigate</span>
-                <kbd class="kbd">Enter</kbd> <span>Open</span>
-                <kbd class="kbd">Esc</kbd> <span>Close</span>
+                <kbd class="kbd">↑↓</kbd> <span>Navigate</span> <kbd class="kbd">Enter</kbd>
+                <span>Open</span> <kbd class="kbd">Esc</kbd> <span>Close</span>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Live region for announcements -->
-        <div
-          aria-live="polite"
-          aria-atomic="true"
-          class="sr-only"
-          role="status"
-        >
+        <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">
           {{ currentAnnouncement }}
         </div>
       </div>
@@ -219,8 +241,18 @@ const mockChats = [
     id: '1',
     title: 'JavaScript Best Practices',
     messages: [
-      { id: '1-1', role: 'user', content: 'What are JavaScript best practices?', timestamp: new Date() },
-      { id: '1-2', role: 'assistant', content: 'Here are some key JavaScript best practices...', timestamp: new Date() }
+      {
+        id: '1-1',
+        role: 'user',
+        content: 'What are JavaScript best practices?',
+        timestamp: new Date()
+      },
+      {
+        id: '1-2',
+        role: 'assistant',
+        content: 'Here are some key JavaScript best practices...',
+        timestamp: new Date()
+      }
     ],
     updatedAt: new Date()
   }
@@ -270,11 +302,9 @@ const searchResults = computed(() => {
   return results.slice(0, 20) // Limit results
 })
 
-const chatResults = computed(() => 
-  searchResults.value.filter(result => result.type === 'chat')
-)
+const chatResults = computed(() => searchResults.value.filter(result => result.type === 'chat'))
 
-const messageResults = computed(() => 
+const messageResults = computed(() =>
   searchResults.value.filter(result => result.type === 'message')
 )
 
@@ -286,7 +316,7 @@ const totalResults = computed(() => searchResults.value.length)
 const handleSearchInput = () => {
   isSearching.value = true
   selectedIndex.value = -1
-  
+
   // Debounce search
   setTimeout(() => {
     isSearching.value = false
@@ -299,17 +329,17 @@ const handleKeydown = (event: KeyboardEvent) => {
       event.preventDefault()
       emit('close')
       break
-    
+
     case 'ArrowDown':
       event.preventDefault()
       navigateResults(1)
       break
-    
+
     case 'ArrowUp':
       event.preventDefault()
       navigateResults(-1)
       break
-    
+
     case 'Enter':
       event.preventDefault()
       selectCurrentResult()
@@ -334,13 +364,13 @@ const handleResultKeydown = (event: KeyboardEvent, type: string, index: number) 
 
 const navigateResults = (direction: number) => {
   const maxIndex = totalResults.value - 1
-  
+
   if (direction > 0) {
     selectedIndex.value = selectedIndex.value >= maxIndex ? 0 : selectedIndex.value + 1
   } else {
     selectedIndex.value = selectedIndex.value <= 0 ? maxIndex : selectedIndex.value - 1
   }
-  
+
   // Focus the selected result
   focusSelectedResult()
 }
@@ -382,9 +412,12 @@ const closeIfClickOutside = (event: MouseEvent) => {
 
 const highlightMatch = (text: string, query: string) => {
   if (!query.trim()) return text
-  
+
   const regex = new RegExp(`(${escapeRegex(query.trim())})`, 'gi')
-  return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800/50 px-1 rounded">$1</mark>')
+  return text.replace(
+    regex,
+    '<mark class="bg-yellow-200 dark:bg-yellow-800/50 px-1 rounded">$1</mark>'
+  )
 }
 
 const escapeRegex = (str: string) => {
@@ -408,16 +441,16 @@ const announceToScreenReader = (message: string) => {
 // Trap focus within modal
 const trapFocus = (event: KeyboardEvent) => {
   if (!props.isVisible) return
-  
+
   const focusableElements = modalRef.value?.querySelectorAll(
     'input, button, textarea, select, a[href], [tabindex]:not([tabindex="-1"])'
   )
-  
+
   if (!focusableElements?.length) return
-  
+
   const firstElement = focusableElements[0] as HTMLElement
   const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
-  
+
   if (event.key === 'Tab') {
     if (event.shiftKey) {
       if (document.activeElement === firstElement) {
@@ -443,20 +476,23 @@ onUnmounted(() => {
 })
 
 // Watchers
-watch(() => props.isVisible, (visible) => {
-  if (visible) {
-    nextTick(() => {
-      searchInputRef.value?.focus()
-    })
-    document.body.style.overflow = 'hidden'
-    announceToScreenReader('Search dialog opened')
-  } else {
-    searchQuery.value = ''
-    selectedIndex.value = -1
-    document.body.style.overflow = ''
-    announceToScreenReader('Search dialog closed')
+watch(
+  () => props.isVisible,
+  visible => {
+    if (visible) {
+      nextTick(() => {
+        searchInputRef.value?.focus()
+      })
+      document.body.style.overflow = 'hidden'
+      announceToScreenReader('Search dialog opened')
+    } else {
+      searchQuery.value = ''
+      selectedIndex.value = -1
+      document.body.style.overflow = ''
+      announceToScreenReader('Search dialog closed')
+    }
   }
-})
+)
 
 watch(searchQuery, () => {
   if (searchQuery.value.trim()) {
@@ -464,7 +500,7 @@ watch(searchQuery, () => {
   }
 })
 
-watch(totalResults, (count) => {
+watch(totalResults, count => {
   if (searchQuery.value.trim() && !isSearching.value) {
     announceToScreenReader(`Found ${count} result${count === 1 ? '' : 's'}`)
   }
@@ -555,11 +591,11 @@ watch(totalResults, (count) => {
     margin-top: 2rem;
     max-height: calc(100vh - 4rem);
   }
-  
+
   .search-results {
     max-height: calc(100vh - 12rem);
   }
-  
+
   .touch-target {
     min-height: 48px;
     min-width: 48px;
@@ -573,7 +609,7 @@ watch(totalResults, (count) => {
     background: hsl(var(--foreground) / 0.1);
     border: 2px solid hsl(var(--foreground) / 0.3);
   }
-  
+
   .global-search-modal {
     border: 2px solid hsl(var(--foreground) / 0.3);
   }
@@ -591,13 +627,13 @@ watch(totalResults, (count) => {
   .modal-leave-active {
     transition: opacity 0.2s ease;
   }
-  
+
   .modal-enter-from,
   .modal-leave-to {
     opacity: 0;
     transform: none;
   }
-  
+
   .animate-spin {
     animation: none;
   }

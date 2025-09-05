@@ -6,16 +6,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./src/test/setup-main.ts'],
-    include: [
-      'src/main/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}',
-    ],
-    exclude: [
-      'node_modules',
-      'dist',
-      'out',
-      'src/renderer/**/*',
-      'src/preload/**/*'
-    ],
+    include: ['src/main/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}'],
+    exclude: ['node_modules', 'dist', 'out', 'src/renderer/**/*', 'src/preload/**/*'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

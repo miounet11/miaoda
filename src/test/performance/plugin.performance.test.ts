@@ -15,14 +15,14 @@ describe('Plugin Performance Tests', () => {
   beforeAll(async () => {
     performanceMonitor = new TestingPerformanceMonitor({
       pluginExecution: 500,
-      memoryBaseline: 500,
+      memoryBaseline: 500
     })
 
     benchmarkRunner = new BenchmarkRunner({
       thresholds: {
-        pluginExecution: 500,
+        pluginExecution: 500
       },
-      verbose: true,
+      verbose: true
     })
 
     logger.info('Plugin performance test suite initialized', 'PluginPerformanceTest')
@@ -56,7 +56,7 @@ describe('Plugin Performance Tests', () => {
       const validation = performanceMonitor.validatePerformance(
         'Plugin Initialization',
         metrics!.duration,
-        'pluginExecution',
+        'pluginExecution'
       )
 
       expect(validation.passed).toBe(true)
@@ -68,8 +68,8 @@ describe('Plugin Performance Tests', () => {
         performanceMonitor.measureAsync(
           () => simulatePluginInitialization(name),
           `Load ${name}`,
-          1000,
-        ),
+          1000
+        )
       )
 
       const results = await Promise.all(loadPromises)
@@ -129,13 +129,15 @@ describe('Plugin Performance Tests', () => {
     })
 
     it('should maintain performance under concurrent plugin calls', async () => {
-      const concurrentCalls = Array(5).fill(null).map((_, index) =>
-        performanceMonitor.measureAsync(
-          () => simulatePluginMethodCall('onMessage', { messageId: index }),
-          `Concurrent Plugin Call ${index}`,
-          1000,
-        ),
-      )
+      const concurrentCalls = Array(5)
+        .fill(null)
+        .map((_, index) =>
+          performanceMonitor.measureAsync(
+            () => simulatePluginMethodCall('onMessage', { messageId: index }),
+            `Concurrent Plugin Call ${index}`,
+            1000
+          )
+        )
 
       const results = await Promise.all(concurrentCalls)
 
@@ -242,7 +244,7 @@ describe('Plugin Performance Tests', () => {
         await performanceMonitor.measureAsync(
           () => simulateSlowPluginOperation(),
           'Slow Plugin Op',
-          600, // 600ms timeout
+          600 // 600ms timeout
         )
       } catch (error) {
         expect(error.message).toContain('timeout')
@@ -302,21 +304,18 @@ describe('Plugin Performance Tests', () => {
         {
           name: 'Baseline Plugin Call',
           iterations: 15,
-          threshold: 250,
-        },
+          threshold: 250
+        }
       )
 
       expect(baseline.status).toBe('pass')
 
       // Simulate regression with slow plugin
-      const regression = await performanceMonitor.benchmark(
-        () => simulateSlowPluginOperation(),
-        {
-          name: 'Regression Plugin Call',
-          iterations: 5,
-          threshold: 250,
-        },
-      )
+      const regression = await performanceMonitor.benchmark(() => simulateSlowPluginOperation(), {
+        name: 'Regression Plugin Call',
+        iterations: 5,
+        threshold: 250
+      })
 
       expect(regression.status).toBe('fail')
       expect(regression.average).toBeGreaterThan(baseline.average * 3)
@@ -326,50 +325,60 @@ describe('Plugin Performance Tests', () => {
   describe('Built-in Plugins Performance', () => {
     const builtinPlugins = ['theme', 'export', 'voice', 'search']
 
-    it.each(builtinPlugins)('should meet performance requirements for %s plugin', async (pluginName) => {
-      const testId = `builtin-${pluginName}-performance`
-      performanceMonitor.startTest(testId, `${pluginName} Plugin Performance`)
+    it.each(builtinPlugins)(
+      'should meet performance requirements for %s plugin',
+      async pluginName => {
+        const testId = `builtin-${pluginName}-performance`
+        performanceMonitor.startTest(testId, `${pluginName} Plugin Performance`)
 
-      const pluginResult = await simulateBuiltinPluginOperation(pluginName)
-      const metrics = performanceMonitor.endTest(testId, 'passed')
+        const pluginResult = await simulateBuiltinPluginOperation(pluginName)
+        const metrics = performanceMonitor.endTest(testId, 'passed')
 
-      expect(metrics!.duration).toBeLessThan(getPluginThreshold(pluginName))
-      expect(pluginResult.success).toBe(true)
-    })
+        expect(metrics!.duration).toBeLessThan(getPluginThreshold(pluginName))
+        expect(pluginResult.success).toBe(true)
+      }
+    )
   })
 })
 
 // Mock plugin operations for testing
-async function simulatePluginInitialization(pluginName: string): Promise<{ initialized: boolean; name: string }> {
+async function simulatePluginInitialization(
+  pluginName: string
+): Promise<{ initialized: boolean; name: string }> {
   // Simulate plugin initialization time (50-300ms)
   const initTime = 50 + Math.random() * 250
   await new Promise(resolve => setTimeout(resolve, initTime))
 
   return {
     initialized: true,
-    name: pluginName,
+    name: pluginName
   }
 }
 
-async function simulatePluginDependencies(plugins: string[]): Promise<{ resolved: boolean; loadOrder: string[] }> {
+async function simulatePluginDependencies(
+  plugins: string[]
+): Promise<{ resolved: boolean; loadOrder: string[] }> {
   // Simulate dependency resolution
   const resolutionTime = plugins.length * 100 + Math.random() * 200
   await new Promise(resolve => setTimeout(resolve, resolutionTime))
 
   return {
     resolved: true,
-    loadOrder: [...plugins],
+    loadOrder: [...plugins]
   }
 }
 
-async function simulatePluginMethodCall(method: string, args: any): Promise<{ success: boolean; result: any }> {
+async function simulatePluginMethodCall(
+  method: string,
+  args: any
+): Promise<{ success: boolean; result: any }> {
   // Simulate method execution time (10-200ms)
   const execTime = 10 + Math.random() * 190
   await new Promise(resolve => setTimeout(resolve, execTime))
 
   return {
     success: true,
-    result: { method, processedArgs: args },
+    result: { method, processedArgs: args }
   }
 }
 
@@ -380,40 +389,48 @@ async function simulateAsyncPluginOperation(): Promise<{ completed: boolean; dur
 
   return {
     completed: true,
-    duration: opTime,
+    duration: opTime
   }
 }
 
-async function simulateInterPluginCommunication(fromPlugin: string, toPlugin: string): Promise<{ messageDelivered: boolean; responseTime: number }> {
+async function simulateInterPluginCommunication(
+  fromPlugin: string,
+  toPlugin: string
+): Promise<{ messageDelivered: boolean; responseTime: number }> {
   // Plugin communication should be fast
   const commTime = 20 + Math.random() * 60
   await new Promise(resolve => setTimeout(resolve, commTime))
 
   return {
     messageDelivered: true,
-    responseTime: commTime,
+    responseTime: commTime
   }
 }
 
-async function simulatePluginEventHandling(events: string[]): Promise<{ eventsProcessed: number; totalTime: number }> {
+async function simulatePluginEventHandling(
+  events: string[]
+): Promise<{ eventsProcessed: number; totalTime: number }> {
   // Process events quickly
   const processTime = events.length * 30 + Math.random() * 50
   await new Promise(resolve => setTimeout(resolve, processTime))
 
   return {
     eventsProcessed: events.length,
-    totalTime: processTime,
+    totalTime: processTime
   }
 }
 
-async function simulatePluginCleanup(): Promise<{ resourcesCleaned: boolean; memoryReleased: number }> {
+async function simulatePluginCleanup(): Promise<{
+  resourcesCleaned: boolean
+  memoryReleased: number
+}> {
   // Cleanup should be fast
   const cleanupTime = 50 + Math.random() * 100
   await new Promise(resolve => setTimeout(resolve, cleanupTime))
 
   return {
     resourcesCleaned: true,
-    memoryReleased: 1024 * 1024 * (1 + Math.random() * 3), // 1-4MB
+    memoryReleased: 1024 * 1024 * (1 + Math.random() * 3) // 1-4MB
   }
 }
 
@@ -429,7 +446,7 @@ async function simulatePluginRecovery(): Promise<{ recovered: boolean; retryCoun
 
   return {
     recovered: true,
-    retryCount: 1,
+    retryCount: 1
   }
 }
 
@@ -446,7 +463,7 @@ async function simulatePluginSecurityValidation(): Promise<{ validated: boolean;
 
   return {
     validated: true,
-    checks: 5,
+    checks: 5
   }
 }
 
@@ -457,16 +474,18 @@ async function simulatePluginSandboxing(): Promise<{ sandboxed: boolean; overhea
 
   return {
     sandboxed: true,
-    overhead: sandboxTime,
+    overhead: sandboxTime
   }
 }
 
-async function simulateBuiltinPluginOperation(pluginName: string): Promise<{ success: boolean; operation: string }> {
+async function simulateBuiltinPluginOperation(
+  pluginName: string
+): Promise<{ success: boolean; operation: string }> {
   const operationTimes = {
     theme: 80 + Math.random() * 120,
     export: 150 + Math.random() * 200,
     voice: 100 + Math.random() * 150,
-    search: 60 + Math.random() * 90,
+    search: 60 + Math.random() * 90
   }
 
   const opTime = operationTimes[pluginName] || 100
@@ -474,7 +493,7 @@ async function simulateBuiltinPluginOperation(pluginName: string): Promise<{ suc
 
   return {
     success: true,
-    operation: `${pluginName} operation completed`,
+    operation: `${pluginName} operation completed`
   }
 }
 
@@ -483,7 +502,7 @@ function getPluginThreshold(pluginName: string): number {
     theme: 250,
     export: 400,
     voice: 300,
-    search: 200,
+    search: 200
   }
 
   return thresholds[pluginName] || 300

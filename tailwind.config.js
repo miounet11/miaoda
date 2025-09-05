@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -34,15 +31,15 @@ module.exports = {
           foreground: 'hsl(var(--warning-foreground))'
         },
         border: 'hsl(var(--border))',
-        ring: 'hsl(var(--ring))',
+        ring: 'hsl(var(--ring))'
       },
       zIndex: {
         'modal-backdrop': '9990',
-        'modal': '9995',
-        'toast': '9999',
-        'tooltip': '9998'
+        modal: '9995',
+        toast: '9999',
+        tooltip: '9998'
       }
-    },
+    }
   },
-  plugins: [],
+  plugins: []
 }

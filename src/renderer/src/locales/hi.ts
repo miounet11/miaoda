@@ -31,7 +31,7 @@ export default {
     redo: 'पुनः करें',
     send: 'भेजें',
     retry: 'पुनः प्रयास',
-    more: 'और देखें',
+    more: 'और देखें'
   },
 
   // चैट संबंधित
@@ -70,7 +70,7 @@ export default {
     clearConfirm: 'क्या आप इस बातचीत को साफ़ करना चाहते हैं? इसे पूर्ववत नहीं किया जा सकता।',
     newChatConfirm: 'नई बातचीत शुरू करें',
     newChatConfirmMessage:
-      'आपके इनपुट बॉक्स में अनभेजी सामग्री है। नई बातचीत शुरू करने से यह सामग्री साफ़ हो जाएगी। जारी रखें?',
+      'आपके इनपुट बॉक्स में अनभेजी सामग्री है। नई बातचीत शुरू करने से यह सामग्री साफ़ हो जाएगी। जारी रखें?'
   },
 
   // संदेश
@@ -88,7 +88,7 @@ export default {
     regenerate: 'पुनः उत्पन्न करें',
     replyTo: 'उत्तर दें',
     markdownError: 'Markdown रेंडरिंग त्रुटि',
-    showOriginal: 'मूल सामग्री दिखाएं',
+    showOriginal: 'मूल सामग्री दिखाएं'
   },
 
   // सेटिंग्स
@@ -129,7 +129,7 @@ export default {
     enableVoice: 'वॉयस इनपुट सक्षम करें',
     voiceLanguage: 'वॉयस भाषा',
     plugins: 'प्लगइन्स',
-    enablePlugins: 'प्लगइन्स सक्षम करें',
+    enablePlugins: 'प्लगइन्स सक्षम करें'
   },
 
   // निर्यात
@@ -161,7 +161,7 @@ export default {
     noChatsSelected: 'कोई चैट चयनित नहीं',
     previewUnavailable: 'इस प्रारूप के लिए पूर्वावलोकन उपलब्ध नहीं',
     binaryFormat: 'बाइनरी प्रारूप',
-    exportDetails: 'निर्यात विवरण',
+    exportDetails: 'निर्यात विवरण'
   },
 
   // विश्लेषण आंकड़े
@@ -188,7 +188,7 @@ export default {
     exportAnalytics: 'विश्लेषण निर्यात करें',
     refreshData: 'डेटा रिफ्रेश करें',
     noData: 'कोई डेटा नहीं',
-    loading: 'विश्लेषण लोड हो रहा है...',
+    loading: 'विश्लेषण लोड हो रहा है...'
   },
 
   // प्लगइन्स
@@ -218,7 +218,7 @@ export default {
     installSuccess: 'प्लगइन सफलतापूर्वक इंस्टॉल किया गया',
     installError: 'प्लगइन इंस्टॉलेशन विफल',
     updateAvailable: 'अपडेट उपलब्ध',
-    restartRequired: 'पुनः आरंभ आवश्यक',
+    restartRequired: 'पुनः आरंभ आवश्यक'
   },
 
   // त्रुटि संदेश
@@ -240,7 +240,7 @@ export default {
     fileReadError: 'फ़ाइल पढ़ने की त्रुटि',
     fileWriteError: 'फ़ाइल लिखने की त्रुटि',
     invalidFormat: 'अमान्य प्रारूप',
-    parseError: 'पार्स त्रुटि',
+    parseError: 'पार्स त्रुटि'
   },
 
   // शॉर्टकट
@@ -264,7 +264,7 @@ export default {
     fullscreen: 'फुलस्क्रीन',
     minimize: 'छोटा करें',
     close: 'बंद करें',
-    quit: 'बाहर निकलें',
+    quit: 'बाहर निकलें'
   },
 
   // समय संबंधित
@@ -285,7 +285,7 @@ export default {
     yearsAgo: '{count} साल पहले',
     today: 'आज',
     yesterday: 'कल',
-    tomorrow: 'कल',
+    tomorrow: 'कल'
   },
 
   // फ़ाइल संचालन
@@ -306,7 +306,7 @@ export default {
     invalidType: 'अमान्य फ़ाइल प्रकार',
     tooLarge: 'फ़ाइल बहुत बड़ी है',
     processingImage: 'छवि प्रसंस्करण...',
-    imageAnalysis: 'छवि विश्लेषण...',
+    imageAnalysis: 'छवि विश्लेषण...'
   },
 
   // भाषाएं
@@ -314,6 +314,6 @@ export default {
     zh: '简体中文',
     en: 'English',
     ja: '日本語',
-    hi: 'हिन्दी',
-  },
+    hi: 'हिन्दी'
+  }
 }

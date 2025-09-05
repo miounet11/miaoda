@@ -28,22 +28,16 @@
     "src/preload/**/*.ts",
     "src/preload/**/*.d.ts",
     "src/types/**/*.ts",
+    "src/test/**/*.ts",
     "electron.vite.config.ts"
   ],
   "exclude": [
-    "node_modules", 
-    "dist", 
-    "out", 
-    "src/test/**/*", 
-    "src/**/__tests__/**/*", 
-    "src/main/performance/**/*", 
-    "src/main/security/**/*", 
-    "src/main/mcp/**/*", 
-    "src/main/plugins/**/*", 
-    "src/renderer/src/services/plugin/**/*", 
-    "src/renderer/src/services/search/**/*", 
-    "src/renderer/src/services/voice/**/*", 
-    "src/renderer/src/services/mcp/**/*", 
-    "src/renderer/src/services/i18n/**/*"
+    "node_modules",
+    "dist",
+    "out",
+    "src/**/__tests__/**/*",
+    "src/main/performance/**/*",
+    "src/renderer/src/services/voice/**/*",
+    "src/renderer/src/services/export/**/*"
   ]
 }

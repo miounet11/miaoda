@@ -28,7 +28,7 @@ export function createWrapper<T extends ComponentPublicInstance>(
   options: TestWrapperOptions = {}
 ): { wrapper: VueWrapper<T>; pinia: Pinia; router: any } {
   const pinia = createPinia()
-  
+
   const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -94,18 +94,23 @@ export function createMockAttachment(overrides: Partial<Attachment> = {}): Attac
 /**
  * Creates a mock conversation with multiple messages
  */
-export function createMockConversation(messageCount: number = 5): { chat: Chat; messages: Message[] } {
+export function createMockConversation(messageCount: number = 5): {
+  chat: Chat
+  messages: Message[]
+} {
   const chat = createMockChat()
-  const messages = Array(messageCount).fill(null).map((_, index) => 
-    createMockMessage({
-      id: `msg-${index}`,
-      chatId: chat.id,
-      role: index % 2 === 0 ? 'user' : 'assistant',
-      content: `Message ${index}: ${index % 2 === 0 ? 'User message' : 'Assistant response'}`,
-      timestamp: new Date(Date.now() - (messageCount - index) * 60000) // Spread over time
-    })
-  )
-  
+  const messages = Array(messageCount)
+    .fill(null)
+    .map((_, index) =>
+      createMockMessage({
+        id: `msg-${index}`,
+        chatId: chat.id,
+        role: index % 2 === 0 ? 'user' : 'assistant',
+        content: `Message ${index}: ${index % 2 === 0 ? 'User message' : 'Assistant response'}`,
+        timestamp: new Date(Date.now() - (messageCount - index) * 60000) // Spread over time
+      })
+    )
+
   chat.messages = messages
   return { chat, messages }
 }
@@ -128,12 +133,12 @@ export async function typeInInput(wrapper: VueWrapper<any>, selector: string, te
  * Simulates keyboard events
  */
 export async function pressKey(
-  wrapper: VueWrapper<any>, 
-  key: string, 
+  wrapper: VueWrapper<any>,
+  key: string,
   options: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean } = {}
 ) {
-  await wrapper.trigger('keydown', { 
-    key, 
+  await wrapper.trigger('keydown', {
+    key,
     ...options,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn()
@@ -150,14 +155,14 @@ export async function waitFor(
   interval: number = 50
 ): Promise<void> {
   const startTime = Date.now()
-  
+
   while (Date.now() - startTime < timeout) {
     if (await condition()) {
       return
     }
     await new Promise(resolve => setTimeout(resolve, interval))
   }
-  
+
   throw new Error(`Condition not met within ${timeout}ms`)
 }
 
@@ -245,11 +250,7 @@ export function createMockFile(
 /**
  * Simulates drag and drop events
  */
-export async function simulateDragDrop(
-  wrapper: VueWrapper<any>,
-  selector: string,
-  files: File[]
-) {
+export async function simulateDragDrop(wrapper: VueWrapper<any>, selector: string, files: File[]) {
   const element = wrapper.find(selector)
   if (!element.exists()) {
     throw new Error(`Element with selector "${selector}" not found`)
@@ -363,10 +364,10 @@ export const PerformanceAssertions = {
   expectRenderTime(wrapper: VueWrapper<any>, maxTime: number) {
     const timer = new TestPerformanceTimer()
     timer.start()
-    
+
     // Force re-render
     wrapper.vm.$forceUpdate()
-    
+
     timer.expectWithinTime(maxTime)
   },
 
@@ -374,9 +375,9 @@ export const PerformanceAssertions = {
     return async () => {
       const timer = new TestPerformanceTimer()
       timer.start()
-      
+
       await updateFn()
-      
+
       timer.expectWithinTime(maxTime)
     }
   }

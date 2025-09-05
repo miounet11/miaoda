@@ -14,14 +14,14 @@ describe('UI Performance Tests', () => {
   beforeAll(async () => {
     performanceMonitor = new TestingPerformanceMonitor({
       chatRendering: 100,
-      memoryBaseline: 500,
+      memoryBaseline: 500
     })
 
     benchmarkRunner = new BenchmarkRunner({
       thresholds: {
-        chatRendering: 100,
+        chatRendering: 100
       },
-      verbose: true,
+      verbose: true
     })
 
     logger.info('UI performance test suite initialized', 'UIPerformanceTest')
@@ -47,7 +47,7 @@ describe('UI Performance Tests', () => {
         id: '1',
         content: 'Hello world!',
         role: 'user',
-        timestamp: Date.now(),
+        timestamp: Date.now()
       })
 
       const metrics = performanceMonitor.endTest(testId, 'passed')
@@ -60,7 +60,7 @@ describe('UI Performance Tests', () => {
       const validation = performanceMonitor.validatePerformance(
         'Single Message Render',
         metrics!.duration,
-        'chatRendering',
+        'chatRendering'
       )
 
       expect(validation.passed).toBe(true)
@@ -68,12 +68,14 @@ describe('UI Performance Tests', () => {
 
     it('should render message list efficiently', async () => {
       const messageCount = 50
-      const messages = Array(messageCount).fill(null).map((_, index) => ({
-        id: String(index + 1),
-        content: `Message ${index + 1}: ${generateRandomContent()}`,
-        role: index % 2 === 0 ? 'user' : 'assistant',
-        timestamp: Date.now() - (messageCount - index) * 1000,
-      }))
+      const messages = Array(messageCount)
+        .fill(null)
+        .map((_, index) => ({
+          id: String(index + 1),
+          content: `Message ${index + 1}: ${generateRandomContent()}`,
+          role: index % 2 === 0 ? 'user' : 'assistant',
+          timestamp: Date.now() - (messageCount - index) * 1000
+        }))
 
       const testId = 'message-list-render'
       performanceMonitor.startTest(testId, 'Message List Rendering')
@@ -92,7 +94,7 @@ describe('UI Performance Tests', () => {
         id: 'markdown-test',
         content: generateMarkdownContent(),
         role: 'assistant',
-        timestamp: Date.now(),
+        timestamp: Date.now()
       }
 
       const testId = 'markdown-render'
@@ -111,7 +113,7 @@ describe('UI Performance Tests', () => {
         id: 'code-test',
         content: generateCodeContent(),
         role: 'assistant',
-        timestamp: Date.now(),
+        timestamp: Date.now()
       }
 
       const testId = 'code-render'
@@ -189,7 +191,7 @@ describe('UI Performance Tests', () => {
           id: String(i),
           content: `Message ${i}`,
           role: i % 2 === 0 ? 'user' : 'assistant',
-          timestamp: Date.now(),
+          timestamp: Date.now()
         })
       }
 
@@ -219,18 +221,21 @@ describe('UI Performance Tests', () => {
 
   describe('Concurrent Rendering', () => {
     it('should handle multiple simultaneous render operations', async () => {
-      const concurrentRenders = Array(10).fill(null).map((_, index) =>
-        performanceMonitor.measureAsync(
-          () => simulateMessageRender({
-            id: String(index),
-            content: `Concurrent message ${index}`,
-            role: 'user',
-            timestamp: Date.now(),
-          }),
-          `Concurrent Render ${index}`,
-          1000,
-        ),
-      )
+      const concurrentRenders = Array(10)
+        .fill(null)
+        .map((_, index) =>
+          performanceMonitor.measureAsync(
+            () =>
+              simulateMessageRender({
+                id: String(index),
+                content: `Concurrent message ${index}`,
+                role: 'user',
+                timestamp: Date.now()
+              }),
+            `Concurrent Render ${index}`,
+            1000
+          )
+        )
 
       const results = await Promise.all(concurrentRenders)
 
@@ -260,30 +265,28 @@ describe('UI Performance Tests', () => {
     it('should detect UI performance regressions', async () => {
       // Baseline rendering benchmark
       const baseline = await performanceMonitor.benchmark(
-        () => simulateMessageRender({
-          id: 'baseline',
-          content: 'Baseline message',
-          role: 'user',
-          timestamp: Date.now(),
-        }),
+        () =>
+          simulateMessageRender({
+            id: 'baseline',
+            content: 'Baseline message',
+            role: 'user',
+            timestamp: Date.now()
+          }),
         {
           name: 'Baseline UI Render',
           iterations: 20,
-          threshold: 100,
-        },
+          threshold: 100
+        }
       )
 
       expect(baseline.status).toBe('pass')
 
       // Simulate regression with slow rendering
-      const regression = await performanceMonitor.benchmark(
-        () => simulateSlowRender(),
-        {
-          name: 'Regression UI Render',
-          iterations: 5,
-          threshold: 100,
-        },
-      )
+      const regression = await performanceMonitor.benchmark(() => simulateSlowRender(), {
+        name: 'Regression UI Render',
+        iterations: 5,
+        threshold: 100
+      })
 
       expect(regression.status).toBe('fail')
       expect(regression.average).toBeGreaterThan(baseline.average * 2)
@@ -292,62 +295,74 @@ describe('UI Performance Tests', () => {
 })
 
 // Mock UI operations for testing
-async function simulateMessageRender(message: any): Promise<{ rendered: boolean; elementId: string }> {
+async function simulateMessageRender(
+  message: any
+): Promise<{ rendered: boolean; elementId: string }> {
   // Simulate realistic message rendering time
   const baseTime = 20 + Math.random() * 50 // 20-70ms
   await new Promise(resolve => setTimeout(resolve, baseTime))
 
   return {
     rendered: true,
-    elementId: `message-${message.id}`,
+    elementId: `message-${message.id}`
   }
 }
 
-async function simulateMessageListRender(messages: any[]): Promise<{ renderedCount: number; totalTime: number }> {
+async function simulateMessageListRender(
+  messages: any[]
+): Promise<{ renderedCount: number; totalTime: number }> {
   // Simulate batch rendering with some parallelization
   const renderTime = messages.length * 15 + Math.random() * 100
   await new Promise(resolve => setTimeout(resolve, renderTime))
 
   return {
     renderedCount: messages.length,
-    totalTime: renderTime,
+    totalTime: renderTime
   }
 }
 
-async function simulateMarkdownRender(message: any): Promise<{ rendered: boolean; hasMarkdown: boolean }> {
+async function simulateMarkdownRender(
+  message: any
+): Promise<{ rendered: boolean; hasMarkdown: boolean }> {
   // Markdown parsing takes slightly longer
   const renderTime = 50 + Math.random() * 80
   await new Promise(resolve => setTimeout(resolve, renderTime))
 
   return {
     rendered: true,
-    hasMarkdown: true,
+    hasMarkdown: true
   }
 }
 
-async function simulateCodeRender(message: any): Promise<{ rendered: boolean; highlightedLines: number }> {
+async function simulateCodeRender(
+  message: any
+): Promise<{ rendered: boolean; highlightedLines: number }> {
   // Code highlighting is more expensive
   const renderTime = 80 + Math.random() * 100
   await new Promise(resolve => setTimeout(resolve, renderTime))
 
   return {
     rendered: true,
-    highlightedLines: 25,
+    highlightedLines: 25
   }
 }
 
-async function simulateScrolling(messageCount: number): Promise<{ frameDrops: number; avgFrameTime: number }> {
+async function simulateScrolling(
+  messageCount: number
+): Promise<{ frameDrops: number; avgFrameTime: number }> {
   // Simulate scrolling through messages
   const scrollTime = Math.min(30, messageCount * 0.01) // Should be very fast regardless of count
   await new Promise(resolve => setTimeout(resolve, scrollTime))
 
   return {
     frameDrops: Math.floor(Math.random() * 3),
-    avgFrameTime: 16.7, // 60fps target
+    avgFrameTime: 16.7 // 60fps target
   }
 }
 
-async function simulateVirtualScrolling(totalItems: number): Promise<{ visibleItems: number; renderTime: number }> {
+async function simulateVirtualScrolling(
+  totalItems: number
+): Promise<{ visibleItems: number; renderTime: number }> {
   // Virtual scrolling should only render visible items
   const visibleItems = Math.min(50, totalItems)
   const renderTime = visibleItems * 0.5 + Math.random() * 10
@@ -356,7 +371,7 @@ async function simulateVirtualScrolling(totalItems: number): Promise<{ visibleIt
 
   return {
     visibleItems,
-    renderTime,
+    renderTime
   }
 }
 
@@ -366,7 +381,7 @@ async function simulateMessageAnimation(): Promise<{ fps: number; duration: numb
 
   return {
     fps: 45 + Math.random() * 15, // 45-60fps
-    duration: animationDuration,
+    duration: animationDuration
   }
 }
 
@@ -376,7 +391,7 @@ async function simulateTypingIndicator(): Promise<{ smooth: boolean; cycles: num
 
   return {
     smooth: true,
-    cycles: 1,
+    cycles: 1
   }
 }
 
@@ -386,7 +401,7 @@ async function simulateDOMCleanup(): Promise<{ nodesRemoved: number; memoryRecla
 
   return {
     nodesRemoved: 50 + Math.floor(Math.random() * 100),
-    memoryReclaimed: 1024 * 1024 * (1 + Math.random() * 5), // 1-6MB reclaimed
+    memoryReclaimed: 1024 * 1024 * (1 + Math.random() * 5) // 1-6MB reclaimed
   }
 }
 

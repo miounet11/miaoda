@@ -25,7 +25,10 @@
       <!-- Simple Single-Window Layout -->
       <div class="flex-1 overflow-hidden">
         <!-- Title bar for Windows/Linux -->
-        <div v-if="!isMac" class="title-bar h-12 bg-white border-b border-gray-200 flex items-center px-6">
+        <div
+          v-if="!isMac"
+          class="title-bar h-12 bg-white border-b border-gray-200 flex items-center px-6"
+        >
           <span class="text-lg font-semibold text-gray-800">MiaoDa Chat</span>
           <div class="ml-auto text-sm text-gray-500">免费AI对话平台</div>
         </div>
@@ -118,10 +121,7 @@ onErrorCaptured((error, instance, info) => {
   logger.error('捕获到错误', 'App', error)
 
   // 对于严重错误，显示错误回退界面
-  if (
-    error?.message?.includes('Cannot read') ||
-    error?.message?.includes('Cannot access')
-  ) {
+  if (error?.message?.includes('Cannot read') || error?.message?.includes('Cannot access')) {
     hasCriticalError.value = true
     criticalErrorMessage.value = error.message || '发生严重错误'
     criticalErrorDetails.value = error?.stack || ''
@@ -242,7 +242,9 @@ onUnmounted(() => {
 
 /* 无障碍支持 */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

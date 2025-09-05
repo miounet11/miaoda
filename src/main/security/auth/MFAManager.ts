@@ -72,7 +72,7 @@ const DEFAULT_MFA_STRATEGY: MFAStrategy = {
   gracePeriod: 30 * 1000, // 30秒
   maxFailureAttempts: 5,
   lockoutDuration: 15 * 60 * 1000, // 15分钟
-  backupCodesCount: 10,
+  backupCodesCount: 10
 }
 
 // SMS/邮箱验证码配置
@@ -107,7 +107,7 @@ export class MFAManager extends EventEmitter {
       const secret = speakeasy.generateSecret({
         name: `${serviceName} (${userId})`,
         issuer: serviceName,
-        length: 32,
+        length: 32
       })
 
       // 生成QR码
@@ -127,9 +127,9 @@ export class MFAManager extends EventEmitter {
           secret: secret.base32,
           backupCodes: backupCodes.map(code => ({
             code: this.hashBackupCode(code),
-            used: false,
-          })),
-        },
+            used: false
+          }))
+        }
       })
 
       this.emit('mfaSetupStarted', { userId, method: 'totp' })
@@ -138,7 +138,7 @@ export class MFAManager extends EventEmitter {
         secret: secret.base32!,
         qrCode,
         backupCodes,
-        manualEntryKey: secret.base32!,
+        manualEntryKey: secret.base32!
       }
     } catch (error) {
       this.emit('mfaSetupError', { userId, method: 'totp', error })
@@ -161,7 +161,7 @@ export class MFAManager extends EventEmitter {
       secret: totpConfig.metadata.secret,
       encoding: 'base32',
       token,
-      window: 2, // 允许时间误差
+      window: 2 // 允许时间误差
     })
 
     if (verified) {
@@ -193,7 +193,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method: 'totp',
-        error: 'TOTP not enabled for this user',
+        error: 'TOTP not enabled for this user'
       }
     }
 
@@ -204,7 +204,7 @@ export class MFAManager extends EventEmitter {
         success: false,
         method: 'totp',
         lockoutTime,
-        error: 'Account temporarily locked due to too many failed attempts',
+        error: 'Account temporarily locked due to too many failed attempts'
       }
     }
 
@@ -212,7 +212,7 @@ export class MFAManager extends EventEmitter {
       secret: totpConfig.metadata.secret,
       encoding: 'base32',
       token,
-      window: 2,
+      window: 2
     })
 
     if (verified) {
@@ -224,13 +224,13 @@ export class MFAManager extends EventEmitter {
 
       return {
         success: true,
-        method: 'totp',
+        method: 'totp'
       }
     } else {
       totpConfig.failureCount++
       const remainingAttempts = Math.max(
         0,
-        this.strategy.maxFailureAttempts - totpConfig.failureCount,
+        this.strategy.maxFailureAttempts - totpConfig.failureCount
       )
 
       if (totpConfig.failureCount >= this.strategy.maxFailureAttempts) {
@@ -244,7 +244,7 @@ export class MFAManager extends EventEmitter {
         success: false,
         method: 'totp',
         remainingAttempts,
-        error: 'Invalid TOTP token',
+        error: 'Invalid TOTP token'
       }
     }
   }
@@ -266,8 +266,8 @@ export class MFAManager extends EventEmitter {
       failureCount: 0,
       metadata: {
         phoneNumber: this.normalizePhoneNumber(phoneNumber),
-        verified: false,
-      },
+        verified: false
+      }
     })
 
     // 发送验证码
@@ -296,7 +296,7 @@ export class MFAManager extends EventEmitter {
       code: this.hashVerificationCode(code),
       expiresAt: Date.now() + 5 * 60 * 1000, // 5分钟有效
       attempts: 0,
-      method: 'sms',
+      method: 'sms'
     })
 
     try {
@@ -306,7 +306,7 @@ export class MFAManager extends EventEmitter {
       this.emit('verificationCodeSent', {
         userId,
         method: 'sms',
-        to: this.maskPhoneNumber(targetPhone!),
+        to: this.maskPhoneNumber(targetPhone!)
       })
     } catch (error) {
       this.verificationCodes.delete(codeKey)
@@ -338,8 +338,8 @@ export class MFAManager extends EventEmitter {
       failureCount: 0,
       metadata: {
         email: email.toLowerCase(),
-        verified: false,
-      },
+        verified: false
+      }
     })
 
     // 发送验证码
@@ -368,7 +368,7 @@ export class MFAManager extends EventEmitter {
       code: this.hashVerificationCode(code),
       expiresAt: Date.now() + 10 * 60 * 1000, // 10分钟有效
       attempts: 0,
-      method: 'email',
+      method: 'email'
     })
 
     try {
@@ -378,7 +378,7 @@ export class MFAManager extends EventEmitter {
       this.emit('verificationCodeSent', {
         userId,
         method: 'email',
-        to: this.maskEmail(targetEmail!),
+        to: this.maskEmail(targetEmail!)
       })
     } catch (error) {
       this.verificationCodes.delete(codeKey)
@@ -399,7 +399,7 @@ export class MFAManager extends EventEmitter {
   private async verifyCode(
     userId: string,
     inputCode: string,
-    method: 'sms' | 'email',
+    method: 'sms' | 'email'
   ): Promise<VerificationResult> {
     const codeKey = `${userId}:${method}`
     const storedCode = this.verificationCodes.get(codeKey)
@@ -408,7 +408,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method,
-        error: 'No verification code found. Please request a new one.',
+        error: 'No verification code found. Please request a new one.'
       }
     }
 
@@ -418,7 +418,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method,
-        error: 'Verification code has expired',
+        error: 'Verification code has expired'
       }
     }
 
@@ -428,7 +428,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method,
-        error: 'Too many failed attempts',
+        error: 'Too many failed attempts'
       }
     }
 
@@ -458,7 +458,7 @@ export class MFAManager extends EventEmitter {
 
       return {
         success: true,
-        method,
+        method
       }
     } else {
       const remainingAttempts = Math.max(0, this.strategy.maxFailureAttempts - storedCode.attempts)
@@ -469,7 +469,7 @@ export class MFAManager extends EventEmitter {
         success: false,
         method,
         remainingAttempts,
-        error: 'Invalid verification code',
+        error: 'Invalid verification code'
       }
     }
   }
@@ -500,7 +500,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method: 'backup_codes',
-        error: 'Backup codes not set up',
+        error: 'Backup codes not set up'
       }
     }
 
@@ -509,7 +509,7 @@ export class MFAManager extends EventEmitter {
 
     // 查找匹配的备份码
     const codeIndex = backupCodes.findIndex(
-      (codeObj: any) => codeObj.code === hashedInput && !codeObj.used,
+      (codeObj: any) => codeObj.code === hashedInput && !codeObj.used
     )
 
     if (codeIndex === -1) {
@@ -520,7 +520,7 @@ export class MFAManager extends EventEmitter {
       return {
         success: false,
         method: 'backup_codes',
-        error: 'Invalid or already used backup code',
+        error: 'Invalid or already used backup code'
       }
     }
 
@@ -540,7 +540,7 @@ export class MFAManager extends EventEmitter {
 
     return {
       success: true,
-      method: 'backup_codes',
+      method: 'backup_codes'
     }
   }
 
@@ -557,7 +557,7 @@ export class MFAManager extends EventEmitter {
         enabled: true,
         setupCompleted: true,
         failureCount: 0,
-        metadata: {},
+        metadata: {}
       }
       userMFA.set('backup_codes', backupConfig)
     }
@@ -565,7 +565,7 @@ export class MFAManager extends EventEmitter {
     const newCodes = this.generateBackupCodes()
     backupConfig.metadata.backupCodes = newCodes.map(code => ({
       code: this.hashBackupCode(code),
-      used: false,
+      used: false
     }))
 
     this.emit('backupCodesRegenerated', { userId })
@@ -584,7 +584,7 @@ export class MFAManager extends EventEmitter {
       email: null,
       webauthn: null,
       backup_codes: null,
-      biometric: null,
+      biometric: null
     }
 
     for (const method of this.strategy.allowedMethods) {
@@ -595,11 +595,11 @@ export class MFAManager extends EventEmitter {
           ...config,
           metadata: config.metadata
             ? {
-              ...config.metadata,
-              secret: undefined,
-              backupCodes: undefined,
-            }
-            : undefined,
+                ...config.metadata,
+                secret: undefined,
+                backupCodes: undefined
+              }
+            : undefined
         }
       }
     }

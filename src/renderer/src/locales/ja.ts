@@ -31,7 +31,7 @@ export default {
     redo: 'やり直し',
     send: '送信',
     retry: '再試行',
-    more: 'もっと見る',
+    more: 'もっと見る'
   },
 
   // チャット関連
@@ -70,7 +70,7 @@ export default {
     clearConfirm: 'この会話をクリアしてもよろしいですか？元に戻すことはできません。',
     newChatConfirm: '新しい会話を開始',
     newChatConfirmMessage:
-      '入力ボックスに未送信の内容があります。新しい会話を開始すると、これらの内容はクリアされます。続行しますか？',
+      '入力ボックスに未送信の内容があります。新しい会話を開始すると、これらの内容はクリアされます。続行しますか？'
   },
 
   // メッセージ
@@ -88,7 +88,7 @@ export default {
     regenerate: '再生成',
     replyTo: '返信',
     markdownError: 'Markdownレンダリングエラー',
-    showOriginal: '元の内容を表示',
+    showOriginal: '元の内容を表示'
   },
 
   // 設定
@@ -129,7 +129,7 @@ export default {
     enableVoice: '音声入力を有効にする',
     voiceLanguage: '音声言語',
     plugins: 'プラグイン',
-    enablePlugins: 'プラグインを有効にする',
+    enablePlugins: 'プラグインを有効にする'
   },
 
   // エクスポート
@@ -161,7 +161,7 @@ export default {
     noChatsSelected: 'チャットが選択されていません',
     previewUnavailable: 'このフォーマットではプレビューを利用できません',
     binaryFormat: 'バイナリフォーマット',
-    exportDetails: 'エクスポート詳細',
+    exportDetails: 'エクスポート詳細'
   },
 
   // 分析統計
@@ -188,7 +188,7 @@ export default {
     exportAnalytics: '分析をエクスポート',
     refreshData: 'データを更新',
     noData: 'データがありません',
-    loading: '分析を読み込み中...',
+    loading: '分析を読み込み中...'
   },
 
   // プラグイン
@@ -218,7 +218,7 @@ export default {
     installSuccess: 'プラグインのインストールが完了しました',
     installError: 'プラグインのインストールに失敗しました',
     updateAvailable: 'アップデート利用可能',
-    restartRequired: '再起動が必要です',
+    restartRequired: '再起動が必要です'
   },
 
   // エラーメッセージ
@@ -240,7 +240,7 @@ export default {
     fileReadError: 'ファイル読み取りエラー',
     fileWriteError: 'ファイル書き込みエラー',
     invalidFormat: '無効な形式',
-    parseError: '解析エラー',
+    parseError: '解析エラー'
   },
 
   // ショートカット
@@ -264,7 +264,7 @@ export default {
     fullscreen: 'フルスクリーン',
     minimize: '最小化',
     close: '閉じる',
-    quit: '終了',
+    quit: '終了'
   },
 
   // 時間関連
@@ -285,7 +285,7 @@ export default {
     yearsAgo: '{count}年前',
     today: '今日',
     yesterday: '昨日',
-    tomorrow: '明日',
+    tomorrow: '明日'
   },
 
   // ファイル操作
@@ -306,7 +306,7 @@ export default {
     invalidType: '無効なファイル形式',
     tooLarge: 'ファイルが大きすぎます',
     processingImage: '画像処理中...',
-    imageAnalysis: '画像解析中...',
+    imageAnalysis: '画像解析中...'
   },
 
   // 言語名
@@ -314,6 +314,6 @@ export default {
     zh: '简体中文',
     en: 'English',
     ja: '日本語',
-    hi: 'हिन्दी',
-  },
+    hi: 'हिन्दी'
+  }
 }

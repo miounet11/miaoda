@@ -3,7 +3,7 @@ import {
   OpenAIProvider,
   AnthropicProvider,
   OllamaProvider,
-  CustomOpenAIProvider,
+  CustomOpenAIProvider
 } from './provider'
 import { FallbackProvider } from './FallbackProvider'
 import type { CustomProviderManager } from './customProviderManager'
@@ -46,7 +46,7 @@ export class ProviderFactory {
       // It's a custom provider, use the provider ID as customProviderId
       return this.createCustomProvider({
         ...config,
-        customProviderId: config.provider,
+        customProviderId: config.provider
       })
     }
 
@@ -69,31 +69,31 @@ export class ProviderFactory {
       case 'deepseek':
         return this.createOpenAICompatibleProvider('DeepSeek', config, {
           defaultBaseURL: 'https://api.deepseek.com/v1',
-          defaultModel: 'deepseek-chat',
+          defaultModel: 'deepseek-chat'
         })
 
       case 'qwen':
         return this.createOpenAICompatibleProvider('通义千问', config, {
           defaultBaseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-          defaultModel: 'qwen-turbo',
+          defaultModel: 'qwen-turbo'
         })
 
       case 'moonshot':
         return this.createOpenAICompatibleProvider('Kimi', config, {
           defaultBaseURL: 'https://api.moonshot.cn/v1',
-          defaultModel: 'moonshot-v1-8k',
+          defaultModel: 'moonshot-v1-8k'
         })
 
       case 'zhipu':
         return this.createOpenAICompatibleProvider('智谱清言', config, {
           defaultBaseURL: 'https://open.bigmodel.cn/api/paas/v4',
-          defaultModel: 'glm-4',
+          defaultModel: 'glm-4'
         })
 
       case 'minimax':
         return this.createOpenAICompatibleProvider('MiniMax', config, {
           defaultBaseURL: 'https://api.minimax.chat/v1',
-          defaultModel: 'abab6.5s-chat',
+          defaultModel: 'abab6.5s-chat'
         })
 
       case 'baidu':
@@ -106,7 +106,7 @@ export class ProviderFactory {
       case 'google':
         return this.createOpenAICompatibleProvider('Gemini', config, {
           defaultBaseURL: 'https://generativelanguage.googleapis.com/v1',
-          defaultModel: 'gemini-pro',
+          defaultModel: 'gemini-pro'
         })
 
       case 'custom':
@@ -123,7 +123,7 @@ export class ProviderFactory {
   private static createOpenAICompatibleProvider(
     displayName: string,
     config: LLMConfig,
-    defaults: { defaultBaseURL: string; defaultModel: string },
+    defaults: { defaultBaseURL: string; defaultModel: string }
   ): LLMProvider {
     if (!config.apiKey) {
       throw new Error(`${displayName} provider requires API key`)
@@ -140,7 +140,7 @@ export class ProviderFactory {
       headers: config.headers || {},
       parameters: config.parameters || {},
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     return new CustomOpenAIProvider(customConfig)
@@ -162,11 +162,11 @@ export class ProviderFactory {
       headers: {
         'Content-Type': 'application/json',
         'X-Secret-Key': config.secretKey!, // 百度特有的Secret Key
-        ...config.headers,
+        ...config.headers
       },
       parameters: config.parameters || {},
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     return new CustomOpenAIProvider(customConfig)
@@ -189,7 +189,7 @@ export class ProviderFactory {
       const available = this.customProviderManager.getAllProviders()
       console.error(
         '[ProviderFactory] Available custom providers:',
-        available.map(p => p.id),
+        available.map(p => p.id)
       )
       throw new Error(`Custom provider not found: ${config.customProviderId}`)
     }
@@ -273,7 +273,7 @@ export class ProviderFactory {
       { id: 'minimax', name: 'minimax', displayName: 'MiniMax' },
 
       // 本地模型
-      { id: 'ollama', name: 'ollama', displayName: 'Ollama Local' },
+      { id: 'ollama', name: 'ollama', displayName: 'Ollama Local' }
     ]
   }
 
@@ -289,11 +289,11 @@ export class ProviderFactory {
     const builtIn = this.getBuiltInProviders()
     const custom = this.customProviderManager
       ? this.customProviderManager.getAllProviders().map(config => ({
-        id: config.id,
-        name: config.name,
-        displayName: config.displayName,
-        isCustom: true,
-      }))
+          id: config.id,
+          name: config.name,
+          displayName: config.displayName,
+          isCustom: true
+        }))
       : []
 
     return [...builtIn, ...custom]

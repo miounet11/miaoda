@@ -7,10 +7,10 @@ export const useSettingsStore = defineStore(
   'settings',
   () => {
     // State
-    const llmProvider = ref<LLMProvider>('openai')
+    const llmProvider = ref<LLMProvider>('miaochat' as LLMProvider)
     const apiKey = ref('')
     const apiEndpoint = ref('')
-    const modelName = ref('gpt-4')
+    const modelName = ref('miaochat')
     const temperature = ref(0.7)
     const maxTokens = ref(2048)
     const streamingEnabled = ref(true)
@@ -63,7 +63,7 @@ export const useSettingsStore = defineStore(
       nextChat: 'cmd+down',
       prevChat: 'cmd+up',
       clearChat: 'cmd+shift+c',
-      exportChat: 'cmd+e',
+      exportChat: 'cmd+e'
     })
 
     // Advanced Settings
@@ -71,6 +71,13 @@ export const useSettingsStore = defineStore(
     const developmentMode = ref(false)
     const experimentalFeatures = ref(false)
     const betaFeatures = ref(false)
+
+    // General Settings
+    const settings = ref({
+      general: {
+        hasCompletedWelcome: false
+      }
+    })
 
     // Plugin Settings
     const enabledPlugins = ref<string[]>([])
@@ -98,7 +105,7 @@ export const useSettingsStore = defineStore(
       spellCheck: spellCheck.value,
       showTimestamps: showTimestamps.value,
       showAvatars: showAvatars.value,
-      compactMode: compactMode.value,
+      compactMode: compactMode.value
     }))
 
     const llmSettings = computed(() => ({
@@ -108,7 +115,7 @@ export const useSettingsStore = defineStore(
       model: modelName.value,
       temperature: temperature.value,
       maxTokens: maxTokens.value,
-      streaming: streamingEnabled.value,
+      streaming: streamingEnabled.value
     }))
 
     const uiSettings = computed(() => ({
@@ -116,7 +123,7 @@ export const useSettingsStore = defineStore(
       fontFamily: fontFamily.value,
       lineHeight: lineHeight.value,
       messageSpacing: messageSpacing.value,
-      animationsEnabled: animationsEnabled.value,
+      animationsEnabled: animationsEnabled.value
     }))
 
     const privacySettings = computed(() => ({
@@ -128,7 +135,7 @@ export const useSettingsStore = defineStore(
       sendAnalytics: sendAnalytics.value,
       shareUsageData: shareUsageData.value,
       storeChatHistory: storeChatHistory.value,
-      allowAutoUpdates: allowAutoUpdates.value,
+      allowAutoUpdates: allowAutoUpdates.value
     }))
 
     const voiceSettings = computed(() => ({
@@ -137,7 +144,7 @@ export const useSettingsStore = defineStore(
       rate: voiceRate.value,
       pitch: voicePitch.value,
       volume: voiceVolume.value,
-      autoPlay: voiceAutoPlay.value,
+      autoPlay: voiceAutoPlay.value
     }))
 
     // Custom Providers integration
@@ -148,12 +155,12 @@ export const useSettingsStore = defineStore(
         { id: 'openai', name: 'OpenAI', displayName: 'OpenAI', isCustom: false },
         { id: 'anthropic', name: 'Anthropic', displayName: 'Claude', isCustom: false },
         { id: 'google', name: 'Google', displayName: 'Google Gemini', isCustom: false },
-        { id: 'local', name: 'Local', displayName: 'Local (Ollama)', isCustom: false },
+        { id: 'local', name: 'Local', displayName: 'Local (Ollama)', isCustom: false }
       ]
 
       const customProviders = customProvidersStore.providerOptions.map(provider => ({
         ...provider,
-        isCustom: true,
+        isCustom: true
       }))
 
       return [...standardProviders, ...customProviders]
@@ -176,6 +183,10 @@ export const useSettingsStore = defineStore(
 
       // Set default endpoints and models for each provider
       switch (provider) {
+        case 'miaochat':
+          apiEndpoint.value = 'https://ttkk.inping.com/v1'
+          modelName.value = 'miaochat'
+          break
         case 'openai':
           apiEndpoint.value = 'https://api.openai.com/v1'
           modelName.value = 'gpt-4'
@@ -267,7 +278,7 @@ export const useSettingsStore = defineStore(
         nextChat: 'cmd+down',
         prevChat: 'cmd+up',
         clearChat: 'cmd+shift+c',
-        exportChat: 'cmd+e',
+        exportChat: 'cmd+e'
       }
     }
 
@@ -331,14 +342,14 @@ export const useSettingsStore = defineStore(
         shortcuts: keyboardShortcuts.value,
         plugins: {
           enabled: enabledPlugins.value,
-          settings: Object.fromEntries(pluginSettings.value),
+          settings: Object.fromEntries(pluginSettings.value)
         },
         advanced: {
           debugMode: debugMode.value,
           developmentMode: developmentMode.value,
           experimentalFeatures: experimentalFeatures.value,
-          betaFeatures: betaFeatures.value,
-        },
+          betaFeatures: betaFeatures.value
+        }
       }
 
       return JSON.stringify(settings, null, 2)
@@ -426,10 +437,10 @@ export const useSettingsStore = defineStore(
 
     const resetToDefaults = () => {
       // LLM Settings
-      llmProvider.value = 'openai'
+      llmProvider.value = 'miaochat' as LLMProvider
       apiKey.value = ''
-      apiEndpoint.value = 'https://api.openai.com/v1'
-      modelName.value = 'gpt-4'
+      apiEndpoint.value = 'https://ttkk.inping.com/v1'
+      modelName.value = 'miaochat'
       temperature.value = 0.7
       maxTokens.value = 2048
       streamingEnabled.value = true
@@ -605,12 +616,18 @@ export const useSettingsStore = defineStore(
       refreshCustomProviders,
       getProviderForSelection,
       validateProviderConfiguration,
+
+      // General settings
+      settings,
+      updateSettings: (newSettings: any) => {
+        settings.value = { ...settings.value, ...newSettings }
+      }
     }
   },
   {
     persist: {
       key: 'miaoda-settings-store',
-      storage: localStorage,
-    },
-  },
+      storage: localStorage
+    }
+  }
 )

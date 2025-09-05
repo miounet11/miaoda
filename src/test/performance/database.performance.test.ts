@@ -15,14 +15,14 @@ describe('Database Performance Tests', () => {
     // Initialize performance monitoring
     performanceMonitor = new TestingPerformanceMonitor({
       databaseQuery: 50,
-      memoryBaseline: 500,
+      memoryBaseline: 500
     })
 
     benchmarkRunner = new BenchmarkRunner({
       thresholds: {
-        databaseQuery: 50,
+        databaseQuery: 50
       },
-      verbose: true,
+      verbose: true
     })
 
     logger.info('Database performance test suite initialized', 'DatabasePerformanceTest')
@@ -59,7 +59,7 @@ describe('Database Performance Tests', () => {
       const validation = performanceMonitor.validatePerformance(
         'Simple SELECT',
         metrics!.duration,
-        'databaseQuery',
+        'databaseQuery'
       )
 
       expect(validation.passed).toBe(true)
@@ -97,12 +97,14 @@ describe('Database Performance Tests', () => {
     })
 
     it('should maintain performance under concurrent queries', async () => {
-      const concurrentQueries = Array(10).fill(null).map((_, index) =>
-        performanceMonitor.measureAsync(
-          () => simulateDatabaseQuery(`SELECT * FROM chats LIMIT ${index + 1}`, []),
-          `Concurrent Query ${index + 1}`,
-        ),
-      )
+      const concurrentQueries = Array(10)
+        .fill(null)
+        .map((_, index) =>
+          performanceMonitor.measureAsync(
+            () => simulateDatabaseQuery(`SELECT * FROM chats LIMIT ${index + 1}`, []),
+            `Concurrent Query ${index + 1}`
+          )
+        )
 
       const results = await Promise.all(concurrentQueries)
 
@@ -164,21 +166,18 @@ describe('Database Performance Tests', () => {
         {
           name: 'Baseline Query',
           iterations: 20,
-          threshold: 50,
-        },
+          threshold: 50
+        }
       )
 
       expect(baselineResult.status).toBe('pass')
 
       // Simulate performance regression by adding delay
-      const regressionResult = await performanceMonitor.benchmark(
-        () => simulateSlowQuery(),
-        {
-          name: 'Regression Query',
-          iterations: 5,
-          threshold: 50,
-        },
-      )
+      const regressionResult = await performanceMonitor.benchmark(() => simulateSlowQuery(), {
+        name: 'Regression Query',
+        iterations: 5,
+        threshold: 50
+      })
 
       // Should detect regression
       expect(regressionResult.status).toBe('fail')
@@ -207,14 +206,17 @@ describe('Database Performance Tests', () => {
 })
 
 // Mock database operations for testing
-async function simulateDatabaseQuery(sql: string, params: any[]): Promise<{ rows: number; data?: any[] }> {
+async function simulateDatabaseQuery(
+  sql: string,
+  params: any[]
+): Promise<{ rows: number; data?: any[] }> {
   // Simulate realistic database query timing
   const baseTime = 5 + Math.random() * 20 // 5-25ms base time
   await new Promise(resolve => setTimeout(resolve, baseTime))
 
   return {
     rows: Math.floor(Math.random() * 100) + 1,
-    data: Array(10).fill({ id: 1, content: 'test' }),
+    data: Array(10).fill({ id: 1, content: 'test' })
   }
 }
 
@@ -225,18 +227,22 @@ async function simulateComplexQuery(): Promise<{ rows: number; joinCount: number
 
   return {
     rows: Math.floor(Math.random() * 500) + 100,
-    joinCount: 3,
+    joinCount: 3
   }
 }
 
-async function simulateFullTextSearch(query: string): Promise<{ matches: number; relevance: number[] }> {
+async function simulateFullTextSearch(
+  query: string
+): Promise<{ matches: number; relevance: number[] }> {
   // Simulate FTS query
   const searchTime = 30 + Math.random() * 60 // 30-90ms
   await new Promise(resolve => setTimeout(resolve, searchTime))
 
   return {
     matches: Math.floor(Math.random() * 50) + 1,
-    relevance: Array(5).fill(null).map(() => Math.random()),
+    relevance: Array(5)
+      .fill(null)
+      .map(() => Math.random())
   }
 }
 

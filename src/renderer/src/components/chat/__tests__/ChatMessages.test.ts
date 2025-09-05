@@ -8,7 +8,8 @@ import type { Message } from '@/types'
 vi.mock('../MessageItem.vue', () => ({
   default: {
     name: 'MessageItem',
-    template: '<div data-testid="message-item" :data-message-id="message.id">{{ message.content }}</div>',
+    template:
+      '<div data-testid="message-item" :data-message-id="message.id">{{ message.content }}</div>',
     props: ['message', 'isLast', 'isLoading'],
     emits: ['retry', 'edit', 'delete', 'copy']
   }
@@ -30,12 +31,16 @@ describe('ChatMessages', () => {
   let pinia: ReturnType<typeof createPinia>
 
   const createMockMessages = (count: number): Message[] => {
-    return Array(count).fill(null).map((_, index) => createMockMessage({
-      id: `msg-${index}`,
-      content: `Message ${index}`,
-      role: index % 2 === 0 ? 'user' : 'assistant',
-      timestamp: new Date(Date.now() - (count - index) * 60000) // Spread over time
-    }))
+    return Array(count)
+      .fill(null)
+      .map((_, index) =>
+        createMockMessage({
+          id: `msg-${index}`,
+          content: `Message ${index}`,
+          role: index % 2 === 0 ? 'user' : 'assistant',
+          timestamp: new Date(Date.now() - (count - index) * 60000) // Spread over time
+        })
+      )
   }
 
   beforeEach(() => {
@@ -74,7 +79,7 @@ describe('ChatMessages', () => {
 
     it('renders quick suggestions when provided', () => {
       const suggestions = ['What is AI?', 'How can you help me?', 'Tell me a joke']
-      
+
       wrapper = mount(ChatMessages, {
         props: {
           messages: [],
@@ -90,7 +95,7 @@ describe('ChatMessages', () => {
 
     it('emits suggestion when clicked', async () => {
       const suggestions = ['Test suggestion']
-      
+
       wrapper = mount(ChatMessages, {
         props: {
           messages: [],
@@ -110,7 +115,7 @@ describe('ChatMessages', () => {
   describe('Message Rendering', () => {
     it('renders all messages correctly', () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -118,7 +123,7 @@ describe('ChatMessages', () => {
 
       const messageItems = wrapper.findAll('[data-testid="message-item"]')
       expect(messageItems).toHaveLength(3)
-      
+
       messageItems.forEach((item, index) => {
         expect(item.attributes('data-message-id')).toBe(`msg-${index}`)
         expect(item.text()).toContain(`Message ${index}`)
@@ -127,14 +132,14 @@ describe('ChatMessages', () => {
 
     it('marks last message correctly', () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
       })
 
       const messageItems = wrapper.findAllComponents({ name: 'MessageItem' })
-      
+
       // Only the last message should have isLast=true
       expect(messageItems[0].props('isLast')).toBe(false)
       expect(messageItems[1].props('isLast')).toBe(false)
@@ -144,9 +149,9 @@ describe('ChatMessages', () => {
     it('handles loading state for last assistant message', () => {
       const messages = createMockMessages(2)
       messages[1].role = 'assistant' // Make last message from assistant
-      
+
       wrapper = mount(ChatMessages, {
-        props: { 
+        props: {
           messages,
           isLoading: true
         },
@@ -159,9 +164,9 @@ describe('ChatMessages', () => {
 
     it('shows message skeleton when generating', () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
-        props: { 
+        props: {
           messages,
           isGenerating: true
         },
@@ -175,7 +180,7 @@ describe('ChatMessages', () => {
   describe('Message Interactions', () => {
     it('emits retry-message event', async () => {
       const messages = createMockMessages(1)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -190,7 +195,7 @@ describe('ChatMessages', () => {
 
     it('emits edit-message event', async () => {
       const messages = createMockMessages(1)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -205,7 +210,7 @@ describe('ChatMessages', () => {
 
     it('emits delete-message event', async () => {
       const messages = createMockMessages(1)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -220,14 +225,14 @@ describe('ChatMessages', () => {
 
     it('handles message copy functionality', async () => {
       const messages = createMockMessages(1)
-      
+
       // Mock clipboard API
       Object.assign(navigator, {
         clipboard: {
           writeText: vi.fn().mockResolvedValue(undefined)
         }
       })
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -244,7 +249,7 @@ describe('ChatMessages', () => {
   describe('Scrolling Behavior', () => {
     it('auto-scrolls to bottom with new messages', async () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -265,7 +270,7 @@ describe('ChatMessages', () => {
 
     it('maintains scroll position when not at bottom', async () => {
       const messages = createMockMessages(10)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -292,9 +297,9 @@ describe('ChatMessages', () => {
   describe('Performance', () => {
     it('renders large message lists efficiently', () => {
       const messages = createMockMessages(100)
-      
+
       const startTime = performance.now()
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -309,7 +314,7 @@ describe('ChatMessages', () => {
 
     it('handles rapid message updates efficiently', async () => {
       let messages = createMockMessages(5)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -334,7 +339,7 @@ describe('ChatMessages', () => {
   describe('Accessibility', () => {
     it('has proper ARIA structure', () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -342,14 +347,14 @@ describe('ChatMessages', () => {
 
       const messagesContainer = wrapper.find('.chat-messages')
       expect(messagesContainer.exists()).toBe(true)
-      
+
       // Should have appropriate ARIA roles
       expect(messagesContainer.attributes('role')).toBeDefined()
     })
 
     it('supports keyboard navigation', async () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -367,7 +372,7 @@ describe('ChatMessages', () => {
 
     it('provides screen reader support', () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -395,7 +400,7 @@ describe('ChatMessages', () => {
 
     it('shows generating indicator correctly', () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: {
           messages,
@@ -409,7 +414,7 @@ describe('ChatMessages', () => {
 
     it('handles loading state transitions', async () => {
       const messages = createMockMessages(1)
-      
+
       wrapper = mount(ChatMessages, {
         props: {
           messages,
@@ -421,13 +426,13 @@ describe('ChatMessages', () => {
 
       // Start loading
       await wrapper.setProps({ isLoading: true })
-      
+
       // Stop loading
       await wrapper.setProps({ isLoading: false })
-      
+
       // Start generating
       await wrapper.setProps({ isGenerating: true })
-      
+
       // Stop generating
       await wrapper.setProps({ isGenerating: false })
 
@@ -438,7 +443,7 @@ describe('ChatMessages', () => {
   describe('Message Updates', () => {
     it('handles message content updates', async () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -447,7 +452,7 @@ describe('ChatMessages', () => {
       // Update message content
       const updatedMessages = [...messages]
       updatedMessages[0] = { ...updatedMessages[0], content: 'Updated content' }
-      
+
       await wrapper.setProps({ messages: updatedMessages })
 
       const firstMessage = wrapper.findAll('[data-testid="message-item"]')[0]
@@ -456,7 +461,7 @@ describe('ChatMessages', () => {
 
     it('handles message addition', async () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -473,7 +478,7 @@ describe('ChatMessages', () => {
 
     it('handles message removal', async () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -508,7 +513,7 @@ describe('ChatMessages', () => {
 
     it('recovers from rendering errors', async () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -516,7 +521,7 @@ describe('ChatMessages', () => {
 
       // Simulate a rendering error by passing invalid data
       const invalidMessages = [{ invalid: 'data' }] as any
-      
+
       await wrapper.setProps({ messages: invalidMessages })
 
       // Component should still be mounted and functional
@@ -527,7 +532,7 @@ describe('ChatMessages', () => {
   describe('Responsive Design', () => {
     it('adapts to different screen sizes', () => {
       const messages = createMockMessages(3)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -541,7 +546,7 @@ describe('ChatMessages', () => {
 
     it('adjusts spacing for mobile devices', () => {
       const messages = createMockMessages(2)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -556,7 +561,7 @@ describe('ChatMessages', () => {
   describe('Virtual Scrolling', () => {
     it('handles large message lists efficiently', () => {
       const messages = createMockMessages(1000)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -564,14 +569,14 @@ describe('ChatMessages', () => {
 
       // With virtual scrolling, not all items should be rendered
       const renderedItems = wrapper.findAll('[data-testid="message-item"]')
-      
+
       // Exact behavior depends on virtual scrolling implementation
       expect(wrapper.vm).toBeDefined()
     })
 
     it('maintains scroll position during updates', async () => {
       const messages = createMockMessages(50)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -593,7 +598,7 @@ describe('ChatMessages', () => {
   describe('Animation and Transitions', () => {
     it('applies appear animations to new messages', async () => {
       const messages = createMockMessages(1)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -609,14 +614,14 @@ describe('ChatMessages', () => {
 
     it('handles smooth scrolling', () => {
       const messages = createMockMessages(10)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
       })
 
       const container = wrapper.find('.chat-messages')
-      
+
       // Should have smooth scrolling enabled
       expect(container.element.style.scrollBehavior).toBeDefined()
     })
@@ -625,7 +630,7 @@ describe('ChatMessages', () => {
   describe('Memory Management', () => {
     it('cleans up event listeners on unmount', async () => {
       const messages = createMockMessages(5)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }
@@ -641,7 +646,7 @@ describe('ChatMessages', () => {
 
     it('handles component updates without memory leaks', async () => {
       const messages = createMockMessages(10)
-      
+
       wrapper = mount(ChatMessages, {
         props: { messages },
         global: { plugins: [pinia] }

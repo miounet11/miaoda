@@ -31,17 +31,21 @@
 ## 手动测试步骤
 
 ### 1. 启动应用
+
 ```bash
 cd miaoda-chat
 npm run dev
 ```
 
 ### 2. 测试提供商列表
+
 1. 打开开发者工具
 2. 执行以下代码检查提供商列表：
+
 ```javascript
 // 测试后端API
-window.electronAPI.enhancedModel.getAllProviders()
+window.electronAPI.enhancedModel
+  .getAllProviders()
   .then(providers => console.log('Available providers:', providers))
 
 // 测试前端服务
@@ -51,10 +55,11 @@ console.log('Preset providers:', presetProviders.value)
 ```
 
 ### 3. 测试配置保存和加载
+
 ```javascript
 // 保存测试配置
 const testConfig = {
-  'deepseek': {
+  deepseek: {
     apiKey: 'test-key',
     baseUrl: 'https://api.deepseek.com/v1',
     model: 'deepseek-chat',
@@ -62,15 +67,14 @@ const testConfig = {
   }
 }
 
-window.electronAPI.enhancedModel.saveConfig(testConfig)
-  .then(() => console.log('Config saved'))
+window.electronAPI.enhancedModel.saveConfig(testConfig).then(() => console.log('Config saved'))
 
 // 加载配置
-window.electronAPI.enhancedModel.loadConfig()
-  .then(config => console.log('Loaded config:', config))
+window.electronAPI.enhancedModel.loadConfig().then(config => console.log('Loaded config:', config))
 ```
 
 ### 4. 测试连接（需要真实API密钥）
+
 ```javascript
 // 测试DeepSeek连接
 const testConfig = {
@@ -80,15 +84,15 @@ const testConfig = {
   model: 'deepseek-chat'
 }
 
-window.electronAPI.enhancedModel.testConnection(testConfig)
+window.electronAPI.enhancedModel
+  .testConnection(testConfig)
   .then(result => console.log('Connection test result:', result))
 ```
 
 ### 5. 测试消息发送（需要已配置的提供商）
+
 ```javascript
-const messages = [
-  { role: 'user', content: '你好，请简单介绍一下自己' }
-]
+const messages = [{ role: 'user', content: '你好，请简单介绍一下自己' }]
 
 const modelConfig = {
   providerId: 'deepseek',
@@ -97,7 +101,8 @@ const modelConfig = {
   model: 'deepseek-chat'
 }
 
-window.electronAPI.enhancedModel.sendMessage(messages, modelConfig)
+window.electronAPI.enhancedModel
+  .sendMessage(messages, modelConfig)
   .then(response => console.log('AI Response:', response))
 ```
 
@@ -111,17 +116,20 @@ window.electronAPI.enhancedModel.sendMessage(messages, modelConfig)
 ## 已实现的架构改进
 
 ### 后端集成
+
 - ✅ 扩展了 `ProviderFactory` 支持所有主流大模型
 - ✅ 创建了 OpenAI 兼容的提供商适配器
 - ✅ 添加了百度文心的特殊处理（支持 secretKey）
 - ✅ 更新了 IPC 处理器，增加了增强模型配置相关接口
 
 ### 前端集成
+
 - ✅ 修改了 `EnhancedModelConfigService` 使用后端 API 而非 localStorage
 - ✅ 更新了 preload 脚本暴露新的 API 接口
 - ✅ 添加了消息发送方法使用增强模型配置
 
 ### API 接口
+
 - ✅ `enhanced-model:get-all-providers` - 获取所有提供商
 - ✅ `enhanced-model:test-connection` - 测试提供商连接
 - ✅ `enhanced-model:send-message` - 使用增强配置发送消息

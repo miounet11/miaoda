@@ -5,6 +5,7 @@
 **质量监控体系**: "预防为主，持续改进"
 
 建立多维度质量监控体系，确保产品稳定性和用户体验：
+
 - **自动化监控**: 实时检测和预警
 - **用户为中心**: 基于真实用户数据
 - **数据驱动**: 量化指标和趋势分析
@@ -140,16 +141,16 @@ export class CodeQualityMonitor {
 export class PerformanceMonitor {
   private static readonly PERFORMANCE_THRESHOLDS = {
     // Core Web Vitals
-    firstPaint: 2000,        // 首次绘制 < 2s
+    firstPaint: 2000, // 首次绘制 < 2s
     firstContentfulPaint: 2500, // 首次内容绘制 < 2.5s
     largestContentfulPaint: 3000, // 最大内容绘制 < 3s
-    cumulativeLayoutShift: 0.1,   // 累积布局偏移 < 0.1
-    firstInputDelay: 100,         // 首次输入延迟 < 100ms
+    cumulativeLayoutShift: 0.1, // 累积布局偏移 < 0.1
+    firstInputDelay: 100, // 首次输入延迟 < 100ms
 
     // 自定义指标
     memoryUsage: 500 * 1024 * 1024, // 内存使用 < 500MB
-    frameRate: 55,                  // 帧率 > 55fps
-    apiResponseTime: 1000,          // API响应时间 < 1s
+    frameRate: 55, // 帧率 > 55fps
+    apiResponseTime: 1000 // API响应时间 < 1s
   }
 
   private metrics: Map<string, number[]> = new Map()
@@ -163,7 +164,7 @@ export class PerformanceMonitor {
 
   private observeCoreWebVitals() {
     // Largest Contentful Paint
-    const lcpObserver = new PerformanceObserver((list) => {
+    const lcpObserver = new PerformanceObserver(list => {
       const entries = list.getEntries()
       const lastEntry = entries[entries.length - 1] as any
       this.recordMetric('lcp', lastEntry.startTime)
@@ -176,7 +177,7 @@ export class PerformanceMonitor {
     this.observers.push(lcpObserver)
 
     // First Input Delay
-    const fidObserver = new PerformanceObserver((list) => {
+    const fidObserver = new PerformanceObserver(list => {
       const entries = list.getEntries()
       entries.forEach((entry: any) => {
         this.recordMetric('fid', entry.processingStart - entry.startTime)
@@ -190,7 +191,7 @@ export class PerformanceMonitor {
     this.observers.push(fidObserver)
 
     // Cumulative Layout Shift
-    const clsObserver = new PerformanceObserver((list) => {
+    const clsObserver = new PerformanceObserver(list => {
       let clsValue = 0
       const entries = list.getEntries() as any[]
 
@@ -277,13 +278,16 @@ export class PerformanceMonitor {
   private generatePerformanceReport() {
     const report = {
       timestamp: new Date(),
-      metrics: {} as Record<string, {
-        current: number
-        average: number
-        min: number
-        max: number
-        trend: 'improving' | 'stable' | 'degrading'
-      }>
+      metrics: {} as Record<
+        string,
+        {
+          current: number
+          average: number
+          min: number
+          max: number
+          trend: 'improving' | 'stable' | 'degrading'
+        }
+      >
     }
 
     this.metrics.forEach((values, name) => {
@@ -364,10 +368,10 @@ export class PerformanceMonitor {
 ```typescript
 export class UserBehaviorTracker {
   private static readonly BEHAVIOR_THRESHOLDS = {
-    sessionDuration: 300000,    // 会话时长 > 5分钟
-    pageViews: 3,               // 页面访问 > 3次
-    errorRate: 0.05,           // 错误率 < 5%
-    taskCompletionRate: 0.8,   // 任务完成率 > 80%
+    sessionDuration: 300000, // 会话时长 > 5分钟
+    pageViews: 3, // 页面访问 > 3次
+    errorRate: 0.05, // 错误率 < 5%
+    taskCompletionRate: 0.8 // 任务完成率 > 80%
   }
 
   private sessionData = {
@@ -443,7 +447,7 @@ export class UserBehaviorTracker {
     }
 
     window.addEventListener('error', errorHandler)
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       errorHandler({
         message: event.reason?.toString() || 'Unhandled promise rejection',
         filename: 'unknown',
@@ -489,7 +493,9 @@ export class UserBehaviorTracker {
       powerUser: this.sessionData.interactions.length > 50,
       keyboardUser: this.sessionData.interactions.filter(i => i.type === 'keydown').length > 20,
       mobileUser: /Mobile|Android|iPhone|iPad|iPod/i.test(navigator.userAgent),
-      accessibilityUser: this.sessionData.interactions.some(i => i.type === 'focus' || i.type === 'blur')
+      accessibilityUser: this.sessionData.interactions.some(
+        i => i.type === 'focus' || i.type === 'blur'
+      )
     }
 
     // 根据模式调整体验
@@ -558,7 +564,9 @@ export class UserBehaviorTracker {
       errors: this.sessionData.errors.length,
       completedTasks: this.sessionData.tasks.filter(t => t.completed).length,
       errorRate: this.sessionData.errors.length / Math.max(this.sessionData.interactions.length, 1),
-      taskCompletionRate: this.sessionData.tasks.filter(t => t.completed).length / Math.max(this.sessionData.tasks.length, 1)
+      taskCompletionRate:
+        this.sessionData.tasks.filter(t => t.completed).length /
+        Math.max(this.sessionData.tasks.length, 1)
     }
   }
 }
@@ -597,7 +605,6 @@ export class ErrorRecoverySystem {
       this.resetErrorCount(operationName)
 
       return result
-
     } catch (error) {
       this.incrementErrorCount(operationName)
 
@@ -625,7 +632,10 @@ export class ErrorRecoverySystem {
   ): Promise<any> {
     switch (strategy.type) {
       case 'retry':
-        return this.retryOperation(strategy.operation, strategy.maxRetries || this.ERROR_THRESHOLDS.maxRetries)
+        return this.retryOperation(
+          strategy.operation,
+          strategy.maxRetries || this.ERROR_THRESHOLDS.maxRetries
+        )
 
       case 'fallback':
         return strategy.fallback()
@@ -754,7 +764,7 @@ export class ErrorRecoverySystem {
       errorCounts: Object.fromEntries(this.errorCounts),
       circuitBreakers: Object.fromEntries(this.circuitBreakers),
       topErrors: Array.from(this.errorCounts.entries())
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 10)
     }
   }
@@ -814,12 +824,7 @@ export class ErrorRecoverySystem {
       <div class="metrics-section">
         <h3>用户体验</h3>
         <div class="charts-grid">
-          <MetricChart
-            title="任务完成率"
-            :data="uxData.taskCompletion"
-            :threshold="0.8"
-            unit="%"
-          />
+          <MetricChart title="任务完成率" :data="uxData.taskCompletion" :threshold="0.8" unit="%" />
           <MetricChart
             title="用户满意度"
             :data="uxData.satisfaction"
@@ -885,46 +890,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run ESLint
-      run: npm run lint
-      continue-on-error: true
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true
 
-    - name: Run TypeScript check
-      run: npm run typecheck
-      continue-on-error: true
+      - name: Run TypeScript check
+        run: npm run typecheck
+        continue-on-error: true
 
-    - name: Run tests
-      run: npm run test
-      continue-on-error: true
+      - name: Run tests
+        run: npm run test
+        continue-on-error: true
 
-    - name: Check bundle size
-      run: npm run build:analyze
-      continue-on-error: true
+      - name: Check bundle size
+        run: npm run build:analyze
+        continue-on-error: true
 
-    - name: Security audit
-      run: npm audit
-      continue-on-error: true
+      - name: Security audit
+        run: npm audit
+        continue-on-error: true
 
-    - name: Quality gate
-      run: |
-        # 检查所有质量指标
-        if [ ${{ steps.lint.outcome }} == "failure" ] ||
-           [ ${{ steps.typecheck.outcome }} == "failure" ] ||
-           [ ${{ steps.test.outcome }} == "failure" ]; then
-          echo "Quality gate failed"
-          exit 1
-        fi
+      - name: Quality gate
+        run: |
+          # 检查所有质量指标
+          if [ ${{ steps.lint.outcome }} == "failure" ] ||
+             [ ${{ steps.typecheck.outcome }} == "failure" ] ||
+             [ ${{ steps.test.outcome }} == "failure" ]; then
+            echo "Quality gate failed"
+            exit 1
+          fi
 ```
 
 #### 自动化报告生成
@@ -948,12 +953,7 @@ export class QualityReportGenerator {
     }
 
     // 收集所有指标数据
-    const [
-      codeQualityData,
-      performanceData,
-      userExperienceData,
-      securityData
-    ] = await Promise.all([
+    const [codeQualityData, performanceData, userExperienceData, securityData] = await Promise.all([
       this.collectCodeQualityData(),
       this.collectPerformanceData(),
       this.collectUserExperienceData(),
@@ -1084,13 +1084,16 @@ export class QualityReportGenerator {
     const recommendations: Recommendation[] = []
 
     // 根据问题生成针对性建议
-    const categoryGroups = issues.reduce((groups, issue) => {
-      if (!groups[issue.category]) {
-        groups[issue.category] = []
-      }
-      groups[issue.category].push(issue)
-      return groups
-    }, {} as Record<string, QualityIssue[]>)
+    const categoryGroups = issues.reduce(
+      (groups, issue) => {
+        if (!groups[issue.category]) {
+          groups[issue.category] = []
+        }
+        groups[issue.category].push(issue)
+        return groups
+      },
+      {} as Record<string, QualityIssue[]>
+    )
 
     Object.entries(categoryGroups).forEach(([category, categoryIssues]) => {
       recommendations.push({
@@ -1171,18 +1174,21 @@ export class QualityReportGenerator {
 ## 成功指标
 
 ### 技术质量指标
+
 - **代码质量评分**: > 85/100
 - **性能稳定性**: 99% 时间符合阈值
 - **错误恢复率**: > 90%
 - **自动化覆盖**: > 80%
 
 ### 用户体验指标
+
 - **监控响应时间**: < 5分钟
 - **问题解决率**: > 95%
 - **用户满意度**: > 4.5/5.0
 - **系统可用性**: > 99.9%
 
 ### 业务指标
+
 - **质量改进速度**: 每周提升 5%
 - **问题预防率**: > 80%
 - **维护成本**: 降低 30%

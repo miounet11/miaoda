@@ -1,11 +1,7 @@
 <template>
   <div class="smart-recommendations">
     <!-- 推荐卡片容器 -->
-    <TransitionGroup 
-      name="recommendation-list" 
-      tag="div"
-      class="recommendations-container"
-    >
+    <TransitionGroup name="recommendation-list" tag="div" class="recommendations-container">
       <div
         v-for="recommendation in visibleRecommendations"
         :key="recommendation.id"
@@ -31,8 +27,8 @@
         <!-- 置信度指示器 -->
         <div class="confidence-indicator" v-if="showConfidence">
           <div class="confidence-bar">
-            <div 
-              class="confidence-fill" 
+            <div
+              class="confidence-fill"
               :style="{ width: `${recommendation.confidence * 100}%` }"
             />
           </div>
@@ -68,28 +64,13 @@
     </div>
 
     <!-- 加载更多 -->
-    <button
-      v-if="hasMore"
-      @click="loadMore"
-      class="load-more-button"
-    >
-      加载更多推荐
-    </button>
+    <button v-if="hasMore" @click="loadMore" class="load-more-button">加载更多推荐</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { 
-  Sparkles, 
-  Lightbulb, 
-  BookOpen, 
-  Bell, 
-  Info,
-  Check,
-  X,
-  ChevronRight
-} from 'lucide-vue-next'
+import { Sparkles, Lightbulb, BookOpen, Bell, Info, Check, X, ChevronRight } from 'lucide-vue-next'
 import { useUserMemory } from '@renderer/src/services/memory/UserMemoryService'
 import type { SmartRecommendation } from '@renderer/src/services/memory/UserMemoryService'
 
@@ -109,8 +90,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'action': [recommendation: SmartRecommendation]
-  'dismiss': [id: string]
+  action: [recommendation: SmartRecommendation]
+  dismiss: [id: string]
   'load-more': []
 }>()
 
@@ -124,15 +105,15 @@ const dismissedIds = ref<Set<string>>(new Set())
 // 计算可见的推荐
 const visibleRecommendations = computed(() => {
   let filtered = recommendations.value || []
-  
+
   // 按类型筛选
   if (props.type) {
     filtered = filtered.filter(r => r.type === props.type)
   }
-  
+
   // 过滤已忽略的
   filtered = filtered.filter(r => !dismissedIds.value.has(r.id))
-  
+
   // 按优先级和置信度排序
   filtered.sort((a, b) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 }
@@ -140,7 +121,7 @@ const visibleRecommendations = computed(() => {
     if (priorityDiff !== 0) return priorityDiff
     return b.confidence - a.confidence
   })
-  
+
   // 限制显示数量
   return filtered.slice(0, displayLimit.value)
 })
@@ -168,7 +149,7 @@ const handleAction = (recommendation: SmartRecommendation) => {
     recommendation.action()
   }
   emit('action', recommendation)
-  
+
   // 执行后自动隐藏
   if (recommendation.dismissible) {
     dismissRecommendation(recommendation.id)
@@ -193,7 +174,7 @@ let refreshTimer: NodeJS.Timeout | null = null
 
 const startAutoRefresh = () => {
   if (!props.autoRefresh) return
-  
+
   refreshTimer = setInterval(() => {
     // 触发推荐更新
     // 这里可以调用服务层的刷新方法
@@ -213,13 +194,16 @@ onMounted(() => {
 })
 
 // 监听属性变化
-watch(() => props.autoRefresh, (newVal) => {
-  if (newVal) {
-    startAutoRefresh()
-  } else {
-    stopAutoRefresh()
+watch(
+  () => props.autoRefresh,
+  newVal => {
+    if (newVal) {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
   }
-})
+)
 
 // 清理
 onUnmounted(() => {
@@ -452,51 +436,51 @@ onUnmounted(() => {
     background: #1f2937;
     border-color: #374151;
   }
-  
+
   .recommendation-card:hover {
     border-color: #60a5fa;
   }
-  
+
   .recommendation-icon {
     background: #1e3a8a;
     color: #60a5fa;
   }
-  
+
   .recommendation-title {
     color: #f3f4f6;
   }
-  
+
   .recommendation-description {
     color: #9ca3af;
   }
-  
+
   .recommendation-reason {
     color: #6b7280;
   }
-  
+
   .confidence-bar {
     background: #374151;
   }
-  
+
   .action-button.ghost {
     color: #9ca3af;
   }
-  
+
   .action-button.ghost:hover {
     background: #374151;
     color: #d1d5db;
   }
-  
+
   .empty-state {
     color: #9ca3af;
   }
-  
+
   .load-more-button {
     background: #1f2937;
     border-color: #374151;
     color: #9ca3af;
   }
-  
+
   .load-more-button:hover {
     background: #374151;
     color: #d1d5db;
@@ -510,19 +494,19 @@ onUnmounted(() => {
     align-items: flex-start;
     padding: 12px;
   }
-  
+
   .confidence-indicator {
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
     margin-top: 8px;
   }
-  
+
   .confidence-bar {
     flex: 1;
     margin-right: 8px;
   }
-  
+
   .recommendation-actions {
     width: 100%;
     justify-content: flex-end;

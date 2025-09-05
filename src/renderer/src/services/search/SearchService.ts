@@ -102,7 +102,7 @@ export class SearchService extends EventEmitter<{
     indexedMessages: 0,
     searchTime: 0,
     resultCount: 0,
-    lastUpdated: new Date(),
+    lastUpdated: new Date()
   }
 
   constructor() {
@@ -273,7 +273,7 @@ export class SearchService extends EventEmitter<{
       timestamp: message.timestamp || new Date(),
       role: message.role,
       tags: message.tags || [],
-      length: content.length,
+      length: content.length
     }
   }
 
@@ -397,7 +397,7 @@ export class SearchService extends EventEmitter<{
         results.push({
           message: this.getMessageFromIndex(index),
           score,
-          matches,
+          matches
         })
       }
     }
@@ -413,7 +413,7 @@ export class SearchService extends EventEmitter<{
         results.push({
           message: this.getMessageFromIndex(index),
           score: 1.0,
-          matches: [],
+          matches: []
         })
       }
     }
@@ -446,7 +446,7 @@ export class SearchService extends EventEmitter<{
   private calculateRelevanceScore(
     index: SearchIndex,
     searchTerms: string[],
-    options: SearchOptions = {},
+    options: SearchOptions = {}
   ): number {
     let score = 0
     const content = options.caseSensitive ? index.content : index.normalizedContent
@@ -469,7 +469,7 @@ export class SearchService extends EventEmitter<{
       } else if (options.wholeWords) {
         const regex = new RegExp(
           `\\b${this.escapeRegex(term)}\\b`,
-          options.caseSensitive ? 'g' : 'gi',
+          options.caseSensitive ? 'g' : 'gi'
         )
         const matches = content.match(regex)
         if (matches) {
@@ -492,7 +492,7 @@ export class SearchService extends EventEmitter<{
   private findMatches(
     index: SearchIndex,
     searchTerms: string[],
-    options: SearchOptions = {},
+    options: SearchOptions = {}
   ): SearchMatch[] {
     const matches: SearchMatch[] = []
     const content = options.caseSensitive ? index.content : index.normalizedContent
@@ -508,7 +508,7 @@ export class SearchService extends EventEmitter<{
               text: match[0],
               startIndex: match.index,
               endIndex: match.index + match[0].length,
-              highlighted: this.highlightText(content, match.index, match.index + match[0].length),
+              highlighted: this.highlightText(content, match.index, match.index + match[0].length)
             })
           }
         } catch (error) {
@@ -526,7 +526,7 @@ export class SearchService extends EventEmitter<{
             text: match[0],
             startIndex: match.index,
             endIndex: match.index + match[0].length,
-            highlighted: this.highlightText(content, match.index, match.index + match[0].length),
+            highlighted: this.highlightText(content, match.index, match.index + match[0].length)
           })
         }
       }
@@ -570,7 +570,7 @@ export class SearchService extends EventEmitter<{
           matrix[i][j] = Math.min(
             matrix[i - 1][j - 1] + 1,
             matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1,
+            matrix[i - 1][j] + 1
           )
         }
       }
@@ -598,7 +598,7 @@ export class SearchService extends EventEmitter<{
 
   private applyFilters(results: SearchResult[], filters: SearchFilters): SearchResult[] {
     return results.filter(result =>
-      this.matchesFilters(this.searchIndex.get(result.message.id)!, filters),
+      this.matchesFilters(this.searchIndex.get(result.message.id)!, filters)
     )
   }
 
@@ -685,7 +685,7 @@ export class SearchService extends EventEmitter<{
       content: index.content,
       timestamp: index.timestamp,
       metadata: index.metadata,
-      tags: index.tags,
+      tags: index.tags
     }
   }
 
@@ -694,7 +694,7 @@ export class SearchService extends EventEmitter<{
     return JSON.stringify({
       text: query.text,
       filters: query.filters,
-      options: query.options,
+      options: query.options
     })
   }
 
@@ -711,7 +711,7 @@ export class SearchService extends EventEmitter<{
   private addToRecentSearches(query: SearchQuery): void {
     // Remove duplicate if exists
     this.recentSearches = this.recentSearches.filter(
-      q => this.getCacheKey(q) !== this.getCacheKey(query),
+      q => this.getCacheKey(q) !== this.getCacheKey(query)
     )
 
     // Add to beginning
@@ -736,7 +736,7 @@ export class SearchService extends EventEmitter<{
         for (const [id, index] of Object.entries(data.index || {})) {
           this.searchIndex.set(id, {
             ...(index as SearchIndex),
-            timestamp: new Date((index as any).timestamp),
+            timestamp: new Date((index as any).timestamp)
           })
         }
 
@@ -747,7 +747,7 @@ export class SearchService extends EventEmitter<{
 
         this.searchStats = {
           ...data.stats,
-          lastUpdated: new Date(data.stats?.lastUpdated || Date.now()),
+          lastUpdated: new Date(data.stats?.lastUpdated || Date.now())
         }
       }
     } catch (error) {
@@ -760,9 +760,9 @@ export class SearchService extends EventEmitter<{
       const data = {
         index: Object.fromEntries(this.searchIndex),
         reverseIndex: Object.fromEntries(
-          Array.from(this.reverseIndex.entries()).map(([k, v]) => [k, Array.from(v)]),
+          Array.from(this.reverseIndex.entries()).map(([k, v]) => [k, Array.from(v)])
         ),
-        stats: this.searchStats,
+        stats: this.searchStats
       }
 
       localStorage.setItem('miaoda-search-index', JSON.stringify(data))
@@ -825,8 +825,8 @@ export class SearchService extends EventEmitter<{
       options: {
         maxResults: 20,
         sortBy: 'relevance',
-        highlightMatches: true,
-      },
+        highlightMatches: true
+      }
     })
   }
 
@@ -834,7 +834,7 @@ export class SearchService extends EventEmitter<{
     return this.search({
       text: '',
       filters: { roles: [role] },
-      options: { sortBy: 'date', sortOrder: 'desc' },
+      options: { sortBy: 'date', sortOrder: 'desc' }
     })
   }
 
@@ -842,7 +842,7 @@ export class SearchService extends EventEmitter<{
     return this.search({
       text: '',
       filters: { dateRange: { start, end } },
-      options: { sortBy: 'date', sortOrder: 'desc' },
+      options: { sortBy: 'date', sortOrder: 'desc' }
     })
   }
 
@@ -862,7 +862,7 @@ export class SearchService extends EventEmitter<{
           const results = e.data.data.map((r: any) => ({
             message: this.getMessageFromIndex(r.item),
             score: r.score,
-            matches: [],
+            matches: []
           }))
 
           // Apply filters and complete processing
@@ -893,9 +893,9 @@ export class SearchService extends EventEmitter<{
             normalizedContent: index.normalizedContent,
             tokens: index.tokens,
             role: index.role,
-            timestamp: index.timestamp.getTime(),
-          },
-        ]),
+            timestamp: index.timestamp.getTime()
+          }
+        ])
       )
 
       this.worker.postMessage({
@@ -903,8 +903,8 @@ export class SearchService extends EventEmitter<{
         data: {
           index: indexData,
           query: query.text,
-          options: query.options,
-        },
+          options: query.options
+        }
       })
     })
   }
@@ -946,7 +946,7 @@ export class SearchService extends EventEmitter<{
       // Run both searches in parallel
       const [localResults, backendResults] = await Promise.all([
         this.search(query).catch(() => []),
-        this.searchWithBackend(query).catch(() => []),
+        this.searchWithBackend(query).catch(() => [])
       ])
 
       // Merge and deduplicate results

@@ -1,10 +1,10 @@
-// @ts-nocheck
 /**
  * Input Validation Utility for IPC Handlers
  * Provides comprehensive validation to prevent injection attacks and ensure data integrity
  */
 
 import { z } from 'zod'
+import { logger } from '../utils/Logger'
 
 // Common validation schemas
 // Allow most Unicode characters including Chinese, emojis, etc.
@@ -27,13 +27,13 @@ export const CreateChatSchema = z.object({
   id: SafeID,
   title: SafeString.max(200),
   created_at: z.number().int().positive(),
-  updated_at: z.number().int().positive(),
+  updated_at: z.number().int().positive()
 })
 
 export const UpdateChatSchema = z.object({
   id: SafeID,
   title: SafeString.max(200),
-  updated_at: z.number().int().positive(),
+  updated_at: z.number().int().positive()
 })
 
 export const MessageSchema = z.object({
@@ -48,23 +48,23 @@ export const MessageSchema = z.object({
         name: SafeFileName,
         type: z.string().max(50),
         url: SafeString.max(1000),
-        size: SafeNumber.optional(),
-      }),
+        size: SafeNumber.optional()
+      })
     )
-    .optional(),
+    .optional()
 })
 
 export const CreateMessageSchema = MessageSchema
 export const UpdateMessageSchema = z.object({
   messageId: SafeID,
-  content: SafeString,
+  content: SafeString
 })
 
 // Search validation schemas
 export const SearchQuerySchema = z.object({
   query: SafeString.max(500),
   limit: SafeNumber.max(1000).optional(),
-  offset: SafeNumber.optional(),
+  offset: SafeNumber.optional()
 })
 
 // Plugin validation schemas
@@ -74,7 +74,7 @@ export const ServerNameSchema = SafeID
 // MCP tool validation
 export const MCPToolCallSchema = z.object({
   toolName: SafeString.max(100).regex(/^[a-zA-Z0-9\-_]+$/),
-  args: z.record(z.unknown()).optional(),
+  args: z.record(z.unknown()).optional()
 })
 
 // LLM validation schemas
@@ -91,8 +91,8 @@ export const FilePathSchema = z
       return !normalizedPath.includes('../') && !normalizedPath.includes('..')
     },
     {
-      message: 'Path contains invalid characters or path traversal attempts',
-    },
+      message: 'Path contains invalid characters or path traversal attempts'
+    }
   )
 
 /**
@@ -187,7 +187,7 @@ export function rateLimit(maxRequests: number, windowMs: number) {
       if (!rateLimitInfo || now > rateLimitInfo.resetTime) {
         rateLimitInfo = {
           count: 1,
-          resetTime: now + windowMs,
+          resetTime: now + windowMs
         }
       } else {
         rateLimitInfo.count++
@@ -225,19 +225,20 @@ export function auditLog(operation: string, sensitive = false) {
         method: propertyKey,
         inputSize: JSON.stringify(inputArgs).length,
         // Don't log sensitive data in production
-        ...(sensitive ? {} : { input: inputArgs }),
+        ...(sensitive ? {} : { input: inputArgs })
       }
 
-      console.log(`[AUDIT] ${operation}:`, logData)
+      logger.info(`${operation}`, 'AUDIT', logData)
 
       try {
         const result = originalMethod.call(this, ...args)
-        console.log(`[AUDIT] ${operation} completed successfully`)
+        logger.info(`${operation} completed successfully`, 'AUDIT')
         return result
       } catch (error: unknown) {
-        console.error(
-          `[AUDIT] ${operation} failed:`,
-          error instanceof Error ? error.message : String(error),
+        logger.error(
+          `${operation} failed`,
+          'AUDIT',
+          error instanceof Error ? error.message : String(error)
         )
         throw error
       }
@@ -260,7 +261,7 @@ export function validateContent(content: string): boolean {
     /data:text\/html/gi,
     /<iframe\b[^>]*>/gi,
     /<object\b[^>]*>/gi,
-    /<embed\b[^>]*>/gi,
+    /<embed\b[^>]*>/gi
   ]
 
   return !dangerousPatterns.some(pattern => pattern.test(content))

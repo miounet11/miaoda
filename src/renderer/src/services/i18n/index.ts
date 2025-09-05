@@ -11,7 +11,7 @@ export const SUPPORTED_LOCALES = {
     flag: '🇺🇸',
     rtl: false,
     dateFormat: 'MM/dd/yyyy',
-    timeFormat: 'h:mm a',
+    timeFormat: 'h:mm a'
   },
   'zh-CN': {
     name: 'Chinese (Simplified)',
@@ -19,7 +19,7 @@ export const SUPPORTED_LOCALES = {
     flag: '🇨🇳',
     rtl: false,
     dateFormat: 'yyyy年MM月dd日',
-    timeFormat: 'HH:mm',
+    timeFormat: 'HH:mm'
   },
   ja: {
     name: 'Japanese',
@@ -27,7 +27,7 @@ export const SUPPORTED_LOCALES = {
     flag: '🇯🇵',
     rtl: false,
     dateFormat: 'yyyy年MM月dd日',
-    timeFormat: 'HH:mm',
+    timeFormat: 'HH:mm'
   },
   hi: {
     name: 'Hindi',
@@ -35,8 +35,8 @@ export const SUPPORTED_LOCALES = {
     flag: '🇮🇳',
     rtl: false,
     dateFormat: 'dd/MM/yyyy',
-    timeFormat: 'HH:mm',
-  },
+    timeFormat: 'HH:mm'
+  }
 } as const
 
 export type SupportedLocale = keyof typeof SUPPORTED_LOCALES
@@ -86,7 +86,7 @@ const i18nOptions: I18nOptions = {
   fallbackLocale: 'zh-CN',
   messages: {
     // Only load default locale initially
-    'zh-CN': {},
+    'zh-CN': {}
   },
   globalInjection: true,
   silentTranslationWarn: true,
@@ -99,8 +99,8 @@ const i18nOptions: I18nOptions = {
     'zh-CN': (choice: number) => 0,
     ja: (choice: number) => 0,
     hi: (choice: number) => (choice === 1 ? 0 : 1),
-    en: (choice: number) => (choice === 1 ? 0 : 1),
-  },
+    en: (choice: number) => (choice === 1 ? 0 : 1)
+  }
 }
 
 // Create i18n instance
@@ -183,7 +183,7 @@ export class I18nService {
       name: info.name,
       nativeName: info.nativeName,
       flag: info.flag,
-      current: code === currentLocale,
+      current: code === currentLocale
     }))
   }
 

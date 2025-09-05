@@ -9,7 +9,7 @@
 export function announceToScreenReader(
   message: string,
   priority: 'polite' | 'assertive' = 'polite',
-  atomic = true,
+  atomic = true
 ): void {
   const announcement = document.createElement('div')
   announcement.setAttribute('aria-live', priority)
@@ -53,11 +53,11 @@ export class FocusTrap {
       'select:not([disabled])',
       'a[href]',
       '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable="true"]',
+      '[contenteditable="true"]'
     ].join(', ')
 
     this.focusableElements = Array.from(
-      this.container.querySelectorAll(focusableSelectors),
+      this.container.querySelectorAll(focusableSelectors)
     ) as HTMLElement[]
 
     this.firstFocusable = this.focusableElements[0] || null
@@ -130,7 +130,7 @@ export function createSkipLinks(targets: { id: string; label: string }[]): HTMLE
     link.textContent = label
     link.className = 'skip-link'
 
-    link.addEventListener('click', (e) => {
+    link.addEventListener('click', e => {
       e.preventDefault()
       const target = document.getElementById(id)
       if (target) {
@@ -191,9 +191,12 @@ export function createKeyboardNavigation(options: {
     if (skipDisabled) {
       let attempts = 0
       while (attempts < items.length && items[newIndex]?.hasAttribute('disabled')) {
-        newIndex = direction === 'next' || direction === 'first'
-          ? (newIndex + 1) % items.length
-          : newIndex - 1 < 0 ? items.length - 1 : newIndex - 1
+        newIndex =
+          direction === 'next' || direction === 'first'
+            ? (newIndex + 1) % items.length
+            : newIndex - 1 < 0
+              ? items.length - 1
+              : newIndex - 1
         attempts++
       }
     }
@@ -258,7 +261,7 @@ export function createKeyboardNavigation(options: {
     deactivate,
     navigate,
     setActiveIndex,
-    getCurrentIndex: () => currentIndex,
+    getCurrentIndex: () => currentIndex
   }
 }
 
@@ -275,18 +278,21 @@ export class TouchGestureDetector {
     startX: 0,
     startY: 0,
     startTime: 0,
-    isTracking: false,
+    isTracking: false
   }
 
   private readonly swipeThreshold = 50
   private readonly longPressDelay = 500
   private longPressTimer: NodeJS.Timeout | null = null
 
-  constructor(element: HTMLElement, handlers: {
-    onSwipe?: (direction: 'left' | 'right' | 'up' | 'down', event: TouchEvent) => void
-    onTap?: (event: TouchEvent) => void
-    onLongPress?: (event: TouchEvent) => void
-  }) {
+  constructor(
+    element: HTMLElement,
+    handlers: {
+      onSwipe?: (direction: 'left' | 'right' | 'up' | 'down', event: TouchEvent) => void
+      onTap?: (event: TouchEvent) => void
+      onLongPress?: (event: TouchEvent) => void
+    }
+  ) {
     this.element = element
     this.onSwipe = handlers.onSwipe
     this.onTap = handlers.onTap
@@ -310,7 +316,7 @@ export class TouchGestureDetector {
       startX: touch.clientX,
       startY: touch.clientY,
       startTime: Date.now(),
-      isTracking: true,
+      isTracking: true
     }
 
     // Start long press timer
@@ -406,16 +412,18 @@ export class TouchGestureDetector {
 export function validateColorContrast(
   foreground: string,
   background: string,
-  level: 'AA' | 'AAA' = 'AA',
+  level: 'AA' | 'AAA' = 'AA'
 ): { isValid: boolean; ratio: number; required: number } {
   // Convert hex to RGB
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16),
-    } : null
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        }
+      : null
   }
 
   // Calculate relative luminance
@@ -604,12 +612,15 @@ export class RovingTabindexManager {
 /**
  * Accessible modal/dialog utilities
  */
-export function createAccessibleModal(modalElement: HTMLElement, options: {
-  title?: string
-  description?: string
-  closeButton?: HTMLElement
-  onClose?: () => void
-}) {
+export function createAccessibleModal(
+  modalElement: HTMLElement,
+  options: {
+    title?: string
+    description?: string
+    closeButton?: HTMLElement
+    onClose?: () => void
+  }
+) {
   const focusTrap = new FocusTrap(modalElement)
   const focusManager = FocusManager.getInstance()
 
@@ -659,11 +670,14 @@ export function createAccessibleModal(modalElement: HTMLElement, options: {
 /**
  * Accessible notification/toast system
  */
-export function createAccessibleNotification(message: string, options: {
-  type?: 'info' | 'success' | 'warning' | 'error'
-  duration?: number
-  persistent?: boolean
-} = {}) {
+export function createAccessibleNotification(
+  message: string,
+  options: {
+    type?: 'info' | 'success' | 'warning' | 'error'
+    duration?: number
+    persistent?: boolean
+  } = {}
+) {
   const { type = 'info', duration = 5000, persistent = false } = options
 
   const notification = document.createElement('div')
@@ -709,7 +723,7 @@ export function createAccessibleNotification(message: string, options: {
       } catch (e) {
         // Element might have been removed already
       }
-    },
+    }
   }
 }
 

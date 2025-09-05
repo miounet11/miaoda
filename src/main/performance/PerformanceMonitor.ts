@@ -126,12 +126,12 @@ export class PerformanceMonitor extends EventEmitter {
         queryTime: 1000, // ms
         cacheHitRate: 50, // %
         renderTime: 16.67, // ms (60fps)
-        errorRate: 5, // %
+        errorRate: 5 // %
       },
       enableProfiling: true,
       enableMemoryTracking: true,
       enableNetworkTracking: true,
-      ...config,
+      ...config
     }
 
     this.currentMetrics = this.initializeMetrics()
@@ -177,7 +177,7 @@ export class PerformanceMonitor extends EventEmitter {
     logger.info('Performance components registered', 'PerformanceMonitor', {
       database: !!this.dbOptimizer,
       cache: !!this.cacheSystem,
-      streaming: !!this.streamingOptimizer,
+      streaming: !!this.streamingOptimizer
     })
   }
 
@@ -198,7 +198,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'warning',
         category: 'database',
         message: `Slow query detected: ${Math.round(duration)}ms`,
-        metrics: { duration, success },
+        metrics: { duration, success }
       })
     }
   }
@@ -220,7 +220,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'warning',
         category: 'ui',
         message: `Slow render detected: ${Math.round(duration)}ms`,
-        metrics: { duration },
+        metrics: { duration }
       })
     }
   }
@@ -232,7 +232,7 @@ export class PerformanceMonitor extends EventEmitter {
     const request = {
       timestamp: Date.now(),
       duration,
-      success,
+      success
     }
 
     this.networkRequests.push(request)
@@ -284,7 +284,7 @@ export class PerformanceMonitor extends EventEmitter {
         averages: {},
         peaks: {},
         trends: {},
-        issues: [],
+        issues: []
       }
     }
 
@@ -330,7 +330,7 @@ export class PerformanceMonitor extends EventEmitter {
     recommendations: string[]
     criticalIssues: PerformanceAlert[]
     optimizationOpportunities: string[]
-    } {
+  } {
     const summary = this.getPerformanceSummary()
     const recommendations: string[] = []
     const criticalIssues = this.alerts.filter(a => a.level === 'critical' && !a.resolved)
@@ -367,7 +367,7 @@ export class PerformanceMonitor extends EventEmitter {
       summary,
       recommendations,
       criticalIssues,
-      optimizationOpportunities,
+      optimizationOpportunities
     }
   }
 
@@ -379,12 +379,12 @@ export class PerformanceMonitor extends EventEmitter {
     metrics: PerformanceMetrics[]
     alerts: PerformanceAlert[]
     summary: any
-    } {
+  } {
     return {
       config: this.config,
       metrics: [...this.metrics],
       alerts: [...this.alerts],
-      summary: this.getPerformanceSummary(),
+      summary: this.getPerformanceSummary()
     }
   }
 
@@ -428,7 +428,7 @@ export class PerformanceMonitor extends EventEmitter {
         cache: cacheMetrics,
         streaming: streamingMetrics,
         ui: uiMetrics,
-        network: networkMetrics,
+        network: networkMetrics
       }
 
       // Store metrics
@@ -452,7 +452,7 @@ export class PerformanceMonitor extends EventEmitter {
       cpu: {
         usage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to ms
         loadAverage: [], // Not available on all platforms
-        processCount: 1, // Simplified
+        processCount: 1 // Simplified
       },
       memory: {
         total: memoryUsage.heapTotal + memoryUsage.external,
@@ -461,9 +461,9 @@ export class PerformanceMonitor extends EventEmitter {
         percentage: (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
         heapUsed: memoryUsage.heapUsed,
         heapTotal: memoryUsage.heapTotal,
-        external: memoryUsage.external,
+        external: memoryUsage.external
       },
-      uptime: process.uptime() * 1000,
+      uptime: process.uptime() * 1000
     }
   }
 
@@ -475,13 +475,13 @@ export class PerformanceMonitor extends EventEmitter {
         slowQueries: 0,
         cacheHitRate: 0,
         indexEfficiency: 0,
-        connectionCount: 1,
+        connectionCount: 1
       }
     }
 
     const dbMetrics = this.dbOptimizer.getPerformanceMetrics()
     const slowQueries = this.queryTimes.filter(
-      t => t > this.config.alertThresholds.queryTime,
+      t => t > this.config.alertThresholds.queryTime
     ).length
 
     return {
@@ -490,7 +490,7 @@ export class PerformanceMonitor extends EventEmitter {
       slowQueries,
       cacheHitRate: dbMetrics.cacheHitRate,
       indexEfficiency: 85, // Placeholder - would need more sophisticated calculation
-      connectionCount: 1,
+      connectionCount: 1
     }
   }
 
@@ -500,7 +500,7 @@ export class PerformanceMonitor extends EventEmitter {
         l1: { hitRate: 0, size: 0, itemCount: 0 },
         l2: { hitRate: 0, size: 0, itemCount: 0 },
         totalHitRate: 0,
-        memoryUsage: 0,
+        memoryUsage: 0
       }
     }
 
@@ -510,22 +510,22 @@ export class PerformanceMonitor extends EventEmitter {
       l1: {
         hitRate: cacheStats.memory?.hitRatio || 0,
         size: cacheStats.memory?.size || 0,
-        itemCount: cacheStats.memory?.itemCount || 0,
+        itemCount: cacheStats.memory?.itemCount || 0
       },
       l2: {
         hitRate: cacheStats.persistent?.hitRatio || 0,
         size: cacheStats.persistent?.size || 0,
-        itemCount: cacheStats.persistent?.itemCount || 0,
+        itemCount: cacheStats.persistent?.itemCount || 0
       },
       l3: cacheStats.network
         ? {
-          hitRate: cacheStats.network.hitRatio,
-          size: cacheStats.network.size,
-          itemCount: cacheStats.network.itemCount,
-        }
+            hitRate: cacheStats.network.hitRatio,
+            size: cacheStats.network.size,
+            itemCount: cacheStats.network.itemCount
+          }
         : undefined,
       totalHitRate: this.calculateTotalCacheHitRate(cacheStats),
-      memoryUsage: (cacheStats.memory?.memoryUsage || 0) + (cacheStats.persistent?.memoryUsage || 0),
+      memoryUsage: (cacheStats.memory?.memoryUsage || 0) + (cacheStats.persistent?.memoryUsage || 0)
     }
   }
 
@@ -536,7 +536,7 @@ export class PerformanceMonitor extends EventEmitter {
         totalChunks: 0,
         averageLatency: 0,
         bufferHealth: 'healthy',
-        memoryPressure: false,
+        memoryPressure: false
       }
     }
 
@@ -547,7 +547,7 @@ export class PerformanceMonitor extends EventEmitter {
       totalChunks: streamingMetrics.totalChunks,
       averageLatency: streamingMetrics.latency.average,
       bufferHealth: streamingMetrics.bufferHealth,
-      memoryPressure: streamingMetrics.memoryUsage > 100 * 1024 * 1024, // 100MB threshold
+      memoryPressure: streamingMetrics.memoryUsage > 100 * 1024 * 1024 // 100MB threshold
     }
   }
 
@@ -581,13 +581,13 @@ export class PerformanceMonitor extends EventEmitter {
       fps: averageRenderTime > 0 ? Math.min(60, 1000 / averageRenderTime) : 60,
       memoryUsage: totalMemoryUsage,
       domNodes: 0, // Would need to be collected from renderer
-      eventListeners: 0, // Would need to be collected from renderer
+      eventListeners: 0 // Would need to be collected from renderer
     }
   }
 
   private collectNetworkMetrics(): PerformanceMetrics['network'] {
     const recentRequests = this.networkRequests.filter(
-      r => Date.now() - r.timestamp < 60000, // Last minute
+      r => Date.now() - r.timestamp < 60000 // Last minute
     )
 
     const successfulRequests = recentRequests.filter(r => r.success)
@@ -606,7 +606,7 @@ export class PerformanceMonitor extends EventEmitter {
       responseTime: averageResponseTime,
       errorRate,
       bytesTransferred: 0, // Would need more sophisticated tracking
-      connectionCount: 1, // Simplified
+      connectionCount: 1 // Simplified
     }
   }
 
@@ -619,7 +619,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'warning',
         category: 'system',
         message: `High CPU usage: ${Math.round(metrics.system.cpu.usage)}%`,
-        metrics: { cpu: metrics.system.cpu },
+        metrics: { cpu: metrics.system.cpu }
       })
     }
 
@@ -629,7 +629,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'warning',
         category: 'system',
         message: `High memory usage: ${Math.round(metrics.system.memory.percentage)}%`,
-        metrics: { memory: metrics.system.memory },
+        metrics: { memory: metrics.system.memory }
       })
     }
 
@@ -639,7 +639,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'info',
         category: 'cache',
         message: `Low cache hit rate: ${Math.round(metrics.cache.totalHitRate)}%`,
-        metrics: { cache: metrics.cache },
+        metrics: { cache: metrics.cache }
       })
     }
 
@@ -649,7 +649,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'error',
         category: 'network',
         message: `High network error rate: ${Math.round(metrics.network.errorRate)}%`,
-        metrics: { network: metrics.network },
+        metrics: { network: metrics.network }
       })
     }
   }
@@ -658,7 +658,7 @@ export class PerformanceMonitor extends EventEmitter {
     const alert: PerformanceAlert = {
       id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
-      ...alertData,
+      ...alertData
     }
 
     this.alerts.push(alert)
@@ -682,7 +682,7 @@ export class PerformanceMonitor extends EventEmitter {
           level: 'warning',
           category: 'cache',
           message: 'Memory pressure detected in cache system',
-          metrics: {},
+          metrics: {}
         })
       })
     }
@@ -694,7 +694,7 @@ export class PerformanceMonitor extends EventEmitter {
           level: 'warning',
           category: 'streaming',
           message: 'Memory pressure detected in streaming system',
-          metrics: {},
+          metrics: {}
         })
       })
 
@@ -703,7 +703,7 @@ export class PerformanceMonitor extends EventEmitter {
           level: 'info',
           category: 'streaming',
           message: `Backpressure applied to stream ${streamId}`,
-          metrics: { streamId },
+          metrics: { streamId }
         })
       })
     }
@@ -716,7 +716,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'critical',
         category: 'system',
         message: `Uncaught exception: ${error.message}`,
-        metrics: { error: error.stack },
+        metrics: { error: error.stack }
       })
     })
 
@@ -726,7 +726,7 @@ export class PerformanceMonitor extends EventEmitter {
         level: 'error',
         category: 'system',
         message: `Unhandled rejection: ${reason}`,
-        metrics: { reason },
+        metrics: { reason }
       })
     })
   }
@@ -739,7 +739,7 @@ export class PerformanceMonitor extends EventEmitter {
           level: 'critical',
           category: 'ui',
           message: 'Renderer process crashed',
-          metrics: { windowId: window.id },
+          metrics: { windowId: window.id }
         })
       })
 
@@ -749,7 +749,7 @@ export class PerformanceMonitor extends EventEmitter {
           level: 'error',
           category: 'ui',
           message: 'Window became unresponsive',
-          metrics: { windowId: window.id },
+          metrics: { windowId: window.id }
         })
       })
     })
@@ -761,7 +761,7 @@ export class PerformanceMonitor extends EventEmitter {
       () => {
         this.cleanupOldData()
       },
-      60 * 60 * 1000,
+      60 * 60 * 1000
     )
   }
 
@@ -773,19 +773,19 @@ export class PerformanceMonitor extends EventEmitter {
 
     // Clean up resolved alerts older than 24 hours
     this.alerts = this.alerts.filter(
-      a => !a.resolved || (a.resolvedAt && a.resolvedAt > cutoffTime),
+      a => !a.resolved || (a.resolvedAt && a.resolvedAt > cutoffTime)
     )
 
     // Clean up query times
     this.queryTimes = this.queryTimes.slice(-500)
     this.renderTimes = this.renderTimes.slice(-500)
     this.networkRequests = this.networkRequests.filter(
-      r => Date.now() - r.timestamp < 60 * 60 * 1000, // Keep 1 hour
+      r => Date.now() - r.timestamp < 60 * 60 * 1000 // Keep 1 hour
     )
 
     logger.debug('Performance data cleanup completed', 'PerformanceMonitor', {
       metricsCount: this.metrics.length,
-      alertsCount: this.alerts.length,
+      alertsCount: this.alerts.length
     })
   }
 
@@ -808,9 +808,9 @@ export class PerformanceMonitor extends EventEmitter {
           percentage: avgMemoryUsage,
           heapUsed: 0,
           heapTotal: 0,
-          external: 0,
+          external: 0
         },
-        uptime: 0,
+        uptime: 0
       },
       database: {
         queryCount: 0,
@@ -818,8 +818,8 @@ export class PerformanceMonitor extends EventEmitter {
         slowQueries: 0,
         cacheHitRate: 0,
         indexEfficiency: 0,
-        connectionCount: 0,
-      },
+        connectionCount: 0
+      }
     } as any
   }
 
@@ -840,9 +840,9 @@ export class PerformanceMonitor extends EventEmitter {
           percentage: maxMemoryUsage,
           heapUsed: 0,
           heapTotal: 0,
-          external: 0,
+          external: 0
         },
-        uptime: 0,
+        uptime: 0
       },
       database: {
         queryCount: 0,
@@ -850,13 +850,13 @@ export class PerformanceMonitor extends EventEmitter {
         slowQueries: 0,
         cacheHitRate: 0,
         indexEfficiency: 0,
-        connectionCount: 0,
-      },
+        connectionCount: 0
+      }
     } as any
   }
 
   private analyzeTrends(
-    metrics: PerformanceMetrics[],
+    metrics: PerformanceMetrics[]
   ): Record<string, 'improving' | 'degrading' | 'stable'> {
     if (metrics.length < 2) return {}
 
@@ -913,9 +913,9 @@ export class PerformanceMonitor extends EventEmitter {
           percentage: 0,
           heapUsed: 0,
           heapTotal: 0,
-          external: 0,
+          external: 0
         },
-        uptime: 0,
+        uptime: 0
       },
       database: {
         queryCount: 0,
@@ -923,20 +923,20 @@ export class PerformanceMonitor extends EventEmitter {
         slowQueries: 0,
         cacheHitRate: 0,
         indexEfficiency: 0,
-        connectionCount: 0,
+        connectionCount: 0
       },
       cache: {
         l1: { hitRate: 0, size: 0, itemCount: 0 },
         l2: { hitRate: 0, size: 0, itemCount: 0 },
         totalHitRate: 0,
-        memoryUsage: 0,
+        memoryUsage: 0
       },
       streaming: {
         activeStreams: 0,
         totalChunks: 0,
         averageLatency: 0,
         bufferHealth: 'healthy',
-        memoryPressure: false,
+        memoryPressure: false
       },
       ui: {
         windowCount: 0,
@@ -944,15 +944,15 @@ export class PerformanceMonitor extends EventEmitter {
         fps: 60,
         memoryUsage: 0,
         domNodes: 0,
-        eventListeners: 0,
+        eventListeners: 0
       },
       network: {
         requestCount: 0,
         responseTime: 0,
         errorRate: 0,
         bytesTransferred: 0,
-        connectionCount: 0,
-      },
+        connectionCount: 0
+      }
     }
   }
 

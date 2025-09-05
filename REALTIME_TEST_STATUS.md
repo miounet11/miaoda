@@ -3,17 +3,21 @@
 ## ✅ **已修复的问题**
 
 ### 1. StatusMessageCard组件错误 - **已解决** ✅
+
 **问题**: `ReferenceError: message is not defined`  
 **解决**: 修复了Vue组件中props的使用方式，从`message.xxx`改为`props.message.xxx`  
 **状态**: 组件已热重载，错误消失
 
-### 2. 智能回退机制 - **工作正常** ✅  
-**当前行为**: 
+### 2. 智能回退机制 - **工作正常** ✅
+
+**当前行为**:
+
 - 显示 `providerId: 'builtin'` - 用户使用内置模型
 - 显示 `hasActiveConfig: false` - 没有配置外部模型
 - 执行 `回退到简单LLM服务` - **这是正确的！**
 
 **这不是bug！** 这是预期的智能回退行为：
+
 1. 用户没有配置外部模型时，使用内置服务
 2. 内置服务不可用时，使用智能回退回复
 
@@ -22,29 +26,36 @@
 ## 🎯 **测试真实API调用的正确步骤**
 
 ### 当前状态分析：
+
 - ✅ 应用成功启动
 - ✅ 组件错误已修复
-- ✅ 智能回退机制工作正常  
+- ✅ 智能回退机制工作正常
 - ⏳ **需要配置外部模型来测试真实API调用**
 
 ### 测试真实API的步骤：
 
 #### 第1步: 打开模型选择器
+
 点击界面顶部的模型指示器（应显示"MiaoDa AI"或类似文字）
 
 #### 第2步: 选择外部模型
+
 推荐免费/易测试的模型：
+
 - **DeepSeek** (有免费额度)
-- **通义千问** (阿里云免费试用)  
+- **通义千问** (阿里云免费试用)
 - **Moonshot/Kimi** (新用户免费额度)
 
 #### 第3步: 配置API密钥
+
 - 输入有效的API密钥
 - 设置正确的端点URL
 - 点击"测试连接"验证
 
 #### 第4步: 切换模型并测试
+
 配置成功后，日志应显示：
+
 ```
 providerId: 'deepseek' (或其他模型)
 hasActiveConfig: true
@@ -56,21 +67,25 @@ hasActiveConfig: true
 ## 📊 **预期测试结果**
 
 ### ✅ 正常情况（当前状态）
+
 ```
 调用LLM服务 - 当前配置: {providerId: 'builtin', modelId: 'miaoda-chat', hasActiveConfig: false}
 回退到简单LLM服务
 ```
+
 - 使用内置智能回退回复
 - 用户体验正常
 - 无API调用消耗
 
 ### 🎯 配置外部模型后的预期日志
+
 ```
-调用LLM服务 - 当前配置: {providerId: 'deepseek', modelId: 'deepseek-chat', hasActiveConfig: true}  
+调用LLM服务 - 当前配置: {providerId: 'deepseek', modelId: 'deepseek-chat', hasActiveConfig: true}
 使用增强模型配置发送消息
 [EnhancedModel] 处理增强模型消息请求
 [EnhancedModel] 增强模型消息处理完成
 ```
+
 - 真实API调用
 - 外部模型回复
 - 上下文保持
@@ -80,7 +95,7 @@ hasActiveConfig: true
 ## 🔍 **当前可以测试的功能**
 
 1. **内置对话** ✅ - 发送消息，验证智能回退回复
-2. **模型选择界面** ✅ - 打开模型选择器，查看分类显示  
+2. **模型选择界面** ✅ - 打开模型选择器，查看分类显示
 3. **配置界面** ✅ - 选择未配置模型，查看配置弹窗
 4. **状态反馈** ✅ - 验证操作提示是否正常显示
 

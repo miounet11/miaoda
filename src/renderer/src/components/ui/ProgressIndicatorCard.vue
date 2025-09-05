@@ -38,11 +38,7 @@
         :style="{ width: `${progress.progress}%` }"
       />
 
-      <div
-        v-else
-        class="bg-primary h-full rounded-full animate-pulse"
-        style="width: 100%"
-      />
+      <div v-else class="bg-primary h-full rounded-full animate-pulse" style="width: 100%" />
     </div>
 
     <!-- 预估时间 (可选) -->

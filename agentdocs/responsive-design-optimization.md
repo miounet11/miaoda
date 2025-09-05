@@ -5,6 +5,7 @@
 **核心原则**: "Mobile First, Progressive Enhancement"
 
 基于现有的组件架构，实现真正跨平台的流畅体验：
+
 - 移动端优先设计
 - 平板端适配优化
 - 桌面端增强体验
@@ -95,9 +96,21 @@
 }
 
 /* 媒体查询工具类 */
-@media (max-width: 767px) { .mobile-only { display: block; } }
-@media (min-width: 768px) and (max-width: 1023px) { .tablet-only { display: block; } }
-@media (min-width: 1024px) { .desktop-only { display: block; } }
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-only {
+    display: block;
+  }
+}
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+}
 ```
 
 ### 2. 组件级响应式优化
@@ -131,6 +144,7 @@
 ```
 
 **触摸优化**:
+
 ```css
 /* 移动端模型卡片 */
 .mobile-provider-card {
@@ -287,11 +301,11 @@ export class SwipeGestureHandler {
 <template>
   <picture>
     <!-- 移动端小图 -->
-    <source :srcset="mobileSrc" media="(max-width: 767px)">
+    <source :srcset="mobileSrc" media="(max-width: 767px)" />
     <!-- 平板端中图 -->
-    <source :srcset="tabletSrc" media="(min-width: 768px) and (max-width: 1023px)">
+    <source :srcset="tabletSrc" media="(min-width: 768px) and (max-width: 1023px)" />
     <!-- 桌面端大图 -->
-    <img :src="desktopSrc" :alt="alt" class="responsive-image">
+    <img :src="desktopSrc" :alt="alt" class="responsive-image" />
   </picture>
 </template>
 ```
@@ -307,10 +321,10 @@ export class SwipeGestureHandler {
 export class PerformanceMonitor {
   // 移动端性能预算
   static readonly MOBILE_BUDGET = {
-    firstPaint: 2000,     // 首次绘制 < 2s
+    firstPaint: 2000, // 首次绘制 < 2s
     firstContentfulPaint: 2500, // 首次内容绘制 < 2.5s
     largestContentfulPaint: 3000, // 最大内容绘制 < 3s
-    cumulativeLayoutShift: 0.1,   // 累积布局偏移 < 0.1
+    cumulativeLayoutShift: 0.1 // 累积布局偏移 < 0.1
   }
 
   // 内存使用监控
@@ -434,18 +448,21 @@ export class PerformanceMonitor {
 ## 成功指标
 
 ### 性能指标
+
 - **移动端首次加载**: < 2秒
 - **触摸响应时间**: < 100ms
 - **内存使用**: < 300MB (移动端)
 - **帧率稳定性**: 60fps 保持
 
 ### 用户体验指标
+
 - **触摸目标命中率**: > 95%
 - **操作完成时间**: 减少 25%
 - **用户满意度**: > 4.3/5.0 (移动端)
 - **无障碍合规**: WCAG 2.1 AA 标准
 
 ### 技术指标
+
 - **跨平台兼容性**: 100% 功能覆盖
 - **响应式布局覆盖**: 100% 组件
 - **触摸交互支持**: 100% 主要操作

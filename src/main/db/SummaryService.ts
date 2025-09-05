@@ -19,7 +19,7 @@ export class SummaryService {
     summary: string,
     tags: string[],
     keyPoints: string[],
-    tokens?: number,
+    tokens?: number
   ): void {
     const updateSummary = this.db.prepare(`
       UPDATE chats 
@@ -38,7 +38,7 @@ export class SummaryService {
       new Date().toISOString(),
       tokens || null,
       JSON.stringify(keyPoints),
-      chatId,
+      chatId
     )
   }
 
@@ -58,18 +58,37 @@ export class SummaryService {
       WHERE id = ?
     `)
 
-    const result = getSummary.get(chatId) as any
+    const result = getSummary.get(chatId) as
+      | {
+          summary?: string
+          summary_tags?: string
+          key_points?: string
+          summary_updated_at?: string
+          summary_tokens?: number
+        }
+      | undefined
 
     if (!result) {
       return null
     }
 
+    // 安全的JSON解析函数
+    const safeParseTags = (str?: string): string[] => {
+      if (!str) return []
+      try {
+        const parsed = JSON.parse(str)
+        return Array.isArray(parsed) ? parsed : []
+      } catch {
+        return []
+      }
+    }
+
     return {
       summary: result.summary || undefined,
-      tags: result.summary_tags ? JSON.parse(result.summary_tags) : [],
-      keyPoints: result.key_points ? JSON.parse(result.key_points) : [],
+      tags: safeParseTags(result.summary_tags),
+      keyPoints: safeParseTags(result.key_points),
       summaryUpdatedAt: result.summary_updated_at ? new Date(result.summary_updated_at) : undefined,
-      summaryTokens: result.summary_tokens || undefined,
+      summaryTokens: result.summary_tokens || undefined
     }
   }
 
@@ -94,7 +113,7 @@ export class SummaryService {
 
     return chats.map(chat => ({
       ...chat,
-      summaryData: this.getChatSummary(chat.id) || undefined,
+      summaryData: this.getChatSummary(chat.id) || undefined
     }))
   }
 
@@ -116,7 +135,8 @@ export class SummaryService {
     return chats.filter(chat => {
       if (!chat.summary_tags) return false
       try {
-        const chatTags = JSON.parse(chat.summary_tags) as string[]
+        const parsed = JSON.parse(chat.summary_tags)
+        const chatTags = Array.isArray(parsed) ? (parsed as string[]) : []
         return chatTags.some(tag => tags.includes(tag))
       } catch {
         return false
@@ -138,7 +158,8 @@ export class SummaryService {
 
     results.forEach(result => {
       try {
-        const tags = JSON.parse(result.summary_tags) as string[]
+        const parsed = JSON.parse(result.summary_tags)
+        const tags = Array.isArray(parsed) ? (parsed as string[]) : []
         tags.forEach(tag => allTags.add(tag))
       } catch {
         // Ignore invalid JSON
@@ -181,7 +202,13 @@ export class SummaryService {
       GROUP BY c.id
     `)
 
-    const result = getInfo.get(chatId) as any
+    const result = getInfo.get(chatId) as
+      | {
+          summary_updated_at?: string
+          message_count: number
+          last_message_at?: string
+        }
+      | undefined
 
     if (!result) return false
 

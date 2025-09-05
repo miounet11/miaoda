@@ -10,6 +10,14 @@
         </button>
         <h1 class="nav-title">设置</h1>
         <div class="nav-spacer"></div>
+        <button @click="switchToNewUI" class="ui-toggle-btn" title="切换到新界面">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="20" height="14" x="2" y="3" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          新界面
+        </button>
       </div>
     </div>
 
@@ -327,6 +335,12 @@ const availableModels = ref([
 ])
 
 const router = useRouter()
+
+// 切换到 ChatBox 风格设置界面
+const switchToNewUI = () => {
+  console.log('🔄 切换到新界面')
+  router.push('/settings')
+}
 
 // 返回聊天页面
 const goBack = () => {
@@ -653,6 +667,36 @@ onUnmounted(() => {
 .back-btn:active {
   background: #e2e8f0;
   transform: scale(0.95);
+}
+
+.ui-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.ui-toggle-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.ui-toggle-btn:active {
+  background: #f1f5f9;
+  transform: scale(0.98);
+}
+
+.ui-toggle-btn svg {
+  flex-shrink: 0;
 }
 
 .nav-title {

@@ -12,7 +12,7 @@ export function useResponsive() {
     md: 768,
     lg: 1024,
     xl: 1280,
-    '2xl': 1536,
+    '2xl': 1536
   }
 
   // Update window dimensions
@@ -43,7 +43,7 @@ export function useResponsive() {
   // Device type detection
   const isMobile = computed(() => windowWidth.value < breakpoints.md)
   const isTablet = computed(
-    () => windowWidth.value >= breakpoints.md && windowWidth.value < breakpoints.lg,
+    () => windowWidth.value >= breakpoints.md && windowWidth.value < breakpoints.lg
   )
   const isDesktop = computed(() => windowWidth.value >= breakpoints.lg)
 
@@ -54,7 +54,7 @@ export function useResponsive() {
   // Screen size categories
   const isSmallScreen = computed(() => windowWidth.value < breakpoints.sm)
   const isMediumScreen = computed(
-    () => windowWidth.value >= breakpoints.sm && windowWidth.value < breakpoints.xl,
+    () => windowWidth.value >= breakpoints.sm && windowWidth.value < breakpoints.xl
   )
   const isLargeScreen = computed(() => windowWidth.value >= breakpoints.xl)
 
@@ -147,7 +147,7 @@ export function useResponsive() {
       shouldCollapse: isMobile.value,
       shouldOverlay: isMobile.value || isTablet.value,
       shouldFloat: isMobile.value,
-      defaultWidth: isMobile.value ? '100%' : isSmallScreen.value ? '200px' : '280px',
+      defaultWidth: isMobile.value ? '100%' : isSmallScreen.value ? '200px' : '280px'
     }
   }
 
@@ -170,7 +170,7 @@ export function useResponsive() {
       contentPadding: isMobile.value ? '1rem' : '2rem',
       maxContentWidth: getContainerMaxWidth(),
       headerHeight: isMobile.value ? '60px' : '80px',
-      showMobileMenu: isMobile.value,
+      showMobileMenu: isMobile.value
     }
   }
 
@@ -238,7 +238,7 @@ export function useResponsive() {
     getLayoutConfig,
 
     // Constants
-    breakpoints,
+    breakpoints
   }
 }
 

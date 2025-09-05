@@ -14,7 +14,8 @@ import { UnifiedSearchService, type SearchResult } from './UnifiedSearchService'
 import { SummaryService } from './SummaryService'
 import { AnalyticsService } from './AnalyticsService'
 import { DatabaseInitializer } from './DatabaseInitializer'
-import type { AnalyticsData, AnalyticsFilter } from '../../types/analytics'
+import type { AnalyticsData, AnalyticsFilter, TimeRange } from '../../types/analytics'
+import type { MessageRecordParsed } from './types'
 
 /**
  * Main database class that orchestrates all database services
@@ -98,7 +99,7 @@ export class LocalDatabase {
     this.messageService.createMessage(message)
   }
 
-  getMessages(chatId: string): MessageRecord[] {
+  getMessages(chatId: string): MessageRecordParsed[] {
     return this.messageService.getMessages(chatId)
   }
 
@@ -123,7 +124,11 @@ export class LocalDatabase {
     this.searchService.rebuildSearchIndex()
   }
 
-  getSearchStats(): any {
+  getSearchStats(): {
+    totalIndexedMessages: number
+    indexSize: number
+    lastRebuild: string | null
+  } {
     return this.searchService.getSearchStats()
   }
 
@@ -133,7 +138,7 @@ export class LocalDatabase {
     summary: string,
     tags: string[],
     keyPoints: string[],
-    tokens?: number,
+    tokens?: number
   ): void {
     this.summaryService.updateChatSummary(chatId, summary, tags, keyPoints, tokens)
   }
@@ -167,7 +172,12 @@ export class LocalDatabase {
     return this.analyticsService.generateAnalytics(filter)
   }
 
-  getAnalyticsSummary(timeRange: any = '30d'): any {
+  getAnalyticsSummary(timeRange: TimeRange = '30d'): {
+    totalChats: number
+    totalMessages: number
+    activeToday: number
+    averagePerDay: number
+  } {
     return this.analyticsService.getAnalyticsSummary(timeRange)
   }
 

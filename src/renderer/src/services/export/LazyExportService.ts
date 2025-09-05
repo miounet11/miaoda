@@ -99,28 +99,28 @@ export class LazyExportService {
         return {
           filename: `${filename}.json`,
           content: JSON.stringify(chats, null, 2),
-          mimeType: 'application/json',
+          mimeType: 'application/json'
         }
 
       case 'markdown':
         return {
           filename: `${filename}.md`,
           content: this.chatToMarkdown(chats, options),
-          mimeType: 'text/markdown',
+          mimeType: 'text/markdown'
         }
 
       case 'html':
         return {
           filename: `${filename}.html`,
           content: this.chatToHTML(chats, options),
-          mimeType: 'text/html',
+          mimeType: 'text/html'
         }
 
       case 'txt':
         return {
           filename: `${filename}.txt`,
           content: this.chatToText(chats, options),
-          mimeType: 'text/plain',
+          mimeType: 'text/plain'
         }
 
       default:

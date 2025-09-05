@@ -31,7 +31,7 @@ export class MemoryMonitor {
   private readonly leakThreshold = {
     heap: 50 * 1024 * 1024, // 50MB growth
     external: 20 * 1024 * 1024, // 20MB growth
-    rss: 100 * 1024 * 1024, // 100MB growth
+    rss: 100 * 1024 * 1024 // 100MB growth
   }
   private readonly monitoringInterval = 60000 // 1 minute
 
@@ -92,7 +92,7 @@ export class MemoryMonitor {
       heapTotal: memUsage.heapTotal,
       external: memUsage.external,
       rss: memUsage.rss,
-      arrayBuffers: memUsage.arrayBuffers || 0,
+      arrayBuffers: memUsage.arrayBuffers || 0
     }
 
     this.snapshots.push(snapshot)
@@ -100,7 +100,7 @@ export class MemoryMonitor {
     // Log current memory usage
     logger.debug(
       `Memory snapshot: Heap ${this.formatBytes(snapshot.heapUsed)}/${this.formatBytes(snapshot.heapTotal)}, RSS ${this.formatBytes(snapshot.rss)}`,
-      'MemoryMonitor',
+      'MemoryMonitor'
     )
 
     return snapshot
@@ -129,12 +129,12 @@ export class MemoryMonitor {
         type: 'heap',
         growth: heapGrowth,
         duration,
-        severity: this.calculateSeverity(heapGrowth, this.leakThreshold.heap),
+        severity: this.calculateSeverity(heapGrowth, this.leakThreshold.heap)
       })
 
       logger.warn(
         `Potential heap memory leak detected: ${this.formatBytes(heapGrowth)} growth over ${Math.round(duration / 60000)} minutes`,
-        'MemoryMonitor',
+        'MemoryMonitor'
       )
     }
 
@@ -145,12 +145,12 @@ export class MemoryMonitor {
         type: 'external',
         growth: externalGrowth,
         duration,
-        severity: this.calculateSeverity(externalGrowth, this.leakThreshold.external),
+        severity: this.calculateSeverity(externalGrowth, this.leakThreshold.external)
       })
 
       logger.warn(
         `Potential external memory leak detected: ${this.formatBytes(externalGrowth)} growth`,
-        'MemoryMonitor',
+        'MemoryMonitor'
       )
     }
 
@@ -161,12 +161,12 @@ export class MemoryMonitor {
         type: 'rss',
         growth: rssGrowth,
         duration,
-        severity: this.calculateSeverity(rssGrowth, this.leakThreshold.rss),
+        severity: this.calculateSeverity(rssGrowth, this.leakThreshold.rss)
       })
 
       logger.warn(
         `Potential RSS memory leak detected: ${this.formatBytes(rssGrowth)} growth`,
-        'MemoryMonitor',
+        'MemoryMonitor'
       )
     }
 
@@ -203,7 +203,7 @@ export class MemoryMonitor {
     average: MemorySnapshot | null
     peak: MemorySnapshot | null
     leaks: MemoryLeak[]
-    } {
+  } {
     if (this.snapshots.length === 0) {
       return { current: null, average: null, peak: null, leaks: [] }
     }
@@ -217,7 +217,7 @@ export class MemoryMonitor {
       heapTotal: 0,
       external: 0,
       rss: 0,
-      arrayBuffers: 0,
+      arrayBuffers: 0
     }
 
     this.snapshots.forEach(s => {
@@ -242,7 +242,7 @@ export class MemoryMonitor {
       current,
       average,
       peak,
-      leaks: this.detectLeaks(),
+      leaks: this.detectLeaks()
     }
   }
 
@@ -257,15 +257,15 @@ export class MemoryMonitor {
         version: app.getVersion(),
         platform: process.platform,
         arch: process.arch,
-        nodeVersion: process.version,
+        nodeVersion: process.version
       },
       memory: {
         current: stats.current,
         average: stats.average,
-        peak: stats.peak,
+        peak: stats.peak
       },
       leaks: stats.leaks,
-      snapshots: this.snapshots,
+      snapshots: this.snapshots
     }
 
     return JSON.stringify(report, null, 2)
@@ -280,7 +280,7 @@ export class MemoryMonitor {
       logger.debug('Heap statistics', 'MemoryMonitor', {
         totalHeapSize: this.formatBytes(gcStats.total_heap_size),
         usedHeapSize: this.formatBytes(gcStats.used_heap_size),
-        heapSizeLimit: this.formatBytes(gcStats.heap_size_limit),
+        heapSizeLimit: this.formatBytes(gcStats.heap_size_limit)
       })
     } catch (error) {
       logger.debug('Could not get heap statistics', 'MemoryMonitor')
@@ -304,7 +304,7 @@ export class MemoryMonitor {
 
   private calculateSeverity(
     growth: number,
-    threshold: number,
+    threshold: number
   ): 'low' | 'medium' | 'high' | 'critical' {
     const ratio = growth / threshold
     if (ratio < 1.5) return 'low'

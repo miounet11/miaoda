@@ -26,7 +26,8 @@
             <div class="relative">
               <div class="flex items-center p-4 border-b dark:border-gray-700">
                 <Search class="w-5 h-5 text-gray-400 absolute left-6" />
-                <input id="input-qczt8lp7n"
+                <input
+                  id="input-qczt8lp7n"
                   ref="searchInput"
                   v-model="searchQuery"
                   type="text"
@@ -36,21 +37,24 @@
                   @keydown.esc="closeSearch"
                   @keydown.down.prevent="navigateResults(1)"
                   @keydown.up.prevent="navigateResults(-1)"
-                 aria-label="输入框">
+                  aria-label="输入框"
+                />
                 <div class="flex items-center gap-2 ml-4">
                   <!-- Search Options -->
                   <button
                     @click="toggleOptions"
                     class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     :class="{ 'bg-gray-100 dark:bg-gray-700': showOptions }"
-                   aria-label="按钮">
+                    aria-label="按钮"
+                  >
                     <Settings2 class="w-4 h-4 text-gray-500" />
                   </button>
                   <!-- Close Button -->
                   <button
                     @click="closeSearch"
                     class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                   aria-label="按钮">
+                    aria-label="按钮"
+                  >
                     <X class="w-4 h-4 text-gray-500" />
                   </button>
                 </div>
@@ -77,21 +81,25 @@
                       </label>
                       <div class="space-y-2">
                         <label class="flex items-center gap-2 cursor-pointer">
-                          <input id="input-z3ssltyho"
+                          <input
+                            id="input-z3ssltyho"
                             type="radio"
                             v-model="searchOptions.scope"
                             value="all"
                             class="text-blue-600 focus:ring-blue-500"
-                           aria-label="输入框">
+                            aria-label="输入框"
+                          />
                           <span class="text-sm">All Messages</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                          <input id="input-jbyvvkdmp"
+                          <input
+                            id="input-jbyvvkdmp"
                             type="radio"
                             v-model="searchOptions.scope"
                             value="current"
                             class="text-blue-600 focus:ring-blue-500"
-                           aria-label="输入框">
+                            aria-label="输入框"
+                          />
                           <span class="text-sm">Current Chat</span>
                         </label>
                       </div>
@@ -106,19 +114,23 @@
                       </label>
                       <div class="space-y-2">
                         <label class="flex items-center gap-2 cursor-pointer">
-                          <input id="input-sx53tbp9q"
+                          <input
+                            id="input-sx53tbp9q"
                             type="checkbox"
                             v-model="searchOptions.includeUser"
                             class="text-blue-600 focus:ring-blue-500 rounded"
-                           aria-label="输入框">
+                            aria-label="输入框"
+                          />
                           <span class="text-sm">User Messages</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                          <input id="input-1gbdbzfjh"
+                          <input
+                            id="input-1gbdbzfjh"
                             type="checkbox"
                             v-model="searchOptions.includeAssistant"
                             class="text-blue-600 focus:ring-blue-500 rounded"
-                           aria-label="输入框">
+                            aria-label="输入框"
+                          />
                           <span class="text-sm">Assistant Messages</span>
                         </label>
                       </div>
@@ -131,17 +143,21 @@
                       Date Range
                     </label>
                     <div class="flex gap-2">
-                      <input id="input-o9tm6b7b2"
+                      <input
+                        id="input-o9tm6b7b2"
                         type="date"
                         v-model="searchOptions.dateFrom"
                         class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800"
-                       aria-label="输入框">
+                        aria-label="输入框"
+                      />
                       <span class="text-gray-500 self-center">to</span>
-                      <input id="input-o7asm1exn"
+                      <input
+                        id="input-o7asm1exn"
                         type="date"
                         v-model="searchOptions.dateTo"
                         class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800"
-                       aria-label="输入框">
+                        aria-label="输入框"
+                      />
                     </div>
                   </div>
                 </div>
@@ -248,7 +264,8 @@
                         performSearch()
                       "
                       class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 group"
-                     aria-label="按钮">
+                      aria-label="按钮"
+                    >
                       <Clock class="w-4 h-4 text-gray-400" />
                       <span class="text-sm text-gray-700 dark:text-gray-300">{{
                         search.query
@@ -274,7 +291,8 @@
                         performSearch()
                       "
                       class="px-3 py-2 text-sm text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                     aria-label="按钮">
+                      aria-label="按钮"
+                    >
                       <User class="w-4 h-4 text-blue-500 mb-1" />
                       <div class="text-gray-700 dark:text-gray-300">My Messages</div>
                     </button>
@@ -284,7 +302,8 @@
                         performSearch()
                       "
                       class="px-3 py-2 text-sm text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                     aria-label="按钮">
+                      aria-label="按钮"
+                    >
                       <Calendar class="w-4 h-4 text-green-500 mb-1" />
                       <div class="text-gray-700 dark:text-gray-300">Today's Chats</div>
                     </button>
@@ -294,7 +313,8 @@
                         performSearch()
                       "
                       class="px-3 py-2 text-sm text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                     aria-label="按钮">
+                      aria-label="按钮"
+                    >
                       <Code class="w-4 h-4 text-purple-500 mb-1" />
                       <div class="text-gray-700 dark:text-gray-300">Code Snippets</div>
                     </button>
@@ -304,7 +324,8 @@
                         performSearch()
                       "
                       class="px-3 py-2 text-sm text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                     aria-label="按钮">
+                      aria-label="按钮"
+                    >
                       <Link class="w-4 h-4 text-orange-500 mb-1" />
                       <div class="text-gray-700 dark:text-gray-300">Shared Links</div>
                     </button>
@@ -1230,4 +1251,5 @@ onUnmounted(() => {
 @keyframes loading-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-}</style>
+}
+</style>

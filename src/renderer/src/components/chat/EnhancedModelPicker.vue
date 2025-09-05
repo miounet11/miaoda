@@ -22,11 +22,7 @@
 
     <!-- 移动端：底部抽屉 -->
     <Transition name="slide-up" v-else>
-      <div
-        v-if="show"
-        class="fixed inset-0 z-50 flex items-end"
-        @click="handleBackdropClick"
-      >
+      <div v-if="show" class="fixed inset-0 z-50 flex items-end" @click="handleBackdropClick">
         <div
           ref="contentRef"
           class="bg-background border-t border-border rounded-t-xl shadow-xl w-full max-h-[85vh] overflow-hidden"

@@ -98,7 +98,7 @@ class IntelligentLLMScheduler {
     priority: 'balanced',
     fallbackEnabled: true,
     multiModelComparison: false,
-    cacheResults: true,
+    cacheResults: true
   }
 
   // 模型配置
@@ -114,22 +114,22 @@ class IntelligentLLMScheduler {
         supportsVision: true,
         supportsStreaming: true,
         languages: ['all'],
-        specialties: ['reasoning', 'code', 'creative', 'analysis'],
+        specialties: ['reasoning', 'code', 'creative', 'analysis']
       },
       performance: {
         avgResponseTime: 3000,
         successRate: 0.98,
-        quality: 9.5,
+        quality: 9.5
       },
       cost: {
         inputTokenPrice: 0.01,
-        outputTokenPrice: 0.03,
+        outputTokenPrice: 0.03
       },
       limits: {
         rateLimit: 60,
-        dailyLimit: 10000,
+        dailyLimit: 10000
       },
-      status: 'available',
+      status: 'available'
     },
     {
       id: 'gpt-3.5-turbo',
@@ -142,22 +142,22 @@ class IntelligentLLMScheduler {
         supportsVision: false,
         supportsStreaming: true,
         languages: ['all'],
-        specialties: ['chat', 'translation', 'summarization'],
+        specialties: ['chat', 'translation', 'summarization']
       },
       performance: {
         avgResponseTime: 1000,
         successRate: 0.95,
-        quality: 7.5,
+        quality: 7.5
       },
       cost: {
         inputTokenPrice: 0.001,
-        outputTokenPrice: 0.002,
+        outputTokenPrice: 0.002
       },
       limits: {
         rateLimit: 120,
-        dailyLimit: 50000,
+        dailyLimit: 50000
       },
-      status: 'available',
+      status: 'available'
     },
     {
       id: 'claude-3-opus',
@@ -170,22 +170,22 @@ class IntelligentLLMScheduler {
         supportsVision: true,
         supportsStreaming: true,
         languages: ['all'],
-        specialties: ['reasoning', 'creative', 'analysis', 'code'],
+        specialties: ['reasoning', 'creative', 'analysis', 'code']
       },
       performance: {
         avgResponseTime: 2500,
         successRate: 0.97,
-        quality: 9.2,
+        quality: 9.2
       },
       cost: {
         inputTokenPrice: 0.015,
-        outputTokenPrice: 0.075,
+        outputTokenPrice: 0.075
       },
       limits: {
         rateLimit: 40,
-        dailyLimit: 5000,
+        dailyLimit: 5000
       },
-      status: 'available',
+      status: 'available'
     },
     {
       id: 'gemini-pro',
@@ -198,23 +198,23 @@ class IntelligentLLMScheduler {
         supportsVision: true,
         supportsStreaming: true,
         languages: ['all'],
-        specialties: ['vision', 'analysis', 'translation'],
+        specialties: ['vision', 'analysis', 'translation']
       },
       performance: {
         avgResponseTime: 2000,
         successRate: 0.94,
-        quality: 8.0,
+        quality: 8.0
       },
       cost: {
         inputTokenPrice: 0.0005,
         outputTokenPrice: 0.0015,
-        freeQuota: 1000,
+        freeQuota: 1000
       },
       limits: {
         rateLimit: 60,
-        dailyLimit: 20000,
+        dailyLimit: 20000
       },
-      status: 'available',
+      status: 'available'
     },
     {
       id: 'ollama-llama2',
@@ -227,22 +227,22 @@ class IntelligentLLMScheduler {
         supportsVision: false,
         supportsStreaming: true,
         languages: ['en', 'zh'],
-        specialties: ['chat', 'code'],
+        specialties: ['chat', 'code']
       },
       performance: {
         avgResponseTime: 500,
-        successRate: 0.90,
-        quality: 6.5,
+        successRate: 0.9,
+        quality: 6.5
       },
       cost: {
         inputTokenPrice: 0,
-        outputTokenPrice: 0,
+        outputTokenPrice: 0
       },
       limits: {
         rateLimit: 1000,
-        dailyLimit: undefined,
+        dailyLimit: undefined
       },
-      status: 'available',
+      status: 'available'
     },
     {
       id: 'default-ai',
@@ -255,23 +255,23 @@ class IntelligentLLMScheduler {
         supportsVision: false,
         supportsStreaming: false,
         languages: ['zh', 'en'],
-        specialties: ['chat'],
+        specialties: ['chat']
       },
       performance: {
         avgResponseTime: 100,
         successRate: 0.99,
-        quality: 5.0,
+        quality: 5.0
       },
       cost: {
         inputTokenPrice: 0,
-        outputTokenPrice: 0,
+        outputTokenPrice: 0
       },
       limits: {
         rateLimit: 1000,
-        dailyLimit: undefined,
+        dailyLimit: undefined
       },
-      status: 'available',
-    },
+      status: 'available'
+    }
   ]
 
   private constructor() {
@@ -334,7 +334,7 @@ class IntelligentLLMScheduler {
     // 计算每个模型的得分
     const scoredModels = availableModels.map(model => ({
       model,
-      score: this.calculateModelScore(model, context),
+      score: this.calculateModelScore(model, context)
     }))
 
     // 排序
@@ -357,7 +357,7 @@ class IntelligentLLMScheduler {
       reasoning,
       estimatedCost,
       estimatedTime,
-      confidence: scoredModels[0].score / 10,
+      confidence: scoredModels[0].score / 10
     }
   }
 
@@ -372,9 +372,11 @@ class IntelligentLLMScheduler {
       if (context.requiresFunctions && !model.capabilities.supportsFunctions) return false
 
       // 检查语言支持
-      if (context.language &&
-          !model.capabilities.languages.includes('all') &&
-          !model.capabilities.languages.includes(context.language)) {
+      if (
+        context.language &&
+        !model.capabilities.languages.includes('all') &&
+        !model.capabilities.languages.includes(context.language)
+      ) {
         return false
       }
 
@@ -400,7 +402,7 @@ class IntelligentLLMScheduler {
     if (context.urgency === 'high') {
       score += (10 - model.performance.avgResponseTime / 1000) * 2
     } else {
-      score += (10 - model.performance.avgResponseTime / 1000)
+      score += 10 - model.performance.avgResponseTime / 1000
     }
 
     // 成本因素
@@ -437,19 +439,19 @@ class IntelligentLLMScheduler {
   // 计算任务匹配度
   private calculateTaskMatch(model: LLMModel, taskType: TaskType): number {
     const taskSpecialties: Record<TaskType, string[]> = {
-      'chat': ['chat'],
-      'code': ['code'],
-      'translation': ['translation'],
-      'summarization': ['summarization'],
-      'creative': ['creative'],
-      'analysis': ['analysis'],
-      'reasoning': ['reasoning'],
-      'vision': ['vision'],
+      chat: ['chat'],
+      code: ['code'],
+      translation: ['translation'],
+      summarization: ['summarization'],
+      creative: ['creative'],
+      analysis: ['analysis'],
+      reasoning: ['reasoning'],
+      vision: ['vision']
     }
 
     const requiredSpecialties = taskSpecialties[taskType] || []
     const matchCount = requiredSpecialties.filter(spec =>
-      model.capabilities.specialties.includes(spec),
+      model.capabilities.specialties.includes(spec)
     ).length
 
     return (matchCount / Math.max(1, requiredSpecialties.length)) * 10
@@ -551,7 +553,7 @@ class IntelligentLLMScheduler {
   // 执行任务
   async executeTask(
     messages: Array<{ role: string; content: string }>,
-    context: TaskContext,
+    context: TaskContext
   ): Promise<ExecutionResult> {
     const decision = await this.selectOptimalModel(context)
 
@@ -577,7 +579,7 @@ class IntelligentLLMScheduler {
   // 使用特定模型执行
   private async executeWithModel(
     model: LLMModel,
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string }>
   ): Promise<ExecutionResult> {
     const startTime = Date.now()
 
@@ -624,8 +626,8 @@ class IntelligentLLMScheduler {
         metrics: {
           tokensUsed,
           responseTime,
-          cost,
-        },
+          cost
+        }
       }
     } catch (error) {
       return {
@@ -635,8 +637,8 @@ class IntelligentLLMScheduler {
         metrics: {
           tokensUsed: 0,
           responseTime: Date.now() - startTime,
-          cost: 0,
-        },
+          cost: 0
+        }
       }
     }
   }
@@ -644,7 +646,7 @@ class IntelligentLLMScheduler {
   // 调用OpenAI
   private async callOpenAI(
     model: LLMModel,
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string }>
   ): Promise<{ response: string; tokens: number }> {
     // 这里应该使用实际的OpenAI客户端
     // 暂时返回模拟结果
@@ -652,14 +654,14 @@ class IntelligentLLMScheduler {
 
     return {
       response: `来自${model.name}的回复: ${messages[messages.length - 1].content}`,
-      tokens: 100,
+      tokens: 100
     }
   }
 
   // 调用Anthropic
   private async callAnthropic(
     model: LLMModel,
-    _messages: Array<{ role: string; content: string }>,
+    _messages: Array<{ role: string; content: string }>
   ): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, model.performance.avgResponseTime))
     return `来自${model.name}的回复`
@@ -668,7 +670,7 @@ class IntelligentLLMScheduler {
   // 调用Gemini
   private async callGemini(
     model: LLMModel,
-    _messages: Array<{ role: string; content: string }>,
+    _messages: Array<{ role: string; content: string }>
   ): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, model.performance.avgResponseTime))
     return `来自${model.name}的回复`
@@ -677,7 +679,7 @@ class IntelligentLLMScheduler {
   // 调用Ollama
   private async callOllama(
     model: LLMModel,
-    _messages: Array<{ role: string; content: string }>,
+    _messages: Array<{ role: string; content: string }>
   ): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, model.performance.avgResponseTime))
     return `来自${model.name}的本地回复`
@@ -690,7 +692,7 @@ class IntelligentLLMScheduler {
       '我理解您的问题，让我来帮您解答...',
       '这是一个很好的问题！',
       '根据我的理解，我可以这样回答...',
-      '让我为您提供一些建议...',
+      '让我为您提供一些建议...'
     ]
     return responses[Math.floor(Math.random() * responses.length)]
   }
@@ -722,7 +724,8 @@ class IntelligentLLMScheduler {
 
     // 计算最近的平均响应时间
     const recentResults = history.slice(-20)
-    const avgResponseTime = recentResults.reduce((sum, r) => sum + r.metrics.responseTime, 0) / recentResults.length
+    const avgResponseTime =
+      recentResults.reduce((sum, r) => sum + r.metrics.responseTime, 0) / recentResults.length
 
     // 计算成功率
     const successRate = recentResults.filter(r => r.success).length / recentResults.length
@@ -736,19 +739,17 @@ class IntelligentLLMScheduler {
   async compareModels(
     messages: Array<{ role: string; content: string }>,
     context: TaskContext,
-    modelIds?: string[],
+    modelIds?: string[]
   ): Promise<Map<string, ExecutionResult>> {
     const results = new Map<string, ExecutionResult>()
 
     // 选择要比较的模型
     const modelsToCompare = modelIds
-      ? modelIds.map(id => this.models.get(id)).filter(Boolean) as LLMModel[]
+      ? (modelIds.map(id => this.models.get(id)).filter(Boolean) as LLMModel[])
       : this.getAvailableModels(context).slice(0, 3)
 
     // 并行执行
-    const promises = modelsToCompare.map(model =>
-      this.executeWithModel(model, messages),
-    )
+    const promises = modelsToCompare.map(model => this.executeWithModel(model, messages))
 
     const executionResults = await Promise.all(promises)
 
@@ -773,14 +774,15 @@ class IntelligentLLMScheduler {
     const totalRequests = history.length
     const successCount = history.filter(r => r.success).length
     const successRate = successCount / totalRequests
-    const avgResponseTime = history.reduce((sum, r) => sum + r.metrics.responseTime, 0) / totalRequests
+    const avgResponseTime =
+      history.reduce((sum, r) => sum + r.metrics.responseTime, 0) / totalRequests
     const totalCost = history.reduce((sum, r) => sum + r.metrics.cost, 0)
 
     return {
       totalRequests,
       successRate,
       avgResponseTime,
-      totalCost,
+      totalCost
     }
   }
 

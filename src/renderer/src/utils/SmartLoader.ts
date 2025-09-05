@@ -66,11 +66,11 @@ export class SmartResourceLoader {
         high: 100,
         normal: 500,
         low: 1000,
-        background: 5000,
+        background: 5000
       },
       cacheStrategy: 'hybrid',
       enablePredictiveLoading: true,
-      ...config,
+      ...config
     }
 
     this.metrics = this.initializeMetrics()
@@ -88,7 +88,7 @@ export class SmartResourceLoader {
     // Setup loading scheduler
     this.loadingScheduler = new ResourceLoadingScheduler(
       this.config.maxConcurrentLoads,
-      this.config.loadingPriorities,
+      this.config.loadingPriorities
     )
 
     // Setup predictive loader
@@ -119,7 +119,7 @@ export class SmartResourceLoader {
     console.debug('Registered resource', {
       id: resource.id,
       type: resource.type,
-      priority: resource.priority,
+      priority: resource.priority
     })
   }
 
@@ -179,7 +179,7 @@ export class SmartResourceLoader {
     console.info('Starting resource preload', {
       requested: resourceIds.length,
       valid: validIds.length,
-      batchSize,
+      batchSize
     })
 
     // Load in batches to avoid overwhelming the system
@@ -188,7 +188,7 @@ export class SmartResourceLoader {
       const batchPromises = batch.map(id =>
         this.loadResource(id).catch(error => {
           console.warn('Preload failed', { resourceId: id, error })
-        }),
+        })
       )
 
       await Promise.all(batchPromises)
@@ -226,7 +226,7 @@ export class SmartResourceLoader {
     // Create dedicated observer for this element
     const elementObserver = new IntersectionObserver(observerCallback, {
       rootMargin: `${this.config.preloadDistance}px`,
-      threshold: 0.1,
+      threshold: 0.1
     })
     elementObserver.observe(element)
 
@@ -249,7 +249,7 @@ export class SmartResourceLoader {
       registered: this.resources.has(resourceId),
       loaded: this.loadedResources.has(resourceId),
       loading: this.loadingQueue.has(resourceId),
-      error: false, // Could track error state
+      error: false // Could track error state
     }
   }
 
@@ -266,7 +266,7 @@ export class SmartResourceLoader {
 
     if (resourcesToPrefetch.length > 0) {
       console.info('Prefetching predictive resources', {
-        count: resourcesToPrefetch.length,
+        count: resourcesToPrefetch.length
       })
 
       await this.preloadResources(resourcesToPrefetch)
@@ -281,7 +281,7 @@ export class SmartResourceLoader {
     successRate: number
     resourceCount: number
     loadedCount: number
-    } {
+  } {
     const total = this.metrics.successful + this.metrics.failed
 
     return {
@@ -289,7 +289,7 @@ export class SmartResourceLoader {
       cacheHitRate: total > 0 ? (this.metrics.cacheHits / total) * 100 : 0,
       successRate: total > 0 ? (this.metrics.successful / total) * 100 : 0,
       resourceCount: this.resources.size,
-      loadedCount: this.loadedResources.size,
+      loadedCount: this.loadedResources.size
     }
   }
 
@@ -324,7 +324,7 @@ export class SmartResourceLoader {
       console.debug('Resource loaded successfully', {
         id: resource.id,
         type: resource.type,
-        duration: Math.round(duration),
+        duration: Math.round(duration)
       })
 
       return result
@@ -356,7 +356,7 @@ export class SmartResourceLoader {
         return this.loadResource(resource.id)
       },
       delay,
-      resource.priority,
+      resource.priority
     )
   }
 
@@ -367,8 +367,8 @@ export class SmartResourceLoader {
       },
       {
         rootMargin: `${this.config.preloadDistance}px`,
-        threshold: 0.1,
-      },
+        threshold: 0.1
+      }
     )
   }
 
@@ -382,7 +382,7 @@ export class SmartResourceLoader {
           r =>
             (r.priority === 'low' || r.priority === 'background') &&
             !this.loadedResources.has(r.id) &&
-            !this.loadingQueue.has(r.id),
+            !this.loadingQueue.has(r.id)
         )
 
         for (const resource of lowPriorityResources) {
@@ -426,7 +426,7 @@ export class SmartResourceLoader {
       cacheHits: 0,
       averageLoadTime: 0,
       bytesLoaded: 0,
-      networkSavings: 0,
+      networkSavings: 0
     }
   }
 
@@ -458,7 +458,7 @@ class ResourceLoadingScheduler {
 
   constructor(
     private maxConcurrent: number,
-    private priorities: LoadingPriority,
+    private priorities: LoadingPriority
   ) {
     // Initialize with priority configuration
   }
@@ -471,7 +471,7 @@ class ResourceLoadingScheduler {
     id: string,
     loader: () => Promise<any>,
     delay: number,
-    priority: keyof LoadingPriority,
+    priority: keyof LoadingPriority
   ): void {
     // Cancel existing task if any
     const existingTimer = this.scheduledTasks.get(id)
@@ -530,7 +530,7 @@ class PredictiveLoader {
     const pattern = this.accessPatterns.get(resourceId) || {
       count: 0,
       lastAccess: 0,
-      contexts: [],
+      contexts: []
     }
 
     pattern.count++
@@ -647,7 +647,7 @@ export function useSmartLoader(config?: Partial<SmartLoadConfig>) {
     loadResource,
     preloadResources,
     setupLazyElement,
-    clearCache: () => loader.clearCache(),
+    clearCache: () => loader.clearCache()
   }
 }
 
@@ -659,5 +659,5 @@ export const globalSmartLoader = new SmartResourceLoader({
   enableLazyLoading: true,
   enablePredictiveLoading: true,
   maxConcurrentLoads: 3,
-  cacheStrategy: 'hybrid',
+  cacheStrategy: 'hybrid'
 })

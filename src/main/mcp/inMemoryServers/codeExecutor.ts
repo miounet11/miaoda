@@ -1,12 +1,12 @@
-// @ts-nocheck
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  Tool,
+  Tool
 } from '@modelcontextprotocol/sdk/types.js'
 import { spawn } from 'child_process'
+import { logger } from '../../utils/Logger'
 // import { writeFile, unlink } from 'fs/promises'
 // import { join } from 'path'
 // import { tmpdir } from 'os'
@@ -16,13 +16,13 @@ import { spawn } from 'child_process'
 const server = new Server(
   {
     name: 'code-executor',
-    version: '1.0.0',
+    version: '1.0.0'
   },
   {
     capabilities: {
-      tools: {},
-    },
-  },
+      tools: {}
+    }
+  }
 )
 
 // Define available tools
@@ -35,11 +35,11 @@ const tools: Tool[] = [
       properties: {
         code: {
           type: 'string',
-          description: 'The JavaScript code to execute',
-        },
+          description: 'The JavaScript code to execute'
+        }
       },
-      required: ['code'],
-    },
+      required: ['code']
+    }
   },
   {
     name: 'execute_python',
@@ -49,11 +49,11 @@ const tools: Tool[] = [
       properties: {
         code: {
           type: 'string',
-          description: 'The Python code to execute',
-        },
+          description: 'The Python code to execute'
+        }
       },
-      required: ['code'],
-    },
+      required: ['code']
+    }
   },
   {
     name: 'execute_shell',
@@ -63,16 +63,16 @@ const tools: Tool[] = [
       properties: {
         command: {
           type: 'string',
-          description: 'The shell command to execute',
+          description: 'The shell command to execute'
         },
         cwd: {
           type: 'string',
-          description: 'Working directory for the command',
-        },
+          description: 'Working directory for the command'
+        }
       },
-      required: ['command'],
-    },
-  },
+      required: ['command']
+    }
+  }
 ]
 
 // Handle list tools request
@@ -85,7 +85,7 @@ async function executeCode(
   executor: string,
   args: string[],
   input?: string,
-  cwd?: string,
+  cwd?: string
 ): Promise<{ output: string; error?: string }> {
   // Security: Validate executor and args
   const allowedExecutors = ['node', 'python3']
@@ -107,9 +107,9 @@ async function executeCode(
         ...process.env,
         // Restrict environment for security
         NODE_OPTIONS: '--max-old-space-size=128',
-        PYTHONDONTWRITEBYTECODE: '1',
+        PYTHONDONTWRITEBYTECODE: '1'
       },
-      shell: false, // Never use shell for security
+      shell: false // Never use shell for security
     })
 
     let output = ''
@@ -157,9 +157,9 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
               type: 'text',
               text: result.error
                 ? `Error: ${result.error}\n\nOutput:\n${result.output}`
-                : result.output,
-            },
-          ],
+                : result.output
+            }
+          ]
         }
       }
 
@@ -172,9 +172,9 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
               type: 'text',
               text: result.error
                 ? `Error: ${result.error}\n\nOutput:\n${result.output}`
-                : result.output,
-            },
-          ],
+                : result.output
+            }
+          ]
         }
       }
 
@@ -184,10 +184,10 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
           content: [
             {
               type: 'text',
-              text: 'Shell execution is disabled for security reasons. Use JavaScript or Python execution instead.',
-            },
+              text: 'Shell execution is disabled for security reasons. Use JavaScript or Python execution instead.'
+            }
           ],
-          isError: true,
+          isError: true
         }
       }
 
@@ -199,10 +199,10 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
       content: [
         {
           type: 'text',
-          text: `Error executing ${name}: ${error.message}`,
-        },
+          text: `Error executing ${name}: ${error.message}`
+        }
       ],
-      isError: true,
+      isError: true
     }
   }
 })
@@ -212,14 +212,14 @@ async function main() {
   try {
     const transport = new StdioServerTransport()
     await server.connect(transport)
-    console.error('Code executor MCP server running successfully')
+    logger.info('Code executor MCP server running successfully', 'CodeExecutor')
   } catch (error) {
-    console.error('Code executor MCP server initialization failed:', error)
+    logger.error('Code executor MCP server initialization failed', 'CodeExecutor', error)
     process.exit(1)
   }
 }
 
 main().catch(error => {
-  console.error('Server error:', error)
+  logger.error('Server error', 'CodeExecutor', error)
   process.exit(1)
 })

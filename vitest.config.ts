@@ -12,12 +12,7 @@ export default defineConfig({
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'src/test/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
     ],
-    exclude: [
-      'node_modules',
-      'dist',
-      'out',
-      'src/test/performance/**/*.ts'
-    ],
+    exclude: ['node_modules', 'dist', 'out', 'src/test/performance/**/*.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

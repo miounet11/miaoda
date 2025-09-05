@@ -77,14 +77,14 @@ class MultiModalService {
     continuous: true,
     interimResults: true,
     maxAlternatives: 3,
-    profanityFilter: false,
+    profanityFilter: false
   }
 
   private imageConfig: ImageConfig = {
     maxWidth: 1920,
     maxHeight: 1080,
     quality: 0.9,
-    format: 'jpeg',
+    format: 'jpeg'
   }
 
   private constructor() {
@@ -111,7 +111,7 @@ class MultiModalService {
       mediaRecorder: 'MediaRecorder' in window,
       getUserMedia: navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices,
       fileAPI: 'File' in window && 'FileReader' in window,
-      canvas: 'HTMLCanvasElement' in window,
+      canvas: 'HTMLCanvasElement' in window
     }
 
     console.log('Browser multimodal support:', support)
@@ -122,7 +122,7 @@ class MultiModalService {
   async processInput(
     input: File | Blob | string,
     type: ModalityType,
-    options: ProcessingOptions = {},
+    options: ProcessingOptions = {}
   ): Promise<MultiModalContent> {
     this.processing.value = true
 
@@ -131,7 +131,7 @@ class MultiModalService {
         id: this.generateId(),
         type,
         content: input,
-        timestamp: new Date(),
+        timestamp: new Date()
       }
 
       // 根据类型处理
@@ -166,10 +166,10 @@ class MultiModalService {
   // 处理图片
   private async processImage(
     image: File | Blob,
-    options: ProcessingOptions,
+    options: ProcessingOptions
   ): Promise<ContentAnalysis> {
     const analysis: ContentAnalysis = {
-      type: 'image',
+      type: 'image'
     }
 
     // 获取图片信息 (暂时未使用，保留以备将来功能扩展)
@@ -201,7 +201,7 @@ class MultiModalService {
 
   // 获取图片元数据
   private async getImageMetadata(image: File | Blob): Promise<any> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const img = new Image()
       const url = URL.createObjectURL(image)
 
@@ -211,7 +211,7 @@ class MultiModalService {
           width: img.width,
           height: img.height,
           size: image.size,
-          type: image.type,
+          type: image.type
         })
       }
 
@@ -250,7 +250,7 @@ class MultiModalService {
         ctx.drawImage(img, 0, 0, width, height)
 
         canvas.toBlob(
-          (blob) => {
+          blob => {
             if (blob) {
               resolve(blob)
             } else {
@@ -258,7 +258,7 @@ class MultiModalService {
             }
           },
           `image/${this.imageConfig.format}`,
-          this.imageConfig.quality,
+          this.imageConfig.quality
         )
       }
 
@@ -282,7 +282,7 @@ class MultiModalService {
     return [
       { name: '人物', confidence: 0.95 },
       { name: '背景', confidence: 0.88 },
-      { name: '文字', confidence: 0.72 },
+      { name: '文字', confidence: 0.72 }
     ]
   }
 
@@ -303,12 +303,9 @@ class MultiModalService {
   }
 
   // 处理语音
-  private async processVoice(
-    audio: Blob,
-    options: ProcessingOptions,
-  ): Promise<ContentAnalysis> {
+  private async processVoice(audio: Blob, options: ProcessingOptions): Promise<ContentAnalysis> {
     const analysis: ContentAnalysis = {
-      type: 'audio',
+      type: 'audio'
     }
 
     // 语音识别（模拟）
@@ -345,12 +342,12 @@ class MultiModalService {
   // 处理视频
   private async processVideo(
     _video: File | Blob,
-    _options: ProcessingOptions,
+    _options: ProcessingOptions
   ): Promise<ContentAnalysis> {
     // 提取关键帧并分析
     const analysis: ContentAnalysis = {
       type: 'image', // 视频作为图像序列处理
-      description: '视频内容分析',
+      description: '视频内容分析'
     }
 
     // 这里可以提取视频关键帧进行分析
@@ -359,12 +356,9 @@ class MultiModalService {
   }
 
   // 处理文件
-  private async processFile(
-    file: File,
-    options: ProcessingOptions,
-  ): Promise<ContentAnalysis> {
+  private async processFile(file: File, options: ProcessingOptions): Promise<ContentAnalysis> {
     const analysis: ContentAnalysis = {
-      type: 'document',
+      type: 'document'
     }
 
     // 根据文件类型处理
@@ -393,7 +387,7 @@ class MultiModalService {
   private readTextFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
-      reader.onload = (e) => resolve(e.target?.result as string)
+      reader.onload = e => resolve(e.target?.result as string)
       reader.onerror = reject
       reader.readAsText(file)
     })
@@ -402,10 +396,11 @@ class MultiModalService {
   // 开始语音输入
   async startVoiceInput(
     onResult: (text: string, isFinal: boolean) => void,
-    onError?: (error: any) => void,
+    onError?: (error: any) => void
   ): Promise<void> {
     // 检查浏览器支持
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+    const SpeechRecognition =
+      (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
 
     if (!SpeechRecognition) {
       throw new Error('浏览器不支持语音识别')
@@ -471,7 +466,7 @@ class MultiModalService {
     this.mediaRecorder = new MediaRecorder(stream)
     this.audioChunks = []
 
-    this.mediaRecorder.ondataavailable = (event) => {
+    this.mediaRecorder.ondataavailable = event => {
       if (event.data.size > 0) {
         this.audioChunks.push(event.data)
       }
@@ -502,7 +497,7 @@ class MultiModalService {
   // 拍照
   async capturePhoto(): Promise<Blob> {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
+      video: { facingMode: 'environment' }
     })
 
     const video = document.createElement('video')
@@ -531,13 +526,17 @@ class MultiModalService {
 
     // 转换为Blob
     return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob)
-        } else {
-          reject(new Error('Failed to capture photo'))
-        }
-      }, 'image/jpeg', 0.9)
+      canvas.toBlob(
+        blob => {
+          if (blob) {
+            resolve(blob)
+          } else {
+            reject(new Error('Failed to capture photo'))
+          }
+        },
+        'image/jpeg',
+        0.9
+      )
     })
   }
 
@@ -578,11 +577,26 @@ class MultiModalService {
   private extractKeywords(text: string): string[] {
     // 简单的关键词提取
     const stopWords = new Set([
-      '的', '了', '在', '是', '我', '你', '他', '她', '它',
-      '这', '那', '有', '和', '与', '或', '但',
+      '的',
+      '了',
+      '在',
+      '是',
+      '我',
+      '你',
+      '他',
+      '她',
+      '它',
+      '这',
+      '那',
+      '有',
+      '和',
+      '与',
+      '或',
+      '但'
     ])
 
-    const words = text.split(/[\s,，。.!！?？;；]+/)
+    const words = text
+      .split(/[\s,，。.!！?？;；]+/)
       .filter(word => word.length > 1 && !stopWords.has(word))
 
     return [...new Set(words)].slice(0, 10)
@@ -620,7 +634,7 @@ class MultiModalService {
         content: `使用${content.type}输入: ${text.substring(0, 100)}`,
         importance: 2,
         tags: ['multimodal', content.type],
-        source: 'explicit',
+        source: 'explicit'
       })
     }
   }
@@ -666,14 +680,16 @@ export function useMultiModal() {
   return {
     processInput: (input: File | Blob | string, type: ModalityType, options?: ProcessingOptions) =>
       service.processInput(input, type, options),
-    startVoiceInput: (onResult: (text: string, isFinal: boolean) => void, onError?: (error: any) => void) =>
-      service.startVoiceInput(onResult, onError),
+    startVoiceInput: (
+      onResult: (text: string, isFinal: boolean) => void,
+      onError?: (error: any) => void
+    ) => service.startVoiceInput(onResult, onError),
     stopVoiceInput: () => service.stopVoiceInput(),
     startRecording: () => service.startRecording(),
     stopRecording: () => service.stopRecording(),
     capturePhoto: () => service.capturePhoto(),
     isProcessing: () => service.isProcessing(),
     updateVoiceConfig: (config: Partial<VoiceConfig>) => service.updateVoiceConfig(config),
-    updateImageConfig: (config: Partial<ImageConfig>) => service.updateImageConfig(config),
+    updateImageConfig: (config: Partial<ImageConfig>) => service.updateImageConfig(config)
   }
 }

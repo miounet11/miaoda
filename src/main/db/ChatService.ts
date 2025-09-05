@@ -13,7 +13,7 @@ export class ChatService extends BaseDatabaseService {
     this.validateText(chat.title, 'title')
 
     const stmt = this.db.prepare(
-      'INSERT INTO chats (id, title, created_at, updated_at, tags, archived, starred, settings) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO chats (id, title, created_at, updated_at, tags, archived, starred, settings) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     )
     stmt.run(
       chat.id,
@@ -23,7 +23,7 @@ export class ChatService extends BaseDatabaseService {
       chat.tags || null,
       chat.archived || 0,
       chat.starred || 0,
-      chat.settings || null,
+      chat.settings || null
     )
   }
 

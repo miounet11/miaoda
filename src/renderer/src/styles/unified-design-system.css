@@ -11,22 +11,40 @@
 
 /* ============== 核心设计令牌 (ChatGPT 风格) ============== */
 :root {
-  /* ChatGPT 风格色彩系统 - WCAG AA 合规 */
-  --primary: 221.2 83.2% 45%; /* 更深蓝色以提高对比度 */
+  /* ChatBox Mantine-style Design System Variables */
+  --mantine-scale: 1;
+  --mantine-spacing-xs: 0.625rem;
+  --mantine-spacing-md: 1rem;
+  --mantine-spacing-xl: 1.25rem;
+  --mantine-font-size-sm: 0.875rem;
+  --mantine-line-height-sm: 1.25rem;
+
+  /* ChatBox Brand Colors */
+  --mantine-color-chatbox-border-primary-outline: rgba(255, 255, 255, 0.12);
+  --mantine-color-chatbox-brand-outline-hover: rgba(59, 130, 246, 0.1);
+  --mantine-color-chatbox-brand-light: rgba(59, 130, 246, 0.15);
+  --mantine-color-chatbox-primary-text: rgb(255, 255, 255);
+  --mantine-color-chatbox-secondary-text: rgba(255, 255, 255, 0.7);
+  --mantine-color-chatbox-tertiary-text: rgba(255, 255, 255, 0.5);
+  --mantine-color-chatbox-brand-filled: rgb(59, 130, 246);
+  --mantine-color-chatbox-brand-filled-hover: rgb(37, 99, 235);
+
+  /* Legacy Tailwind Variables for compatibility */
+  --primary: 221.2 83.2% 45%;
   --primary-foreground: 0 0% 100%;
   --secondary: 210 40% 98%;
   --secondary-foreground: 222.2 84% 4.9%;
   --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%; /* 4.6:1 对比度 */
-  
-  /* ChatGPT 背景色系 */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  
-  /* ChatGPT 边框色系 */
-  --border: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%; /* 焦点环颜色 */
-  
+  --muted-foreground: 215 16% 47%;
+
+  /* Dark theme background system */
+  --background: 33 33% 6%; /* Dark grey background */
+  --foreground: 0 0% 100%;
+
+  /* Border and ring colors */
+  --border: var(--mantine-color-chatbox-border-primary-outline);
+  --ring: 221.2 83.2% 53.3%;
+
   /* 语义色彩 - WCAG AA 合规 */
   --success: 142 71% 35%; /* 更深绿色 */
   --success-foreground: 0 0% 100%;
@@ -34,65 +52,65 @@
   --warning-foreground: 0 0% 100%;
   --destructive: 0 84% 45%; /* 更深红色 */
   --destructive-foreground: 0 0% 100%;
-  
+
   /* 间距系统 (8px基准) */
   --space-1: 0.25rem; /* 4px */
-  --space-2: 0.5rem;  /* 8px */
+  --space-2: 0.5rem; /* 8px */
   --space-3: 0.75rem; /* 12px */
-  --space-4: 1rem;    /* 16px */
+  --space-4: 1rem; /* 16px */
   --space-5: 1.25rem; /* 20px */
-  --space-6: 1.5rem;  /* 24px */
-  --space-8: 2rem;    /* 32px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
   --space-10: 2.5rem; /* 40px */
-  --space-12: 3rem;   /* 48px */
-  
+  --space-12: 3rem; /* 48px */
+
   /* 字体系统 */
-  --font-size-xs: 0.75rem;   /* 12px */
-  --font-size-sm: 0.875rem;  /* 14px */
-  --font-size-base: 1rem;    /* 16px */
-  --font-size-lg: 1.125rem;  /* 18px */
-  --font-size-xl: 1.25rem;   /* 20px */
-  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
   --font-size-3xl: 1.875rem; /* 30px */
-  --font-size-4xl: 2.25rem;  /* 36px */
-  
+  --font-size-4xl: 2.25rem; /* 36px */
+
   /* 行高 */
   --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
   --line-height-loose: 2;
-  
+
   /* 边框半径 */
   --radius-sm: 0.125rem; /* 2px */
   --radius-md: 0.375rem; /* 6px */
-  --radius-lg: 0.5rem;   /* 8px */
-  --radius-xl: 0.75rem;  /* 12px */
-  --radius-2xl: 1rem;    /* 16px */
-  --radius-3xl: 1.5rem;  /* 24px */
-  
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
+  --radius-3xl: 1.5rem; /* 24px */
+
   /* 阴影 */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  
+
   /* 布局约束 - 移动优化 */
   --content-max-width: 1200px;
   --sidebar-width: clamp(240px, 25vw, 320px);
   --sidebar-collapsed-width: 60px;
   --header-height: max(60px, env(safe-area-inset-top));
-  
+
   /* 触摸目标尺寸 */
   --touch-target-min: 44px;
   --touch-target-comfortable: 48px;
   --touch-target-large: 56px;
-  
+
   /* 安全区域 */
   --safe-area-top: env(safe-area-inset-top);
   --safe-area-bottom: env(safe-area-inset-bottom);
   --safe-area-left: env(safe-area-inset-left);
   --safe-area-right: env(safe-area-inset-right);
-  
+
   /* 动画 */
   --transition-fast: 150ms ease;
   --transition-base: 300ms ease;
@@ -100,30 +118,42 @@
   --transition-slower: 700ms ease;
 }
 
-/* ============== 暗色主题 (ChatGPT 风格) - WCAG AA 合规 ============== */
-.dark {
-  /* ChatGPT 暗色主题 - 深灰而不是纯黑 */
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 217.2 32.6% 17.5%;
-  
-  /* 暗色主题主色调 - 增强对比度 */
-  --primary: 217.2 91.2% 65%; /* 更亮的蓝色以提高对比度 */
-  --primary-foreground: 222.2 84% 4.9%;
+/* ============== ChatBox Dark Theme - Exact Color Matching ============== */
+.dark,
+.chatbox-dark,
+[data-theme='dark'] {
+  /* ChatBox exact dark colors */
+  --background: 33 33% 6%; /* rgb(16, 16, 20) */
+  --foreground: 0 0% 100%;
+  --card: 33 33% 6%;
+
+  /* ChatBox Mantine colors override for dark theme */
+  --mantine-color-chatbox-border-primary-outline: rgba(255, 255, 255, 0.12);
+  --mantine-color-chatbox-brand-outline-hover: rgba(59, 130, 246, 0.1);
+  --mantine-color-chatbox-brand-light: rgba(59, 130, 246, 0.15);
+  --mantine-color-chatbox-primary-text: rgb(255, 255, 255);
+  --mantine-color-chatbox-secondary-text: rgba(255, 255, 255, 0.7);
+  --mantine-color-chatbox-tertiary-text: rgba(255, 255, 255, 0.5);
+  --mantine-color-chatbox-brand-filled: rgb(59, 130, 246);
+  --mantine-color-chatbox-brand-filled-hover: rgb(37, 99, 235);
+
+  /* Legacy theme colors for compatibility */
+  --primary: 217.2 91.2% 65%;
+  --primary-foreground: 33 33% 6%;
   --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary-foreground: 0 0% 100%;
   --muted: 217.2 32.6% 20%;
-  --muted-foreground: 215 20% 65%; /* 提高对比度 */
-  --border: 217.2 32.6% 25%;
+  --muted-foreground: 215 20% 65%;
+  --border: var(--mantine-color-chatbox-border-primary-outline);
   --ring: 217.2 91.2% 65%;
-  
-  /* 暗色主题语义色彩 */
-  --success: 142 71% 55%; /* 更亮的绿色 */
-  --success-foreground: 222.2 84% 4.9%;
-  --warning: 38 92% 55%; /* 更亮的橙色 */
-  --warning-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84% 65%; /* 更亮的红色 */
-  --destructive-foreground: 222.2 84% 4.9%;
+
+  /* Semantic colors */
+  --success: 142 71% 55%;
+  --success-foreground: 33 33% 6%;
+  --warning: 38 92% 55%;
+  --warning-foreground: 33 33% 6%;
+  --destructive: 0 84% 65%;
+  --destructive-foreground: 33 33% 6%;
 }
 
 /* ============== 基础样式重置 ============== */
@@ -142,7 +172,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: hsl(var(--foreground));
@@ -710,14 +741,14 @@ body {
     padding: var(--space-4) var(--space-6);
     font-size: var(--font-size-base);
   }
-  
+
   .btn-sm {
     min-height: var(--touch-target-min);
     min-width: var(--touch-target-min);
     padding: var(--space-2) var(--space-4);
     font-size: var(--font-size-sm);
   }
-  
+
   .btn-lg {
     min-height: var(--touch-target-large);
     min-width: var(--touch-target-large);
@@ -898,11 +929,17 @@ body {
   animation: typing-bounce 1.4s infinite ease-in-out;
 }
 
-.typing-dot:nth-child(1) { animation-delay: -0.32s; }
-.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 @keyframes typing-bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(1);
     opacity: 0.5;
   }
@@ -939,7 +976,7 @@ body {
     --sidebar-width: 100vw; /* 全屏侧边栏 */
     --space-safe: max(var(--space-4), var(--safe-area-left));
   }
-  
+
   .sidebar {
     position: fixed;
     inset: 0;
@@ -953,17 +990,19 @@ body {
     padding-left: var(--safe-area-left);
     padding-right: var(--safe-area-right);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
-  
+
   /* 确保所有触摸目标至少44px */
-  button, .btn, .touch-target {
+  button,
+  .btn,
+  .touch-target {
     min-height: var(--touch-target-min);
     min-width: var(--touch-target-min);
   }
-  
+
   .message-bubble {
     max-width: 90%;
     min-height: var(--touch-target-min);
@@ -982,21 +1021,21 @@ body {
     transition: left var(--transition-base);
     padding-top: var(--safe-area-top);
   }
-  
+
   .sidebar.open {
     left: 0;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
   }
-  
+
   .chat-header {
     padding: 0 var(--space-4);
     padding-top: var(--safe-area-top);
   }
-  
+
   .messages-area {
     padding: var(--space-4);
   }
-  
+
   .input-area {
     padding: var(--space-3) var(--space-4);
     padding-bottom: max(var(--space-3), var(--safe-area-bottom));
@@ -1010,11 +1049,11 @@ body {
     width: var(--sidebar-width);
     transform: none;
   }
-  
+
   .sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
   }
-  
+
   .suggestions-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
@@ -1032,7 +1071,7 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .typing-dot,
   .loading-spinner {
     animation: none !important;
@@ -1045,19 +1084,20 @@ body {
     --primary: 220 100% 35%; /* 更深的主色调 */
     --border: 220 13% 75%; /* 更深的边框 */
   }
-  
+
   .message-bubble {
     border: 2px solid currentColor;
   }
-  
+
   .input-wrapper {
     border-width: 2px;
   }
-  
-  .card, .btn {
+
+  .card,
+  .btn {
     border: 2px solid currentColor;
   }
-  
+
   .focus-visible {
     outline-width: 3px !important;
   }
@@ -1120,7 +1160,12 @@ body {
 
 /* 键盘导航指示器 */
 .keyboard-navigation {
-  background: linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.1) 50%, transparent 70%);
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    hsl(var(--primary) / 0.1) 50%,
+    transparent 70%
+  );
   border: 2px dashed hsl(var(--primary) / 0.3);
 }
 
@@ -1215,7 +1260,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============== 徽章系统 ============== */
@@ -1325,7 +1372,7 @@ body {
     align-items: flex-end;
     padding: 0;
   }
-  
+
   .modal-content {
     width: 100%;
     max-width: none;
@@ -1342,7 +1389,7 @@ body {
   .modal-content {
     border: 2px solid hsl(var(--foreground) / 0.3);
   }
-  
+
   .modal-overlay {
     background: rgb(0 0 0 / 0.8);
   }
@@ -1398,64 +1445,148 @@ body {
     background: hsl(var(--foreground) / 0.3);
     height: 2px;
   }
-  
+
   .divider-vertical {
     width: 2px;
   }
 }
 
 /* ============== 工具类 ============== */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
 
-.font-bold { font-weight: 700; }
-.font-semibold { font-weight: 600; }
-.font-medium { font-weight: 500; }
-.font-normal { font-weight: 400; }
+.font-bold {
+  font-weight: 700;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-normal {
+  font-weight: 400;
+}
 
-.text-xs { font-size: var(--font-size-xs); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
-.text-2xl { font-size: var(--font-size-2xl); }
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+.text-base {
+  font-size: var(--font-size-base);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+.text-2xl {
+  font-size: var(--font-size-2xl);
+}
 
-.text-muted { color: hsl(var(--foreground) / 0.6); }
-.text-primary { color: hsl(var(--primary)); }
-.text-success { color: #10b981; }
-.text-warning { color: #f59e0b; }
-.text-danger { color: #ef4444; }
+.text-muted {
+  color: hsl(var(--foreground) / 0.6);
+}
+.text-primary {
+  color: hsl(var(--primary));
+}
+.text-success {
+  color: #10b981;
+}
+.text-warning {
+  color: #f59e0b;
+}
+.text-danger {
+  color: #ef4444;
+}
 
-.hidden { display: none; }
-.invisible { visibility: hidden; }
+.hidden {
+  display: none;
+}
+.invisible {
+  visibility: hidden;
+}
 
-.flex { display: flex; }
-.inline-flex { display: inline-flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.gap-2 { gap: var(--space-2); }
-.gap-3 { gap: var(--space-3); }
-.gap-4 { gap: var(--space-4); }
+.flex {
+  display: flex;
+}
+.inline-flex {
+  display: inline-flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-2 {
+  gap: var(--space-2);
+}
+.gap-3 {
+  gap: var(--space-3);
+}
+.gap-4 {
+  gap: var(--space-4);
+}
 
-.w-full { width: 100%; }
-.h-full { height: 100%; }
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
 
-.rounded { border-radius: var(--radius-md); }
-.rounded-lg { border-radius: var(--radius-lg); }
-.rounded-xl { border-radius: var(--radius-xl); }
-.rounded-full { border-radius: 9999px; }
+.rounded {
+  border-radius: var(--radius-md);
+}
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+.rounded-full {
+  border-radius: 9999px;
+}
 
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+.shadow-xl {
+  box-shadow: var(--shadow-xl);
+}
 
-.transition-all { transition: all var(--transition-base); }
-.transition-fast { transition: all var(--transition-fast); }
-.transition-slow { transition: all var(--transition-slow); }
+.transition-all {
+  transition: all var(--transition-base);
+}
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+.transition-slow {
+  transition: all var(--transition-slow);
+}
 
 /* ============== 新增移动手势支持 ============== */
 .gesture-swipe-left {
@@ -1484,11 +1615,11 @@ body {
   outline-offset: 2px;
 }
 
-.aria-busy[aria-busy="true"] {
+.aria-busy[aria-busy='true'] {
   position: relative;
 }
 
-.aria-busy[aria-busy="true"]::after {
+.aria-busy[aria-busy='true']::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -1497,13 +1628,20 @@ body {
 }
 
 @keyframes loading-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ============== 深色模式切换动画 ============== */
 .theme-transition {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* 完成 - 增强 ChatGPT 风格设计系统 (移动优先 + WCAG 2.1 AA) */

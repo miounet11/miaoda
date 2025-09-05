@@ -19,7 +19,7 @@ class StyleFixer {
       filesModified: 0,
       importantRemoved: 0,
       universalSelectorsOptimized: 0,
-      globalStylesAdded: 0,
+      globalStylesAdded: 0
     }
   }
 
@@ -82,20 +82,20 @@ class StyleFixer {
       // 在媒体查询中的 !important 可以保留
       /(?<!@media[^}]*)\s*!important\s*;/g,
       // 在关键样式中的 !important 可以保留
-      /(?<!prefers-reduced-motion[^}]*)\s*!important\s*;/g,
+      /(?<!prefers-reduced-motion[^}]*)\s*!important\s*;/g
     ]
 
     patterns.forEach(pattern => {
       const matches = content.match(pattern)
       if (matches) {
         // 只移除一些明显不必要的 !important
-        content = content.replace(/animation-duration:\s*[^;]+!\s*important\s*;/g, (match) => {
+        content = content.replace(/animation-duration:\s*[^;]+!\s*important\s*;/g, match => {
           count++
           modified = true
           return match.replace(/\s*!important/, '')
         })
 
-        content = content.replace(/animation-iteration-count:\s*[^;]+!\s*important\s*;/g, (match) => {
+        content = content.replace(/animation-iteration-count:\s*[^;]+!\s*important\s*;/g, match => {
           count++
           modified = true
           return match.replace(/\s*!important/, '')
@@ -117,7 +117,7 @@ class StyleFixer {
     const patterns = [
       // * { margin: 0; padding: 0; } 可以保留用于重置
       // 但其他的通用选择器可能需要优化
-      /\*\s*{\s*([^}]*?)}\s*/g,
+      /\*\s*{\s*([^}]*?)}\s*/g
     ]
 
     patterns.forEach(pattern => {
@@ -222,7 +222,7 @@ class StyleFixer {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output',
+      '.nyc_output'
     ]
     return skipDirs.includes(dirName)
   }

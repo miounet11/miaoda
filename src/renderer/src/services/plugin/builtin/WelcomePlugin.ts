@@ -99,8 +99,8 @@ export class WelcomePlugin implements PluginModule {
       buttons: [
         { text: 'Get Started', value: 'start', primary: true },
         { text: 'Show Tips', value: 'tips' },
-        { text: 'Close', value: 'close' },
-      ],
+        { text: 'Close', value: 'close' }
+      ]
     })
 
     if (result === 'tips') {
@@ -119,26 +119,26 @@ export class WelcomePlugin implements PluginModule {
         title: 'Quick Search',
         message:
           'Press Ctrl+F to search within the current chat, or Ctrl+K for global search across all your conversations.',
-        icon: '🔍',
+        icon: '🔍'
       },
       {
         title: 'Voice Features',
         message:
           'Click the microphone icon to use voice input, or enable text-to-speech in settings to hear responses.',
-        icon: '🎤',
+        icon: '🎤'
       },
       {
         title: 'Plugin System',
         message:
           'Extend MiaoDa Chat with plugins! Visit the Plugin Manager to discover and install new features.',
-        icon: '🔌',
+        icon: '🔌'
       },
       {
         title: 'Keyboard Shortcuts',
         message:
           'Use Ctrl+N for new chat, Ctrl+T for new tab, and many more shortcuts to boost your productivity.',
-        icon: '⌨️',
-      },
+        icon: '⌨️'
+      }
     ]
 
     for (const tip of tips) {
@@ -148,8 +148,8 @@ export class WelcomePlugin implements PluginModule {
         type: 'info',
         buttons: [
           { text: 'Next', value: 'next', primary: true },
-          { text: 'Skip Tips', value: 'skip' },
-        ],
+          { text: 'Skip Tips', value: 'skip' }
+        ]
       })
 
       if (result === 'skip') {
@@ -160,7 +160,7 @@ export class WelcomePlugin implements PluginModule {
     // Show completion message
     this.context.showNotification(
       'Tips completed! You can access help anytime from the menu.',
-      'success',
+      'success'
     )
   }
 
@@ -200,7 +200,7 @@ export class WelcomePlugin implements PluginModule {
           'Tip: You can drag and drop files directly into the chat to share them.',
           'Tip: Use markdown formatting in your messages - **bold**, *italic*, `code`, etc.',
           'Tip: Press Ctrl+/ to see all available keyboard shortcuts.',
-          'Tip: Enable dark mode in settings if you prefer a darker interface.',
+          'Tip: Enable dark mode in settings if you prefer a darker interface.'
         ]
 
         const randomTip = tips[Math.floor(Math.random() * tips.length)]
@@ -208,7 +208,7 @@ export class WelcomePlugin implements PluginModule {
 
         await this.context!.storage.set('tipsShown', tipsShown + 1)
       },
-      10 * 60 * 1000,
+      10 * 60 * 1000
     ) // 10 minutes
   }
 }
@@ -230,7 +230,7 @@ export const manifest = {
       title: 'Show helpful tips',
       description: 'Display periodic tips to help you learn MiaoDa Chat features',
       default: true,
-      required: false,
+      required: false
     },
     {
       key: 'tipFrequency',
@@ -243,8 +243,8 @@ export const manifest = {
         { label: 'Frequent (5 minutes)', value: 'frequent' },
         { label: 'Normal (10 minutes)', value: 'normal' },
         { label: 'Occasional (30 minutes)', value: 'occasional' },
-        { label: 'Rarely (1 hour)', value: 'rare' },
-      ],
+        { label: 'Rarely (1 hour)', value: 'rare' }
+      ]
     },
     {
       key: 'welcomeMessage',
@@ -252,9 +252,9 @@ export const manifest = {
       title: 'Custom welcome message',
       description: 'Customize the welcome message shown to new users',
       default: '',
-      required: false,
-    },
-  ],
+      required: false
+    }
+  ]
 }
 
 // Export plugin instance

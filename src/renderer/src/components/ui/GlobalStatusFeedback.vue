@@ -36,7 +36,9 @@
       >
         <div class="bg-background border border-border rounded-lg p-6 shadow-lg">
           <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+            <div
+              class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"
+            />
             <div>
               <div class="font-medium text-foreground">处理中...</div>
               <div class="text-sm text-muted-foreground">请稍候</div>
@@ -47,12 +49,7 @@
     </Transition>
 
     <!-- 全局消息区域 (用于屏幕阅读器) -->
-    <div
-      id="global-status-region"
-      class="sr-only"
-      aria-live="polite"
-      aria-atomic="true"
-    >
+    <div id="global-status-region" class="sr-only" aria-live="polite" aria-atomic="true">
       {{ globalAriaMessage }}
     </div>
   </Teleport>
@@ -72,7 +69,9 @@ const isGlobalLoading = computed(() => statusFeedback.state.isLoading)
 // 全局无障碍消息
 const globalAriaMessage = computed(() => {
   const latestMessage = statusMessages.value[statusMessages.value.length - 1]
-  return latestMessage ? `${latestMessage.title}${latestMessage.message ? ': ' + latestMessage.message : ''}` : ''
+  return latestMessage
+    ? `${latestMessage.title}${latestMessage.message ? ': ' + latestMessage.message : ''}`
+    : ''
 })
 
 // 方法
@@ -85,13 +84,17 @@ const cancelProgress = (id: string) => {
 }
 
 // 监听消息变化，为屏幕阅读器提供反馈
-watch(statusMessages, (newMessages, oldMessages) => {
-  if (newMessages.length > oldMessages.length) {
-    // 新消息到达
-    const newMessage = newMessages[newMessages.length - 1]
-    announceToScreenReader(newMessage)
-  }
-}, { deep: true })
+watch(
+  statusMessages,
+  (newMessages, oldMessages) => {
+    if (newMessages.length > oldMessages.length) {
+      // 新消息到达
+      const newMessage = newMessages[newMessages.length - 1]
+      announceToScreenReader(newMessage)
+    }
+  },
+  { deep: true }
+)
 
 const announceToScreenReader = (message: any) => {
   // 使用 Web Speech API 为屏幕阅读器提供语音反馈 (可选)

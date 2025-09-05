@@ -82,7 +82,7 @@ describe('useChatStore', () => {
     it('updates chat title', async () => {
       const chat = createMockChat({ title: 'Original Title' })
       chatStore.chats.push(chat)
-      
+
       const updatedChat = { ...chat, title: 'Updated Title' }
       mockIpcRenderer.invoke.mockResolvedValue(updatedChat)
 
@@ -184,7 +184,7 @@ describe('useChatStore', () => {
   describe('Streaming Messages', () => {
     it('starts streaming correctly', () => {
       const messageId = 'streaming-msg-1'
-      
+
       chatStore.startStreaming(messageId)
 
       expect(chatStore.isGenerating).toBe(true)
@@ -206,13 +206,13 @@ describe('useChatStore', () => {
     it('finishes streaming correctly', async () => {
       const messageId = 'streaming-msg-1'
       const finalContent = 'Complete message'
-      
+
       chatStore.startStreaming(messageId)
       chatStore.updateStreamingContent(finalContent)
 
-      const mockMessage = createMockMessage({ 
-        id: messageId, 
-        content: finalContent 
+      const mockMessage = createMockMessage({
+        id: messageId,
+        content: finalContent
       })
       mockIpcRenderer.invoke.mockResolvedValue(mockMessage)
 
@@ -244,7 +244,7 @@ describe('useChatStore', () => {
 
     it('handles streaming errors gracefully', () => {
       chatStore.startStreaming('test-msg')
-      
+
       chatStore.handleStreamingError('Connection failed')
 
       expect(chatStore.isGenerating).toBe(false)
@@ -264,11 +264,8 @@ describe('useChatStore', () => {
 
     it('currentMessages returns messages for current chat', () => {
       const chat = createMockChat()
-      const messages = [
-        createMockMessage({ id: 'msg-1' }),
-        createMockMessage({ id: 'msg-2' })
-      ]
-      
+      const messages = [createMockMessage({ id: 'msg-1' }), createMockMessage({ id: 'msg-2' })]
+
       chatStore.chats.push(chat)
       chatStore.currentChatId = chat.id
       chatStore.messages.set(chat.id, messages)
@@ -293,7 +290,7 @@ describe('useChatStore', () => {
       const messages = [createMockMessage()]
 
       chatStore.messages.set(chatId, messages)
-      
+
       // Ensure messages is still a Map after operations
       expect(chatStore.messages).toBeInstanceOf(Map)
       expect(chatStore.messages.get(chatId)).toEqual(messages)
@@ -301,7 +298,7 @@ describe('useChatStore', () => {
 
     it('handles message map reinitialization', () => {
       // Simulate corrupted messages state
-      (chatStore.messages as any) = null
+      ;(chatStore.messages as any) = null
 
       // Should reinitialize messages Map
       chatStore.ensureMessagesMap()

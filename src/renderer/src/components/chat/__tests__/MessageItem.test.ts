@@ -40,7 +40,7 @@ describe('MessageItem', () => {
   describe('Message Rendering', () => {
     it('renders user message correctly', () => {
       const message = createMockMessage({ role: 'user' })
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -52,11 +52,11 @@ describe('MessageItem', () => {
     })
 
     it('renders assistant message correctly', () => {
-      const message = createMockMessage({ 
+      const message = createMockMessage({
         role: 'assistant',
         content: 'Hello! How can I help you today?'
       })
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -67,11 +67,11 @@ describe('MessageItem', () => {
     })
 
     it('renders system message correctly', () => {
-      const message = createMockMessage({ 
+      const message = createMockMessage({
         role: 'system',
         content: 'System initialized'
       })
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -82,9 +82,9 @@ describe('MessageItem', () => {
 
     it('shows loading state correctly', () => {
       const message = createMockMessage({ content: '' })
-      
+
       wrapper = mount(MessageItem, {
-        props: { 
+        props: {
           message,
           isLoading: true
         },
@@ -99,7 +99,7 @@ describe('MessageItem', () => {
   describe('Message Interactions', () => {
     it('handles mouse events correctly', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -114,7 +114,7 @@ describe('MessageItem', () => {
 
     it('handles focus events correctly', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -129,7 +129,7 @@ describe('MessageItem', () => {
 
     it('handles bubble click correctly', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -151,7 +151,7 @@ describe('MessageItem', () => {
         error: 'API request failed',
         errorDetails: 'Network timeout'
       })
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -173,7 +173,7 @@ describe('MessageItem', () => {
           }
         ]
       })
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -186,7 +186,7 @@ describe('MessageItem', () => {
     it('applies correct CSS classes for different roles', () => {
       const userMessage = createMockMessage({ role: 'user' })
       const assistantMessage = createMockMessage({ role: 'assistant' })
-      
+
       const userWrapper = mount(MessageItem, {
         props: { message: userMessage },
         global: { plugins: [pinia] }
@@ -205,7 +205,7 @@ describe('MessageItem', () => {
   describe('Accessibility', () => {
     it('has proper ARIA attributes', () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -213,14 +213,14 @@ describe('MessageItem', () => {
 
       const messageElement = wrapper.find('[data-message-id]')
       expect(messageElement.exists()).toBe(true)
-      
+
       // Should have accessible structure
       expect(messageElement.attributes('data-message-id')).toBe('test-message-1')
     })
 
     it('is keyboard navigable', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -239,9 +239,9 @@ describe('MessageItem', () => {
     it('renders quickly with large content', () => {
       const largeContent = 'Lorem ipsum '.repeat(1000)
       const message = createMockMessage({ content: largeContent })
-      
+
       const startTime = performance.now()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -257,7 +257,7 @@ describe('MessageItem', () => {
 
     it('handles rapid prop updates efficiently', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
@@ -278,9 +278,9 @@ describe('MessageItem', () => {
   describe('Animation States', () => {
     it('applies appear animation for new messages', () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
-        props: { 
+        props: {
           message,
           isNewMessage: true
         },
@@ -292,14 +292,14 @@ describe('MessageItem', () => {
 
     it('applies hover effects correctly', async () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
         props: { message },
         global: { plugins: [pinia] }
       })
 
       await wrapper.trigger('mouseenter')
-      
+
       // Should have hover state
       expect(wrapper.find('.group').exists()).toBe(true)
     })
@@ -317,9 +317,9 @@ describe('MessageItem', () => {
 
     it('handles optional props correctly', () => {
       const message = createMockMessage()
-      
+
       wrapper = mount(MessageItem, {
-        props: { 
+        props: {
           message,
           isLoading: false,
           isLast: true

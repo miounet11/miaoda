@@ -33,7 +33,7 @@ export interface ModelInfo {
   description: string
   contextLength: number
   pricing?: {
-    input: number  // per 1k tokens
+    input: number // per 1k tokens
     output: number // per 1k tokens
   }
   capabilities: {
@@ -83,10 +83,10 @@ class ModelConfigService {
             chat: true,
             functions: false,
             vision: false,
-            streaming: true,
-          },
-        },
-      ],
+            streaming: true
+          }
+        }
+      ]
     },
     {
       id: 'openai',
@@ -96,7 +96,7 @@ class ModelConfigService {
       icon: '🤖',
       requiresApiKey: true,
       requiresBaseUrl: true,
-      status: 'unconfigured',
+      status: 'unconfigured'
     },
     {
       id: 'anthropic',
@@ -105,7 +105,7 @@ class ModelConfigService {
       type: 'anthropic',
       icon: '🎭',
       requiresApiKey: true,
-      status: 'unconfigured',
+      status: 'unconfigured'
     },
     {
       id: 'google',
@@ -114,7 +114,7 @@ class ModelConfigService {
       type: 'google',
       icon: '💎',
       requiresApiKey: true,
-      status: 'unconfigured',
+      status: 'unconfigured'
     },
     {
       id: 'ollama',
@@ -124,8 +124,8 @@ class ModelConfigService {
       icon: '🦙',
       requiresApiKey: false,
       requiresBaseUrl: true,
-      status: 'unconfigured',
-    },
+      status: 'unconfigured'
+    }
   ]
 
   private constructor() {
@@ -148,7 +148,9 @@ class ModelConfigService {
         const savedProviders = JSON.parse(saved)
         // 合并默认和保存的配置
         this.providers.value = this.defaultProviders.map(defaultProvider => {
-          const savedProvider = savedProviders.find((p: ModelProvider) => p.id === defaultProvider.id)
+          const savedProvider = savedProviders.find(
+            (p: ModelProvider) => p.id === defaultProvider.id
+          )
           return savedProvider ? { ...defaultProvider, ...savedProvider } : defaultProvider
         })
       } catch (error) {
@@ -202,7 +204,7 @@ class ModelConfigService {
             return 'OpenAI API密钥应以"sk-"开头'
           }
           return null
-        },
+        }
       })
     }
 
@@ -219,7 +221,7 @@ class ModelConfigService {
             return '请输入有效的URL地址'
           }
           return null
-        },
+        }
       })
     }
 
@@ -229,7 +231,7 @@ class ModelConfigService {
       title: '连接测试',
       description: '验证配置是否正确',
       type: 'test',
-      required: true,
+      required: true
     })
 
     // 模型选择
@@ -238,7 +240,7 @@ class ModelConfigService {
       title: '选择模型',
       description: '选择要使用的AI模型',
       type: 'select',
-      required: true,
+      required: true
     })
 
     return steps
@@ -261,7 +263,7 @@ class ModelConfigService {
   // 更新配置
   async updateProviderConfig(
     providerId: string,
-    config: Partial<ModelProvider['config']>,
+    config: Partial<ModelProvider['config']>
   ): Promise<void> {
     const provider = this.getProvider(providerId)
     if (!provider) throw new Error('未找到指定的提供商')
@@ -308,7 +310,7 @@ class ModelConfigService {
       this.saveProviders()
       return {
         success: false,
-        message: error instanceof Error ? error.message : '连接失败',
+        message: error instanceof Error ? error.message : '连接失败'
       }
     } finally {
       this.isLoading.value = false
@@ -316,7 +318,9 @@ class ModelConfigService {
   }
 
   // 测试OpenAI连接并获取模型列表
-  private async testOpenAIConnection(provider: ModelProvider): Promise<{ success: boolean; message: string }> {
+  private async testOpenAIConnection(
+    provider: ModelProvider
+  ): Promise<{ success: boolean; message: string }> {
     if (!provider.config?.apiKey) {
       throw new Error('缺少API密钥')
     }
@@ -326,9 +330,9 @@ class ModelConfigService {
     try {
       const response = await fetch(`${baseUrl}/models`, {
         headers: {
-          'Authorization': `Bearer ${provider.config.apiKey}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${provider.config.apiKey}`,
+          'Content-Type': 'application/json'
+        }
       })
 
       if (!response.ok) {
@@ -342,7 +346,7 @@ class ModelConfigService {
 
       return {
         success: true,
-        message: `连接成功，找到 ${provider.models.length} 个模型`,
+        message: `连接成功，找到 ${provider.models.length} 个模型`
       }
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : '连接失败')
@@ -352,7 +356,9 @@ class ModelConfigService {
   // 解析OpenAI格式的模型列表
   private parseOpenAIModels(models: any[]): ModelInfo[] {
     return models
-      .filter(model => model.id.includes('gpt') || model.id.includes('text') || model.id.includes('chat'))
+      .filter(
+        model => model.id.includes('gpt') || model.id.includes('text') || model.id.includes('chat')
+      )
       .map(model => ({
         id: model.id,
         name: model.id,
@@ -364,8 +370,8 @@ class ModelConfigService {
           chat: true,
           functions: model.id.includes('gpt-4') || model.id.includes('gpt-3.5'),
           vision: model.id.includes('vision') || model.id.includes('gpt-4'),
-          streaming: true,
-        },
+          streaming: true
+        }
       }))
       .sort((a, b) => a.displayName.localeCompare(b.displayName))
   }
@@ -377,7 +383,7 @@ class ModelConfigService {
       'gpt-4-turbo': 'GPT-4 Turbo',
       'gpt-4-vision-preview': 'GPT-4 Vision',
       'gpt-3.5-turbo': 'GPT-3.5 Turbo',
-      'gpt-3.5-turbo-16k': 'GPT-3.5 Turbo 16K',
+      'gpt-3.5-turbo-16k': 'GPT-3.5 Turbo 16K'
     }
 
     return nameMap[modelId] || modelId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -409,7 +415,7 @@ class ModelConfigService {
     const pricing: { [key: string]: { input: number; output: number } } = {
       'gpt-4': { input: 0.03, output: 0.06 },
       'gpt-4-turbo': { input: 0.01, output: 0.03 },
-      'gpt-3.5-turbo': { input: 0.001, output: 0.002 },
+      'gpt-3.5-turbo': { input: 0.001, output: 0.002 }
     }
 
     for (const [key, price] of Object.entries(pricing)) {
@@ -422,7 +428,9 @@ class ModelConfigService {
   }
 
   // 测试Claude连接
-  private async testClaudeConnection(provider: ModelProvider): Promise<{ success: boolean; message: string }> {
+  private async testClaudeConnection(
+    provider: ModelProvider
+  ): Promise<{ success: boolean; message: string }> {
     // 模拟Claude API测试
     await new Promise(resolve => setTimeout(resolve, 1000))
 
@@ -433,7 +441,7 @@ class ModelConfigService {
         displayName: 'Claude 3 Opus',
         description: '最强大的Claude模型',
         contextLength: 200000,
-        capabilities: { chat: true, functions: false, vision: true, streaming: true },
+        capabilities: { chat: true, functions: false, vision: true, streaming: true }
       },
       {
         id: 'claude-3-sonnet',
@@ -441,15 +449,17 @@ class ModelConfigService {
         displayName: 'Claude 3 Sonnet',
         description: '平衡性能和成本',
         contextLength: 200000,
-        capabilities: { chat: true, functions: false, vision: true, streaming: true },
-      },
+        capabilities: { chat: true, functions: false, vision: true, streaming: true }
+      }
     ]
 
     return { success: true, message: '连接成功' }
   }
 
   // 测试Gemini连接
-  private async testGeminiConnection(provider: ModelProvider): Promise<{ success: boolean; message: string }> {
+  private async testGeminiConnection(
+    provider: ModelProvider
+  ): Promise<{ success: boolean; message: string }> {
     // 模拟Gemini API测试
     await new Promise(resolve => setTimeout(resolve, 1000))
 
@@ -460,7 +470,7 @@ class ModelConfigService {
         displayName: 'Gemini Pro',
         description: 'Google最新AI模型',
         contextLength: 32768,
-        capabilities: { chat: true, functions: true, vision: false, streaming: true },
+        capabilities: { chat: true, functions: true, vision: false, streaming: true }
       },
       {
         id: 'gemini-pro-vision',
@@ -468,15 +478,17 @@ class ModelConfigService {
         displayName: 'Gemini Pro Vision',
         description: '支持图像理解',
         contextLength: 16384,
-        capabilities: { chat: true, functions: false, vision: true, streaming: true },
-      },
+        capabilities: { chat: true, functions: false, vision: true, streaming: true }
+      }
     ]
 
     return { success: true, message: '连接成功' }
   }
 
   // 测试Ollama连接
-  private async testOllamaConnection(provider: ModelProvider): Promise<{ success: boolean; message: string }> {
+  private async testOllamaConnection(
+    provider: ModelProvider
+  ): Promise<{ success: boolean; message: string }> {
     const baseUrl = provider.config?.baseUrl || 'http://localhost:11434'
 
     try {
@@ -492,12 +504,12 @@ class ModelConfigService {
         displayName: model.name,
         description: `本地模型 - ${model.size || '大小未知'}`,
         contextLength: 4096,
-        capabilities: { chat: true, functions: false, vision: false, streaming: true },
+        capabilities: { chat: true, functions: false, vision: false, streaming: true }
       }))
 
       return {
         success: true,
-        message: `连接成功，找到 ${(provider.models || []).length} 个本地模型`,
+        message: `连接成功，找到 ${(provider.models || []).length} 个本地模型`
       }
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : '连接Ollama失败')
@@ -545,7 +557,7 @@ class ModelConfigService {
     const provider: ModelProvider = {
       ...config,
       status: 'unconfigured',
-      lastUpdated: new Date(),
+      lastUpdated: new Date()
     }
 
     this.providers.value.push(provider)
@@ -586,6 +598,6 @@ export function useModelConfig() {
     getAvailableModels: (id?: string) => service.getAvailableModels(id),
     refreshModels: (id: string) => service.refreshModels(id),
     removeProvider: (id: string) => service.removeProvider(id),
-    addCustomProvider: (config: any) => service.addCustomProvider(config),
+    addCustomProvider: (config: any) => service.addCustomProvider(config)
   }
 }

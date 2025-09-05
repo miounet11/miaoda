@@ -19,6 +19,8 @@ export const useChatStore = defineStore(
     const streamingContent = ref('')
     const streamingMessageId = ref<string | null>(null)
     const isInitialized = ref(false)
+    const currentProvider = ref<string>('miaochat')
+    const currentModel = ref<string>('miaochat')
 
     // Helper to ensure messages.value is always a Map
     const ensureMessagesMap = () => {
@@ -68,6 +70,10 @@ export const useChatStore = defineStore(
     const loadChats = async () => {
       try {
         // Starting to load chats
+        if (!window.api?.db) {
+          logger.warn('Database API not available, using local storage', 'ChatStore')
+          return
+        }
         const dbChats = await window.api.db.getAllChats()
         // Chats loaded from database
 
@@ -75,7 +81,7 @@ export const useChatStore = defineStore(
           ...chat,
           messages: [],
           createdAt: new Date(chat.created_at),
-          updatedAt: new Date(chat.updated_at),
+          updatedAt: new Date(chat.updated_at)
         }))
 
         // Load messages for all chats to ensure they persist after refresh
@@ -103,7 +109,7 @@ export const useChatStore = defineStore(
                   logger.error(
                     `Failed to parse attachments for message ${msg.id}`,
                     'ChatStore',
-                    error,
+                    error
                   )
                   return []
                 }
@@ -122,7 +128,7 @@ export const useChatStore = defineStore(
               })(),
               error: msg.error,
               errorDetails: msg.error_details,
-              parentId: msg.parent_id,
+              parentId: msg.parent_id
             }))
             // Also store in the messages Map for quick access
             ensureMessagesMap()
@@ -157,6 +163,10 @@ export const useChatStore = defineStore(
     // Load messages for a specific chat
     const loadMessages = async (chatId: string) => {
       try {
+        if (!window.api?.db) {
+          // If no database API, just return existing messages from memory
+          return
+        }
         const dbMessages = await window.api.db.getMessages(chatId)
         const chat = chats.value.find(c => c.id === chatId)
 
@@ -194,7 +204,7 @@ export const useChatStore = defineStore(
           })(),
           error: msg.error,
           errorDetails: msg.error_details,
-          parentId: msg.parent_id,
+          parentId: msg.parent_id
         }))
 
         // Update both the chat object and the messages Map
@@ -211,28 +221,46 @@ export const useChatStore = defineStore(
       }
     }
 
-    const createChat = async (title?: string): Promise<string> => {
+    const createChat = async (titleOrData?: string | Partial<Chat>): Promise<Chat> => {
       const now = new Date()
+      
+      // Handle both string title and object data
+      let chatData: Partial<Chat> = {}
+      if (typeof titleOrData === 'string') {
+        chatData = { title: titleOrData }
+      } else if (titleOrData) {
+        chatData = titleOrData
+      }
+
       const newChat: Chat = {
         id: nanoid(),
-        title: title || 'New Chat',
+        title: chatData.title || 'New Chat',
+        model: chatData.model || currentModel.value || 'miaochat',
+        provider: chatData.provider || currentProvider.value || 'miaochat',
         messages: [],
         createdAt: now,
         updatedAt: now,
+        ...chatData
       }
 
-      // Save to database
-      await window.api.db.createChat({
-        id: newChat.id,
-        title: newChat.title,
-        created_at: now.getTime(),
-        updated_at: now.getTime(),
-      })
+      // Save to database if available
+      if (window.api?.db) {
+        try {
+          await window.api.db.createChat({
+            id: newChat.id,
+            title: newChat.title,
+            created_at: now.getTime(),
+            updated_at: now.getTime()
+          })
+        } catch (error) {
+          logger.warn('Failed to save chat to database', 'ChatStore', error)
+        }
+      }
 
       chats.value.unshift(newChat)
       currentChatId.value = newChat.id
 
-      return newChat.id
+      return newChat
     }
 
     const selectChat = async (chatId: string) => {
@@ -248,6 +276,9 @@ export const useChatStore = defineStore(
       await loadMessages(chatId)
     }
 
+    // Add setCurrentChat as an alias for selectChat for compatibility
+    const setCurrentChat = selectChat
+
     const addMessage = async (messageData: Omit<Message, 'id' | 'createdAt'>) => {
       if (!currentChat.value) {
         await createChat()
@@ -257,7 +288,7 @@ export const useChatStore = defineStore(
       const message: Message = {
         ...messageData,
         id: nanoid(),
-        createdAt: now,
+        createdAt: now
       }
 
       // Ensure we have a current chat
@@ -267,19 +298,19 @@ export const useChatStore = defineStore(
         return message
       }
 
-      // Save to database
-      try {
-        await window.api.db.createMessage({
-          id: message.id,
-          chat_id: chat.id,
-          role: message.role,
-          content: message.content,
-          created_at: now.getTime(),
-        })
-      } catch (error) {
-        logger.error('Failed to save message to database', 'ChatStore', error)
-        handleError(error)
-        return message
+      // Save to database if available
+      if (window.api?.db) {
+        try {
+          await window.api.db.createMessage({
+            id: message.id,
+            chat_id: chat.id,
+            role: message.role,
+            content: message.content,
+            created_at: now.getTime()
+          })
+        } catch (error) {
+          logger.error('Failed to save message to database', 'ChatStore', error)
+        }
       }
 
       // Add message to chat
@@ -296,7 +327,7 @@ export const useChatStore = defineStore(
 
         // Update in database
         try {
-          await window.api.db.updateChat(chat.id, newTitle, String(Date.now()))
+          await window.api?.db?.updateChat?.(chat.id, newTitle, String(Date.now()))
         } catch (error) {
           logger.error('Failed to update chat title', 'ChatStore', error)
         }
@@ -309,7 +340,7 @@ export const useChatStore = defineStore(
       console.log('[ChatStore] Updating message content', {
         messageId,
         contentLength: content?.length,
-        contentPreview: content?.substring(0, 50),
+        contentPreview: content?.substring(0, 50)
       })
 
       if (!currentChat.value) {
@@ -327,7 +358,7 @@ export const useChatStore = defineStore(
 
       console.log('[ChatStore] Found message, updating content', {
         oldContent: message.content?.substring(0, 50),
-        newContent: content?.substring(0, 50),
+        newContent: content?.substring(0, 50)
       })
       message.content = content
 
@@ -338,7 +369,7 @@ export const useChatStore = defineStore(
         // Database update successful
         logger.info('Message content updated in database', 'ChatStore', {
           messageId,
-          contentLength: content.length,
+          contentLength: content.length
         })
       } catch (error) {
         logger.error('Database update failed', 'ChatStore', error)
@@ -346,14 +377,17 @@ export const useChatStore = defineStore(
       }
     }
 
-    const sendMessageInternal = async (content: string, attachments: Attachment[] = []): Promise<string> => {
+    const sendMessageInternal = async (
+      content: string,
+      attachments: Attachment[] = []
+    ): Promise<string> => {
       let targetChatId = currentChatId.value
 
       // Create new chat if none selected
       if (!targetChatId) {
-        const newChatId = await createChat()
-        if (!newChatId) return ''
-        targetChatId = newChatId
+        const newChat = await createChat()
+        if (!newChat) return ''
+        targetChatId = newChat.id
         currentChatId.value = targetChatId
       }
 
@@ -369,7 +403,7 @@ export const useChatStore = defineStore(
           role: 'user',
           timestamp: new Date(),
           chatId: ensuredChatId,
-          attachments,
+          attachments
         }
 
         await addMessage(userMessage)
@@ -381,7 +415,7 @@ export const useChatStore = defineStore(
           role: 'assistant',
           timestamp: new Date(),
           chatId: ensuredChatId,
-          pending: true,
+          pending: true
         }
 
         const chat = chats.value.find(c => c.id === ensuredChatId)
@@ -391,7 +425,7 @@ export const useChatStore = defineStore(
         streamingMessageId.value = assistantMessage.id
 
         // Send message to backend using LLM API
-        if (window.api.llm?.sendMessage) {
+        if (window.api?.llm?.sendMessage) {
           try {
             // Initialize streaming content
             streamingContent.value = ''
@@ -404,18 +438,18 @@ export const useChatStore = defineStore(
                 chat_id: ensuredChatId,
                 role: 'assistant',
                 content: '',
-                created_at: now.getTime(),
+                created_at: now.getTime()
               })
             } catch (dbError) {
               logger.error(
                 'Failed to create initial assistant message in database',
                 'ChatStore',
-                dbError,
+                dbError
               )
             }
 
             // Send message through LLM API - this will trigger streaming via IPC events
-            await window.api.llm.sendMessage(content, ensuredChatId, assistantMessage.id)
+            await window.api?.llm?.sendMessage?.(content, ensuredChatId, assistantMessage.id)
 
             // Note: The actual response will be handled by the streaming listeners
             // The message content will be updated incrementally through 'llm:chunk' events
@@ -436,14 +470,48 @@ export const useChatStore = defineStore(
             streamingMessageId.value = null
           }
         } else {
-          // Fallback if LLM API is not available
-          const chat = chats.value.find(c => c.id === ensuredChatId)
-          if (chat && chat.messages) {
-            const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
-            if (index >= 0) {
-              chat.messages[index].content = 'Error: LLM service not available'
-              chat.messages[index].error = 'LLM service not available'
-              chat.messages[index].pending = false
+          // 使用内置的MiaoChat配置直接发送请求
+          try {
+            const response = await fetch('https://ttkk.inping.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer sk-44mAODPoO9EzCVC3Qp8PVpImElGDEByuDGNQjsFJHGRbhPdp'
+              },
+              body: JSON.stringify({
+                model: 'grok-3',
+                messages: [{ role: 'user', content: content }],
+                stream: false,
+                temperature: 0.7
+              })
+            })
+
+            if (!response.ok) {
+              throw new Error(`API request failed: ${response.status}`)
+            }
+
+            const data = await response.json()
+            const responseContent = data.choices?.[0]?.message?.content || 'No response received'
+
+            // 更新消息内容
+            const chat = chats.value.find(c => c.id === ensuredChatId)
+            if (chat && chat.messages) {
+              const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
+              if (index >= 0) {
+                chat.messages[index].content = responseContent
+                chat.messages[index].pending = false
+              }
+            }
+          } catch (apiError: any) {
+            // API调用失败，显示错误
+            const chat = chats.value.find(c => c.id === ensuredChatId)
+            if (chat && chat.messages) {
+              const index = chat.messages.findIndex(m => m.id === streamingMessageId.value)
+              if (index >= 0) {
+                chat.messages[index].content = `API调用失败: ${apiError.message}`
+                chat.messages[index].error = apiError.message
+                chat.messages[index].pending = false
+              }
             }
           }
           isGenerating.value = false
@@ -485,7 +553,11 @@ export const useChatStore = defineStore(
       return streamingMessageId.value || ''
     }
 
-    async function sendMessage(chatId: string, content: string, attachments?: Attachment[]): Promise<string>
+    async function sendMessage(
+      chatId: string,
+      content: string,
+      attachments?: Attachment[]
+    ): Promise<string>
     async function sendMessage(content: string, attachments?: Attachment[]): Promise<string>
     async function sendMessage(a: any, b?: any, c?: any): Promise<string> {
       if (typeof a === 'string' && typeof b === 'string') {
@@ -502,17 +574,58 @@ export const useChatStore = defineStore(
       const chat = chats.value.find(c => c.id === chatId)
       if (!chat) return
       chat.title = title
-      try {
-        await window.api.db.updateChat(chatId, title, String(Date.now()))
-      } catch {}
+      if (window.api?.db) {
+        try {
+          await window.api.db.updateChat(chatId, title, String(Date.now()))
+        } catch {}
+      }
+    }
+
+    // Update chat with any properties
+    async function updateChat(chatId: string, updates: Partial<Chat>): Promise<void> {
+      const chat = chats.value.find(c => c.id === chatId)
+      if (!chat) return
+      Object.assign(chat, updates)
+      if (updates.title) {
+        try {
+          await window.api.db.updateChat(chatId, updates.title, String(Date.now()))
+        } catch {}
+      }
     }
 
     async function clearChat(chatId: string): Promise<void> {
       const chat = chats.value.find(c => c.id === chatId)
       if (!chat) return
+      
+      // Clear messages in memory
       chat.messages = []
       ensureMessagesMap()
       messages.value.set(chatId, [])
+      
+      // Clear messages in database if available
+      if (window.api?.db?.deleteMessagesForChat) {
+        try {
+          await window.api.db.deleteMessagesForChat(chatId)
+          console.log('Messages cleared from database for chat:', chatId)
+        } catch (error) {
+          console.error('Failed to clear messages from database:', error)
+        }
+      }
+    }
+
+    // Alias for clearChat to match component usage
+    async function clearMessages(chatId: string): Promise<void> {
+      return clearChat(chatId)
+    }
+
+    // Get messages for a specific chat
+    function getMessagesForChat(chatId: string): Message[] {
+      const chat = chats.value.find(c => c.id === chatId)
+      if (chat?.messages) {
+        return chat.messages
+      }
+      ensureMessagesMap()
+      return messages.value.get(chatId) || []
     }
 
     async function archiveChat(_chatId: string, _archived: boolean = true): Promise<void> {
@@ -520,7 +633,11 @@ export const useChatStore = defineStore(
       return
     }
 
-    async function editMessage(_chatId: string, messageId: string, newContent: string): Promise<void> {
+    async function editMessage(
+      _chatId: string,
+      messageId: string,
+      newContent: string
+    ): Promise<void> {
       await updateMessageContent(messageId, newContent)
     }
 
@@ -547,7 +664,10 @@ export const useChatStore = defineStore(
     async function exportChat(chatId: string, format: 'json' | 'markdown' | 'text' = 'markdown') {
       const chat = getChat(chatId)
       if (!chat) return ''
-      const data = format === 'json' ? JSON.stringify(chat, null, 2) : chat.messages.map(m => `${m.role}: ${m.content}`).join('\n')
+      const data =
+        format === 'json'
+          ? JSON.stringify(chat, null, 2)
+          : chat.messages.map(m => `${m.role}: ${m.content}`).join('\n')
       return data
     }
 
@@ -560,7 +680,11 @@ export const useChatStore = defineStore(
       const key = `draft:${chatId}`
       const raw = localStorage.getItem(key)
       if (!raw) return null
-      try { return JSON.parse(raw) } catch { return null }
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return null
+      }
     }
 
     async function clearDraft(chatId: string) {
@@ -570,8 +694,10 @@ export const useChatStore = defineStore(
 
     const deleteChat = async (chatId: string) => {
       try {
-        // Delete from database first
-        await window.api.db.deleteChat(chatId)
+        // Delete from database if available
+        if (window.api?.db) {
+          await window.api.db.deleteChat(chatId)
+        }
 
         // Find the index of the chat to be deleted
         const index = chats.value.findIndex(chat => chat.id === chatId)
@@ -622,6 +748,12 @@ export const useChatStore = defineStore(
 
     // Set up IPC listeners for streaming responses
     const setupStreamingListeners = () => {
+      // Check if window.api is available
+      if (!window.api?.llm) {
+        logger.warn('window.api.llm not available, skipping streaming listeners setup', 'ChatStore')
+        return
+      }
+
       // Listen for streaming chunks
       window.api.llm.onChunk?.((data: { chatId: string; messageId: string; chunk: string }) => {
         // Received chunk data
@@ -661,13 +793,21 @@ export const useChatStore = defineStore(
           isGenerating.value = false
           streamingContent.value = ''
           streamingMessageId.value = null
-        },
+        }
       )
     }
 
     // Initialize on mount
     const initialize = async () => {
       // Initializing chat store
+
+      // Check if window.api is available
+      if (!window.api?.db) {
+        logger.warn('window.api not available yet, deferring initialization', 'ChatStore')
+        // Try again after a short delay
+        setTimeout(() => initialize(), 100)
+        return
+      }
 
       // Set up streaming listeners
       setupStreamingListeners()
@@ -717,11 +857,14 @@ export const useChatStore = defineStore(
       messages,
       streamingContent,
       streamingMessageId,
+      currentProvider,
+      currentModel,
 
       // Actions
       initialize,
       createChat,
       selectChat,
+      setCurrentChat,
       addMessage,
       updateMessageContent,
       sendMessage,
@@ -729,7 +872,10 @@ export const useChatStore = defineStore(
       loadChats,
       loadMessages,
       updateChatTitle,
+      updateChat,
       clearChat,
+      clearMessages,
+      getMessagesForChat,
       archiveChat,
       editMessage,
       deleteMessage,
@@ -742,7 +888,7 @@ export const useChatStore = defineStore(
       clearDraft,
 
       // Helpers
-      ensureMessagesMap,
+      ensureMessagesMap
     }
   },
   {
@@ -750,7 +896,7 @@ export const useChatStore = defineStore(
     persist: {
       key: 'miaoda-chat-store',
       paths: ['currentChatId'], // Only persist the current chat ID
-      storage: localStorage,
-    },
-  } as any,
+      storage: localStorage
+    }
+  } as any
 )

@@ -94,7 +94,7 @@ class ErrorBoundaryService {
         count: 0,
         firstOccurrence: now,
         lastOccurrence: now,
-        message,
+        message
       }
       this.errorCounts.set(errorKey, tracker)
     }
@@ -127,7 +127,7 @@ class ErrorBoundaryService {
     const circuitBreaker: CircuitBreaker = {
       isOpen: true,
       failureCount: this.errorCounts.get(errorKey)?.count || 0,
-      lastFailure: Date.now(),
+      lastFailure: Date.now()
     }
 
     this.circuitBreakers.set(errorKey, circuitBreaker)
@@ -136,7 +136,7 @@ class ErrorBoundaryService {
     logger.warn('Circuit breaker activated - suppressing repeated errors', 'ErrorBoundary', {
       errorType: errorKey,
       failureCount: circuitBreaker.failureCount,
-      suppressedMessage: message.substring(0, 200),
+      suppressedMessage: message.substring(0, 200)
     })
 
     // Reset circuit breaker after timeout
@@ -168,7 +168,7 @@ class ErrorBoundaryService {
     logger.error('Global error caught', source, {
       message,
       stack,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     })
   }
 
@@ -182,7 +182,7 @@ class ErrorBoundaryService {
     logger.error(`Component error in ${componentName}`, 'ErrorBoundary', {
       error: message,
       stack: error instanceof Error ? error.stack : undefined,
-      context,
+      context
     })
   }
 
@@ -195,7 +195,7 @@ class ErrorBoundaryService {
 
     logger.error(`Service error in ${serviceName}.${operation}`, 'ErrorBoundary', {
       error: message,
-      stack: error instanceof Error ? error.stack : undefined,
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 
@@ -203,17 +203,17 @@ class ErrorBoundaryService {
     return {
       totalErrors: this.errorCounts.size,
       activeCircuitBreakers: Array.from(this.circuitBreakers.entries()).filter(
-        ([_, cb]) => cb.isOpen,
+        ([_, cb]) => cb.isOpen
       ).length,
       errorSummary: Array.from(this.errorCounts.entries())
         .map(([key, tracker]) => ({
           errorType: key,
           count: tracker.count,
           firstSeen: new Date(tracker.firstOccurrence).toISOString(),
-          lastSeen: new Date(tracker.lastOccurrence).toISOString(),
+          lastSeen: new Date(tracker.lastOccurrence).toISOString()
         }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10), // Top 10 errors
+        .slice(0, 10) // Top 10 errors
     }
   }
 
@@ -238,7 +238,7 @@ export const errorBoundary = new ErrorBoundaryService()
 // Export utility functions
 export function withErrorBoundary<T extends (...args: any[]) => any>(
   fn: T,
-  componentName: string,
+  componentName: string
 ): T {
   return ((...args: any[]): any => {
     try {

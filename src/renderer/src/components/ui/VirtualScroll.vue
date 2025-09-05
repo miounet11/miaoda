@@ -95,7 +95,7 @@ const emit = defineEmits<{
   'item-rendered': [item: any, index: number]
   'item-focus': [item: any, index: number]
   'item-activate': [item: any, index: number]
-  'swipe': [direction: 'left' | 'right' | 'up' | 'down', item: any, index: number]
+  swipe: [direction: 'left' | 'right' | 'up' | 'down', item: any, index: number]
 }>()
 
 // Refs
@@ -221,7 +221,7 @@ const announceToScreenReader = (message: string) => {
   announcement.className = 'sr-only'
   announcement.textContent = message
   document.body.appendChild(announcement)
-  
+
   setTimeout(() => {
     document.body.removeChild(announcement)
   }, 1000)
@@ -300,10 +300,12 @@ const handleScroll = rafThrottle((event: Event) => {
     isScrolling.value = false
     // Trigger measurement after scrolling stops
     nextTick(() => measureItems())
-    
+
     // Announce scroll position for screen readers (throttled)
     if (lastAnnouncedIndex.value !== startIndex.value) {
-      announceToScreenReader(`Showing items ${startIndex.value + 1} to ${Math.min(endIndex.value + 1, props.items.length)} of ${props.items.length}`)
+      announceToScreenReader(
+        `Showing items ${startIndex.value + 1} to ${Math.min(endIndex.value + 1, props.items.length)} of ${props.items.length}`
+      )
       lastAnnouncedIndex.value = startIndex.value
     }
   }, 100)
@@ -337,11 +339,21 @@ const handleKeydown = (event: KeyboardEvent) => {
       break
     case 'PageDown':
       event.preventDefault()
-      navigateToItem(Math.min(focusedIndex.value + Math.floor(props.containerHeight / props.estimatedItemHeight), props.items.length - 1))
+      navigateToItem(
+        Math.min(
+          focusedIndex.value + Math.floor(props.containerHeight / props.estimatedItemHeight),
+          props.items.length - 1
+        )
+      )
       break
     case 'PageUp':
       event.preventDefault()
-      navigateToItem(Math.max(focusedIndex.value - Math.floor(props.containerHeight / props.estimatedItemHeight), 0))
+      navigateToItem(
+        Math.max(
+          focusedIndex.value - Math.floor(props.containerHeight / props.estimatedItemHeight),
+          0
+        )
+      )
       break
     case 'Home':
       if (ctrlKey || metaKey) {
@@ -417,21 +429,24 @@ const handleTouchEnd = (event: TouchEvent) => {
   touchState.value.isTracking = false
 
   // Detect swipe gestures (fast movement over threshold)
-  if (deltaTime < 300 && (Math.abs(deltaX) > props.swipeThreshold || Math.abs(deltaY) > props.swipeThreshold)) {
+  if (
+    deltaTime < 300 &&
+    (Math.abs(deltaX) > props.swipeThreshold || Math.abs(deltaY) > props.swipeThreshold)
+  ) {
     const target = event.target as HTMLElement
     const itemElement = target.closest('.virtual-item')
-    
+
     if (itemElement) {
       const index = parseInt(itemElement.getAttribute('data-index') || '0', 10)
       const item = props.items[index]
-      
+
       let direction: 'left' | 'right' | 'up' | 'down'
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         direction = deltaX > 0 ? 'right' : 'left'
       } else {
         direction = deltaY > 0 ? 'down' : 'up'
       }
-      
+
       emit('swipe', direction, item, index)
       announceToScreenReader(`Swiped ${direction} on item ${index + 1}`)
     }
@@ -443,7 +458,7 @@ const navigateToItem = (index: number) => {
   if (index < 0 || index >= props.items.length) return
 
   focusedIndex.value = index
-  
+
   // Ensure item is visible
   if (index < startIndex.value || index > endIndex.value) {
     scrollToIndex(index, 'smooth')
@@ -575,7 +590,6 @@ defineExpose({
 </script>
 
 <style scoped>
-
 /* 🎨 响应式设计系统 */
 :root {
   --breakpoint-sm: 640px;
@@ -586,38 +600,72 @@ defineExpose({
 }
 
 /* 🎨 响应式实用类 */
-.container-sm { max-width: var(--breakpoint-sm); }
-.container-md { max-width: var(--breakpoint-md); }
-.container-lg { max-width: var(--breakpoint-lg); }
-.container-xl { max-width: var(--breakpoint-xl); }
+.container-sm {
+  max-width: var(--breakpoint-sm);
+}
+.container-md {
+  max-width: var(--breakpoint-md);
+}
+.container-lg {
+  max-width: var(--breakpoint-lg);
+}
+.container-xl {
+  max-width: var(--breakpoint-xl);
+}
 
 /* 响应式显示 */
-.hidden-sm { display: none; }
-.hidden-md { display: none; }
-.hidden-lg { display: none; }
+.hidden-sm {
+  display: none;
+}
+.hidden-md {
+  display: none;
+}
+.hidden-lg {
+  display: none;
+}
 
 @media (min-width: 640px) {
-  .hidden-sm { display: block; }
+  .hidden-sm {
+    display: block;
+  }
 }
 
 @media (min-width: 768px) {
-  .hidden-md { display: block; }
+  .hidden-md {
+    display: block;
+  }
 }
 
 @media (min-width: 1024px) {
-  .hidden-lg { display: block; }
+  .hidden-lg {
+    display: block;
+  }
 }
 
 /* 响应式文本 */
-.text-responsive-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
-.text-responsive-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
-.text-responsive-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
-.text-responsive-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+.text-responsive-sm {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+.text-responsive-base {
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+}
+.text-responsive-lg {
+  font-size: clamp(1.125rem, 3vw, 1.25rem);
+}
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+}
 
 /* 响应式间距 */
-.space-responsive-sm { gap: clamp(0.5rem, 2vw, 1rem); }
-.space-responsive-md { gap: clamp(1rem, 3vw, 1.5rem); }
-.space-responsive-lg { gap: clamp(1.5rem, 4vw, 2rem); }
+.space-responsive-sm {
+  gap: clamp(0.5rem, 2vw, 1rem);
+}
+.space-responsive-md {
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+.space-responsive-lg {
+  gap: clamp(1.5rem, 4vw, 2rem);
+}
 
 /* 响应式网格 */
 .grid-responsive-sm {
@@ -634,17 +682,33 @@ defineExpose({
 
 /* 响应式布局调整 */
 @media (max-width: 640px) {
-  .flex-col-mobile { flex-direction: column; }
-  .grid-1-mobile { grid-template-columns: 1fr; }
-  .gap-2-mobile { gap: var(--space-2); }
-  .p-4-mobile { padding: var(--space-4); }
+  .flex-col-mobile {
+    flex-direction: column;
+  }
+  .grid-1-mobile {
+    grid-template-columns: 1fr;
+  }
+  .gap-2-mobile {
+    gap: var(--space-2);
+  }
+  .p-4-mobile {
+    padding: var(--space-4);
+  }
 }
 
 @media (max-width: 768px) {
-  .flex-col-tablet { flex-direction: column; }
-  .grid-2-tablet { grid-template-columns: repeat(2, 1fr); }
-  .gap-4-tablet { gap: var(--space-4); }
-  .p-6-tablet { padding: var(--space-6); }
+  .flex-col-tablet {
+    flex-direction: column;
+  }
+  .grid-2-tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gap-4-tablet {
+    gap: var(--space-4);
+  }
+  .p-6-tablet {
+    padding: var(--space-6);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -704,31 +768,51 @@ defineExpose({
   gap: var(--space-4);
 }
 
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 
-.grid-gap-2 { gap: var(--space-2); }
-.grid-gap-4 { gap: var(--space-4); }
-.grid-gap-6 { gap: var(--space-6); }
+.grid-gap-2 {
+  gap: var(--space-2);
+}
+.grid-gap-4 {
+  gap: var(--space-4);
+}
+.grid-gap-6 {
+  gap: var(--space-6);
+}
 
 /* 🎨 卡片布局 */
 .card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 
 .card-interactive:hover {
   cursor: pointer;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 🎨 页面布局 */
@@ -782,27 +866,33 @@ defineExpose({
     gap: var(--space-4);
   }
 
-  .hidden-mobile { display: none; }
-  .flex-mobile-col { flex-direction: column; }
-  .grid-mobile-1 { grid-template-columns: 1fr; }
+  .hidden-mobile {
+    display: none;
+  }
+  .flex-mobile-col {
+    flex-direction: column;
+  }
+  .grid-mobile-1 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 🎨 完整间距系统 - 基于4px网格 */
 :root {
   --space-0: 0;
-  --space-1: 0.25rem;    /* 4px */
-  --space-2: 0.5rem;     /* 8px */
-  --space-3: 0.75rem;    /* 12px */
-  --space-4: 1rem;       /* 16px */
-  --space-5: 1.25rem;    /* 20px */
-  --space-6: 1.5rem;     /* 24px */
-  --space-8: 2rem;       /* 32px */
-  --space-10: 2.5rem;    /* 40px */
-  --space-12: 3rem;      /* 48px */
-  --space-16: 4rem;      /* 64px */
-  --space-20: 5rem;      /* 80px */
-  --space-24: 6rem;      /* 96px */
-  --space-32: 8rem;      /* 128px */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+  --space-32: 8rem; /* 128px */
 
   /* 负间距 */
   --space-neg-1: -0.25rem;
@@ -811,34 +901,94 @@ defineExpose({
 }
 
 /* 🎨 间距实用类 */
-.m-1 { margin: var(--space-1); }
-.m-2 { margin: var(--space-2); }
-.m-3 { margin: var(--space-3); }
-.m-4 { margin: var(--space-4); }
-.m-6 { margin: var(--space-6); }
-.m-8 { margin: var(--space-8); }
+.m-1 {
+  margin: var(--space-1);
+}
+.m-2 {
+  margin: var(--space-2);
+}
+.m-3 {
+  margin: var(--space-3);
+}
+.m-4 {
+  margin: var(--space-4);
+}
+.m-6 {
+  margin: var(--space-6);
+}
+.m-8 {
+  margin: var(--space-8);
+}
 
-.p-1 { padding: var(--space-1); }
-.p-2 { padding: var(--space-2); }
-.p-3 { padding: var(--space-3); }
-.p-4 { padding: var(--space-4); }
-.p-6 { padding: var(--space-6); }
-.p-8 { padding: var(--space-8); }
+.p-1 {
+  padding: var(--space-1);
+}
+.p-2 {
+  padding: var(--space-2);
+}
+.p-3 {
+  padding: var(--space-3);
+}
+.p-4 {
+  padding: var(--space-4);
+}
+.p-6 {
+  padding: var(--space-6);
+}
+.p-8 {
+  padding: var(--space-8);
+}
 
-.mx-auto { margin-left: auto; margin-right: auto; }
-.my-auto { margin-top: auto; margin-bottom: auto; }
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
-.px-1 { padding-left: var(--space-1); padding-right: var(--space-1); }
-.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
-.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
-.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
-.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.px-1 {
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+}
+.px-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.px-3 {
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+}
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+.px-6 {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
 
-.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
-.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
-.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
-.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.py-1 {
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+.py-2 {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+.py-3 {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+.py-4 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+.py-6 {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+}
 
 /* 🎨 容器和布局间距 */
 .container {
@@ -858,14 +1008,28 @@ defineExpose({
   padding: var(--space-6);
 }
 
-.stack-sm > * + * { margin-top: var(--space-2); }
-.stack-md > * + * { margin-top: var(--space-4); }
-.stack-lg > * + * { margin-top: var(--space-6); }
-.stack-xl > * + * { margin-top: var(--space-8); }
+.stack-sm > * + * {
+  margin-top: var(--space-2);
+}
+.stack-md > * + * {
+  margin-top: var(--space-4);
+}
+.stack-lg > * + * {
+  margin-top: var(--space-6);
+}
+.stack-xl > * + * {
+  margin-top: var(--space-8);
+}
 
-.inline-sm > * + * { margin-left: var(--space-2); }
-.inline-md > * + * { margin-left: var(--space-4); }
-.inline-lg > * + * { margin-left: var(--space-6); }
+.inline-sm > * + * {
+  margin-left: var(--space-2);
+}
+.inline-md > * + * {
+  margin-left: var(--space-4);
+}
+.inline-lg > * + * {
+  margin-left: var(--space-6);
+}
 
 /* 🎨 完整字体系统 */
 :root {
@@ -874,15 +1038,15 @@ defineExpose({
   --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
 
   /* 字体大小 - 基于1.25的倍数比例 */
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
-  --font-size-5xl: 3rem;      /* 48px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
 
   /* 字体权重 */
   --font-weight-thin: 100;
@@ -910,32 +1074,83 @@ defineExpose({
 }
 
 /* 🎨 字体实用类 */
-.font-sans { font-family: var(--font-family-sans); }
-.font-mono { font-family: var(--font-family-mono); }
+.font-sans {
+  font-family: var(--font-family-sans);
+}
+.font-mono {
+  font-family: var(--font-family-mono);
+}
 
-.text-xs { font-size: var(--font-size-xs); line-height: var(--line-height-tight); }
-.text-sm { font-size: var(--font-size-sm); line-height: var(--line-height-snug); }
-.text-base { font-size: var(--font-size-base); line-height: var(--line-height-normal); }
-.text-lg { font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
-.text-xl { font-size: var(--font-size-xl); line-height: var(--line-height-relaxed); }
-.text-2xl { font-size: var(--font-size-2xl); line-height: var(--line-height-loose); }
-.text-3xl { font-size: var(--font-size-3xl); line-height: var(--line-height-loose); }
+.text-xs {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+}
+.text-sm {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+}
+.text-base {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+.text-xl {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-relaxed);
+}
+.text-2xl {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-loose);
+}
+.text-3xl {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-loose);
+}
 
-.font-thin { font-weight: var(--font-weight-thin); }
-.font-light { font-weight: var(--font-weight-light); }
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
+.font-thin {
+  font-weight: var(--font-weight-thin);
+}
+.font-light {
+  font-weight: var(--font-weight-light);
+}
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
 
-.leading-tight { line-height: var(--line-height-tight); }
-.leading-snug { line-height: var(--line-height-snug); }
-.leading-normal { line-height: var(--line-height-normal); }
-.leading-relaxed { line-height: var(--line-height-relaxed); }
+.leading-tight {
+  line-height: var(--line-height-tight);
+}
+.leading-snug {
+  line-height: var(--line-height-snug);
+}
+.leading-normal {
+  line-height: var(--line-height-normal);
+}
+.leading-relaxed {
+  line-height: var(--line-height-relaxed);
+}
 
-.tracking-tight { letter-spacing: var(--letter-spacing-tight); }
-.tracking-normal { letter-spacing: var(--letter-spacing-normal); }
-.tracking-wide { letter-spacing: var(--letter-spacing-wide); }
+.tracking-tight {
+  letter-spacing: var(--letter-spacing-tight);
+}
+.tracking-normal {
+  letter-spacing: var(--letter-spacing-normal);
+}
+.tracking-wide {
+  letter-spacing: var(--letter-spacing-wide);
+}
 
 /* 🎨 文本层次优化 */
 .heading-1 {
@@ -999,10 +1214,10 @@ defineExpose({
   overscroll-behavior: contain;
   /* Reduce layout thrashing */
   backface-visibility: hidden;
-  
+
   /* Enhanced mobile touch handling */
   touch-action: pan-y;
-  
+
   /* Accessibility improvements */
   outline: none;
 }
@@ -1029,11 +1244,12 @@ defineExpose({
     /* Better touch response */
     touch-action: pan-y;
   }
-  
+
   .virtual-item {
     /* Ensure touch targets are accessible */
     min-height: 44px;
-    padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
 }
 
@@ -1050,7 +1266,7 @@ defineExpose({
   .virtual-scroll-container {
     scroll-behavior: auto;
   }
-  
+
   .virtual-item {
     transition: none;
   }
@@ -1067,11 +1283,13 @@ defineExpose({
   /* Better text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+
   /* Accessibility enhancements */
   outline: none;
   border-radius: 4px;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .virtual-item:focus {
@@ -1188,9 +1406,9 @@ defineExpose({
   background: rgba(255, 255, 255, 0.3);
 }
 
-
 /* 焦点样式 */
 :focus-visible {
   outline: 2px solid hsl(var(--ring, 59 130 230));
   outline-offset: 2px;
-}</style>
+}
+</style>

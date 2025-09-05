@@ -6,6 +6,7 @@ import { setupI18n } from './services/i18n'
 import './assets/css/main.css' // 🏆 Tailwind CSS 基础样式
 import './styles/unified-design-system.css' // 🏆 统一样式设计系统
 import './styles/z-index-system.css' // 🏆 统一Z-Index管理系统
+import './styles/chatbox.css' // Chatbox design system
 
 // Initialize error boundary service early to catch all errors
 import { errorBoundary } from './utils/ErrorBoundary'
@@ -18,7 +19,9 @@ setupI18n(app)
 
 // Global error handler for Vue
 app.config.errorHandler = (error, _instance, info) => {
-  errorBoundary.handleComponentError(error, _instance?.$?.type?.name || 'UnknownComponent', { info })
+  errorBoundary.handleComponentError(error, _instance?.$?.type?.name || 'UnknownComponent', {
+    info
+  })
 }
 
 // Global warning handler for Vue
@@ -41,7 +44,7 @@ app.use(router)
 
 logger.info('Application initializing', 'Main', {
   errorBoundaryActive: true,
-  version: import.meta.env.VITE_APP_VERSION || 'development',
+  version: import.meta.env.VITE_APP_VERSION || 'development'
 })
 
 app.mount('#app')

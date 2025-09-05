@@ -38,7 +38,7 @@ export class SecureStore {
       encryptionKey: undefined, // We'll handle encryption ourselves
       serialize: JSON.stringify,
       deserialize: JSON.parse,
-      clearInvalidConfig: true,
+      clearInvalidConfig: true
     })
   }
 
@@ -82,7 +82,7 @@ export class SecureStore {
         encrypted,
         keyId: encrypted.keyId || this.masterPasswordHash!,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
+        updatedAt: Date.now()
       }
 
       this.store.set(key, storedValue)
@@ -154,7 +154,7 @@ export class SecureStore {
     return {
       keyId: storedValue.keyId,
       createdAt: storedValue.createdAt,
-      updatedAt: storedValue.updatedAt,
+      updatedAt: storedValue.updatedAt
     }
   }
 
@@ -176,7 +176,7 @@ export class SecureStore {
         encrypted,
         keyId: encrypted.keyId || this.masterPasswordHash!,
         createdAt,
-        updatedAt: Date.now(),
+        updatedAt: Date.now()
       }
 
       this.store.set(key, storedValue)
@@ -268,7 +268,7 @@ export class SecureStore {
 export class APIKeyStore extends SecureStore {
   constructor() {
     super({
-      name: 'api-keys',
+      name: 'api-keys'
     })
   }
 

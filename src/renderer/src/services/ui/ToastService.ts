@@ -24,7 +24,7 @@ class ToastService {
       type: 'info',
       duration: 4000,
       dismissible: true,
-      ...options,
+      ...options
     }
   }
 
@@ -47,7 +47,7 @@ class ToastService {
       type: 'success',
       title,
       message,
-      ...options,
+      ...options
     })
   }
 
@@ -57,7 +57,7 @@ class ToastService {
       title,
       message,
       duration: 6000, // Longer duration for errors
-      ...options,
+      ...options
     })
   }
 
@@ -66,7 +66,7 @@ class ToastService {
       type: 'info',
       title,
       message,
-      ...options,
+      ...options
     })
   }
 
@@ -75,7 +75,7 @@ class ToastService {
       type: 'warning',
       title,
       message,
-      ...options,
+      ...options
     })
   }
 
@@ -103,7 +103,7 @@ export default {
   install(app: App) {
     app.config.globalProperties.$toast = toastService
     app.provide('toast', toastService)
-  },
+  }
 }
 
 // Composable for using toast service

@@ -46,7 +46,7 @@ export class CSVExporter {
     const worksheet = XLSX.utils.aoa_to_sheet(csvData)
     const csvContent = XLSX.utils.sheet_to_csv(worksheet, {
       FS: csvOptions.delimiter,
-      RS: '\n',
+      RS: '\n'
     })
 
     return {
@@ -56,7 +56,7 @@ export class CSVExporter {
       size: new Blob([csvContent]).size,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -101,7 +101,7 @@ export class CSVExporter {
     // Generate Excel file
     const excelBuffer = XLSX.write(workbook, {
       bookType: 'xlsx',
-      type: 'array',
+      type: 'array'
     })
 
     // Convert to base64 for consistent handling
@@ -115,7 +115,7 @@ export class CSVExporter {
       size: excelBuffer.byteLength,
       messageCount,
       chatCount: chats.length,
-      processingTime: 0,
+      processingTime: 0
     }
   }
 
@@ -133,7 +133,7 @@ export class CSVExporter {
       'Role',
       'Content',
       'Message Created',
-      'Content Length',
+      'Content Length'
     ]
 
     return headers
@@ -147,7 +147,7 @@ export class CSVExporter {
     message: any,
     messageIndex: number,
     options: ExportOptions,
-    csvOptions: CSVExportOptions,
+    csvOptions: CSVExportOptions
   ): (string | number)[] {
     let content = message.content || ''
 
@@ -166,7 +166,7 @@ export class CSVExporter {
       message.role,
       content,
       options.includeTimestamps ? message.created_at : '',
-      content.length,
+      content.length
     ]
 
     return row
@@ -185,7 +185,7 @@ export class CSVExporter {
   private createWorksheetData(
     chat: ExportChatData,
     options: ExportOptions,
-    csvOptions: CSVExportOptions,
+    csvOptions: CSVExportOptions
   ): any[][] {
     const data: any[][] = []
 
@@ -217,7 +217,7 @@ export class CSVExporter {
         message.role,
         content,
         options.includeTimestamps ? new Date(message.created_at).toLocaleString() : '',
-        content.length,
+        content.length
       ]
 
       data.push(row)
@@ -232,7 +232,7 @@ export class CSVExporter {
   private createOverviewSheet(
     workbook: XLSX.WorkBook,
     chats: ExportChatData[],
-    options: ExportOptions,
+    options: ExportOptions
   ): void {
     const overviewData: any[][] = []
 
@@ -242,7 +242,7 @@ export class CSVExporter {
     overviewData.push(['Total Chats:', chats.length])
     overviewData.push([
       'Total Messages:',
-      chats.reduce((sum, chat) => sum + chat.messages.length, 0),
+      chats.reduce((sum, chat) => sum + chat.messages.length, 0)
     ])
     overviewData.push([]) // Empty row
 
@@ -256,7 +256,7 @@ export class CSVExporter {
         chat.title,
         chat.messages.length,
         options.includeTimestamps ? new Date(chat.createdAt).toLocaleString() : '',
-        options.includeTimestamps ? new Date(chat.updatedAt).toLocaleString() : '',
+        options.includeTimestamps ? new Date(chat.updatedAt).toLocaleString() : ''
       ])
     }
 
@@ -324,7 +324,7 @@ export class CSVExporter {
       delimiter: ',',
       includeHeaders: true,
       encoding: 'utf-8',
-      flattenContent: false,
+      flattenContent: false
     }
   }
 

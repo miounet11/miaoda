@@ -1,10 +1,25 @@
 // @ts-nocheck
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, TableOfContents, SectionType, Header, Footer } from 'docx'
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  HeadingLevel,
+  AlignmentType,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  TableOfContents,
+  SectionType,
+  Header,
+  Footer
+} from 'docx'
 import type {
   ExportChatData,
   ExportOptions,
   ExportResult,
-  DOCXExportOptions,
+  DOCXExportOptions
 } from './ExportService'
 
 export class DOCXExporter {
@@ -37,7 +52,7 @@ export class DOCXExporter {
       description: `Export of ${chats.length} chat conversation(s) with ${messageCount} messages`,
       sections,
       styles: this.createDocumentStyles(docxOptions),
-      numbering: this.createNumberingConfig(),
+      numbering: this.createNumberingConfig()
     })
 
     try {
@@ -55,7 +70,7 @@ export class DOCXExporter {
         size: buffer.byteLength,
         messageCount,
         chatCount: chats.length,
-        processingTime: 0,
+        processingTime: 0
       }
     } catch (error) {
       throw new Error(`Failed to generate DOCX document: ${error.message}`)
@@ -68,7 +83,7 @@ export class DOCXExporter {
   private createDocumentSections(
     chats: ExportChatData[],
     options: ExportOptions,
-    docxOptions: DOCXExportOptions,
+    docxOptions: DOCXExportOptions
   ): any[] {
     const sections: any[] = []
 
@@ -80,9 +95,9 @@ export class DOCXExporter {
             top: 1440, // 1 inch
             right: 1440,
             bottom: 1440,
-            left: 1440,
-          },
-        },
+            left: 1440
+          }
+        }
       },
       headers: {
         default: new Header({
@@ -92,13 +107,13 @@ export class DOCXExporter {
                 new TextRun({
                   text: options.title || 'Chat Export',
                   size: 20,
-                  color: '666666',
-                }),
+                  color: '666666'
+                })
               ],
-              alignment: AlignmentType.RIGHT,
-            }),
-          ],
-        }),
+              alignment: AlignmentType.RIGHT
+            })
+          ]
+        })
       },
       footers: {
         default: new Footer({
@@ -108,30 +123,30 @@ export class DOCXExporter {
                 new TextRun({
                   text: 'Page ',
                   size: 18,
-                  color: '666666',
+                  color: '666666'
                 }),
                 new TextRun({
                   children: ['PAGE_NUMBER'],
                   size: 18,
-                  color: '666666',
+                  color: '666666'
                 }),
                 new TextRun({
                   text: ' of ',
                   size: 18,
-                  color: '666666',
+                  color: '666666'
                 }),
                 new TextRun({
                   children: ['TOTAL_PAGES'],
                   size: 18,
-                  color: '666666',
-                }),
+                  color: '666666'
+                })
               ],
-              alignment: AlignmentType.CENTER,
-            }),
-          ],
-        }),
+              alignment: AlignmentType.CENTER
+            })
+          ]
+        })
       },
-      children: this.createTitlePageContent(chats, options, docxOptions),
+      children: this.createTitlePageContent(chats, options, docxOptions)
     }
 
     sections.push(titleSection)
@@ -140,18 +155,18 @@ export class DOCXExporter {
     if (docxOptions.includeTableOfContents) {
       sections.push({
         properties: {
-          type: SectionType.NEXT_PAGE,
+          type: SectionType.NEXT_PAGE
         },
         children: [
           new Paragraph({
             text: 'Table of Contents',
-            heading: HeadingLevel.HEADING_1,
+            heading: HeadingLevel.HEADING_1
           }),
           new TableOfContents('Table of Contents', {
             hyperlink: true,
-            headingStyleRange: '1-3',
-          }),
-        ],
+            headingStyleRange: '1-3'
+          })
+        ]
       })
     }
 
@@ -161,7 +176,7 @@ export class DOCXExporter {
 
       if (docxOptions.pageBreakBetweenChats && index > 0) {
         chatSection.properties = {
-          type: SectionType.NEXT_PAGE,
+          type: SectionType.NEXT_PAGE
         }
       }
 
@@ -177,7 +192,7 @@ export class DOCXExporter {
   private createTitlePageContent(
     chats: ExportChatData[],
     options: ExportOptions,
-    docxOptions: DOCXExportOptions,
+    docxOptions: DOCXExportOptions
   ): any[] {
     const content: any[] = []
     const messageCount = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
@@ -190,12 +205,12 @@ export class DOCXExporter {
             text: options.title || 'Chat Export',
             bold: true,
             size: 48,
-            color: '2F5233',
-          }),
+            color: '2F5233'
+          })
         ],
         alignment: AlignmentType.CENTER,
-        spacing: { after: 600 },
-      }),
+        spacing: { after: 600 }
+      })
     )
 
     // Subtitle
@@ -206,56 +221,56 @@ export class DOCXExporter {
             text: 'AI Conversation Archive',
             italics: true,
             size: 24,
-            color: '666666',
-          }),
+            color: '666666'
+          })
         ],
         alignment: AlignmentType.CENTER,
-        spacing: { after: 1200 },
-      }),
+        spacing: { after: 1200 }
+      })
     )
 
     // Export info table
     const infoTable = new Table({
       width: {
         size: 100,
-        type: WidthType.PERCENTAGE,
+        type: WidthType.PERCENTAGE
       },
       rows: [
         new TableRow({
           children: [
             new TableCell({
               children: [new Paragraph({ text: 'Export Date:', alignment: AlignmentType.RIGHT })],
-              width: { size: 30, type: WidthType.PERCENTAGE },
+              width: { size: 30, type: WidthType.PERCENTAGE }
             }),
             new TableCell({
               children: [new Paragraph(new Date().toLocaleString())],
-              width: { size: 70, type: WidthType.PERCENTAGE },
-            }),
-          ],
+              width: { size: 70, type: WidthType.PERCENTAGE }
+            })
+          ]
         }),
         new TableRow({
           children: [
             new TableCell({
               children: [
-                new Paragraph({ text: 'Total Conversations:', alignment: AlignmentType.RIGHT }),
-              ],
+                new Paragraph({ text: 'Total Conversations:', alignment: AlignmentType.RIGHT })
+              ]
             }),
             new TableCell({
-              children: [new Paragraph(chats.length.toString())],
-            }),
-          ],
+              children: [new Paragraph(chats.length.toString())]
+            })
+          ]
         }),
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph({ text: 'Total Messages:', alignment: AlignmentType.RIGHT })],
+              children: [new Paragraph({ text: 'Total Messages:', alignment: AlignmentType.RIGHT })]
             }),
             new TableCell({
-              children: [new Paragraph(messageCount.toString())],
-            }),
-          ],
-        }),
-      ],
+              children: [new Paragraph(messageCount.toString())]
+            })
+          ]
+        })
+      ]
     })
 
     if (options.author) {
@@ -265,13 +280,13 @@ export class DOCXExporter {
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph({ text: 'Author:', alignment: AlignmentType.RIGHT })],
+              children: [new Paragraph({ text: 'Author:', alignment: AlignmentType.RIGHT })]
             }),
             new TableCell({
-              children: [new Paragraph(options.author)],
-            }),
-          ],
-        }),
+              children: [new Paragraph(options.author)]
+            })
+          ]
+        })
       )
       ;(infoTable as any).options.rows = rows
     }
@@ -289,7 +304,7 @@ export class DOCXExporter {
     chat: ExportChatData,
     index: number,
     options: ExportOptions,
-    docxOptions: DOCXExportOptions,
+    docxOptions: DOCXExportOptions
   ): any {
     const children: any[] = []
 
@@ -301,12 +316,12 @@ export class DOCXExporter {
             text: `${index + 1}. ${chat.title}`,
             bold: true,
             size: 32,
-            color: '2F5233',
-          }),
+            color: '2F5233'
+          })
         ],
         heading: HeadingLevel.HEADING_1,
-        spacing: { before: 480, after: 240 },
-      }),
+        spacing: { before: 480, after: 240 }
+      })
     )
 
     // Chat metadata
@@ -319,14 +334,14 @@ export class DOCXExporter {
             text: `Created: ${new Date(chat.createdAt).toLocaleString()}  `,
             italics: true,
             size: 18,
-            color: '666666',
+            color: '666666'
           }),
           new TextRun({
             text: `Updated: ${new Date(chat.updatedAt).toLocaleString()}  `,
             italics: true,
             size: 18,
-            color: '666666',
-          }),
+            color: '666666'
+          })
         )
       }
 
@@ -335,15 +350,15 @@ export class DOCXExporter {
           text: `Messages: ${chat.messages.length}`,
           italics: true,
           size: 18,
-          color: '666666',
-        }),
+          color: '666666'
+        })
       )
 
       children.push(
         new Paragraph({
           children: metadataChildren,
-          spacing: { after: 360 },
-        }),
+          spacing: { after: 360 }
+        })
       )
     }
 
@@ -358,7 +373,7 @@ export class DOCXExporter {
     }
 
     return {
-      children,
+      children
     }
   }
 
@@ -369,7 +384,7 @@ export class DOCXExporter {
     message: any,
     messageIndex: number,
     options: ExportOptions,
-    docxOptions: DOCXExportOptions,
+    docxOptions: DOCXExportOptions
   ): any[] {
     const paragraphs: any[] = []
 
@@ -384,8 +399,8 @@ export class DOCXExporter {
         text: roleIcon,
         bold: true,
         color: roleColor,
-        size: 22,
-      }),
+        size: 22
+      })
     ]
 
     if (options.includeTimestamps) {
@@ -394,16 +409,16 @@ export class DOCXExporter {
           text: `  ${new Date(message.created_at).toLocaleString()}`,
           italics: true,
           size: 18,
-          color: '666666',
-        }),
+          color: '666666'
+        })
       )
     }
 
     paragraphs.push(
       new Paragraph({
         children: headerChildren,
-        spacing: { before: 240, after: 120 },
-      }),
+        spacing: { before: 240, after: 120 }
+      })
     )
 
     // Message content
@@ -430,15 +445,15 @@ export class DOCXExporter {
                 text: trimmedLine,
                 font: isCode ? 'Consolas' : docxOptions.fontFamily,
                 size: isCode ? docxOptions.fontSize - 2 : docxOptions.fontSize,
-                color: isCode ? '333333' : '000000',
-              }),
+                color: isCode ? '333333' : '000000'
+              })
             ],
             spacing: {
               before: lIndex === 0 && pIndex === 0 ? 0 : 120,
-              after: 60,
+              after: 60
             },
-            indent: isCode ? { left: 360 } : undefined,
-          }),
+            indent: isCode ? { left: 360 } : undefined
+          })
         )
       }
     }
@@ -447,8 +462,8 @@ export class DOCXExporter {
     paragraphs.push(
       new Paragraph({
         text: '',
-        spacing: { after: 360 },
-      }),
+        spacing: { after: 360 }
+      })
     )
 
     return paragraphs
@@ -467,14 +482,14 @@ export class DOCXExporter {
           next: 'Normal',
           run: {
             font: docxOptions.fontFamily,
-            size: docxOptions.fontSize,
+            size: docxOptions.fontSize
           },
           paragraph: {
             spacing: {
               line: 276,
-              lineRule: 'auto',
-            },
-          },
+              lineRule: 'auto'
+            }
+          }
         },
         {
           id: 'Heading1',
@@ -485,16 +500,16 @@ export class DOCXExporter {
             font: docxOptions.fontFamily,
             size: docxOptions.fontSize + 8,
             bold: true,
-            color: '2F5233',
+            color: '2F5233'
           },
           paragraph: {
             spacing: {
               before: 480,
-              after: 240,
-            },
-          },
-        },
-      ],
+              after: 240
+            }
+          }
+        }
+      ]
     }
   }
 
@@ -514,13 +529,13 @@ export class DOCXExporter {
               alignment: AlignmentType.START,
               style: {
                 paragraph: {
-                  indent: { left: 720, hanging: 260 },
-                },
-              },
-            },
-          ],
-        },
-      ],
+                  indent: { left: 720, hanging: 260 }
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 
@@ -534,7 +549,7 @@ export class DOCXExporter {
       fontFamily: 'Calibri',
       includeTableOfContents: true,
       pageBreakBetweenChats: true,
-      customStyles: {},
+      customStyles: {}
     }
   }
 

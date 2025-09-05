@@ -79,8 +79,8 @@ export class WindowManager extends EventEmitter<{
           x: 100,
           y: 100,
           width: 1200,
-          height: 800,
-        },
+          height: 800
+        }
       })
     }
   }
@@ -128,7 +128,7 @@ export class WindowManager extends EventEmitter<{
       x: 100,
       y: 100,
       width: 1200,
-      height: 800,
+      height: 800
     }
 
     const windowState: WindowState = {
@@ -142,7 +142,7 @@ export class WindowManager extends EventEmitter<{
       tabs: [],
       activeTabId: null,
       theme: 'system',
-      opacity: 1.0,
+      opacity: 1.0
     }
 
     // Store window first before creating tabs
@@ -152,7 +152,7 @@ export class WindowManager extends EventEmitter<{
     if (!options.tabs || options.tabs.length === 0) {
       const defaultTab = await this.createTab(windowId, {
         title: 'New Chat',
-        type: 'chat',
+        type: 'chat'
       })
       windowState.activeTabId = defaultTab.id
     } else {
@@ -170,7 +170,7 @@ export class WindowManager extends EventEmitter<{
       await window.api.window.createWindow({
         title: windowState.title,
         ...windowState.bounds,
-        parent: options.parentWindowId,
+        parent: options.parentWindowId
       })
     }
 
@@ -219,7 +219,7 @@ export class WindowManager extends EventEmitter<{
           'You have unsaved changes in some tabs. Are you sure you want to close this window?',
         buttons: ['Close', 'Cancel'],
         defaultId: 1,
-        cancelId: 1,
+        cancelId: 1
       })
 
       return response.response === 0
@@ -243,7 +243,7 @@ export class WindowManager extends EventEmitter<{
       modified: false,
       data: options.data,
       createdAt: new Date(),
-      lastActiveAt: new Date(),
+      lastActiveAt: new Date()
     }
 
     window.tabs.push(tab)
@@ -338,7 +338,7 @@ export class WindowManager extends EventEmitter<{
     sourceWindowId: string,
     tabId: string,
     targetWindowId: string,
-    index?: number,
+    index?: number
   ): boolean {
     const sourceWindow = this.windows.get(sourceWindowId)
     const targetWindow = this.windows.get(targetWindowId)
@@ -440,7 +440,7 @@ export class WindowManager extends EventEmitter<{
 
   async setWindowBounds(
     windowId: string,
-    bounds: Partial<WindowState['bounds']>,
+    bounds: Partial<WindowState['bounds']>
   ): Promise<boolean> {
     const window = this.windows.get(windowId)
     if (!window) return false
@@ -471,10 +471,10 @@ export class WindowManager extends EventEmitter<{
           title: tab.title,
           type: tab.type,
           chatId: tab.chatId,
-          data: tab.data,
-        })),
+          data: tab.data
+        }))
       })),
-      createdAt: new Date(),
+      createdAt: new Date()
     }
 
     this.layouts.set(layoutId, layout)
@@ -500,7 +500,7 @@ export class WindowManager extends EventEmitter<{
       await this.createWindow({
         title: windowConfig.title,
         bounds: windowConfig.bounds,
-        tabs: windowConfig.tabs,
+        tabs: windowConfig.tabs
       })
     }
 

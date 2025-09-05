@@ -36,7 +36,7 @@ class StatusFeedbackService {
     messages: [] as StatusMessage[],
     progressIndicators: [] as ProgressIndicator[],
     isLoading: false,
-    globalMessage: null as StatusMessage | null,
+    globalMessage: null as StatusMessage | null
   })
 
   private messageTimeouts = new Map<string, NodeJS.Timeout>()
@@ -74,7 +74,7 @@ class StatusFeedbackService {
     title: string,
     message?: string,
     duration = 3000,
-    action?: StatusMessage['action'],
+    action?: StatusMessage['action']
   ): string {
     const id = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -85,7 +85,7 @@ class StatusFeedbackService {
       message,
       duration,
       action,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     }
 
     this.state.messages.push(statusMessage)
@@ -151,7 +151,7 @@ class StatusFeedbackService {
     title: string,
     message?: string,
     indeterminate = false,
-    cancellable = false,
+    cancellable = false
   ): string {
     const id = `progress_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -162,7 +162,7 @@ class StatusFeedbackService {
       progress: indeterminate ? undefined : 0,
       indeterminate,
       cancellable,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     }
 
     this.state.progressIndicators.push(progress)
@@ -216,7 +216,7 @@ class StatusFeedbackService {
       successMessage?: string
       errorTitle?: string
       errorMessage?: string
-    },
+    }
   ): Promise<T> {
     const loadingId = this.loading(options.loadingTitle, options.loadingMessage)
 
@@ -228,10 +228,7 @@ class StatusFeedbackService {
     } catch (error) {
       this.removeMessage(loadingId)
       const errorMsg = error instanceof Error ? error.message : String(error)
-      this.error(
-        options.errorTitle || '操作失败',
-        options.errorMessage || errorMsg,
-      )
+      this.error(options.errorTitle || '操作失败', options.errorMessage || errorMsg)
       throw error
     }
   }
@@ -247,7 +244,7 @@ class StatusFeedbackService {
       overallTitle: string
       successTitle: string
       errorTitle?: string
-    },
+    }
   ): Promise<T[]> {
     const progressId = this.startProgress(options.overallTitle, '', false, false)
     const results: T[] = []
@@ -256,14 +253,11 @@ class StatusFeedbackService {
 
     try {
       for (const { operation, title, successMessage } of operations) {
-        const result = await this.withFeedback(
-          operation,
-          {
-            loadingTitle: title,
-            successTitle: title,
-            successMessage,
-          },
-        )
+        const result = await this.withFeedback(operation, {
+          loadingTitle: title,
+          successTitle: title,
+          successMessage
+        })
 
         results.push(result)
         completed++
@@ -282,18 +276,13 @@ class StatusFeedbackService {
 
   // 网络状态反馈
   handleNetworkError(operation: string) {
-    this.error(
-      '网络连接失败',
-      `执行"${operation}"时出现网络问题，请检查网络连接后重试`,
-      5000,
-      {
-        label: '重试',
-        handler: () => {
-          // 这里可以触发重试逻辑
-          console.log('Retry operation:', operation)
-        },
-      },
-    )
+    this.error('网络连接失败', `执行"${operation}"时出现网络问题，请检查网络连接后重试`, 5000, {
+      label: '重试',
+      handler: () => {
+        // 这里可以触发重试逻辑
+        console.log('Retry operation:', operation)
+      }
+    })
   }
 
   // API 错误反馈
@@ -327,24 +316,15 @@ class StatusFeedbackService {
 
   // 成功操作反馈
   handleSuccess(operation: string, details?: string) {
-    this.success(
-      `${operation}成功`,
-      details || `已成功完成"${operation}"操作`,
-    )
+    this.success(`${operation}成功`, details || `已成功完成"${operation}"操作`)
   }
 
   // 文件操作反馈
   handleFileOperation(operation: string, fileName: string, success = true) {
     if (success) {
-      this.success(
-        `${operation}成功`,
-        `文件"${fileName}"${operation}成功`,
-      )
+      this.success(`${operation}成功`, `文件"${fileName}"${operation}成功`)
     } else {
-      this.error(
-        `${operation}失败`,
-        `文件"${fileName}"${operation}失败，请检查文件格式和权限`,
-      )
+      this.error(`${operation}失败`, `文件"${fileName}"${operation}失败，请检查文件格式和权限`)
     }
   }
 }

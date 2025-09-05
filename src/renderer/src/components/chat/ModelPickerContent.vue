@@ -2,9 +2,7 @@
   <div class="model-picker-content">
     <!-- 头部 -->
     <div class="flex items-center justify-between p-4 border-b border-border">
-      <h3 class="text-lg font-semibold text-foreground">
-        选择AI模型
-      </h3>
+      <h3 class="text-lg font-semibold text-foreground">选择AI模型</h3>
       <button
         @click="$emit('close')"
         class="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -35,9 +33,7 @@
                 <div class="font-medium text-sm">{{ model.modelName }}</div>
                 <div class="text-xs text-muted-foreground">{{ model.providerName }}</div>
               </div>
-              <div class="text-xs text-primary font-medium">
-                推荐
-              </div>
+              <div class="text-xs text-primary font-medium">推荐</div>
             </div>
           </button>
         </div>
@@ -45,11 +41,7 @@
 
       <!-- Provider 列表 -->
       <div class="space-y-4">
-        <div
-          v-for="provider in availableProviders"
-          :key="provider.id"
-          class="provider-section"
-        >
+        <div v-for="provider in availableProviders" :key="provider.id" class="provider-section">
           <h4 class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
             <span class="text-base">{{ provider.icon }}</span>
             {{ provider.displayName }}
@@ -77,24 +69,23 @@
                     <span class="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
                       {{ formatTokens(model.contextLength) }}
                     </span>
-                    <span v-if="model.capabilities.vision" class="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">
+                    <span
+                      v-if="model.capabilities.vision"
+                      class="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded"
+                    >
                       视觉
                     </span>
-                    <span v-if="model.capabilities.functions" class="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded">
+                    <span
+                      v-if="model.capabilities.functions"
+                      class="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded"
+                    >
                       工具
                     </span>
                   </div>
                 </div>
                 <div class="flex items-center gap-1">
-                  <div
-                    class="w-2 h-2 rounded-full"
-                    :class="getModelStatusColor(model)"
-                  />
-                  <Check
-                    v-if="isSelected(provider.id, model.id)"
-                    :size="16"
-                    class="text-primary"
-                  />
+                  <div class="w-2 h-2 rounded-full" :class="getModelStatusColor(model)" />
+                  <Check v-if="isSelected(provider.id, model.id)" :size="16" class="text-primary" />
                 </div>
               </div>
             </button>
@@ -107,12 +98,7 @@
     <div class="p-4 border-t border-border bg-muted/20">
       <div class="flex items-center justify-between text-sm text-muted-foreground">
         <span>选择最适合您任务的AI模型</span>
-        <button
-          @click="$emit('close')"
-          class="text-primary hover:underline"
-        >
-          取消
-        </button>
+        <button @click="$emit('close')" class="text-primary hover:underline">取消</button>
       </div>
     </div>
   </div>

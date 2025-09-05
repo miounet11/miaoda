@@ -191,7 +191,7 @@ describe('Toast Component', () => {
 
       // Hover over toast
       await wrapper.trigger('mouseenter')
-      
+
       // Wait past the duration
       vi.advanceTimersByTime(1500)
       await nextTick()
@@ -201,7 +201,7 @@ describe('Toast Component', () => {
 
       // Leave hover
       await wrapper.trigger('mouseleave')
-      
+
       // Should now dismiss
       vi.advanceTimersByTime(1000)
       await nextTick()
@@ -218,14 +218,14 @@ describe('Toast Component', () => {
       })
 
       await wrapper.trigger('focusin')
-      
+
       vi.advanceTimersByTime(1500)
       await nextTick()
 
       expect(wrapper.emitted('close')).toBeUndefined()
 
       await wrapper.trigger('focusout')
-      
+
       vi.advanceTimersByTime(1000)
       await nextTick()
 
@@ -252,9 +252,7 @@ describe('Toast Component', () => {
     })
 
     it('emits action events when buttons clicked', async () => {
-      const actions = [
-        { label: 'Undo', action: 'undo' }
-      ]
+      const actions = [{ label: 'Undo', action: 'undo' }]
 
       wrapper = mount(Toast, {
         props: {
@@ -301,9 +299,9 @@ describe('Toast Component', () => {
       })
 
       // Should have animation classes
-      expect(wrapper.classes()).toEqual(expect.arrayContaining([
-        expect.stringMatching(/enter|fade|slide/)
-      ]))
+      expect(wrapper.classes()).toEqual(
+        expect.arrayContaining([expect.stringMatching(/enter|fade|slide/)])
+      )
     })
 
     it('applies exit animation classes when closing', async () => {
@@ -315,9 +313,9 @@ describe('Toast Component', () => {
       await closeButton.trigger('click')
 
       // Should apply exit animation
-      expect(wrapper.classes()).toEqual(expect.arrayContaining([
-        expect.stringMatching(/exit|fade|slide/)
-      ]))
+      expect(wrapper.classes()).toEqual(
+        expect.arrayContaining([expect.stringMatching(/exit|fade|slide/)])
+      )
     })
 
     it('handles animation duration correctly', async () => {
@@ -372,7 +370,7 @@ describe('Toast Component', () => {
 
       // Test keyboard interaction
       await wrapper.trigger('keydown', { key: 'Escape' })
-      
+
       expect(wrapper.emitted('close')).toBeDefined()
     })
 
@@ -421,14 +419,14 @@ describe('Toast Component', () => {
       })
 
       const progressBar = wrapper.find('[data-testid="toast-progress"]')
-      
+
       // Initial state
       expect(progressBar.element.style.width).toBe('100%')
 
       // Half duration
       vi.advanceTimersByTime(500)
       await nextTick()
-      
+
       // Progress should update (implementation dependent)
       expect(progressBar.exists()).toBe(true)
     })
@@ -448,7 +446,14 @@ describe('Toast Component', () => {
 
   describe('Toast Positioning', () => {
     it('applies correct position classes', () => {
-      const positions = ['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center']
+      const positions = [
+        'top-right',
+        'top-left',
+        'bottom-right',
+        'bottom-left',
+        'top-center',
+        'bottom-center'
+      ]
 
       positions.forEach(position => {
         wrapper = mount(Toast, {
@@ -458,10 +463,10 @@ describe('Toast Component', () => {
           }
         })
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining([
-          expect.stringMatching(new RegExp(position.replace('-', '.*')))
-        ]))
-        
+        expect(wrapper.classes()).toEqual(
+          expect.arrayContaining([expect.stringMatching(new RegExp(position.replace('-', '.*')))])
+        )
+
         wrapper.unmount()
       })
     })
@@ -547,7 +552,7 @@ describe('Toast Component', () => {
 
     it('truncates long messages', () => {
       const longMessage = 'Very long message '.repeat(100)
-      
+
       wrapper = mount(Toast, {
         props: {
           ...defaultProps,
@@ -568,14 +573,16 @@ describe('Toast Component', () => {
         ...defaultProps,
         title: 'Complex Toast '.repeat(10),
         message: 'Complex message with lots of content '.repeat(50),
-        actions: Array(5).fill(null).map((_, i) => ({
-          label: `Action ${i}`,
-          action: `action-${i}`
-        }))
+        actions: Array(5)
+          .fill(null)
+          .map((_, i) => ({
+            label: `Action ${i}`,
+            action: `action-${i}`
+          }))
       }
 
       const startTime = performance.now()
-      
+
       wrapper = mount(Toast, {
         props: complexProps
       })
@@ -648,7 +655,7 @@ describe('Toast Component', () => {
       })
 
       const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout')
-      
+
       wrapper.unmount()
 
       expect(clearTimeoutSpy).toHaveBeenCalled()
@@ -660,7 +667,7 @@ describe('Toast Component', () => {
       })
 
       const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
-      
+
       wrapper.unmount()
 
       // Should clean up any global event listeners
@@ -696,10 +703,12 @@ describe('Toast Component', () => {
 
     it('handles action callback errors', async () => {
       const actions = [
-        { 
-          label: 'Error Action', 
+        {
+          label: 'Error Action',
           action: 'error-action',
-          callback: vi.fn(() => { throw new Error('Action failed') })
+          callback: vi.fn(() => {
+            throw new Error('Action failed')
+          })
         }
       ]
 
@@ -711,7 +720,7 @@ describe('Toast Component', () => {
       })
 
       const errorButton = wrapper.find('[data-action="error-action"]')
-      
+
       // Should not crash the component
       expect(async () => {
         await errorButton.trigger('click')

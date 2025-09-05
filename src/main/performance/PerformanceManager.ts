@@ -78,9 +78,9 @@ export class PerformanceManager extends EventEmitter {
         memoryUsage: 85,
         queryTime: 1000,
         renderTime: 16.67,
-        errorRate: 5,
+        errorRate: 5
       },
-      ...config,
+      ...config
     }
   }
 
@@ -103,7 +103,7 @@ export class PerformanceManager extends EventEmitter {
           slowQueryThreshold: this.config.alertThresholds.queryTime / 10,
           enablePragmaOptimizations: true,
           enableConnectionPooling: false, // SQLite is single-connection
-          vacuumInterval: 24 * 60 * 60 * 1000, // 24 hours
+          vacuumInterval: 24 * 60 * 60 * 1000 // 24 hours
         })
         logger.info('Database optimizer initialized', 'PerformanceManager')
       }
@@ -117,7 +117,7 @@ export class PerformanceManager extends EventEmitter {
           memoryLimit: 100 * 1024 * 1024, // 100MB
           enableCompression: false,
           enableAdaptiveBuffering: true,
-          metricsCollectionInterval: 1000,
+          metricsCollectionInterval: 1000
         })
         logger.info('Streaming optimizer initialized', 'PerformanceManager')
       }
@@ -131,7 +131,7 @@ export class PerformanceManager extends EventEmitter {
             ttl: 5 * 60 * 1000,
             strategy: 'adaptive',
             compressionEnabled: false,
-            encryptionEnabled: false,
+            encryptionEnabled: false
           },
           l2: {
             maxSize: 200 * 1024 * 1024, // 200MB
@@ -139,11 +139,11 @@ export class PerformanceManager extends EventEmitter {
             ttl: 60 * 60 * 1000,
             strategy: 'lru',
             compressionEnabled: true,
-            encryptionEnabled: false,
+            encryptionEnabled: false
           },
           enableMetrics: true,
           metricsInterval: 30000,
-          autoOptimization: true,
+          autoOptimization: true
         })
         logger.info('Multi-level cache initialized', 'PerformanceManager')
       }
@@ -160,13 +160,13 @@ export class PerformanceManager extends EventEmitter {
           backgroundThrottling: true,
           v8CacheOptions: {
             enabled: true,
-            maxSize: 50 * 1024 * 1024,
+            maxSize: 50 * 1024 * 1024
           },
           processOptimization: {
             enableSandbox: true,
             enableNodeIntegration: false,
-            contextIsolation: true,
-          },
+            contextIsolation: true
+          }
         })
         logger.info('Electron optimizer initialized', 'PerformanceManager')
       }
@@ -180,14 +180,14 @@ export class PerformanceManager extends EventEmitter {
           alertThresholds: this.config.alertThresholds,
           enableProfiling: true,
           enableMemoryTracking: true,
-          enableNetworkTracking: true,
+          enableNetworkTracking: true
         })
 
         // Register components with monitor
         this.performanceMonitor.registerComponents({
           dbOptimizer: this.dbOptimizer,
           cacheSystem: this.cacheSystem,
-          streamingOptimizer: this.streamingOptimizer,
+          streamingOptimizer: this.streamingOptimizer
         })
 
         logger.info('Performance monitor initialized', 'PerformanceManager')
@@ -204,10 +204,10 @@ export class PerformanceManager extends EventEmitter {
             heapGrowthRate: 1024 * 1024, // 1MB/s
             externalGrowthRate: 512 * 1024, // 512KB/s
             totalMemoryLimit: this.config.alertThresholds.memoryUsage * 1024 * 1024 * 10, // Rough estimate
-            consecutiveGrowthPeriods: 5,
+            consecutiveGrowthPeriods: 5
           },
           enableGCTrigger: true,
-          enableDetailedAnalysis: true,
+          enableDetailedAnalysis: true
         })
         logger.info('Memory leak detector initialized', 'PerformanceManager')
       }
@@ -242,10 +242,10 @@ export class PerformanceManager extends EventEmitter {
           streaming: { status: 'not_initialized', metrics: {} },
           cache: { status: 'not_initialized', metrics: {} },
           electron: { status: 'not_initialized', metrics: {} },
-          memory: { status: 'not_initialized', metrics: {} },
+          memory: { status: 'not_initialized', metrics: {} }
         },
         recommendations: ['Initialize Performance Manager first'],
-        alerts: [],
+        alerts: []
       }
     }
 
@@ -254,7 +254,7 @@ export class PerformanceManager extends EventEmitter {
       streaming: await this.getStreamingStatus(),
       cache: await this.getCacheStatus(),
       electron: await this.getElectronStatus(),
-      memory: await this.getMemoryStatus(),
+      memory: await this.getMemoryStatus()
     }
 
     // Calculate overall status
@@ -273,7 +273,7 @@ export class PerformanceManager extends EventEmitter {
       overall,
       components,
       recommendations,
-      alerts,
+      alerts
     }
   }
 
@@ -333,7 +333,7 @@ export class PerformanceManager extends EventEmitter {
           const cleanupResult = await this.memoryLeakDetector.attemptMemoryCleanup()
           if (cleanupResult.success) {
             optimizationsPerformed.push(
-              `Memory cleanup (freed ${Math.round(cleanupResult.memoryFreed / 1024 / 1024)}MB)`,
+              `Memory cleanup (freed ${Math.round(cleanupResult.memoryFreed / 1024 / 1024)}MB)`
             )
           }
         } catch (error) {
@@ -355,21 +355,21 @@ export class PerformanceManager extends EventEmitter {
         duration: Math.round(duration),
         optimizations: optimizationsPerformed.length,
         errors: errors.length,
-        improvement: Math.round(performanceImprovement),
+        improvement: Math.round(performanceImprovement)
       })
 
       this.emit('optimization-completed', {
         optimizationsPerformed,
         errors,
         performanceImprovement,
-        duration,
+        duration
       })
 
       return {
         success: errors.length === 0,
         optimizationsPerformed,
         errors,
-        performanceImprovement,
+        performanceImprovement
       }
     } catch (error) {
       logger.error('System optimization failed', 'PerformanceManager', { error })
@@ -377,7 +377,7 @@ export class PerformanceManager extends EventEmitter {
         success: false,
         optimizationsPerformed,
         errors: [...errors, `System optimization failed: ${error}`],
-        performanceImprovement: 0,
+        performanceImprovement: 0
       }
     }
   }
@@ -392,14 +392,14 @@ export class PerformanceManager extends EventEmitter {
     electron?: any
     monitor?: any
     memory?: any
-    } {
+  } {
     return {
       database: this.dbOptimizer?.getPerformanceMetrics(),
       streaming: this.streamingOptimizer?.getMetrics(),
       cache: this.cacheSystem?.getStats(),
       electron: this.electronOptimizer?.getMetrics(),
       monitor: this.performanceMonitor?.getCurrentMetrics(),
-      memory: this.memoryLeakDetector?.getDetailedReport(),
+      memory: this.memoryLeakDetector?.getDetailedReport()
     }
   }
 
@@ -423,44 +423,44 @@ export class PerformanceManager extends EventEmitter {
         activeAlerts: status.alerts.length,
         componentsHealthy: Object.values(status.components).filter(c => c.status === 'healthy')
           .length,
-        totalComponents: Object.keys(status.components).length,
+        totalComponents: Object.keys(status.components).length
       },
       components: {
         database: {
           status: status.components.database.status,
           metrics: metrics.database,
-          recommendations: this.getDatabaseRecommendations(),
+          recommendations: this.getDatabaseRecommendations()
         },
         streaming: {
           status: status.components.streaming.status,
           metrics: metrics.streaming,
-          recommendations: this.getStreamingRecommendations(),
+          recommendations: this.getStreamingRecommendations()
         },
         cache: {
           status: status.components.cache.status,
           metrics: metrics.cache,
-          recommendations: this.getCacheRecommendations(),
+          recommendations: this.getCacheRecommendations()
         },
         electron: {
           status: status.components.electron.status,
           metrics: metrics.electron,
-          recommendations: this.getElectronRecommendations(),
+          recommendations: this.getElectronRecommendations()
         },
         memory: {
           status: status.components.memory.status,
           metrics: metrics.memory,
-          recommendations: this.getMemoryRecommendations(),
-        },
+          recommendations: this.getMemoryRecommendations()
+        }
       },
       recommendations: status.recommendations,
       historicalData: {
         monitor: this.performanceMonitor?.getHistoricalMetrics(Date.now() - 60 * 60 * 1000),
-        memory: this.memoryLeakDetector?.getDetailedReport(),
+        memory: this.memoryLeakDetector?.getDetailedReport()
       },
       exportedData: {
         monitor: this.performanceMonitor?.exportData(),
-        cache: this.cacheSystem?.export(),
-      },
+        cache: this.cacheSystem?.export()
+      }
     }
 
     return report
@@ -477,7 +477,7 @@ export class PerformanceManager extends EventEmitter {
     // Fallback to basic window creation
     logger.warn(
       'Electron optimizer not available, using basic window creation',
-      'PerformanceManager',
+      'PerformanceManager'
     )
     return null
   }
@@ -723,8 +723,8 @@ export class PerformanceManager extends EventEmitter {
         ...monitorAlerts.map(alert => ({
           level: alert.level,
           message: alert.message,
-          timestamp: alert.timestamp,
-        })),
+          timestamp: alert.timestamp
+        }))
       )
     }
 
@@ -737,8 +737,8 @@ export class PerformanceManager extends EventEmitter {
         ...criticalLeaks.map(leak => ({
           level: 'critical',
           message: `Memory leak: ${leak.description}`,
-          timestamp: leak.firstDetected,
-        })),
+          timestamp: leak.firstDetected
+        }))
       )
     }
 
@@ -878,7 +878,7 @@ export class PerformanceManager extends EventEmitter {
  * Global performance manager instance factory
  */
 export function createPerformanceManager(
-  config?: Partial<PerformanceManagerConfig>,
+  config?: Partial<PerformanceManagerConfig>
 ): PerformanceManager {
   return new PerformanceManager(config)
 }

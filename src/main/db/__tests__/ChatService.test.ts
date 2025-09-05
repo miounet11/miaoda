@@ -21,7 +21,7 @@ describe('ChatService', () => {
 
     mockDb = {
       prepare: vi.fn(() => mockStmt),
-      transaction: vi.fn((fn) => fn()),
+      transaction: vi.fn(fn => fn()),
       exec: vi.fn(),
       close: vi.fn()
     }
@@ -44,18 +44,16 @@ describe('ChatService', () => {
 
       chatService.createChat(chatRecord)
 
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO chats')
-      )
+      expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO chats'))
       expect(mockStmt.run).toHaveBeenCalledWith(
         'chat-123',
         'Test Chat',
         '2024-01-01T12:00:00Z',
         '2024-01-01T12:00:00Z',
         null, // tags
-        0,    // archived
-        0,    // starred
-        null  // settings
+        0, // archived
+        0, // starred
+        null // settings
       )
     })
 
@@ -214,9 +212,7 @@ describe('ChatService', () => {
 
       const result = chatService.getAllChats()
 
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM chats')
-      )
+      expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM chats'))
       expect(result).toEqual(mockChats)
     })
 
@@ -305,9 +301,7 @@ describe('ChatService', () => {
 
       const results = chatService.searchChats('Work')
 
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE title LIKE ?')
-      )
+      expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('WHERE title LIKE ?'))
       expect(mockStmt.all).toHaveBeenCalledWith('%Work%')
       expect(results).toEqual(mockResults)
     })
@@ -315,17 +309,13 @@ describe('ChatService', () => {
     it('filters archived chats', () => {
       chatService.getArchivedChats()
 
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE archived = 1')
-      )
+      expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('WHERE archived = 1'))
     })
 
     it('filters starred chats', () => {
       chatService.getStarredChats()
 
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE starred = 1')
-      )
+      expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('WHERE starred = 1'))
     })
 
     it('gets recent chats with limit', () => {
@@ -355,18 +345,20 @@ describe('ChatService', () => {
     })
 
     it('handles bulk operations efficiently', () => {
-      const chats: ChatRecord[] = Array(100).fill(null).map((_, i) => ({
-        id: `chat-${i}`,
-        title: `Chat ${i}`,
-        created_at: '2024-01-01T12:00:00Z',
-        updated_at: '2024-01-01T12:00:00Z'
-      }))
+      const chats: ChatRecord[] = Array(100)
+        .fill(null)
+        .map((_, i) => ({
+          id: `chat-${i}`,
+          title: `Chat ${i}`,
+          created_at: '2024-01-01T12:00:00Z',
+          updated_at: '2024-01-01T12:00:00Z'
+        }))
 
       // Measure performance of bulk operations
       const startTime = performance.now()
-      
+
       chats.forEach(chat => chatService.createChat(chat))
-      
+
       const endTime = performance.now()
       const duration = endTime - startTime
 
@@ -421,7 +413,7 @@ describe('ChatService', () => {
 
       // Should handle potentially malicious content
       chatService.createChat(maliciousChat)
-      
+
       expect(mockStmt.run).toHaveBeenCalled()
       // The actual sanitization would be in the validation method
     })
@@ -491,7 +483,7 @@ describe('ChatService', () => {
       })
 
       expect(() => chatService.deleteChat('chat-123')).toThrow('Transaction failed')
-      
+
       // Transaction should handle rollback automatically
       expect(mockDb.transaction).toHaveBeenCalled()
     })
@@ -507,15 +499,17 @@ describe('ChatService', () => {
 
   describe('Concurrency', () => {
     it('handles concurrent chat operations', async () => {
-      const concurrentOperations = Array(10).fill(null).map((_, i) => {
-        const chat: ChatRecord = {
-          id: `concurrent-chat-${i}`,
-          title: `Concurrent Chat ${i}`,
-          created_at: '2024-01-01T12:00:00Z',
-          updated_at: '2024-01-01T12:00:00Z'
-        }
-        return () => chatService.createChat(chat)
-      })
+      const concurrentOperations = Array(10)
+        .fill(null)
+        .map((_, i) => {
+          const chat: ChatRecord = {
+            id: `concurrent-chat-${i}`,
+            title: `Concurrent Chat ${i}`,
+            created_at: '2024-01-01T12:00:00Z',
+            updated_at: '2024-01-01T12:00:00Z'
+          }
+          return () => chatService.createChat(chat)
+        })
 
       // Run operations concurrently
       expect(() => {
@@ -555,12 +549,14 @@ describe('ChatService', () => {
     })
 
     it('handles large result sets efficiently', () => {
-      const largeResultSet = Array(10000).fill(null).map((_, i) => ({
-        id: `chat-${i}`,
-        title: `Chat ${i}`,
-        created_at: '2024-01-01T12:00:00Z',
-        updated_at: '2024-01-01T12:00:00Z'
-      }))
+      const largeResultSet = Array(10000)
+        .fill(null)
+        .map((_, i) => ({
+          id: `chat-${i}`,
+          title: `Chat ${i}`,
+          created_at: '2024-01-01T12:00:00Z',
+          updated_at: '2024-01-01T12:00:00Z'
+        }))
 
       mockStmt.all.mockReturnValue(largeResultSet)
 

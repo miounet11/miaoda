@@ -220,8 +220,7 @@ describe('useSettingsStore', () => {
       }
 
       // Should validate shortcut format
-      expect(() => settingsStore.updateKeyboardShortcuts(invalidShortcuts))
-        .not.toThrow() // Store should handle gracefully
+      expect(() => settingsStore.updateKeyboardShortcuts(invalidShortcuts)).not.toThrow() // Store should handle gracefully
     })
   })
 
@@ -231,7 +230,8 @@ describe('useSettingsStore', () => {
 
       await settingsStore.saveSettings()
 
-      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('settings:save', 
+      expect(mockIpcRenderer.invoke).toHaveBeenCalledWith(
+        'settings:save',
         expect.objectContaining({
           llmProvider: settingsStore.llmProvider,
           modelName: settingsStore.modelName,
@@ -248,7 +248,7 @@ describe('useSettingsStore', () => {
         fontSize: 16,
         showTimestamps: false
       }
-      
+
       mockIpcRenderer.invoke.mockResolvedValue(mockSettings)
 
       await settingsStore.loadSettings()
@@ -266,7 +266,7 @@ describe('useSettingsStore', () => {
       mockIpcRenderer.invoke.mockRejectedValue(error)
 
       await expect(settingsStore.loadSettings()).rejects.toThrow('Failed to load settings')
-      
+
       // Should maintain default values on error
       expect(settingsStore.llmProvider).toBe('openai')
       expect(settingsStore.modelName).toBe('gpt-4')
@@ -318,14 +318,16 @@ describe('useSettingsStore', () => {
     it('calculates current settings object correctly', () => {
       const currentSettings = settingsStore.currentSettings
 
-      expect(currentSettings).toEqual(expect.objectContaining({
-        llmProvider: settingsStore.llmProvider,
-        modelName: settingsStore.modelName,
-        temperature: settingsStore.temperature,
-        maxTokens: settingsStore.maxTokens,
-        fontSize: settingsStore.fontSize,
-        showTimestamps: settingsStore.showTimestamps
-      }))
+      expect(currentSettings).toEqual(
+        expect.objectContaining({
+          llmProvider: settingsStore.llmProvider,
+          modelName: settingsStore.modelName,
+          temperature: settingsStore.temperature,
+          maxTokens: settingsStore.maxTokens,
+          fontSize: settingsStore.fontSize,
+          showTimestamps: settingsStore.showTimestamps
+        })
+      )
     })
 
     it('determines if settings are valid', () => {
@@ -392,11 +394,13 @@ describe('useSettingsStore', () => {
 
       const exported = settingsStore.exportSettings()
 
-      expect(exported).toEqual(expect.objectContaining({
-        llmProvider: 'anthropic',
-        temperature: 0.8,
-        fontSize: 16
-      }))
+      expect(exported).toEqual(
+        expect.objectContaining({
+          llmProvider: 'anthropic',
+          temperature: 0.8,
+          fontSize: 16
+        })
+      )
     })
 
     it('imports settings correctly', () => {
@@ -438,9 +442,12 @@ describe('useSettingsStore', () => {
       settingsStore.updateTemperature(0.8)
 
       // Should trigger auto-save
-      await vi.waitFor(() => {
-        expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('settings:save', expect.any(Object))
-      }, { timeout: 1000 })
+      await vi.waitFor(
+        () => {
+          expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('settings:save', expect.any(Object))
+        },
+        { timeout: 1000 }
+      )
     })
 
     it('respects auto-save interval', async () => {
@@ -450,9 +457,12 @@ describe('useSettingsStore', () => {
       const startTime = Date.now()
       settingsStore.updateTemperature(0.8)
 
-      await vi.waitFor(() => {
-        expect(mockIpcRenderer.invoke).toHaveBeenCalled()
-      }, { timeout: 2000 })
+      await vi.waitFor(
+        () => {
+          expect(mockIpcRenderer.invoke).toHaveBeenCalled()
+        },
+        { timeout: 2000 }
+      )
 
       const endTime = Date.now()
       expect(endTime - startTime).toBeGreaterThanOrEqual(1000)
@@ -460,7 +470,7 @@ describe('useSettingsStore', () => {
 
     it('skips auto-save when disabled', () => {
       settingsStore.updateAutoSave(false)
-      
+
       settingsStore.updateTemperature(0.8)
 
       // Should not auto-save
@@ -482,7 +492,7 @@ describe('useSettingsStore', () => {
 
     it('handles system theme detection', () => {
       settingsStore.updateTheme('system')
-      
+
       // Mock system theme
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
@@ -494,8 +504,8 @@ describe('useSettingsStore', () => {
           removeListener: vi.fn(),
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
-          dispatchEvent: vi.fn(),
-        })),
+          dispatchEvent: vi.fn()
+        }))
       })
 
       expect(settingsStore.effectiveTheme).toBe('dark')
@@ -513,7 +523,7 @@ describe('useSettingsStore', () => {
 
     it('validates language codes', () => {
       settingsStore.updateLanguage('invalid-locale')
-      
+
       // Should fallback to default or validate
       expect(settingsStore.language).toBeDefined()
     })
@@ -522,7 +532,7 @@ describe('useSettingsStore', () => {
   describe('Settings Watchers', () => {
     it('triggers updates when settings change', async () => {
       const mockCallback = vi.fn()
-      
+
       // Watch for settings changes
       settingsStore.$subscribe(mockCallback)
 
@@ -559,7 +569,7 @@ describe('useSettingsStore', () => {
       mockIpcRenderer.invoke.mockRejectedValue(error)
 
       await expect(settingsStore.loadSettings()).rejects.toThrow('Failed to load settings')
-      
+
       // Should maintain current state on error
       expect(settingsStore.llmProvider).toBeDefined()
     })

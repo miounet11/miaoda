@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="simple-markdown prose prose-sm max-w-none"
-    v-html="renderedContent"
-  />
+  <div class="simple-markdown prose prose-sm max-w-none" v-html="renderedContent" />
 </template>
 
 <script setup lang="ts">
@@ -51,9 +48,15 @@ const renderedContent = computed(() => {
   @apply font-semibold text-foreground mt-4 mb-2;
 }
 
-.simple-markdown h1 { @apply text-lg; }
-.simple-markdown h2 { @apply text-base; }
-.simple-markdown h3 { @apply text-sm; }
+.simple-markdown h1 {
+  @apply text-lg;
+}
+.simple-markdown h2 {
+  @apply text-base;
+}
+.simple-markdown h3 {
+  @apply text-sm;
+}
 
 /* Paragraphs */
 .simple-markdown p {
@@ -123,7 +126,7 @@ const renderedContent = computed(() => {
 }
 
 /* Task lists */
-.simple-markdown input[type="checkbox"] {
+.simple-markdown input[type='checkbox'] {
   @apply mr-2 accent-blue-600;
 }
 

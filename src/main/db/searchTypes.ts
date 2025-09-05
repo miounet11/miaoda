@@ -1,3 +1,6 @@
+// Import shared types
+import type { Attachment } from './types'
+
 // Search query types matching frontend expectations
 export interface SearchQuery {
   text: string
@@ -51,9 +54,9 @@ export interface SearchResultMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp: Date
-  metadata?: any
+  metadata?: Record<string, unknown>
   tags?: string[]
-  attachments?: any[]
+  attachments?: Attachment[]
   error?: string
 }
 

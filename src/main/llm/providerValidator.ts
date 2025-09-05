@@ -40,7 +40,7 @@ export class ProviderValidator {
    */
   async validateProvider(
     config: CustomProviderConfig,
-    options: EnhancedValidationOptions = {},
+    options: EnhancedValidationOptions = {}
   ): Promise<ValidationResult> {
     const startTime = Date.now()
 
@@ -73,18 +73,18 @@ export class ProviderValidator {
           connectionTime,
           supportedFeatures: features,
           availableModels,
-          rateLimits: await this.detectRateLimits(config),
-        },
+          rateLimits: await this.detectRateLimits(config)
+        }
       }
     } catch (error: any) {
       logger.error('Provider validation failed', 'ProviderValidator', {
         error: error.message,
-        config: { ...config, apiKey: '***' },
+        config: { ...config, apiKey: '***' }
       })
 
       return {
         success: false,
-        error: this.getErrorSolution(error),
+        error: this.getErrorSolution(error)
       }
     }
   }
@@ -97,7 +97,7 @@ export class ProviderValidator {
     if (!rules) {
       return {
         success: false,
-        error: `Unsupported provider type: ${config.type}`,
+        error: `Unsupported provider type: ${config.type}`
       }
     }
 
@@ -106,7 +106,7 @@ export class ProviderValidator {
       if (!(field in config) || !config[field as keyof CustomProviderConfig]) {
         return {
           success: false,
-          error: `Required field missing: ${field}`,
+          error: `Required field missing: ${field}`
         }
       }
     }
@@ -115,7 +115,7 @@ export class ProviderValidator {
     if (config.baseURL && !rules.urlPattern.test(config.baseURL)) {
       return {
         success: false,
-        error: 'Invalid Base URL format. Must start with http:// or https://',
+        error: 'Invalid Base URL format. Must start with http:// or https://'
       }
     }
 
@@ -123,7 +123,7 @@ export class ProviderValidator {
     if (config.model && !rules.modelPattern.test(config.model)) {
       return {
         success: false,
-        error: `Invalid model name format for ${config.type}`,
+        error: `Invalid model name format for ${config.type}`
       }
     }
 
@@ -135,7 +135,7 @@ export class ProviderValidator {
    */
   private async testConnection(
     config: CustomProviderConfig,
-    timeout = this.DEFAULT_TIMEOUT,
+    timeout = this.DEFAULT_TIMEOUT
   ): Promise<ValidationResult> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeout)
@@ -146,9 +146,9 @@ export class ProviderValidator {
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
-          ...config.headers,
+          ...config.headers
         },
-        signal: controller.signal,
+        signal: controller.signal
       })
 
       clearTimeout(timeoutId)
@@ -169,12 +169,12 @@ export class ProviderValidator {
    */
   private async detectSupportedFeatures(
     config: CustomProviderConfig,
-    options: EnhancedValidationOptions,
+    options: EnhancedValidationOptions
   ): Promise<{ streaming: boolean; toolCalling: boolean; multimodal: boolean }> {
     const features = {
       streaming: false,
       toolCalling: false,
-      multimodal: false,
+      multimodal: false
     }
 
     try {
@@ -192,7 +192,7 @@ export class ProviderValidator {
       features.multimodal = this.detectMultimodal(config.model)
     } catch (error: any) {
       logger.warn('Feature detection partially failed', 'ProviderValidator', {
-        error: error.message,
+        error: error.message
       })
     }
 
@@ -209,14 +209,14 @@ export class ProviderValidator {
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
-          ...config.headers,
+          ...config.headers
         },
         body: JSON.stringify({
           model: config.model,
           messages: [{ role: 'user', content: TEST_MESSAGES.basic }],
           stream: true,
-          max_tokens: 10,
-        }),
+          max_tokens: 10
+        })
       })
 
       return response.ok && response.body !== null
@@ -237,9 +237,9 @@ export class ProviderValidator {
           description: 'Get current time',
           parameters: {
             type: 'object',
-            properties: {},
-          },
-        },
+            properties: {}
+          }
+        }
       }
 
       const response = await fetch(`${config.baseURL}/chat/completions`, {
@@ -247,14 +247,14 @@ export class ProviderValidator {
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
-          ...config.headers,
+          ...config.headers
         },
         body: JSON.stringify({
           model: config.model,
           messages: [{ role: 'user', content: 'What time is it?' }],
           tools: [testTool],
-          max_tokens: 50,
-        }),
+          max_tokens: 50
+        })
       })
 
       if (response.ok) {
@@ -276,7 +276,7 @@ export class ProviderValidator {
       /gpt-4v/i,
       /claude-3/i,
       /gemini.*vision/i,
-      /dall-e/i,
+      /dall-e/i
     ]
 
     return multimodalPatterns.some(pattern => pattern.test(model))
@@ -290,8 +290,8 @@ export class ProviderValidator {
       const response = await fetch(`${config.baseURL}/models`, {
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
-          ...config.headers,
-        },
+          ...config.headers
+        }
       })
 
       if (response.ok) {
@@ -308,14 +308,14 @@ export class ProviderValidator {
    * Detect rate limits through response headers
    */
   private async detectRateLimits(
-    config: CustomProviderConfig,
+    config: CustomProviderConfig
   ): Promise<{ requestsPerMinute?: number; tokensPerMinute?: number }> {
     try {
       const response = await fetch(`${config.baseURL}/models`, {
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
-          ...config.headers,
-        },
+          ...config.headers
+        }
       })
 
       const rateLimits: { requestsPerMinute?: number; tokensPerMinute?: number } = {}
@@ -384,14 +384,14 @@ export class ProviderValidator {
    */
   createHealthStatus(
     providerName: string,
-    validationResult: ValidationResult,
+    validationResult: ValidationResult
   ): ProviderHealthStatus {
     return {
       providerName,
       isHealthy: validationResult.success,
       lastChecked: new Date().toISOString(),
       error: validationResult.error,
-      responseTime: validationResult.details?.connectionTime,
+      responseTime: validationResult.details?.connectionTime
     }
   }
 }

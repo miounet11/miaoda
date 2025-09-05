@@ -71,7 +71,11 @@ declare global {
         searchChatsByTags?: (tags: string[]) => Promise<any[]>
         getAllSummaryTags?: () => Promise<string[]>
         clearChatSummary?: (chatId: string) => Promise<void>
-        needsSummaryUpdate?: (chatId: string, minMessages?: number, maxAgeHours?: number) => Promise<boolean>
+        needsSummaryUpdate?: (
+          chatId: string,
+          minMessages?: number,
+          maxAgeHours?: number
+        ) => Promise<boolean>
         // analytics
         generateAnalytics?: (filter: any) => Promise<any>
         getAnalyticsSummary?: (timeRange?: string) => Promise<any>
@@ -107,8 +111,13 @@ declare global {
         setToolsEnabled: (enabled: boolean) => Promise<void>
         getToolsEnabled: () => Promise<boolean>
         getAllProviders: () => Promise<any[]>
-        addCustomProvider: (config: any) => Promise<{ success: boolean; id?: string; error?: string }>
-        updateCustomProvider: (id: string, updates: any) => Promise<{ success: boolean; error?: string }>
+        addCustomProvider: (
+          config: any
+        ) => Promise<{ success: boolean; id?: string; error?: string }>
+        updateCustomProvider: (
+          id: string,
+          updates: any
+        ) => Promise<{ success: boolean; error?: string }>
         removeCustomProvider: (id: string) => Promise<{ success: boolean; error?: string }>
         getAllCustomProviders: () => Promise<any[]>
         getCustomProvider: (id: string) => Promise<any>
@@ -117,7 +126,9 @@ declare global {
         getAllProviderHealthStatuses: () => Promise<any[]>
         getCustomProviderHealth: (id: string) => Promise<any>
         exportCustomProviders: () => Promise<any[]>
-        importCustomProviders: (providers: any[]) => Promise<{ success: number; failed: number; errors: string[] }>
+        importCustomProviders: (
+          providers: any[]
+        ) => Promise<{ success: number; failed: number; errors: string[] }>
         onChunk: (callback: (data: any) => void) => () => void
         onStatus: (callback: (data: any) => void) => () => void
         onToolCall: (callback: (data: any) => void) => () => void

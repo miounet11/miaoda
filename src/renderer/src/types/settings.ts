@@ -3,7 +3,7 @@
  */
 import type { KeyboardShortcuts } from './ui'
 
-export type LLMProvider = 'openai' | 'anthropic' | 'google' | 'ollama' | 'local' | 'custom'
+export type LLMProvider = 'miaochat' | 'openai' | 'anthropic' | 'google' | 'ollama' | 'local' | 'custom'
 
 export interface LLMConfig {
   provider: LLMProvider

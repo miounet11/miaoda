@@ -111,7 +111,7 @@ class UserMemoryService {
     this.memory.value = {
       userId: this.generateUserId(),
       basicInfo: {
-        interests: [],
+        interests: []
       },
       preferences: {
         responseStyle: 'casual',
@@ -121,18 +121,18 @@ class UserMemoryService {
         preferredModels: [],
         voiceEnabled: true,
         autoSuggestions: true,
-        responseLength: 'medium',
+        responseLength: 'medium'
       },
       habits: {
         activeHours: [],
         frequentQueries: new Map(),
         averageSessionLength: 0,
         preferredFeatures: [],
-        interactionStyle: 'quick',
+        interactionStyle: 'quick'
       },
       memories: [],
       lastUpdated: new Date(),
-      version: 1,
+      version: 1
     }
     this.saveMemory()
   }
@@ -152,8 +152,8 @@ class UserMemoryService {
         ...this.memory.value,
         habits: {
           ...this.memory.value.habits,
-          frequentQueries: Array.from(this.memory.value.habits.frequentQueries.entries()),
-        },
+          frequentQueries: Array.from(this.memory.value.habits.frequentQueries.entries())
+        }
       }
       localStorage.setItem('user_memory', JSON.stringify(memoryToSave))
 
@@ -172,7 +172,7 @@ class UserMemoryService {
 
     this.memory.value.basicInfo = {
       ...this.memory.value.basicInfo,
-      ...info,
+      ...info
     }
     this.memory.value.lastUpdated = new Date()
     this.saveMemory()
@@ -187,7 +187,7 @@ class UserMemoryService {
 
     this.memory.value.preferences = {
       ...this.memory.value.preferences,
-      ...preferences,
+      ...preferences
     }
     this.memory.value.lastUpdated = new Date()
     this.saveMemory()
@@ -267,7 +267,7 @@ class UserMemoryService {
     const newEntry: MemoryEntry = {
       ...entry,
       id: this.generateMemoryId(),
-      timestamp: new Date(),
+      timestamp: new Date()
     }
 
     this.memory.value.memories.push(newEntry)
@@ -298,8 +298,9 @@ class UserMemoryService {
 
     return this.memory.value.memories.filter(entry => {
       const matchesType = !type || entry.type === type
-      const matchesContent = entry.content.toLowerCase().includes(query.toLowerCase()) ||
-                           entry.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+      const matchesContent =
+        entry.content.toLowerCase().includes(query.toLowerCase()) ||
+        entry.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
       return matchesType && matchesContent
     })
   }
@@ -328,7 +329,7 @@ class UserMemoryService {
       })
 
       // 重要性加权
-      score *= (entry.importance / 10)
+      score *= entry.importance / 10
 
       // 时间衰减
       const daysSince = (Date.now() - entry.timestamp.getTime()) / (1000 * 60 * 60 * 24)
@@ -360,7 +361,7 @@ class UserMemoryService {
           reason: '基于您的兴趣爱好',
           confidence: 0.8,
           priority: 'medium',
-          dismissible: true,
+          dismissible: true
         })
       })
     }
@@ -378,7 +379,7 @@ class UserMemoryService {
         reason: '基于您的使用习惯',
         confidence: 0.9,
         priority: 'low',
-        dismissible: true,
+        dismissible: true
       })
     }
 
@@ -393,7 +394,7 @@ class UserMemoryService {
         reason: '基于您的使用频率',
         confidence: 0.85,
         priority: 'medium',
-        dismissible: false,
+        dismissible: false
       })
     }
 
@@ -416,10 +417,13 @@ class UserMemoryService {
   // 后台分析任务
   private startBackgroundAnalysis() {
     // 每30分钟分析一次用户行为
-    setInterval(() => {
-      this.analyzeUserBehavior()
-      this.generateRecommendations()
-    }, 30 * 60 * 1000)
+    setInterval(
+      () => {
+        this.analyzeUserBehavior()
+        this.generateRecommendations()
+      },
+      30 * 60 * 1000
+    )
   }
 
   // 分析用户行为
@@ -531,12 +535,14 @@ export function useUserMemory() {
     updatePreferences: (prefs: Partial<UserPreferences>) => service.updatePreferences(prefs),
     recordHabit: (type: string, value: any) => service.recordHabit(type, value),
     addMemory: (entry: Omit<MemoryEntry, 'id' | 'timestamp'>) => service.addMemory(entry),
-    searchMemories: (query: string, type?: MemoryEntry['type']) => service.searchMemories(query, type),
-    getRelevantMemories: (context: string, limit?: number) => service.getRelevantMemories(context, limit),
+    searchMemories: (query: string, type?: MemoryEntry['type']) =>
+      service.searchMemories(query, type),
+    getRelevantMemories: (context: string, limit?: number) =>
+      service.getRelevantMemories(context, limit),
     dismissRecommendation: (id: string) => service.dismissRecommendation(id),
     getUserProfile: () => service.getUserProfile(),
     exportMemory: () => service.exportMemory(),
     importMemory: (data: string) => service.importMemory(data),
-    clearMemory: () => service.clearMemory(),
+    clearMemory: () => service.clearMemory()
   }
 }

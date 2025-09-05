@@ -19,26 +19,29 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
-      },
+        project: './tsconfig.json'
+      }
     },
     plugins: {
-      '@typescript-eslint': typescript,
+      '@typescript-eslint': typescript
     },
     rules: {
       // TypeScript 规则
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        ignoreRestSiblings: true,
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true
+        }
+      ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
 
       // 禁用基础规则，由 TypeScript 规则替代
       'no-unused-vars': 'off',
-      'no-undef': 'off',
-    },
+      'no-undef': 'off'
+    }
   },
 
   // Vue 文件特殊配置
@@ -50,15 +53,15 @@ export default [
         parser: typescriptParser,
         extraFileExtensions: ['.vue'],
         ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
+        sourceType: 'module'
+      }
     },
     rules: {
       'vue/multi-word-component-names': 'off',
       'vue/no-unused-vars': 'error',
       'vue/require-v-for-key': 'error',
-      'vue/no-use-v-if-with-v-for': 'error',
-    },
+      'vue/no-use-v-if-with-v-for': 'error'
+    }
   },
 
   // Electron 主进程配置
@@ -82,14 +85,14 @@ export default [
         // Electron 全局变量
         require: 'readonly',
         module: 'readonly',
-        exports: 'readonly',
-      },
+        exports: 'readonly'
+      }
     },
     rules: {
       'no-console': 'off', // Electron 主进程可以使用 console
       '@typescript-eslint/no-var-requires': 'off', // Node.js 环境可以使用 require
-      'no-undef': 'off', // Node.js 全局变量
-    },
+      'no-undef': 'off' // Node.js 全局变量
+    }
   },
 
   // Node.js 脚本文件配置
@@ -102,13 +105,13 @@ export default [
         require: 'readonly',
         module: 'readonly',
         __dirname: 'readonly',
-        __filename: 'readonly',
-      },
+        __filename: 'readonly'
+      }
     },
     rules: {
       'no-console': 'off', // 脚本文件可以使用 console
-      'no-undef': 'off', // Node.js 全局变量
-    },
+      'no-undef': 'off' // Node.js 全局变量
+    }
   },
 
   // 渲染进程配置
@@ -135,13 +138,13 @@ export default [
         File: 'readonly',
         FileReader: 'readonly',
         // Electron 渲染进程变量
-        NodeJS: 'readonly',
-      },
+        NodeJS: 'readonly'
+      }
     },
     rules: {
       'no-console': 'warn', // 渲染进程不建议使用 console
-      'no-undef': 'off', // 浏览器全局变量
-    },
+      'no-undef': 'off' // 浏览器全局变量
+    }
   },
 
   // 测试文件配置
@@ -172,17 +175,20 @@ export default [
         afterAll: 'readonly',
         afterEach: 'readonly',
         vi: 'readonly',
-        vitest: 'readonly',
-      },
+        vitest: 'readonly'
+      }
     },
     rules: {
       'no-console': 'off', // 测试中可以使用 console
       'no-undef': 'off', // 测试环境全局变量
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
-    },
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_'
+        }
+      ]
+    }
   },
 
   // 全局忽略配置
@@ -196,8 +202,8 @@ export default [
       '**/*.config.ts',
       'public/**',
       'example-plugins/**',
-      'scripts/**',
-    ],
+      'scripts/**'
+    ]
   },
 
   // 通用规则
@@ -210,16 +216,16 @@ export default [
       'prefer-arrow-callback': 'error',
 
       // 代码风格
-      'semi': ['error', 'never'],
-      'quotes': ['error', 'single', { avoidEscape: true }],
+      semi: ['error', 'never'],
+      quotes: ['error', 'single', { avoidEscape: true }],
       'comma-dangle': ['error', 'always-multiline'],
-      'indent': ['error', 2, { SwitchCase: 1 }],
+      indent: ['error', 2, { SwitchCase: 1 }],
       'max-len': ['error', { code: 100, ignoreUrls: true, ignoreStrings: true }],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
 
       // 最佳实践
-      'eqeqeq': ['error', 'always'],
+      eqeqeq: ['error', 'always'],
       'no-console': 'warn',
       'no-debugger': 'error',
       'no-alert': 'warn',
@@ -230,7 +236,7 @@ export default [
       'no-undef': 'error',
       'no-unused-vars': 'warn',
       'no-unreachable': 'error',
-      'valid-typeof': 'error',
-    },
-  },
+      'valid-typeof': 'error'
+    }
+  }
 ]

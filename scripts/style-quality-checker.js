@@ -22,7 +22,7 @@ class StyleQualityChecker {
       passed: 0,
       issues: [],
       warnings: [],
-      suggestions: [],
+      suggestions: []
     }
   }
 
@@ -80,7 +80,7 @@ class StyleQualityChecker {
       '.next',
       '.nuxt',
       'coverage',
-      '.nyc_output',
+      '.nyc_output'
     ]
     return skipDirs.includes(dirName)
   }

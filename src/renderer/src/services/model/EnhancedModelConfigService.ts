@@ -12,14 +12,14 @@ export type ModelProviderType =
   | 'anthropic'
   | 'google'
   | 'ollama'
-  | 'deepseek'    // DeepSeek
-  | 'qwen'        // 通义千问
-  | 'baidu'       // 百度文心
-  | 'zhipu'       // 智谱清言
-  | 'moonshot'    // Kimi
-  | 'minimax'     // MiniMax
-  | 'sensetime'   // 商汤日日新
-  | 'custom'      // 自定义
+  | 'deepseek' // DeepSeek
+  | 'qwen' // 通义千问
+  | 'baidu' // 百度文心
+  | 'zhipu' // 智谱清言
+  | 'moonshot' // Kimi
+  | 'minimax' // MiniMax
+  | 'sensetime' // 商汤日日新
+  | 'custom' // 自定义
 
 // 模型提供商预设配置
 export interface ModelProviderPreset {
@@ -62,7 +62,7 @@ export interface ModelPreset {
   contextLength: number
   maxTokens?: number
   pricing?: {
-    input: number  // 每1k token价格(元)
+    input: number // 每1k token价格(元)
     output: number
     unit: 'RMB' | 'USD'
   }
@@ -104,12 +104,15 @@ class EnhancedModelConfigService {
           description: '智能对话助手，完全免费',
           contextLength: 4096,
           capabilities: {
-            chat: true, functions: false, vision: false,
-            streaming: true, chinese: true,
+            chat: true,
+            functions: false,
+            vision: false,
+            streaming: true,
+            chinese: true
           },
-          recommended: true,
-        },
-      ],
+          recommended: true
+        }
+      ]
     },
 
     // ============ 国内主流大模型 ============
@@ -136,8 +139,14 @@ class EnhancedModelConfigService {
           description: '通用对话模型，支持中英双语',
           contextLength: 32768,
           pricing: { input: 0.0014, output: 0.002, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'deepseek-coder',
@@ -146,9 +155,15 @@ class EnhancedModelConfigService {
           description: '专业代码生成模型，编程能力强悍',
           contextLength: 16384,
           pricing: { input: 0.0014, output: 0.002, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -173,8 +188,14 @@ class EnhancedModelConfigService {
           description: '平衡性能和成本的经济选择',
           contextLength: 6144,
           pricing: { input: 0.003, output: 0.006, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'qwen-plus',
@@ -183,7 +204,13 @@ class EnhancedModelConfigService {
           description: '增强版模型，更强的推理能力',
           contextLength: 32768,
           pricing: { input: 0.008, output: 0.02, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
         },
         {
           id: 'qwen-vl-plus',
@@ -192,9 +219,15 @@ class EnhancedModelConfigService {
           description: '多模态模型，支持图像理解',
           contextLength: 8192,
           pricing: { input: 0.02, output: 0.02, unit: 'RMB' },
-          capabilities: { chat: true, functions: false, vision: true, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: true,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -210,8 +243,20 @@ class EnhancedModelConfigService {
       requiresBaseUrl: true,
       defaultBaseUrl: 'https://aip.baidubce.com',
       configFields: [
-        { key: 'apiKey', label: 'API Key', type: 'password', required: true, placeholder: 'API Key' },
-        { key: 'secretKey', label: 'Secret Key', type: 'password', required: true, placeholder: 'Secret Key' },
+        {
+          key: 'apiKey',
+          label: 'API Key',
+          type: 'password',
+          required: true,
+          placeholder: 'API Key'
+        },
+        {
+          key: 'secretKey',
+          label: 'Secret Key',
+          type: 'password',
+          required: true,
+          placeholder: 'Secret Key'
+        }
       ],
       models: [
         {
@@ -221,8 +266,14 @@ class EnhancedModelConfigService {
           description: '最新一代大模型，理解生成能力全面提升',
           contextLength: 8192,
           pricing: { input: 0.12, output: 0.12, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'ernie-3.5-8k',
@@ -231,9 +282,15 @@ class EnhancedModelConfigService {
           description: '高性价比选择，适合日常对话',
           contextLength: 8192,
           pricing: { input: 0.008, output: 0.008, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -257,8 +314,14 @@ class EnhancedModelConfigService {
           description: '最新一代模型，多模态能力强',
           contextLength: 128000,
           pricing: { input: 0.1, output: 0.1, unit: 'RMB' },
-          capabilities: { chat: true, functions: true, vision: true, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: true,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'glm-3-turbo',
@@ -267,9 +330,15 @@ class EnhancedModelConfigService {
           description: '高速响应模型，性价比高',
           contextLength: 128000,
           pricing: { input: 0.005, output: 0.005, unit: 'RMB' },
-          capabilities: { chat: true, functions: false, vision: false, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -294,7 +363,13 @@ class EnhancedModelConfigService {
           description: '经济实用，适合日常对话',
           contextLength: 8192,
           pricing: { input: 0.012, output: 0.012, unit: 'RMB' },
-          capabilities: { chat: true, functions: false, vision: false, streaming: true, chinese: true },
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
         },
         {
           id: 'moonshot-v1-32k',
@@ -303,8 +378,14 @@ class EnhancedModelConfigService {
           description: '中等上下文长度，平衡性能',
           contextLength: 32768,
           pricing: { input: 0.024, output: 0.024, unit: 'RMB' },
-          capabilities: { chat: true, functions: false, vision: false, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'moonshot-v1-128k',
@@ -313,9 +394,15 @@ class EnhancedModelConfigService {
           description: '超长上下文，支持长文档分析',
           contextLength: 131072,
           pricing: { input: 0.06, output: 0.06, unit: 'RMB' },
-          capabilities: { chat: true, functions: false, vision: false, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -337,10 +424,16 @@ class EnhancedModelConfigService {
           displayName: 'abab6.5s',
           description: '高速响应聊天模型',
           contextLength: 245760,
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-          recommended: true,
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
+        }
+      ]
     },
 
     // ============ 国际主流大模型 ============
@@ -368,8 +461,14 @@ class EnhancedModelConfigService {
           contextLength: 128000,
           maxTokens: 4096,
           pricing: { input: 0.005, output: 0.015, unit: 'USD' },
-          capabilities: { chat: true, functions: true, vision: true, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: true,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'gpt-4-turbo',
@@ -378,7 +477,13 @@ class EnhancedModelConfigService {
           description: '高性能模型，128K上下文',
           contextLength: 128000,
           pricing: { input: 0.01, output: 0.03, unit: 'USD' },
-          capabilities: { chat: true, functions: true, vision: true, streaming: true, chinese: true },
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: true,
+            streaming: true,
+            chinese: true
+          }
         },
         {
           id: 'gpt-3.5-turbo',
@@ -387,9 +492,15 @@ class EnhancedModelConfigService {
           description: '经济实用的经典选择',
           contextLength: 16385,
           pricing: { input: 0.0015, output: 0.002, unit: 'USD' },
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -414,8 +525,14 @@ class EnhancedModelConfigService {
           description: '最新最强的Claude模型',
           contextLength: 200000,
           pricing: { input: 0.003, output: 0.015, unit: 'USD' },
-          capabilities: { chat: true, functions: true, vision: true, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: true,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'claude-3-opus-20240229',
@@ -424,9 +541,15 @@ class EnhancedModelConfigService {
           description: '最强推理能力的Claude模型',
           contextLength: 200000,
           pricing: { input: 0.015, output: 0.075, unit: 'USD' },
-          capabilities: { chat: true, functions: false, vision: true, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: true,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     {
@@ -448,8 +571,14 @@ class EnhancedModelConfigService {
           displayName: 'Gemini Pro',
           description: '强大的通用AI模型',
           contextLength: 32768,
-          capabilities: { chat: true, functions: true, vision: false, streaming: true, chinese: true },
-          recommended: true,
+          capabilities: {
+            chat: true,
+            functions: true,
+            vision: false,
+            streaming: true,
+            chinese: true
+          },
+          recommended: true
         },
         {
           id: 'gemini-pro-vision',
@@ -457,9 +586,15 @@ class EnhancedModelConfigService {
           displayName: 'Gemini Pro Vision',
           description: '支持图像理解的多模态模型',
           contextLength: 16384,
-          capabilities: { chat: true, functions: false, vision: true, streaming: true, chinese: true },
-        },
-      ],
+          capabilities: {
+            chat: true,
+            functions: false,
+            vision: true,
+            streaming: true,
+            chinese: true
+          }
+        }
+      ]
     },
 
     // ============ 本地模型 ============
@@ -477,8 +612,8 @@ class EnhancedModelConfigService {
       defaultBaseUrl: 'http://localhost:11434',
       models: [
         // 模型列表将在连接测试时动态获取
-      ],
-    },
+      ]
+    }
   ]
 
   private constructor() {
@@ -542,9 +677,9 @@ class EnhancedModelConfigService {
   // 获取已配置的提供商
   getConfiguredProviders() {
     return computed(() =>
-      this.presetProviders.filter(p =>
-        p.type === 'builtin' || this.userConfigs.value[p.id]?.configured,
-      ),
+      this.presetProviders.filter(
+        p => p.type === 'builtin' || this.userConfigs.value[p.id]?.configured
+      )
     )
   }
 
@@ -574,14 +709,16 @@ class EnhancedModelConfigService {
     this.userConfigs.value[providerId] = {
       ...this.userConfigs.value[providerId],
       ...config,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
     }
 
     this.saveConfig()
   }
 
   // 测试提供商连接
-  async testProviderConnection(providerId: string): Promise<{ success: boolean; message: string; models?: ModelPreset[] }> {
+  async testProviderConnection(
+    providerId: string
+  ): Promise<{ success: boolean; message: string; models?: ModelPreset[] }> {
     const provider = this.presetProviders.find(p => p.id === providerId)
     if (!provider) {
       return { success: false, message: '未找到指定的提供商' }
@@ -609,7 +746,7 @@ class EnhancedModelConfigService {
         model: config?.model || provider.models?.[0]?.id,
         secretKey: config?.secretKey, // 百度文心需要
         headers: config?.headers,
-        parameters: config?.parameters,
+        parameters: config?.parameters
       }
 
       const result = await electronAPI.enhancedModel.testConnection(testConfig)
@@ -618,19 +755,19 @@ class EnhancedModelConfigService {
         this.updateProviderConfig(providerId, {
           configured: true,
           models: result.models || provider.models,
-          lastTested: new Date().toISOString(),
+          lastTested: new Date().toISOString()
         })
       }
 
       return {
         success: result.success,
         message: result.message,
-        models: result.models || provider.models,
+        models: result.models || provider.models
       }
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : '连接测试失败',
+        message: error instanceof Error ? error.message : '连接测试失败'
       }
     } finally {
       this.isLoading.value = false
@@ -640,7 +777,11 @@ class EnhancedModelConfigService {
   // 已移除旧的本地测试方法，现在使用后端API进行连接测试
 
   // 使用增强模型配置发送消息
-  async sendMessage(messages: Array<{role: string, content: string}>, providerId: string, modelId?: string): Promise<string> {
+  async sendMessage(
+    messages: Array<{ role: string; content: string }>,
+    providerId: string,
+    modelId?: string
+  ): Promise<string> {
     const provider = this.presetProviders.find(p => p.id === providerId)
     if (!provider) {
       throw new Error('未找到指定的提供商')
@@ -664,7 +805,7 @@ class EnhancedModelConfigService {
       model: modelId || config.model || provider.models?.[0]?.id,
       secretKey: config.secretKey, // 百度文心需要
       headers: config.headers,
-      parameters: config.parameters,
+      parameters: config.parameters
     }
 
     try {
@@ -689,7 +830,7 @@ class EnhancedModelConfigService {
           ...model,
           providerId: provider.id,
           providerName: provider.displayName,
-          providerIcon: provider.icon,
+          providerIcon: provider.icon
         }))
 
         allModels.push(...modelsWithProvider)
@@ -709,7 +850,7 @@ class EnhancedModelConfigService {
     const provider: ModelProviderPreset = {
       ...customProvider,
       category: 'domestic', // 默认归类为国内
-      type: 'custom',
+      type: 'custom'
     }
 
     this.presetProviders.push(provider)
@@ -757,14 +898,17 @@ export function useEnhancedModelConfig() {
     getRecommendedModels: () => service.getRecommendedModels(),
 
     // 消息发送
-    sendMessage: (messages: Array<{role: string, content: string}>, providerId: string, modelId?: string) =>
-      service.sendMessage(messages, providerId, modelId),
+    sendMessage: (
+      messages: Array<{ role: string; content: string }>,
+      providerId: string,
+      modelId?: string
+    ) => service.sendMessage(messages, providerId, modelId),
 
     // 自定义提供商
     addCustomProvider: (provider: any) => service.addCustomProvider(provider),
     removeCustomProvider: (id: string) => service.removeCustomProvider(id),
 
     // 状态
-    loading: service.loading,
+    loading: service.loading
   }
 }

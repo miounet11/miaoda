@@ -8,7 +8,8 @@
       :class="{
         'border-primary/40 bg-primary/10 shadow-md': isOpen,
         'border-green-500/40 bg-green-500/10': isConnected.value && !isOpen,
-        'border-yellow-500/40 bg-yellow-500/10': isConfigured.value && !isConnected.value && !isOpen,
+        'border-yellow-500/40 bg-yellow-500/10':
+          isConfigured.value && !isConnected.value && !isOpen,
         'border-red-500/40 bg-red-500/10': !isConfigured.value && !isOpen
       }"
       :title="getButtonTooltip()"
@@ -93,14 +94,14 @@ const selectedProviderId = ref(props.currentProviderId || 'builtin')
 const selectedModelId = ref(props.currentModelId || 'miaoda-chat')
 
 // 计算属性
-const currentProvider = computed(() => 
+const currentProvider = computed(() =>
   presetProviders.value.find(p => p.id === selectedProviderId.value)
 )
 
 const currentModel = computed(() => {
   const allModels = getAllModels()
-  return allModels.find(m => 
-    m.providerId === selectedProviderId.value && m.id === selectedModelId.value
+  return allModels.find(
+    m => m.providerId === selectedProviderId.value && m.id === selectedModelId.value
   )
 })
 
@@ -132,7 +133,9 @@ const statusIndicatorClass = computed(() => {
 })
 
 const isConnected = computed(() => getProviderStatus(selectedProviderId.value) === 'configured')
-const isConfigured = computed(() => ['configured', 'testing'].includes(getProviderStatus(selectedProviderId.value)))
+const isConfigured = computed(() =>
+  ['configured', 'testing'].includes(getProviderStatus(selectedProviderId.value))
+)
 
 // 方法
 const toggleSelector = () => {
@@ -148,7 +151,7 @@ const handleModelSelect = (providerId: string, modelId: string) => {
   // 更新本地选中状态
   selectedProviderId.value = providerId
   selectedModelId.value = modelId
-  
+
   // 发出选择事件
   emit('select-model', providerId, modelId)
   closeSelector()

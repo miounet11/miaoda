@@ -29,7 +29,7 @@ export class SimpleLLMService {
     if (this.config.provider === 'openai' && this.config.apiKey) {
       this.openaiClient = new OpenAI({
         apiKey: this.config.apiKey,
-        baseURL: this.config.baseUrl || 'https://api.openai.com/v1',
+        baseURL: this.config.baseUrl || 'https://api.openai.com/v1'
       })
     }
   }
@@ -69,7 +69,7 @@ export class SimpleLLMService {
       '这是一个很有趣的问题！根据我的理解...',
       '谢谢您的提问。我来为您详细解释一下...',
       '您好！关于这个问题，我可以这样回答...',
-      '我收到了您的问题。让我为您提供一些建议...',
+      '我收到了您的问题。让我为您提供一些建议...'
     ]
 
     // 根据输入内容生成更相关的回复
@@ -94,10 +94,10 @@ export class SimpleLLMService {
       model: this.config.model || 'gpt-3.5-turbo',
       messages: messages.map(msg => ({
         role: msg.role,
-        content: msg.content,
+        content: msg.content
       })),
       max_tokens: 1000,
-      temperature: 0.7,
+      temperature: 0.7
     })
 
     return response.choices[0]?.message?.content || '抱歉，我没有收到回复。'
@@ -144,7 +144,7 @@ export class LLMManager {
   private static instance: LLMManager
   private currentService?: SimpleLLMService
   private config: LLMConfig = {
-    provider: 'default',
+    provider: 'default'
   }
 
   private constructor() {}
@@ -171,33 +171,33 @@ export class LLMManager {
   }
 
   // 获取支持的提供商
-  getSupportedProviders(): Array<{ value: string, label: string, description: string }> {
+  getSupportedProviders(): Array<{ value: string; label: string; description: string }> {
     return [
       {
         value: 'default',
         label: 'MiaoDa AI (免费)',
-        description: '内置免费AI，无需配置',
+        description: '内置免费AI，无需配置'
       },
       {
         value: 'openai',
         label: 'OpenAI GPT',
-        description: 'GPT-4, GPT-3.5-turbo等',
+        description: 'GPT-4, GPT-3.5-turbo等'
       },
       {
         value: 'claude',
         label: 'Anthropic Claude',
-        description: 'Claude 3系列模型',
+        description: 'Claude 3系列模型'
       },
       {
         value: 'gemini',
         label: 'Google Gemini',
-        description: 'Google最新AI模型',
+        description: 'Google最新AI模型'
       },
       {
         value: 'ollama',
         label: 'Ollama (本地)',
-        description: '本地运行的开源模型',
-      },
+        description: '本地运行的开源模型'
+      }
     ]
   }
 

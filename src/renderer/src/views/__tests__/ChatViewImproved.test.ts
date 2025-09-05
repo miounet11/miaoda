@@ -48,7 +48,7 @@ describe('ChatViewImproved', () => {
   beforeEach(() => {
     pinia = createPinia()
     setActivePinia(pinia)
-    
+
     // Mock window.electron for IPC
     global.window = {
       ...global.window,
@@ -187,7 +187,7 @@ describe('ChatViewImproved', () => {
     global.innerWidth = 768
     global.dispatchEvent(new Event('resize'))
     await wrapper.vm.$nextTick()
-    
+
     // Should adapt to mobile layout
   })
 
@@ -202,8 +202,8 @@ describe('ChatViewImproved', () => {
     const createChatSpy = vi.spyOn(chatStore, 'createChat').mockResolvedValue(createMockChat())
 
     // Test keyboard shortcut (CMD+N for new chat)
-    await wrapper.trigger('keydown', { 
-      key: 'n', 
+    await wrapper.trigger('keydown', {
+      key: 'n',
       metaKey: true,
       preventDefault: vi.fn()
     })
@@ -219,7 +219,7 @@ describe('ChatViewImproved', () => {
     })
 
     const chatStore = useChatStore()
-    
+
     // Mock an error condition
     vi.spyOn(chatStore, 'loadChats').mockRejectedValue(new Error('Failed to load chats'))
 

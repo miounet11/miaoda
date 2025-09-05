@@ -95,7 +95,7 @@ export default {
     available: '可用',
     unavailable: '不可用',
     required: '必需',
-    optional: '可选',
+    optional: '可选'
   },
 
   // 应用程序
@@ -111,7 +111,7 @@ export default {
     reconnecting: '正在重新连接...',
     updateAvailable: '有可用更新',
     updateRequired: '需要更新',
-    maintenance: '维护中',
+    maintenance: '维护中'
   },
 
   // 导航
@@ -128,7 +128,7 @@ export default {
     logout: '退出登录',
     menu: '菜单',
     sidebar: '侧边栏',
-    toolbar: '工具栏',
+    toolbar: '工具栏'
   },
 
   // 聊天
@@ -188,7 +188,7 @@ export default {
     // 输入区域控制
     enterToSend: '发送',
     shiftEnterToNewline: '换行',
-    searchShortcut: '搜索',
+    searchShortcut: '搜索'
   },
 
   // 消息
@@ -217,7 +217,7 @@ export default {
     warning: '警告',
     info: '信息',
     debug: '调试',
-    trace: '跟踪',
+    trace: '跟踪'
   },
 
   // 搜索
@@ -328,7 +328,7 @@ export default {
     pageInfo: '第 {current} 页，共 {total} 页',
     toggleFullscreen: '切换全屏',
     goToChat: '转到聊天',
-    metadata: '元数据',
+    metadata: '元数据'
   },
 
   // 语音
@@ -416,7 +416,7 @@ export default {
     noMatch: '无匹配',
     notAllowed: '不允许',
     serviceNotAllowed: '服务不允许',
-    networkFailure: '网络故障',
+    networkFailure: '网络故障'
   },
 
   // 插件系统
@@ -528,7 +528,7 @@ export default {
       error: '错误',
       loading: '加载中',
       installing: '安装中',
-      updating: '更新中',
+      updating: '更新中'
     },
     pluginCategory: {
       productivity: '效率工具',
@@ -538,7 +538,7 @@ export default {
       education: '教育',
       social: '社交',
       customization: '个性化',
-      integration: '集成',
+      integration: '集成'
     },
     permission: {
       storage: '存储访问',
@@ -553,7 +553,7 @@ export default {
       'search.read': '读取搜索数据',
       'search.write': '修改搜索索引',
       'voice.use': '使用语音功能',
-      'mcp.use': '使用MCP工具',
+      'mcp.use': '使用MCP工具'
     },
     sortByName: '按名称排序',
     sortByCategory: '按分类排序',
@@ -572,7 +572,7 @@ export default {
     pluginConsole: '插件控制台',
     pluginLogs: '插件日志',
     clearLogs: '清除日志',
-    exportLogs: '导出日志',
+    exportLogs: '导出日志'
   },
 
   // 设置
@@ -735,7 +735,7 @@ export default {
     openSource: '开源',
     thirdParty: '第三方',
     copyright: '版权',
-    trademark: '商标',
+    trademark: '商标'
   },
 
   // 时间和日期
@@ -770,7 +770,7 @@ export default {
     evening: '晚上',
     night: '夜间',
     midnight: '午夜',
-    noon: '正午',
+    noon: '正午'
   },
 
   // 错误
@@ -819,7 +819,7 @@ export default {
     contactSupport: '联系支持',
     tryAgain: '重试',
     reload: '重新加载',
-    restart: '重启',
+    restart: '重启'
   },
 
   // 验证
@@ -854,6 +854,6 @@ export default {
     validationFailed: '验证失败',
     checkFailed: '检查失败',
     verificationFailed: '验证失败',
-    confirmationRequired: '需要确认',
-  },
+    confirmationRequired: '需要确认'
+  }
 }

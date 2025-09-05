@@ -25,18 +25,21 @@
                 </span>
                 <!-- API状态指示器 -->
                 <div class="api-status" v-if="showApiStatus">
-                  <span
-                    class="api-status-dot"
-                    :class="apiStatusClass"
-                    title="API连接状态"
-                  ></span>
+                  <span class="api-status-dot" :class="apiStatusClass" title="API连接状态"></span>
                   <span class="api-status-text">{{ apiStatusText }}</span>
                 </div>
               </div>
             </div>
             <div class="nav-actions">
               <button @click="toggleDebugPanel" class="nav-btn" title="调试面板">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M9 12l2 2 4-4"></path>
                   <path d="M21 12c-1 0-3-1-3-3s2-3 3-3"></path>
                   <path d="M3 12c1 0 3-1 3-3s-2-3-3-3"></path>
@@ -50,9 +53,18 @@
                 @select-model="handleModelSelect"
               />
               <button @click="showSettings" class="nav-btn" title="设置">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
+                  <path
+                    d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -62,91 +74,172 @@
         <!-- 聊天区域 -->
         <div class="chat-container">
           <div class="messages-area" ref="messagesRef">
-        <!-- 欢迎消息 -->
-        <div v-if="messages.length === 0" class="welcome-message">
-          <div class="welcome-content">
-            <h2>欢迎使用 MiaoDa Chat</h2>
-            <p>我是您的AI助手，可以帮您解答问题、提供建议</p>
-            <div class="quick-questions">
-              <button @click="sendQuickQuestion('今天天气怎么样？')" class="quick-btn">
-                今天天气怎么样？
-              </button>
-              <button @click="sendQuickQuestion('帮我写一份工作总结')" class="quick-btn">
-                帮我写一份工作总结
-              </button>
-              <button @click="sendQuickQuestion('推荐一部好看的电影')" class="quick-btn">
-                推荐一部好看的电影
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 消息列表 -->
-        <div v-for="message in messages" :key="message.id" class="message-item"
-             :class="{ 'user-message': message.role === 'user', 'ai-message': message.role === 'assistant', 'error-message-item': message.isError }">
-          <div class="message-content">
-            <!-- 错误消息特殊显示 -->
-            <div v-if="message.isError" class="error-message">
-              <div class="error-message-header">
-                <span>⚠️</span>
-                <span>AI 服务错误</span>
+            <!-- 欢迎消息 -->
+            <div v-if="messages.length === 0" class="welcome-message">
+              <div class="welcome-content">
+                <h2>欢迎使用 MiaoDa Chat</h2>
+                <p>我是您的AI助手，可以帮您解答问题、提供建议</p>
+                <div class="quick-questions">
+                  <button @click="sendQuickQuestion('今天天气怎么样？')" class="quick-btn">
+                    今天天气怎么样？
+                  </button>
+                  <button @click="sendQuickQuestion('帮我写一份工作总结')" class="quick-btn">
+                    帮我写一份工作总结
+                  </button>
+                  <button @click="sendQuickQuestion('推荐一部好看的电影')" class="quick-btn">
+                    推荐一部好看的电影
+                  </button>
+                </div>
               </div>
-              <div class="error-message-content" v-html="formatErrorMessage(message.content)"></div>
             </div>
-            <!-- 普通消息 -->
-            <div v-else class="message-text" v-html="formatMessage(message.content)"></div>
 
-            <div class="message-meta">
-              <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-              <span v-if="message.responseTime && message.role === 'assistant'" class="response-time">
-                {{ message.responseTime }}
-              </span>
-              <span v-if="message.isError" class="error-badge">错误</span>
+            <!-- 消息列表 -->
+            <div
+              v-for="message in messages"
+              :key="message.id"
+              class="message-item"
+              :class="{
+                'user-message': message.role === 'user',
+                'ai-message': message.role === 'assistant',
+                'error-message-item': message.isError
+              }"
+            >
+              <div class="message-content">
+                <!-- 错误消息特殊显示 -->
+                <div v-if="message.isError" class="error-message">
+                  <div class="error-message-header">
+                    <span>⚠️</span>
+                    <span>AI 服务错误</span>
+                  </div>
+                  <div
+                    class="error-message-content"
+                    v-html="formatErrorMessage(message.content)"
+                  ></div>
+                </div>
+                <!-- 普通消息 -->
+                <div v-else class="message-text" v-html="formatMessage(message.content)"></div>
+
+                <div class="message-meta">
+                  <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+                  <span
+                    v-if="message.responseTime && message.role === 'assistant'"
+                    class="response-time"
+                  >
+                    {{ message.responseTime }}
+                  </span>
+                  <span v-if="message.isError" class="error-badge">错误</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI正在输入 -->
+            <div v-if="isTyping" class="message-item ai-message">
+              <div class="message-content">
+                <div class="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="response-time">正在思考中...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 输入区域 -->
+          <div class="input-area">
+            <div class="input-container">
+              <textarea
+                v-model="inputText"
+                @keydown.enter.exact.prevent="sendMessage"
+                @keydown.enter.shift.exact="addNewLine"
+                placeholder="输入您的问题..."
+                class="message-input"
+                rows="1"
+                ref="inputRef"
+              ></textarea>
+              <button
+                @click="sendMessage"
+                :disabled="!inputText.trim() || isTyping"
+                class="send-btn"
+                :class="{ disabled: !inputText.trim() || isTyping }"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                </svg>
+              </button>
+            </div>
+            <div class="input-footer">
+              <span class="footer-text">支持 Shift+Enter 换行</span>
             </div>
           </div>
         </div>
 
-        <!-- AI正在输入 -->
-        <div v-if="isTyping" class="message-item ai-message">
-          <div class="message-content">
-            <div class="typing-indicator">
-              <span></span>
-              <span></span>
-              <span></span>
+        <!-- 模型切换模态框 -->
+        <div
+          v-if="showModelSwitchModal"
+          class="modal-overlay"
+          @click="showModelSwitchModal = false"
+        >
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>选择AI模型</h3>
+              <button @click="showModelSwitchModal = false" class="modal-close">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
-            <div class="response-time">正在思考中...</div>
+            <div class="modal-body">
+              <div class="model-list">
+                <div
+                  v-for="model in availableModels"
+                  :key="model.value"
+                  @click="switchModel(model.value)"
+                  class="model-option"
+                  :class="{ active: model.value === currentModel }"
+                >
+                  <div class="model-info">
+                    <div class="model-name">{{ model.label }}</div>
+                    <div class="model-description">{{ model.description }}</div>
+                  </div>
+                  <div class="model-status">
+                    <span :class="getModelStatusClass(model.value)" class="status-dot"></span>
+                    <span class="status-text">{{
+                      model.value === 'default' ? '免费' : model.configured ? '已配置' : '未配置'
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 输入区域 -->
-      <div class="input-area">
-        <div class="input-container">
-          <textarea
-            v-model="inputText"
-            @keydown.enter.exact.prevent="sendMessage"
-            @keydown.enter.shift.exact="addNewLine"
-            placeholder="输入您的问题..."
-            class="message-input"
-            rows="1"
-            ref="inputRef"
-          ></textarea>
-          <button
-            @click="sendMessage"
-            :disabled="!inputText.trim() || isTyping"
-            class="send-btn"
-            :class="{ disabled: !inputText.trim() || isTyping }"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22,2 15,22 11,13 2,9"></polygon>
-            </svg>
-          </button>
-        </div>
-        <div class="input-footer">
-          <span class="footer-text">支持 Shift+Enter 换行</span>
-        </div>
-      </div>
+        <!-- 右侧调试面板 -->
+        <aside v-if="showDebugPanel" class="debug-sidebar" :class="{ hidden: !showDebugPanel }">
+          <DebugPanel
+            :request-preview="requestPreview"
+            :actual-request="actualRequest"
+            :response="response"
+            @close="showDebugPanel = false"
+          />
+        </aside>
+      </main>
     </div>
 
     <!-- 模型切换模态框 -->
@@ -155,7 +248,14 @@
         <div class="modal-header">
           <h3>选择AI模型</h3>
           <button @click="showModelSwitchModal = false" class="modal-close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -176,54 +276,9 @@
               </div>
               <div class="model-status">
                 <span :class="getModelStatusClass(model.value)" class="status-dot"></span>
-                <span class="status-text">{{ model.value === 'default' ? '免费' : (model.configured ? '已配置' : '未配置') }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 右侧调试面板 -->
-    <aside v-if="showDebugPanel" class="debug-sidebar" :class="{ hidden: !showDebugPanel }">
-      <DebugPanel
-        :request-preview="requestPreview"
-        :actual-request="actualRequest"
-        :response="response"
-        @close="showDebugPanel = false"
-      />
-    </aside>
-  </main>
-</div>
-
-    <!-- 模型切换模态框 -->
-    <div v-if="showModelSwitchModal" class="modal-overlay" @click="showModelSwitchModal = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>选择AI模型</h3>
-          <button @click="showModelSwitchModal = false" class="modal-close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="model-list">
-            <div
-              v-for="model in availableModels"
-              :key="model.value"
-              @click="switchModel(model.value)"
-              class="model-option"
-              :class="{ active: model.value === currentModel }"
-            >
-              <div class="model-info">
-                <div class="model-name">{{ model.label }}</div>
-                <div class="model-description">{{ model.description }}</div>
-              </div>
-              <div class="model-status">
-                <span :class="getModelStatusClass(model.value)" class="status-dot"></span>
-                <span class="status-text">{{ model.value === 'default' ? '免费' : (model.configured ? '已配置' : '未配置') }}</span>
+                <span class="status-text">{{
+                  model.value === 'default' ? '免费' : model.configured ? '已配置' : '未配置'
+                }}</span>
               </div>
             </div>
           </div>
@@ -328,19 +383,27 @@ interface Model {
 // API状态计算属性
 const apiStatusClass = computed(() => {
   switch (apiStatus.value) {
-    case 'connected': return 'api-status-connected'
-    case 'disconnected': return 'api-status-disconnected'
-    case 'error': return 'api-status-error'
-    default: return 'api-status-checking'
+    case 'connected':
+      return 'api-status-connected'
+    case 'disconnected':
+      return 'api-status-disconnected'
+    case 'error':
+      return 'api-status-error'
+    default:
+      return 'api-status-checking'
   }
 })
 
 const apiStatusText = computed(() => {
   switch (apiStatus.value) {
-    case 'connected': return '已连接'
-    case 'disconnected': return '未配置'
-    case 'error': return '连接错误'
-    default: return '检查中'
+    case 'connected':
+      return '已连接'
+    case 'disconnected':
+      return '未配置'
+    case 'error':
+      return '连接错误'
+    default:
+      return '检查中'
   }
 })
 
@@ -352,15 +415,17 @@ const availableProviders = computed<Provider[]>(() => [
     icon: '🤖',
     isHealthy: true,
     isCustom: false,
-    models: [{
-      id: 'miaoda-chat',
-      displayName: 'MiaoDa AI',
-      description: '内置免费AI，快速响应',
-      contextLength: 2048,
-      capabilities: { chat: true, functions: false, vision: false, streaming: false },
-      performance: { avgResponseTime: 100, quality: 5.0 },
-      status: 'available'
-    }]
+    models: [
+      {
+        id: 'miaoda-chat',
+        displayName: 'MiaoDa AI',
+        description: '内置免费AI，快速响应',
+        contextLength: 2048,
+        capabilities: { chat: true, functions: false, vision: false, streaming: false },
+        performance: { avgResponseTime: 100, quality: 5.0 },
+        status: 'available'
+      }
+    ]
   },
   {
     id: 'openai',
@@ -497,7 +562,8 @@ const simulateAIResponse = async (userInput: string) => {
 
     // 计算响应时间
     const responseTime = Date.now() - responseStartTime.value
-    lastResponseTime.value = responseTime < 1000 ? `${responseTime}ms` : `${(responseTime / 1000).toFixed(1)}s`
+    lastResponseTime.value =
+      responseTime < 1000 ? `${responseTime}ms` : `${(responseTime / 1000).toFixed(1)}s`
 
     const aiMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -527,7 +593,9 @@ const simulateAIResponse = async (userInput: string) => {
 }
 
 // 调用LLM服务
-const callLLMService = async (messageHistory: Array<{role: string, content: string}>): Promise<string> => {
+const callLLMService = async (
+  messageHistory: Array<{ role: string; content: string }>
+): Promise<string> => {
   try {
     console.log('🚀 调用LLM服务 - 当前配置:', {
       providerId: currentProviderId.value,
@@ -627,24 +695,28 @@ const callLLMService = async (messageHistory: Array<{role: string, content: stri
 // 生成默认回复（当LLM服务不可用时）
 const generateFallbackResponse = (userInput: string): string => {
   const responses = [
-    "我理解您的问题。让我来帮您解答...",
-    "这是一个很有趣的问题！根据我的理解...",
-    "谢谢您的提问。我来为您详细解释一下...",
-    "您好！关于这个问题，我可以这样回答...",
-    "我收到了您的问题。让我为您提供一些建议..."
+    '我理解您的问题。让我来帮您解答...',
+    '这是一个很有趣的问题！根据我的理解...',
+    '谢谢您的提问。我来为您详细解释一下...',
+    '您好！关于这个问题，我可以这样回答...',
+    '我收到了您的问题。让我为您提供一些建议...'
   ]
 
   // 根据输入内容生成更相关的回复
   if (userInput.includes('天气')) {
-    return "关于天气问题，我建议您查看本地天气预报应用。不过我可以帮您分析一些通用的天气知识..."
+    return '关于天气问题，我建议您查看本地天气预报应用。不过我可以帮您分析一些通用的天气知识...'
   } else if (userInput.includes('电影') || userInput.includes('推荐')) {
-    return "关于电影推荐，我可以根据您的喜好来建议。不过首先我想了解一下您喜欢哪种类型的电影呢？"
+    return '关于电影推荐，我可以根据您的喜好来建议。不过首先我想了解一下您喜欢哪种类型的电影呢？'
   } else if (userInput.includes('工作') || userInput.includes('总结')) {
-    return "工作总结是一个很好的习惯！我可以帮您梳理一下如何写好工作总结。首先，我们可以从以下几个方面来组织..."
-  } else if (userInput.includes('API') || userInput.includes('配置') || userInput.includes('设置')) {
-    return "关于API配置，我建议您在设置页面中配置相应的API密钥。不同的AI服务提供商（如OpenAI、Claude等）需要不同的配置方式。"
+    return '工作总结是一个很好的习惯！我可以帮您梳理一下如何写好工作总结。首先，我们可以从以下几个方面来组织...'
+  } else if (
+    userInput.includes('API') ||
+    userInput.includes('配置') ||
+    userInput.includes('设置')
+  ) {
+    return '关于API配置，我建议您在设置页面中配置相应的API密钥。不同的AI服务提供商（如OpenAI、Claude等）需要不同的配置方式。'
   } else if (userInput.includes('测试') || userInput.includes('检查')) {
-    return "测试功能很重要的！您可以通过发送消息来测试AI的回复质量。如果使用的是真实API，您会看到智能的个性化回复；如果使用默认模式，您会看到预设的通用回复。"
+    return '测试功能很重要的！您可以通过发送消息来测试AI的回复质量。如果使用的是真实API，您会看到智能的个性化回复；如果使用默认模式，您会看到预设的通用回复。'
   }
 
   return responses[Math.floor(Math.random() * responses.length)]
@@ -750,7 +822,7 @@ const handleModelSelect = async (providerId: string, modelId: string) => {
     // 从增强模型配置服务获取提供商配置
     const { getProviderConfig } = useEnhancedModelConfig()
     const providerConfig = getProviderConfig(providerId)
-    
+
     // 构建激活配置
     const activeConfig = {
       providerId,
@@ -826,11 +898,11 @@ const handleImportConfig = () => {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = '.json'
-  input.onchange = (e) => {
+  input.onchange = e => {
     const file = (e.target as HTMLInputElement).files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const config = JSON.parse(e.target?.result as string)
           if (config.version && config.timestamp) {
@@ -912,8 +984,6 @@ onUnmounted(() => {
 
 /* 使用全局样式系统，组件样式已移至 unified-design-system.css */
 
-
-
 /* 顶部导航 */
 .top-nav {
   height: 60px;
@@ -977,8 +1047,6 @@ onUnmounted(() => {
 .model-offline {
   background: #ef4444;
 }
-
-
 
 .nav-actions {
   display: flex;
@@ -1145,12 +1213,20 @@ onUnmounted(() => {
   animation: typing 1.4s infinite;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: 0s; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.4;
   }
@@ -1427,8 +1503,13 @@ onUnmounted(() => {
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 
   /* 错误消息样式 */

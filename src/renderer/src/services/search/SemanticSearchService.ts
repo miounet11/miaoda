@@ -66,7 +66,7 @@ class SemanticSearchService {
     ['学习', ['学习', '教育', '培训', '课程', '知识']],
     ['工作', ['工作', '职业', '事业', '任务', '项目']],
     ['健康', ['健康', '健身', '运动', '养生', '医疗']],
-    ['美食', ['美食', '烹饪', '菜谱', '食物', '餐饮']],
+    ['美食', ['美食', '烹饪', '菜谱', '食物', '餐饮']]
   ])
 
   private constructor() {
@@ -138,7 +138,7 @@ class SemanticSearchService {
       entities: this.extractEntities(query),
       keywords: this.extractKeywords(query),
       expandedQueries: [],
-      sentiment: this.analyzeSentiment(query),
+      sentiment: this.analyzeSentiment(query)
     }
 
     // 缓存分析结果
@@ -152,23 +152,38 @@ class SemanticSearchService {
     const lowerQuery = query.toLowerCase()
 
     // 问题模式
-    if (lowerQuery.includes('什么') || lowerQuery.includes('为什么') ||
-        lowerQuery.includes('怎么') || lowerQuery.includes('如何') ||
-        lowerQuery.includes('吗') || lowerQuery.includes('呢') ||
-        lowerQuery.includes('?') || lowerQuery.includes('？')) {
+    if (
+      lowerQuery.includes('什么') ||
+      lowerQuery.includes('为什么') ||
+      lowerQuery.includes('怎么') ||
+      lowerQuery.includes('如何') ||
+      lowerQuery.includes('吗') ||
+      lowerQuery.includes('呢') ||
+      lowerQuery.includes('?') ||
+      lowerQuery.includes('？')
+    ) {
       return 'question'
     }
 
     // 命令模式
-    if (lowerQuery.includes('帮我') || lowerQuery.includes('请') ||
-        lowerQuery.includes('生成') || lowerQuery.includes('创建') ||
-        lowerQuery.includes('打开') || lowerQuery.includes('执行')) {
+    if (
+      lowerQuery.includes('帮我') ||
+      lowerQuery.includes('请') ||
+      lowerQuery.includes('生成') ||
+      lowerQuery.includes('创建') ||
+      lowerQuery.includes('打开') ||
+      lowerQuery.includes('执行')
+    ) {
       return 'command'
     }
 
     // 搜索模式
-    if (lowerQuery.includes('搜索') || lowerQuery.includes('查找') ||
-        lowerQuery.includes('找') || lowerQuery.includes('查')) {
+    if (
+      lowerQuery.includes('搜索') ||
+      lowerQuery.includes('查找') ||
+      lowerQuery.includes('找') ||
+      lowerQuery.includes('查')
+    ) {
       return 'search'
     }
 
@@ -177,7 +192,9 @@ class SemanticSearchService {
   }
 
   // 提取实体
-  private extractEntities(query: string): Array<{ type: string; value: string; confidence: number }> {
+  private extractEntities(
+    query: string
+  ): Array<{ type: string; value: string; confidence: number }> {
     const entities: Array<{ type: string; value: string; confidence: number }> = []
 
     // 时间实体
@@ -185,7 +202,7 @@ class SemanticSearchService {
       /今天|明天|昨天|本周|上周|下周|本月|上月|下月/g,
       /\d{4}年\d{1,2}月\d{1,2}日/g,
       /\d{1,2}月\d{1,2}日/g,
-      /\d{1,2}:\d{2}/g,
+      /\d{1,2}:\d{2}/g
     ]
 
     timePatterns.forEach(pattern => {
@@ -195,16 +212,14 @@ class SemanticSearchService {
           entities.push({
             type: 'time',
             value: match,
-            confidence: 0.9,
+            confidence: 0.9
           })
         })
       }
     })
 
     // 地点实体
-    const locationPatterns = [
-      /北京|上海|广州|深圳|杭州|成都|武汉|西安|南京|重庆/g,
-    ]
+    const locationPatterns = [/北京|上海|广州|深圳|杭州|成都|武汉|西安|南京|重庆/g]
 
     locationPatterns.forEach(pattern => {
       const matches = query.match(pattern)
@@ -213,7 +228,7 @@ class SemanticSearchService {
           entities.push({
             type: 'location',
             value: match,
-            confidence: 0.85,
+            confidence: 0.85
           })
         })
       }
@@ -227,7 +242,7 @@ class SemanticSearchService {
         entities.push({
           type: 'number',
           value: num,
-          confidence: 1.0,
+          confidence: 1.0
         })
       })
     }
@@ -239,13 +254,38 @@ class SemanticSearchService {
   private extractKeywords(query: string): string[] {
     // 移除停用词
     const stopWords = new Set([
-      '的', '了', '在', '是', '我', '你', '他', '她', '它',
-      '这', '那', '有', '和', '与', '或', '但', '因为', '所以',
-      'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
+      '的',
+      '了',
+      '在',
+      '是',
+      '我',
+      '你',
+      '他',
+      '她',
+      '它',
+      '这',
+      '那',
+      '有',
+      '和',
+      '与',
+      '或',
+      '但',
+      '因为',
+      '所以',
+      'the',
+      'a',
+      'an',
+      'is',
+      'are',
+      'was',
+      'were',
+      'be',
+      'been'
     ])
 
     // 分词（简单实现）
-    const words = query.split(/[\s,，。.!！?？;；]+/)
+    const words = query
+      .split(/[\s,，。.!！?？;；]+/)
       .filter(word => word.length > 1 && !stopWords.has(word.toLowerCase()))
 
     return [...new Set(words)]
@@ -335,7 +375,7 @@ class SemanticSearchService {
   // 执行多源搜索
   private async performMultiSourceSearch(
     queries: string[],
-    context: SearchContext,
+    context: SearchContext
   ): Promise<SearchResult[]> {
     const allResults: SearchResult[] = []
 
@@ -365,7 +405,7 @@ class SemanticSearchService {
   // 搜索本地聊天记录
   private async searchLocalChats(
     queries: string[],
-    _context: SearchContext,
+    _context: SearchContext
   ): Promise<SearchResult[]> {
     const results: SearchResult[] = []
 
@@ -384,8 +424,8 @@ class SemanticSearchService {
         timestamp: new Date(),
         metadata: {
           chatId: 'chat_123',
-          messageCount: 10,
-        },
+          messageCount: 10
+        }
       }
       results.push(mockResult)
     })
@@ -396,7 +436,7 @@ class SemanticSearchService {
   // 搜索用户记忆
   private async searchUserMemories(
     queries: string[],
-    _context: SearchContext,
+    _context: SearchContext
   ): Promise<SearchResult[]> {
     const results: SearchResult[] = []
 
@@ -414,8 +454,8 @@ class SemanticSearchService {
           timestamp: memory.timestamp,
           metadata: {
             tags: memory.tags,
-            type: memory.type,
-          },
+            type: memory.type
+          }
         })
       })
     })
@@ -424,20 +464,14 @@ class SemanticSearchService {
   }
 
   // 搜索文件
-  private async searchFiles(
-    _queries: string[],
-    _context: SearchContext,
-  ): Promise<SearchResult[]> {
+  private async searchFiles(_queries: string[], _context: SearchContext): Promise<SearchResult[]> {
     // 这里应该实现实际的文件搜索
     // 暂时返回空数组 (queries 和 context 参数保留给将来实现)
     return []
   }
 
   // 搜索网络
-  private async searchWeb(
-    _queries: string[],
-    _context: SearchContext,
-  ): Promise<SearchResult[]> {
+  private async searchWeb(_queries: string[], _context: SearchContext): Promise<SearchResult[]> {
     // 这里应该调用网络搜索API
     // 暂时返回模拟结果
     const results: SearchResult[] = []
@@ -453,8 +487,8 @@ class SemanticSearchService {
         source: 'web_search',
         timestamp: new Date(),
         metadata: {
-          url: `https://example.com/search?q=${encodeURIComponent(query)}`,
-        },
+          url: `https://example.com/search?q=${encodeURIComponent(query)}`
+        }
       })
     })
 
@@ -465,7 +499,7 @@ class SemanticSearchService {
   private rankByRelevance(
     results: SearchResult[],
     context: SearchContext,
-    analysis: SemanticAnalysis,
+    analysis: SemanticAnalysis
   ): SearchResult[] {
     // 计算每个结果的综合得分
     const scoredResults = results.map(result => {
@@ -515,7 +549,7 @@ class SemanticSearchService {
     return JSON.stringify({
       query: context.query,
       filters: context.filters,
-      limit: context.limit,
+      limit: context.limit
     })
   }
 
@@ -544,7 +578,7 @@ class SemanticSearchService {
         content: `搜索了"${context.query}"并找到相关信息`,
         importance: 3,
         tags: ['search', ...this.extractKeywords(context.query)],
-        source: 'inferred',
+        source: 'inferred'
       })
     }
   }
@@ -606,6 +640,6 @@ export function useSemanticSearch() {
     getSuggestions: (partial: string) => service.getSuggestions(partial),
     getSearchHistory: () => service.getSearchHistory(),
     clearHistory: () => service.clearHistory(),
-    clearCache: () => service.clearCache(),
+    clearCache: () => service.clearCache()
   }
 }

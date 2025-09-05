@@ -61,11 +61,11 @@ export class TestingPerformanceMonitor extends EventEmitter {
       databaseQuery: 50, // ms
       pluginExecution: 500, // ms
       memoryBaseline: 500, // MB
-      ...thresholds,
+      ...thresholds
     }
 
     logger.info('Testing performance monitor initialized', 'TestingPerformanceMonitor', {
-      thresholds: this.thresholds,
+      thresholds: this.thresholds
     })
   }
 
@@ -83,8 +83,8 @@ export class TestingPerformanceMonitor extends EventEmitter {
       testName,
       startMemory: {
         heapUsed: Math.round(startMemory.heapUsed / 1024 / 1024),
-        heapTotal: Math.round(startMemory.heapTotal / 1024 / 1024),
-      },
+        heapTotal: Math.round(startMemory.heapTotal / 1024 / 1024)
+      }
     })
   }
 
@@ -94,7 +94,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
   endTest(
     testId: string,
     status: 'passed' | 'failed' | 'timeout' = 'passed',
-    customMetrics?: Record<string, number>,
+    customMetrics?: Record<string, number>
   ): TestingMetrics | null {
     const testData = this.activeTests.get(testId)
     if (!testData) {
@@ -115,9 +115,9 @@ export class TestingPerformanceMonitor extends EventEmitter {
       memoryUsage: {
         heapUsed: endMemory.heapUsed - testData.startMemory.heapUsed,
         heapTotal: endMemory.heapTotal,
-        external: endMemory.external,
+        external: endMemory.external
       },
-      customMetrics,
+      customMetrics
     }
 
     this.metrics.push(metrics)
@@ -130,7 +130,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
       testId,
       duration: Math.round(duration),
       memoryDelta: Math.round(metrics.memoryUsage.heapUsed / 1024 / 1024),
-      status,
+      status
     })
 
     return metrics
@@ -164,7 +164,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
   async measureAsync<T>(
     operation: () => Promise<T>,
     name: string,
-    timeoutMs: number = 10000,
+    timeoutMs: number = 10000
   ): Promise<{ result: T; metrics: TestingMetrics }> {
     const testId = `async_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
@@ -178,11 +178,12 @@ export class TestingPerformanceMonitor extends EventEmitter {
       result = await Promise.race([
         operation(),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Operation timeout')), timeoutMs),
-        ),
+          setTimeout(() => reject(new Error('Operation timeout')), timeoutMs)
+        )
       ])
     } catch (error) {
-      status = error instanceof Error && error.message === 'Operation timeout' ? 'timeout' : 'failed'
+      status =
+        error instanceof Error && error.message === 'Operation timeout' ? 'timeout' : 'failed'
       throw error
     } finally {
       const metrics = this.endTest(testId, status)!
@@ -201,20 +202,14 @@ export class TestingPerformanceMonitor extends EventEmitter {
       warmupIterations?: number
       threshold?: number
       timeout?: number
-    },
+    }
   ): Promise<BenchmarkResult> {
-    const {
-      name,
-      iterations = 10,
-      warmupIterations = 2,
-      threshold,
-      timeout = 5000,
-    } = options
+    const { name, iterations = 10, warmupIterations = 2, threshold, timeout = 5000 } = options
 
     logger.info('Starting benchmark', 'TestingPerformanceMonitor', {
       name,
       iterations,
-      warmupIterations,
+      warmupIterations
     })
 
     const durations: number[] = []
@@ -254,7 +249,8 @@ export class TestingPerformanceMonitor extends EventEmitter {
     const max = sorted[sorted.length - 1]
 
     // Calculate standard deviation
-    const variance = durations.reduce((sum, d) => sum + Math.pow(d - average, 2), 0) / durations.length
+    const variance =
+      durations.reduce((sum, d) => sum + Math.pow(d - average, 2), 0) / durations.length
     const standardDeviation = Math.sqrt(variance)
 
     // Calculate percentiles
@@ -273,7 +269,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
       percentiles: { p50, p95, p99 },
       memoryDelta,
       status: threshold ? (average <= threshold ? 'pass' : 'fail') : 'pass',
-      threshold,
+      threshold
     }
 
     this.benchmarks.push(result)
@@ -285,7 +281,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
       min: Math.round(min),
       max: Math.round(max),
       status: result.status,
-      memoryDelta: Math.round(memoryDelta / 1024 / 1024),
+      memoryDelta: Math.round(memoryDelta / 1024 / 1024)
     })
 
     return result
@@ -297,7 +293,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
   validatePerformance(
     testName: string,
     duration: number,
-    category: keyof PerformanceThresholds,
+    category: keyof PerformanceThresholds
   ): { passed: boolean; threshold: number; actual: number } {
     const threshold = this.thresholds[category]
     const passed = duration <= threshold
@@ -309,14 +305,14 @@ export class TestingPerformanceMonitor extends EventEmitter {
         testName,
         category,
         threshold,
-        actual: duration,
+        actual: duration
       })
 
       this.emit('threshold-exceeded', {
         testName,
         category,
         threshold,
-        actual: duration,
+        actual: duration
       })
     }
 
@@ -334,19 +330,16 @@ export class TestingPerformanceMonitor extends EventEmitter {
     averageDuration: number
     totalMemoryUsage: number
     thresholdViolations: number
-    } {
+  } {
     const totalTests = this.metrics.length
     const passedTests = this.metrics.filter(m => m.status === 'passed').length
     const failedTests = this.metrics.filter(m => m.status === 'failed').length
     const timeoutTests = this.metrics.filter(m => m.status === 'timeout').length
 
-    const averageDuration = totalTests > 0
-      ? this.metrics.reduce((sum, m) => sum + m.duration, 0) / totalTests
-      : 0
+    const averageDuration =
+      totalTests > 0 ? this.metrics.reduce((sum, m) => sum + m.duration, 0) / totalTests : 0
 
-    const totalMemoryUsage = this.metrics.reduce(
-      (sum, m) => sum + m.memoryUsage.heapUsed, 0,
-    )
+    const totalMemoryUsage = this.metrics.reduce((sum, m) => sum + m.memoryUsage.heapUsed, 0)
 
     const thresholdViolations = this.benchmarks.filter(b => b.status === 'fail').length
 
@@ -357,7 +350,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
       timeoutTests,
       averageDuration,
       totalMemoryUsage,
-      thresholdViolations,
+      thresholdViolations
     }
   }
 
@@ -383,12 +376,12 @@ export class TestingPerformanceMonitor extends EventEmitter {
     metrics: TestingMetrics[]
     benchmarks: BenchmarkResult[]
     summary: any
-    } {
+  } {
     return {
       thresholds: this.thresholds,
       metrics: [...this.metrics],
       benchmarks: [...this.benchmarks],
-      summary: this.getPerformanceSummary(),
+      summary: this.getPerformanceSummary()
     }
   }
 
@@ -407,7 +400,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
 
   private async runBenchmarkIteration<T>(
     operation: () => T | Promise<T>,
-    timeout: number,
+    timeout: number
   ): Promise<number> {
     const startTime = performance.now()
 
@@ -415,8 +408,8 @@ export class TestingPerformanceMonitor extends EventEmitter {
       await Promise.race([
         Promise.resolve(operation()),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Benchmark iteration timeout')), timeout),
-        ),
+          setTimeout(() => reject(new Error('Benchmark iteration timeout')), timeout)
+        )
       ])
     } catch (error) {
       throw error
@@ -442,7 +435,7 @@ export class TestingPerformanceMonitor extends EventEmitter {
  * Global testing performance monitor instance
  */
 export function createTestingPerformanceMonitor(
-  thresholds?: Partial<PerformanceThresholds>,
+  thresholds?: Partial<PerformanceThresholds>
 ): TestingPerformanceMonitor {
   return new TestingPerformanceMonitor(thresholds)
 }

@@ -10,11 +10,16 @@
           aria-label="关闭"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
-      
+
       <!-- 搜索框 -->
       <div class="relative">
         <input
@@ -22,9 +27,19 @@
           type="text"
           placeholder="搜索模型..."
           class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+        <svg
+          class="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-        <svg class="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
 
@@ -35,9 +50,11 @@
           :key="category.key"
           @click="activeCategory = category.key"
           class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
-          :class="activeCategory === category.key 
-            ? 'bg-primary text-primary-foreground' 
-            : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+          :class="
+            activeCategory === category.key
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          "
         >
           <span>{{ category.icon }}</span>
           <span>{{ category.label }}</span>
@@ -61,10 +78,14 @@
               <span class="text-2xl">{{ model.providerIcon }}</span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h4 class="font-medium text-foreground group-hover:text-primary transition-colors">
+                  <h4
+                    class="font-medium text-foreground group-hover:text-primary transition-colors"
+                  >
                     {{ model.displayName }}
                   </h4>
-                  <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">推荐</span>
+                  <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium"
+                    >推荐</span
+                  >
                 </div>
                 <p class="text-sm text-muted-foreground mt-1">{{ model.description }}</p>
                 <div class="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
@@ -81,11 +102,7 @@
       <!-- 分类提供商列表 -->
       <div v-else class="p-4">
         <div class="space-y-6">
-          <div
-            v-for="provider in filteredProviders"
-            :key="provider.id"
-            class="provider-section"
-          >
+          <div v-for="provider in filteredProviders" :key="provider.id" class="provider-section">
             <!-- 提供商头部 -->
             <div class="provider-header flex items-center gap-3 mb-3">
               <span class="text-2xl">{{ provider.icon }}</span>
@@ -98,13 +115,16 @@
                   >
                     {{ getProviderStatusText(provider.id) }}
                   </span>
-                  <span v-if="provider.popular" class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-medium">
+                  <span
+                    v-if="provider.popular"
+                    class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-medium"
+                  >
                     热门
                   </span>
                 </div>
                 <p class="text-sm text-muted-foreground">{{ provider.description }}</p>
               </div>
-              
+
               <!-- 配置按钮 -->
               <button
                 v-if="getProviderStatus(provider.id) === 'unconfigured'"
@@ -124,7 +144,10 @@
             </div>
 
             <!-- 模型列表 -->
-            <div v-if="getProviderStatus(provider.id) === 'configured'" class="models-grid grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div
+              v-if="getProviderStatus(provider.id) === 'configured'"
+              class="models-grid grid grid-cols-1 md:grid-cols-2 gap-3"
+            >
               <div
                 v-for="model in getProviderModels(provider.id)"
                 :key="model.id"
@@ -134,26 +157,39 @@
                 <div class="flex items-start justify-between">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                      <h4 class="font-medium text-foreground group-hover:text-primary transition-colors">
+                      <h4
+                        class="font-medium text-foreground group-hover:text-primary transition-colors"
+                      >
                         {{ model.displayName }}
                       </h4>
-                      <span v-if="model.recommended" class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs">
+                      <span
+                        v-if="model.recommended"
+                        class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs"
+                      >
                         推荐
                       </span>
                     </div>
-                    <p class="text-sm text-muted-foreground mt-1 line-clamp-2">{{ model.description }}</p>
+                    <p class="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {{ model.description }}
+                    </p>
                     <div class="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                       <span>{{ formatContextLength(model.contextLength) }}</span>
                       <span v-if="model.pricing">{{ formatPricing(model.pricing) }}</span>
                     </div>
                   </div>
-                  
+
                   <!-- 能力标签 -->
                   <div class="flex flex-col gap-1 ml-2">
-                    <span v-if="model.capabilities.vision" class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-xs">
+                    <span
+                      v-if="model.capabilities.vision"
+                      class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-xs"
+                    >
                       视觉
                     </span>
-                    <span v-if="model.capabilities.functions" class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs">
+                    <span
+                      v-if="model.capabilities.functions"
+                      class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs"
+                    >
                       函数
                     </span>
                   </div>
@@ -164,8 +200,18 @@
             <!-- 未配置状态 -->
             <div v-else class="text-center py-8">
               <div class="text-muted-foreground">
-                <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  class="w-12 h-12 mx-auto mb-2 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
                 <p class="text-sm">需要配置API密钥才能使用</p>
               </div>
@@ -234,7 +280,7 @@ const recommendedModels = computed(() => getRecommendedModels())
 // 根据分类和搜索过滤提供商
 const filteredProviders = computed(() => {
   let providers = presetProviders.value
-  
+
   // 按分类过滤
   if (activeCategory.value === 'domestic') {
     providers = domesticProviders.value
@@ -243,20 +289,22 @@ const filteredProviders = computed(() => {
   } else if (activeCategory.value === 'local') {
     providers = localProviders.value
   }
-  
+
   // 按搜索关键词过滤
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
-    providers = providers.filter(p => 
-      p.displayName.toLowerCase().includes(query) ||
-      p.description.toLowerCase().includes(query) ||
-      (p.models || []).some(m => 
-        m.displayName.toLowerCase().includes(query) ||
-        m.description.toLowerCase().includes(query)
-      )
+    providers = providers.filter(
+      p =>
+        p.displayName.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        (p.models || []).some(
+          m =>
+            m.displayName.toLowerCase().includes(query) ||
+            m.description.toLowerCase().includes(query)
+        )
     )
   }
-  
+
   return providers
 })
 

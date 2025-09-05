@@ -21,12 +21,9 @@ const DEFAULT_OPTIONS: LoaderOptions = {
 }
 
 // Create optimized async component with proper error handling
-export function createAsyncComponent(
-  loader: AsyncComponentLoader,
-  options: LoaderOptions = {}
-) {
+export function createAsyncComponent(loader: AsyncComponentLoader, options: LoaderOptions = {}) {
   const config = { ...DEFAULT_OPTIONS, ...options }
-  
+
   return defineAsyncComponent({
     loader,
     loadingComponent: LoadingSpinner,
@@ -48,12 +45,12 @@ export function createAsyncComponent(
 // Preload components for better UX
 export class ComponentPreloader {
   private static preloadedComponents = new Set<string>()
-  
+
   static async preload(componentPath: string): Promise<void> {
     if (this.preloadedComponents.has(componentPath)) {
       return
     }
-    
+
     try {
       await import(componentPath)
       this.preloadedComponents.add(componentPath)
@@ -61,7 +58,7 @@ export class ComponentPreloader {
       console.warn(`Failed to preload component ${componentPath}:`, error)
     }
   }
-  
+
   static async preloadCritical(): Promise<void> {
     // Preload critical components that are likely to be used
     const criticalComponents = [
@@ -70,12 +67,10 @@ export class ComponentPreloader {
       '@/components/ui/Toast.vue',
       '@/components/ui/ConfirmDialog.vue'
     ]
-    
-    await Promise.allSettled(
-      criticalComponents.map(component => this.preload(component))
-    )
+
+    await Promise.allSettled(criticalComponents.map(component => this.preload(component)))
   }
-  
+
   static isPreloaded(componentPath: string): boolean {
     return this.preloadedComponents.has(componentPath)
   }
@@ -84,49 +79,41 @@ export class ComponentPreloader {
 // Lazy component factory for common patterns
 export const LazyComponents = {
   // Analytics components (heavy)
-  AnalyticsChart: () => createAsyncComponent(
-    () => import('@/components/analytics/BaseChart.vue'),
-    { delay: 100 }
-  ),
-  
-  ModelUsageChart: () => createAsyncComponent(
-    () => import('@/components/analytics/ModelUsageChart.vue'),
-    { delay: 100 }
-  ),
-  
-  UsageChart: () => createAsyncComponent(
-    () => import('@/components/analytics/UsageChart.vue'),
-    { delay: 100 }
-  ),
-  
+  AnalyticsChart: () =>
+    createAsyncComponent(() => import('@/components/analytics/BaseChart.vue'), { delay: 100 }),
+
+  ModelUsageChart: () =>
+    createAsyncComponent(() => import('@/components/analytics/ModelUsageChart.vue'), {
+      delay: 100
+    }),
+
+  UsageChart: () =>
+    createAsyncComponent(() => import('@/components/analytics/UsageChart.vue'), { delay: 100 }),
+
   // Export components (very heavy)
-  ExportDialog: () => createAsyncComponent(
-    () => import('@/components/export/ExportDialog.vue'),
-    { delay: 300, timeout: 15000 }
-  ),
-  
-  AdvancedExportDialog: () => createAsyncComponent(
-    () => import('@/components/export/AdvancedExportDialog.vue'),
-    { delay: 300, timeout: 15000 }
-  ),
-  
+  ExportDialog: () =>
+    createAsyncComponent(() => import('@/components/export/ExportDialog.vue'), {
+      delay: 300,
+      timeout: 15000
+    }),
+
+  AdvancedExportDialog: () =>
+    createAsyncComponent(() => import('@/components/export/AdvancedExportDialog.vue'), {
+      delay: 300,
+      timeout: 15000
+    }),
+
   // Plugin components (moderate)
-  PluginManager: () => createAsyncComponent(
-    () => import('@/components/plugin/PluginManager.vue'),
-    { delay: 150 }
-  ),
-  
+  PluginManager: () =>
+    createAsyncComponent(() => import('@/components/plugin/PluginManager.vue'), { delay: 150 }),
+
   // Search components (moderate)
-  GlobalSearch: () => createAsyncComponent(
-    () => import('@/components/search/GlobalSearch.vue'),
-    { delay: 150 }
-  ),
-  
+  GlobalSearch: () =>
+    createAsyncComponent(() => import('@/components/search/GlobalSearch.vue'), { delay: 150 }),
+
   // Voice components (heavy due to media APIs)
-  VoiceRecorder: () => createAsyncComponent(
-    () => import('@/components/voice/VoiceRecorder.vue'),
-    { delay: 200 }
-  )
+  VoiceRecorder: () =>
+    createAsyncComponent(() => import('@/components/voice/VoiceRecorder.vue'), { delay: 200 })
 }
 
 export default {

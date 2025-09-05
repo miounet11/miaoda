@@ -40,13 +40,13 @@ vi.mock('electron', () => ({
     removeAllListeners: vi.fn()
   },
   dialog: {
-    showOpenDialog: vi.fn().mockResolvedValue({ 
-      canceled: false, 
-      filePaths: ['/tmp/test.txt'] 
+    showOpenDialog: vi.fn().mockResolvedValue({
+      canceled: false,
+      filePaths: ['/tmp/test.txt']
     }),
-    showSaveDialog: vi.fn().mockResolvedValue({ 
-      canceled: false, 
-      filePath: '/tmp/test.txt' 
+    showSaveDialog: vi.fn().mockResolvedValue({
+      canceled: false,
+      filePath: '/tmp/test.txt'
     }),
     showMessageBox: vi.fn().mockResolvedValue({ response: 0 })
   },
@@ -81,7 +81,7 @@ vi.mock('better-sqlite3', () => {
     exec: vi.fn(),
     close: vi.fn(),
     pragma: vi.fn(),
-    transaction: vi.fn((fn) => fn()),
+    transaction: vi.fn(fn => fn()),
     serialize: vi.fn(),
     backup: vi.fn(),
     function: vi.fn(),
@@ -195,7 +195,7 @@ vi.mock('@anthropic-ai/sdk', () => ({
         content: [{ text: 'Mocked response' }]
       }),
       stream: vi.fn().mockResolvedValue({
-        async* [Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator]() {
           yield { delta: { text: 'Hello' } }
           yield { delta: { text: ' World' } }
         }

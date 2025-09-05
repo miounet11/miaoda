@@ -8,7 +8,7 @@ import type {
   UsageAnalytics,
   ContentAnalytics,
   PerformanceAnalytics,
-  ModelAnalytics,
+  ModelAnalytics
 } from '../../types/analytics'
 
 /**
@@ -35,7 +35,7 @@ export class AnalyticsService {
       usage: this.getUsageAnalytics(timeConstraint, filter),
       content: this.getContentAnalytics(timeConstraint, filter),
       performance: this.getPerformanceAnalytics(timeConstraint, filter),
-      model: this.getModelAnalytics(timeConstraint, filter),
+      model: this.getModelAnalytics(timeConstraint, filter)
     }
   }
 
@@ -53,7 +53,7 @@ export class AnalyticsService {
       .prepare(
         `
       SELECT COUNT(*) as count ${baseQuery}
-    `,
+    `
       )
       .get() as { count: number }
 
@@ -65,7 +65,7 @@ export class AnalyticsService {
       JOIN chats c ON m.chat_id = c.id
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
-    `,
+    `
       )
       .get() as { count: number }
 
@@ -81,7 +81,7 @@ export class AnalyticsService {
         ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
         GROUP BY m.chat_id
       )
-    `,
+    `
       )
       .get() as { avg: number }
 
@@ -91,7 +91,7 @@ export class AnalyticsService {
       SELECT COUNT(*) as count
       FROM chats c
       WHERE c.archived = 1 ${timeConstraint}
-    `,
+    `
       )
       .get() as { count: number }
 
@@ -100,7 +100,7 @@ export class AnalyticsService {
       totalMessages: totalMessages.count,
       averageMessagesPerChat: Math.round((averageMessages.avg || 0) * 100) / 100,
       activeChats: totalChats.count - archivedChats.count,
-      archivedChats: archivedChats.count,
+      archivedChats: archivedChats.count
     }
   }
 
@@ -126,7 +126,7 @@ export class AnalyticsService {
         SUM(LENGTH(m.content)) as total_length
       ${baseQuery}
       GROUP BY m.role
-    `,
+    `
       )
       .all() as Array<{ role: string; count: number; avg_length: number; total_length: number }>
 
@@ -143,7 +143,7 @@ export class AnalyticsService {
       assistantMessages,
       averageMessageLength: Math.round((totalLength / totalMessages) * 100) / 100 || 0,
       totalTokens: estimatedTokens,
-      averageTokensPerMessage: Math.round((estimatedTokens / totalMessages) * 100) / 100 || 0,
+      averageTokensPerMessage: Math.round((estimatedTokens / totalMessages) * 100) / 100 || 0
     }
   }
 
@@ -164,7 +164,7 @@ export class AnalyticsService {
       GROUP BY DATE(c.created_at)
       ORDER BY date DESC
       LIMIT 30
-    `,
+    `
       )
       .all() as Array<{ date: string; count: number }>
 
@@ -182,7 +182,7 @@ export class AnalyticsService {
       GROUP BY DATE(m.created_at)
       ORDER BY date DESC
       LIMIT 30
-    `,
+    `
       )
       .all() as Array<{ date: string; count: number }>
 
@@ -199,7 +199,7 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY hour
       ORDER BY hour
-    `,
+    `
       )
       .all() as Array<{ hour: number; count: number }>
 
@@ -207,13 +207,13 @@ export class AnalyticsService {
     const dailyAverage =
       messagesByDay.length > 0
         ? Math.round(
-          (messagesByDay.reduce((sum, day) => sum + day.count, 0) / messagesByDay.length) * 100,
-        ) / 100
+            (messagesByDay.reduce((sum, day) => sum + day.count, 0) / messagesByDay.length) * 100
+          ) / 100
         : 0
 
     const peakHour = activeHours.reduce((max, hour) => (hour.count > max.count ? hour : max), {
       hour: 0,
-      count: 0,
+      count: 0
     })
 
     // Simple trend calculation
@@ -228,7 +228,7 @@ export class AnalyticsService {
       activeHours,
       peakUsageTime: `${peakHour.hour}:00`,
       dailyAverage,
-      weeklyTrend,
+      weeklyTrend
     }
   }
 
@@ -246,7 +246,7 @@ export class AnalyticsService {
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       AND LENGTH(m.content) > 0
-    `,
+    `
       )
       .all() as Array<{ content: string; role: string }>
 
@@ -278,7 +278,7 @@ export class AnalyticsService {
       'will',
       'would',
       'could',
-      'should',
+      'should'
     ])
 
     messages.forEach(msg => {
@@ -312,7 +312,7 @@ export class AnalyticsService {
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY range
-    `,
+    `
       )
       .all() as Array<{ range: string; count: number }>
 
@@ -323,9 +323,9 @@ export class AnalyticsService {
       sentimentAnalysis: {
         positive: 0,
         neutral: 0,
-        negative: 0,
+        negative: 0
       }, // Could be enhanced with sentiment analysis
-      messageLengthDistribution,
+      messageLengthDistribution
     }
   }
 
@@ -334,7 +334,7 @@ export class AnalyticsService {
    */
   private getPerformanceAnalytics(
     timeConstraint: string,
-    filter: AnalyticsFilter,
+    filter: AnalyticsFilter
   ): PerformanceAnalytics {
     // Error analysis
     const errorStats = this.db
@@ -347,7 +347,7 @@ export class AnalyticsService {
       JOIN chats c ON m.chat_id = c.id
       WHERE 1=1 ${timeConstraint.replace('c.', 'm.')}
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
-    `,
+    `
       )
       .get() as { total_messages: number; error_count: number }
 
@@ -369,7 +369,7 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY m.error
       ORDER BY count DESC
-    `,
+    `
       )
       .all() as Array<{ type: string; count: number }>
 
@@ -379,7 +379,7 @@ export class AnalyticsService {
       successRate: Math.round(successRate * 100) / 100,
       tokenUsageByModel: [], // Would need model tracking in metadata
       responseTimeByModel: [], // Would need response time tracking
-      errorsByType,
+      errorsByType
     }
   }
 
@@ -404,14 +404,14 @@ export class AnalyticsService {
       ${filter.includeArchived ? '' : 'AND (c.archived IS NULL OR c.archived = 0)'}
       GROUP BY 1
       ORDER BY count DESC
-    `,
+    `
       )
       .all() as Array<{ model: string; count: number }>
 
     const totalModelUsage = modelUsage.reduce((sum, m) => sum + m.count, 0)
     const modelUsageWithPercentage = modelUsage.map(m => ({
       ...m,
-      percentage: totalModelUsage > 0 ? Math.round((m.count / totalModelUsage) * 10000) / 100 : 0,
+      percentage: totalModelUsage > 0 ? Math.round((m.count / totalModelUsage) * 10000) / 100 : 0
     }))
 
     return {
@@ -421,8 +421,8 @@ export class AnalyticsService {
         model: m.model,
         avgResponseTime: 0, // Would need response time tracking
         errorRate: 0, // Would need error tracking by model
-        tokenUsage: 0, // Would need token tracking by model
-      })),
+        tokenUsage: 0 // Would need token tracking by model
+      }))
     }
   }
 
@@ -432,15 +432,15 @@ export class AnalyticsService {
   private getTimeConstraint(timeRange: TimeRange): string {
     switch (timeRange) {
       case '24h':
-        return 'AND c.created_at >= datetime(\'now\', \'-1 day\')'
+        return "AND c.created_at >= datetime('now', '-1 day')"
       case '7d':
-        return 'AND c.created_at >= datetime(\'now\', \'-7 days\')'
+        return "AND c.created_at >= datetime('now', '-7 days')"
       case '30d':
-        return 'AND c.created_at >= datetime(\'now\', \'-30 days\')'
+        return "AND c.created_at >= datetime('now', '-30 days')"
       case '90d':
-        return 'AND c.created_at >= datetime(\'now\', \'-90 days\')'
+        return "AND c.created_at >= datetime('now', '-90 days')"
       case '1y':
-        return 'AND c.created_at >= datetime(\'now\', \'-1 year\')'
+        return "AND c.created_at >= datetime('now', '-1 year')"
       case 'all':
       default:
         return ''
@@ -467,7 +467,7 @@ export class AnalyticsService {
          WHERE 1=1 ${timeConstraint.replace('c.created_at', 'm.created_at')}) as total_messages,
         (SELECT COUNT(*) FROM messages m JOIN chats c ON m.chat_id = c.id 
          WHERE DATE(m.created_at) = DATE('now')) as active_today
-    `,
+    `
       )
       .get() as { total_chats: number; total_messages: number; active_today: number }
 
@@ -488,7 +488,7 @@ export class AnalyticsService {
       totalChats: summary.total_chats,
       totalMessages: summary.total_messages,
       activeToday: summary.active_today,
-      averagePerDay: Math.round((summary.total_messages / days) * 100) / 100,
+      averagePerDay: Math.round((summary.total_messages / days) * 100) / 100
     }
   }
 }

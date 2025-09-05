@@ -7,7 +7,7 @@ import type {
   ProviderListItem,
   CustomProviderOperationResult,
   ProviderImportResult,
-  HealthStatus,
+  HealthStatus
 } from '@/types/customProvider'
 
 interface CustomProviderState {
@@ -51,9 +51,9 @@ export const useCustomProvidersStore = defineStore(
             displayName: provider.config.displayName || provider.config.name,
             isHealthy: provider.isHealthy,
             lastChecked: provider.lastChecked?.toISOString(),
-            error: provider.lastError,
-          }) as ProviderListItem,
-      ),
+            error: provider.lastError
+          }) as ProviderListItem
+      )
     )
 
     const healthyProviders = computed(() => providersList.value.filter(p => p.isHealthy))
@@ -72,7 +72,7 @@ export const useCustomProvidersStore = defineStore(
         const cache: CustomProviderCache = {
           providers: providersList.value,
           lastSyncTime: lastSyncTime.value,
-          version: cacheVersion.value,
+          version: cacheVersion.value
         }
         localStorage.setItem(localStorageKey, JSON.stringify(cache))
       } catch (err) {
@@ -97,7 +97,7 @@ export const useCustomProvidersStore = defineStore(
         cache.providers.forEach(provider => {
           providers.value.set(provider.id, {
             ...provider,
-            lastChecked: provider.lastChecked ? new Date(provider.lastChecked) : null,
+            lastChecked: provider.lastChecked ? new Date(provider.lastChecked) : null
           })
         })
 
@@ -134,7 +134,7 @@ export const useCustomProvidersStore = defineStore(
               status: 'unknown',
               lastChecked: null,
               lastError: null,
-              isHealthy: false,
+              isHealthy: false
             })
           })
 
@@ -152,7 +152,7 @@ export const useCustomProvidersStore = defineStore(
     }
 
     const addProvider = async (
-      formData: CustomProviderFormData,
+      formData: CustomProviderFormData
     ): Promise<CustomProviderOperationResult> => {
       // Validate form data first
       const validationErrors = customProviderService.validateProviderConfig(formData)
@@ -160,7 +160,7 @@ export const useCustomProvidersStore = defineStore(
         error.value = validationErrors.join('; ')
         return {
           success: false,
-          error: error.value,
+          error: error.value
         }
       }
 
@@ -178,7 +178,7 @@ export const useCustomProvidersStore = defineStore(
             status: 'unknown',
             lastChecked: null,
             lastError: null,
-            isHealthy: false,
+            isHealthy: false
           })
 
           // Perform initial health check
@@ -188,7 +188,7 @@ export const useCustomProvidersStore = defineStore(
 
           return {
             success: true,
-            id: config.id,
+            id: config.id
           }
         } else {
           throw new Error(result.error || 'Failed to create provider')
@@ -198,7 +198,7 @@ export const useCustomProvidersStore = defineStore(
         error.value = message
         return {
           success: false,
-          error: message,
+          error: message
         }
       } finally {
         loading.value = false
@@ -207,13 +207,13 @@ export const useCustomProvidersStore = defineStore(
 
     const updateProvider = async (
       id: string,
-      formData: Partial<CustomProviderFormData>,
+      formData: Partial<CustomProviderFormData>
     ): Promise<CustomProviderOperationResult> => {
       const existingProvider = providers.value.get(id)
       if (!existingProvider) {
         return {
           success: false,
-          error: 'Provider not found',
+          error: 'Provider not found'
         }
       }
 
@@ -232,7 +232,7 @@ export const useCustomProvidersStore = defineStore(
             status: 'unknown',
             lastChecked: null,
             lastError: null,
-            isHealthy: false,
+            isHealthy: false
           })
 
           // Perform health check with updated config
@@ -242,7 +242,7 @@ export const useCustomProvidersStore = defineStore(
 
           return {
             success: true,
-            id,
+            id
           }
         } else {
           throw new Error(result.error || 'Failed to update provider')
@@ -252,7 +252,7 @@ export const useCustomProvidersStore = defineStore(
         error.value = message
         return {
           success: false,
-          error: message,
+          error: message
         }
       } finally {
         loading.value = false
@@ -263,7 +263,7 @@ export const useCustomProvidersStore = defineStore(
       if (!providers.value.has(id)) {
         return {
           success: false,
-          error: 'Provider not found',
+          error: 'Provider not found'
         }
       }
 
@@ -278,7 +278,7 @@ export const useCustomProvidersStore = defineStore(
           saveToCache()
 
           return {
-            success: true,
+            success: true
           }
         } else {
           throw new Error(result.error || 'Failed to delete provider')
@@ -288,7 +288,7 @@ export const useCustomProvidersStore = defineStore(
         error.value = message
         return {
           success: false,
-          error: message,
+          error: message
         }
       } finally {
         loading.value = false
@@ -366,7 +366,7 @@ export const useCustomProvidersStore = defineStore(
       const exportData = {
         providers: providersList.value.map(p => p.config),
         exportedAt: new Date().toISOString(),
-        version: '1.0',
+        version: '1.0'
       }
 
       return JSON.stringify(exportData, null, 2)
@@ -376,7 +376,7 @@ export const useCustomProvidersStore = defineStore(
       const result: ProviderImportResult = {
         success: 0,
         failed: 0,
-        errors: [],
+        errors: []
       }
 
       try {
@@ -397,7 +397,7 @@ export const useCustomProvidersStore = defineStore(
               model: config.model || config.models?.[0] || '',
               type: config.type || 'openai-compatible',
               headers: config.headers,
-              parameters: config.parameters,
+              parameters: config.parameters
             }
 
             const addResult = await addProvider(formData)
@@ -411,14 +411,14 @@ export const useCustomProvidersStore = defineStore(
           } catch (err) {
             result.failed++
             result.errors.push(
-              `${config.name || 'Unknown provider'}: ${err instanceof Error ? err.message : 'Import failed'}`,
+              `${config.name || 'Unknown provider'}: ${err instanceof Error ? err.message : 'Import failed'}`
             )
           }
         }
       } catch (err) {
         result.failed++
         result.errors.push(
-          `Parse error: ${err instanceof Error ? err.message : 'Invalid JSON format'}`,
+          `Parse error: ${err instanceof Error ? err.message : 'Invalid JSON format'}`
         )
       }
 
@@ -487,7 +487,7 @@ export const useCustomProvidersStore = defineStore(
       () => {
         saveToCache()
       },
-      { deep: true },
+      { deep: true }
     )
 
     // Cleanup on store disposal
@@ -530,14 +530,14 @@ export const useCustomProvidersStore = defineStore(
       dispose,
 
       // Cache management
-      clearCache,
+      clearCache
     }
   },
   {
     persist: {
       key: 'custom-providers-store',
       paths: ['lastSyncTime'],
-      storage: localStorage,
-    },
-  } as any,
+      storage: localStorage
+    }
+  } as any
 )

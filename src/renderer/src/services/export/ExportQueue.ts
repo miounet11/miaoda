@@ -64,7 +64,7 @@ export class ExportQueue {
     name: string,
     options: ExportOptions,
     priority: 'low' | 'normal' | 'high' = 'normal',
-    maxRetries: number = 3,
+    maxRetries: number = 3
   ): string {
     const taskId = this.generateTaskId()
     const task: ExportTask = {
@@ -76,7 +76,7 @@ export class ExportQueue {
       createdAt: new Date(),
       priority,
       retryCount: 0,
-      maxRetries,
+      maxRetries
     }
 
     this.tasks.set(taskId, task)
@@ -222,7 +222,7 @@ export class ExportQueue {
       running: 0,
       completed: 0,
       failed: 0,
-      cancelled: 0,
+      cancelled: 0
     }
 
     for (const task of this.tasks.values()) {
@@ -332,9 +332,9 @@ export class ExportQueue {
       const result = await this.taskCallback({
         ...task,
         options: {
-          ...task.options,
+          ...task.options
           // Add progress callback to options if supported
-        },
+        }
       })
 
       // Task completed successfully
@@ -429,7 +429,7 @@ export class ExportQueue {
 
     // Estimate based on completed tasks average time
     const completedTasks = Array.from(this.tasks.values()).filter(
-      task => task.status === 'completed' && task.startedAt && task.completedAt,
+      task => task.status === 'completed' && task.startedAt && task.completedAt
     )
 
     let averageTime = 30000 // Default 30 seconds

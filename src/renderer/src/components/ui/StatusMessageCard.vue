@@ -17,7 +17,10 @@
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1">
           <h4 class="font-medium text-sm leading-tight">{{ props.message.title }}</h4>
-          <p v-if="props.message.message" class="text-sm text-muted-foreground mt-1 leading-relaxed">
+          <p
+            v-if="props.message.message"
+            class="text-sm text-muted-foreground mt-1 leading-relaxed"
+          >
             {{ props.message.message }}
           </p>
         </div>
@@ -55,14 +58,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-  Loader,
-  X
-} from 'lucide-vue-next'
+import { CheckCircle, XCircle, AlertTriangle, Info, Loader, X } from 'lucide-vue-next'
 import type { StatusMessage } from '@/services/StatusFeedbackService'
 
 // Props
@@ -80,12 +76,18 @@ const emit = defineEmits<{
 // 计算属性
 const iconComponent = computed(() => {
   switch (props.message.type) {
-    case 'success': return CheckCircle
-    case 'error': return XCircle
-    case 'warning': return AlertTriangle
-    case 'info': return Info
-    case 'loading': return Loader
-    default: return Info
+    case 'success':
+      return CheckCircle
+    case 'error':
+      return XCircle
+    case 'warning':
+      return AlertTriangle
+    case 'info':
+      return Info
+    case 'loading':
+      return Loader
+    default:
+      return Info
   }
 })
 
@@ -110,12 +112,18 @@ const cardClasses = computed(() => {
 
 const iconClasses = computed(() => {
   switch (props.message.type) {
-    case 'success': return 'text-green-600 dark:text-green-400'
-    case 'error': return 'text-red-600 dark:text-red-400'
-    case 'warning': return 'text-yellow-600 dark:text-yellow-400'
-    case 'info': return 'text-blue-600 dark:text-blue-400'
-    case 'loading': return 'text-blue-600 dark:text-blue-400 animate-spin'
-    default: return 'text-muted-foreground'
+    case 'success':
+      return 'text-green-600 dark:text-green-400'
+    case 'error':
+      return 'text-red-600 dark:text-red-400'
+    case 'warning':
+      return 'text-yellow-600 dark:text-yellow-400'
+    case 'info':
+      return 'text-blue-600 dark:text-blue-400'
+    case 'loading':
+      return 'text-blue-600 dark:text-blue-400 animate-spin'
+    default:
+      return 'text-muted-foreground'
   }
 })
 

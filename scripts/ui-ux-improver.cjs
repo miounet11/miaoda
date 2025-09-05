@@ -23,7 +23,7 @@ class UIUXImprover {
       semanticImprovements: 0,
       formImprovements: 0,
       errorStateImprovements: 0,
-      animationImprovements: 0,
+      animationImprovements: 0
     }
   }
 
@@ -89,7 +89,6 @@ class UIUXImprover {
       }
 
       this.stats.filesProcessed++
-
     } catch (error) {
       console.error(`❌ 改进组件失败: ${filePath}`, error.message)
     }
@@ -167,7 +166,10 @@ class UIUXImprover {
     scroll-behavior: auto !important;
   }
 }`
-        content = content.replace(styleMatch[0], `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`)
+        content = content.replace(
+          styleMatch[0],
+          `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`
+        )
         modified = true
       }
     }
@@ -318,7 +320,10 @@ class UIUXImprover {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }`
-        content = content.replace(styleMatch[0], `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`)
+        content = content.replace(
+          styleMatch[0],
+          `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`
+        )
         modified = true
       }
     }
@@ -344,7 +349,11 @@ class UIUXImprover {
     const template = templateMatch[1]
 
     // 1. 添加错误状态的视觉反馈
-    if (template.includes('error') || template.includes('catch') || componentName.includes('Error')) {
+    if (
+      template.includes('error') ||
+      template.includes('catch') ||
+      componentName.includes('Error')
+    ) {
       const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/)
       if (styleMatch) {
         let styles = styleMatch[1]
@@ -399,7 +408,10 @@ class UIUXImprover {
 .error-retry-btn:hover {
   background-color: hsl(0 84% 60% / 0.9);
 }`
-          content = content.replace(styleMatch[0], `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`)
+          content = content.replace(
+            styleMatch[0],
+            `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`
+          )
           modified = true
         }
       }
@@ -500,7 +512,10 @@ class UIUXImprover {
 .success-animation {
   animation: success-bounce 1s ease;
 }`
-      content = content.replace(styleMatch[0], `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`)
+      content = content.replace(
+        styleMatch[0],
+        `<style${styleMatch[0].match(/<style[^>]*>/)[0]}${styles}</style>`
+      )
       modified = true
       result.modified = true
       result.content = content
@@ -525,11 +540,12 @@ class UIUXImprover {
     console.log(`   错误状态改进: ${this.stats.errorStateImprovements}`)
     console.log(`   动画改进: ${this.stats.animationImprovements}`)
 
-    const totalImprovements = this.stats.accessibilityImprovements +
-                             this.stats.semanticImprovements +
-                             this.stats.formImprovements +
-                             this.stats.errorStateImprovements +
-                             this.stats.animationImprovements
+    const totalImprovements =
+      this.stats.accessibilityImprovements +
+      this.stats.semanticImprovements +
+      this.stats.formImprovements +
+      this.stats.errorStateImprovements +
+      this.stats.animationImprovements
 
     console.log(`\n🏆 总改进数: ${totalImprovements}`)
 

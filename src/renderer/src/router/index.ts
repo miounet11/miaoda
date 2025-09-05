@@ -5,27 +5,50 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'chat',
-    component: () => import('@/views/SimpleChatView.vue'),
+    name: 'chatbox',
+    component: () => import('@/views/ChatboxLayoutView.vue'),
     meta: {
-      title: 'Chat',
-      preload: true, // Preload this route
-    },
+      title: 'Chatbox',
+      preload: true // Preload this route
+    }
+  },
+  {
+    path: '/legacy',
+    name: 'legacy-chat',
+    component: () => import('@/layouts/ChatBoxLayout.vue'),
+    meta: {
+      title: 'ChatBox (Legacy)',
+      preload: false
+    }
   },
   {
     path: '/settings',
     name: 'settings',
-    component: () => import('@/views/SimpleSettingsView.vue'),
+    component: () => import('@/views/ChatBoxSettingsView.vue'),
     meta: {
       title: 'Settings',
-      preload: false, // Load on demand
-    },
+      preload: false // Load on demand
+    }
   },
+  {
+    path: '/settings/providers',
+    name: 'provider-settings',
+    component: () => import('@/views/ProviderSettings.vue'),
+    meta: {
+      title: 'Provider Settings',
+      preload: false
+    }
+  },
+  // Legacy route - redirect to new chatbox interface
+  {
+    path: '/old-chat',
+    redirect: '/'
+  }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes,
+  routes
 })
 
 // Route-level preloading optimization
@@ -33,11 +56,12 @@ router.beforeEach(async (to, from, next) => {
   // Preload critical routes on first navigation
   if (to.meta?.preload && from.name === undefined) {
     try {
-      // Force preload critical components
+      // Force preload critical components for ChatBox interface
       await Promise.all([
-        import('@/components/chat/ChatMessages.vue'),
-        import('@/components/chat/ChatInput.vue'),
-        import('@/components/chat/ModelConfigPanel.vue'),
+        import('@/components/chatbox/ChatView.vue'),
+        import('@/components/chatbox/ChatMessages.vue'),
+        import('@/components/chatbox/ChatInput.vue'),
+        import('@/components/chatbox/AppSidebar.vue')
       ])
     } catch (error) {
       console.warn('Failed to preload components:', error)
